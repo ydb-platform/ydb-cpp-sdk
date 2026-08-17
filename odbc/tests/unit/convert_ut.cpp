@@ -41,7 +41,7 @@ TEST(OdbcConvert, Int64ToYdb) {
     CheckProto(value->GetProto(), "int64_value: 42\n");
 }
 
-TEST(OdbcConvert, UnsignedCToSignedSqlBigint) {
+TEST(OdbcConvert, UnsignedCSelectsYdbUnsignedType) {
     SQLUBIGINT v = 123;
     TBoundParam param{
         1, SQL_PARAM_INPUT, SQL_C_UBIGINT, SQL_BIGINT, 0, 0, &v, sizeof(v), nullptr
@@ -51,8 +51,36 @@ TEST(OdbcConvert, UnsignedCToSignedSqlBigint) {
     auto params = paramsBuilder.Build();
     auto value = params.GetValue("$p1");
     ASSERT_TRUE(value);
-    CheckProto(value->GetType().GetProto(), "optional_type {\n  item {\n    type_id: INT64\n  }\n}\n");
-    CheckProto(value->GetProto(), "int64_value: 123\n");
+    CheckProto(value->GetType().GetProto(), "optional_type {\n  item {\n    type_id: UINT64\n  }\n}\n");
+    CheckProto(value->GetProto(), "uint64_value: 123\n");
+}
+
+TEST(OdbcConvert, WideStringToYdbUtf8) {
+    SQLWCHAR text[] = {'h', 'e', 'l', 'l', 'o', 0};
+    SQLLEN length = SQL_NTS;
+    TBoundParam param{
+        1, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WVARCHAR, 0, 0,
+        text, sizeof(text), &length
+    };
+    TParamsBuilder paramsBuilder;
+    ASSERT_EQ(ConvertParam(param, paramsBuilder.AddParam("$p1")), SQL_SUCCESS);
+    const auto value = paramsBuilder.Build().GetValue("$p1");
+    ASSERT_TRUE(value);
+    CheckProto(value->GetType().GetProto(), "optional_type {\n  item {\n    type_id: UTF8\n  }\n}\n");
+    CheckProto(value->GetProto(), "text_value: \"hello\"\n");
+}
+
+TEST(OdbcConvert, TimestampStructToYdbTimestamp) {
+    SQL_TIMESTAMP_STRUCT timestamp{2024, 6, 15, 14, 30, 20, 123456000};
+    TBoundParam param{
+        1, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0,
+        &timestamp, sizeof(timestamp), nullptr
+    };
+    TParamsBuilder paramsBuilder;
+    ASSERT_EQ(ConvertParam(param, paramsBuilder.AddParam("$p1")), SQL_SUCCESS);
+    const auto value = paramsBuilder.Build().GetValue("$p1");
+    ASSERT_TRUE(value);
+    CheckProto(value->GetType().GetProto(), "optional_type {\n  item {\n    type_id: TIMESTAMP\n  }\n}\n");
 }
 
 TEST(OdbcConvert, DoubleToYdb) {

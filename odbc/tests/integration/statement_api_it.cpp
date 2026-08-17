@@ -1,6 +1,8 @@
 #include "test_utils.h"
 
 #include <cmath>
+#include <cstring>
+#include <limits>
 
 #ifndef SQL_ATTR_METADATA_ID
 #define SQL_ATTR_METADATA_ID 10029
@@ -729,6 +731,57 @@ TEST(StatementApi, EscapeSequenceTimestamp) {
     SQLFreeHandle(SQL_HANDLE_ENV, env);
 }
 
+TEST(StatementApi, CurrentUtcTimestampConversion) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+
+    SQLExecDirect(stmt,
+        (SQLCHAR*)"DROP TABLE IF EXISTS test_current_timestamp_conversion", SQL_NTS);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"CREATE TABLE test_current_timestamp_conversion ("
+                  "id Int32, value Timestamp, PRIMARY KEY (id))", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"INSERT INTO test_current_timestamp_conversion (id, value) "
+                  "VALUES (1, CurrentUtcTimestamp())", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"SELECT id, value FROM test_current_timestamp_conversion WHERE id = 1", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
+
+    SQLCHAR columnName[32] = {};
+    SQLSMALLINT nameLength = 0;
+    SQLSMALLINT dataType = 0;
+    SQLULEN columnSize = 0;
+    SQLSMALLINT decimalDigits = 0;
+    SQLSMALLINT nullable = 0;
+    CHECK_ODBC_OK(SQLDescribeCol(stmt, 2, columnName, sizeof(columnName), &nameLength,
+                                &dataType, &columnSize, &decimalDigits, &nullable),
+                  stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(dataType, SQL_TYPE_TIMESTAMP);
+
+    SQL_TIMESTAMP_STRUCT value{};
+    SQLLEN indicator = 0;
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLGetData(stmt, 2, SQL_C_TIMESTAMP, &value, 0, &indicator),
+                  stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(indicator, static_cast<SQLLEN>(sizeof(value)));
+    EXPECT_GE(value.year, 2026);
+    EXPECT_GE(value.month, 1);
+    EXPECT_LE(value.month, 12);
+
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
 TEST(StatementApi, NumericOutOfRange) {
     SQLHENV env;
     SQLHDBC dbc;
@@ -796,6 +849,147 @@ TEST(StatementApi, SqlCBit) {
     ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
     ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_BIT, &bitVal, sizeof(bitVal), &ind), SQL_SUCCESS);
     ASSERT_EQ(bitVal, 0);
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(StatementApi, CoreBoundTypeConversions) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE IF EXISTS test_bound_types", SQL_NTS);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"CREATE TABLE test_bound_types ("
+                  "id Int32, u64 Uint64, text Utf8, bytes String, d Date, "
+                  "tm Datetime, ts Timestamp, dec Decimal(18, 5), PRIMARY KEY (id))",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLPrepare(stmt,
+        (SQLCHAR*)"INSERT INTO test_bound_types "
+                  "(id, u64, text, bytes, d, tm, ts, dec) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+
+    SQLINTEGER id = 1;
+    SQLUBIGINT u64 = std::numeric_limits<SQLUBIGINT>::max();
+    SQLWCHAR text[] = {'Y', 'D', 'B', 0};
+    char bytes[] = {'a', '\0', 'b', 'c'};
+    SQL_DATE_STRUCT date{2024, 6, 15};
+    SQL_TIME_STRUCT time{14, 30, 20};
+    SQL_TIMESTAMP_STRUCT timestamp{2024, 6, 15, 14, 30, 20, 123456000};
+    SQLDOUBLE decimal = 123.456;
+    SQLLEN textLength = SQL_NTS;
+    SQLLEN bytesLength = sizeof(bytes);
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER,
+                                   0, 0, &id, 0, nullptr), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 2, SQL_PARAM_INPUT, SQL_C_UBIGINT, SQL_BIGINT,
+                                   0, 0, &u64, 0, nullptr), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 3, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WVARCHAR,
+                                   3, 0, text, sizeof(text), &textLength), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 4, SQL_PARAM_INPUT, SQL_C_BINARY, SQL_VARBINARY,
+                                   sizeof(bytes), 0, bytes, sizeof(bytes), &bytesLength), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 5, SQL_PARAM_INPUT, SQL_C_TYPE_DATE, SQL_TYPE_DATE,
+                                   0, 0, &date, 0, nullptr), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 6, SQL_PARAM_INPUT, SQL_C_TYPE_TIME, SQL_TYPE_TIME,
+                                   0, 0, &time, 0, nullptr), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 7, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP,
+                                   0, 0, &timestamp, 0, nullptr), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 8, SQL_PARAM_INPUT, SQL_C_DOUBLE, SQL_DECIMAL,
+                                   18, 5, &decimal, 0, nullptr), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
+    SQLFreeStmt(stmt, SQL_RESET_PARAMS);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"SELECT u64, text, bytes, d, tm, ts, dec, dec AS dec_text "
+                  "FROM test_bound_types WHERE id = 1",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    SQLCHAR columnName[32] = {};
+    SQLSMALLINT nameLength = 0;
+    SQLSMALLINT describedType = 0;
+    SQLULEN columnSize = 0;
+    SQLSMALLINT decimalDigits = 0;
+    SQLSMALLINT nullable = 0;
+    CHECK_ODBC_OK(SQLDescribeCol(stmt, 5, columnName, sizeof(columnName), &nameLength,
+                                &describedType, &columnSize, &decimalDigits, &nullable),
+                  stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(describedType, SQL_TYPE_TIME);
+    CHECK_ODBC_OK(SQLDescribeCol(stmt, 6, columnName, sizeof(columnName), &nameLength,
+                                &describedType, &columnSize, &decimalDigits, &nullable),
+                  stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(describedType, SQL_TYPE_TIMESTAMP);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    SQLUBIGINT fetchedU64 = 0;
+    SQLWCHAR fetchedText[4] = {};
+    char fetchedBytes[4] = {};
+    SQL_DATE_STRUCT fetchedDate{};
+    SQL_TIME_STRUCT fetchedTime{};
+    SQL_TIMESTAMP_STRUCT fetchedTimestamp{};
+    SQLDOUBLE fetchedDecimal = 0;
+    char fetchedDecimalText[32] = {};
+    SQLLEN indicator = 0;
+    ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_UBIGINT, &fetchedU64, sizeof(fetchedU64), &indicator), SQL_SUCCESS);
+    ASSERT_EQ(SQLGetData(stmt, 2, SQL_C_WCHAR, fetchedText, sizeof(fetchedText), &indicator), SQL_SUCCESS);
+    ASSERT_EQ(SQLGetData(stmt, 3, SQL_C_BINARY, fetchedBytes, sizeof(fetchedBytes), &indicator), SQL_SUCCESS);
+    EXPECT_EQ(indicator, static_cast<SQLLEN>(sizeof(bytes)));
+    ASSERT_EQ(SQLGetData(stmt, 4, SQL_C_TYPE_DATE, &fetchedDate, sizeof(fetchedDate), &indicator), SQL_SUCCESS);
+    ASSERT_EQ(SQLGetData(stmt, 5, SQL_C_TYPE_TIME, &fetchedTime, sizeof(fetchedTime), &indicator), SQL_SUCCESS);
+    ASSERT_EQ(SQLGetData(stmt, 6, SQL_C_TYPE_TIMESTAMP, &fetchedTimestamp, sizeof(fetchedTimestamp), &indicator), SQL_SUCCESS);
+    ASSERT_EQ(SQLGetData(stmt, 7, SQL_C_DOUBLE, &fetchedDecimal, sizeof(fetchedDecimal), &indicator), SQL_SUCCESS);
+    ASSERT_EQ(SQLGetData(stmt, 8, SQL_C_CHAR, fetchedDecimalText, sizeof(fetchedDecimalText), &indicator), SQL_SUCCESS);
+
+    EXPECT_EQ(fetchedU64, u64);
+    EXPECT_EQ(fetchedText[0], 'Y');
+    EXPECT_EQ(fetchedText[1], 'D');
+    EXPECT_EQ(fetchedText[2], 'B');
+    EXPECT_EQ(std::memcmp(fetchedBytes, bytes, sizeof(bytes)), 0);
+    EXPECT_EQ(fetchedDate.year, date.year);
+    EXPECT_EQ(fetchedDate.month, date.month);
+    EXPECT_EQ(fetchedDate.day, date.day);
+    EXPECT_EQ(fetchedTime.hour, time.hour);
+    EXPECT_EQ(fetchedTime.minute, time.minute);
+    EXPECT_EQ(fetchedTime.second, time.second);
+    EXPECT_EQ(fetchedTimestamp.fraction, timestamp.fraction);
+    EXPECT_NEAR(fetchedDecimal, decimal, 1e-9);
+    EXPECT_STREQ(fetchedDecimalText, "123.45600");
+
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(StatementApi, ForwardOnlyCursorAttributes) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+
+    SQLULEN value = 0;
+    ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_CURSOR_TYPE, &value, 0, nullptr), SQL_SUCCESS);
+    EXPECT_EQ(value, SQL_CURSOR_FORWARD_ONLY);
+    ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_CURSOR_SCROLLABLE, &value, 0, nullptr), SQL_SUCCESS);
+    EXPECT_EQ(value, SQL_NONSCROLLABLE);
+
+    EXPECT_EQ(SQLSetStmtAttr(stmt, SQL_ATTR_CURSOR_SCROLLABLE,
+                             (SQLPOINTER)SQL_SCROLLABLE, 0),
+              SQL_SUCCESS_WITH_INFO);
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "01S02"));
+    ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_CURSOR_SCROLLABLE, &value, 0, nullptr), SQL_SUCCESS);
+    EXPECT_EQ(value, SQL_NONSCROLLABLE);
+
+    EXPECT_EQ(SQLSetStmtAttr(stmt, SQL_ATTR_CURSOR_TYPE,
+                             (SQLPOINTER)SQL_CURSOR_STATIC, 0),
+              SQL_SUCCESS_WITH_INFO);
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "01S02"));
+    ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_CURSOR_TYPE, &value, 0, nullptr), SQL_SUCCESS);
+    EXPECT_EQ(value, SQL_CURSOR_FORWARD_ONLY);
+
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);

@@ -154,7 +154,11 @@ TParamRewriteResult RewriteOdbcQuestionMarks(
         if (bound == boundParams.end()) {
             return {.Success = false, .SqlState = "07002", .Message = "COUNT field incorrect"};
         }
-        declares += declare + " " + FormatYqlParamDeclareType(bound->ParameterType) + ";\n";
+        const auto type = ResolveParamType(*bound);
+        if (!type) {
+            return {.Success = false, .SqlState = "07006", .Message = "Restricted data type attribute violation"};
+        }
+        declares += declare + " " + FormatYqlParamDeclareType(*bound) + ";\n";
     }
     if (declares.empty()) {
         return {.Sql = body};
