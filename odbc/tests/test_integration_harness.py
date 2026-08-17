@@ -36,6 +36,33 @@ class HarnessTests(unittest.TestCase):
         for change, message in cases:
             with self.subTest(message=message), self.assertRaisesRegex(harness.HarnessError, message):
                 harness.load_registry(self.registry(change))
+        unsupported = registry["consumers"][2]["expected"]["unsupported"]
+        required_cases = {
+            "qt.dsn.qsqldatabase.tables",
+            "qt.dsn.qsqldatabase.transaction",
+            "qt.dsn.qsqldatabase.bigIntField",
+            "qt.dsn.qsqldatabase.precisionPolicy",
+            "qt.dsn.qsqldatabase.formatValueTrimStrings",
+            "qt.dsn.qsqldriver.record",
+            "qt.dsn.qsqldriver.primaryIndex",
+            "qt.dsn.qsqldriver.formatValue",
+            "qt.dsn.qsqlquery.next",
+            "qt.dsn.qsqlquery.record",
+            "qt.dsn.qsqlquery.blob",
+            "qt.dsn.qsqlquery.char1SelectUnicode",
+            "qt.dsn.qsqlquery.writeNull",
+            "qt.dsn.qsqlquery.batchExec",
+            "qt.dsn.qsqlthread.simpleThreading",
+            "qt.dsn.qsqlquerymodel.fetchMore",
+            "qt.dsn.qsqlrelationaldelegate.comboBoxEditor",
+            "qt.dsn.qsqlrelationaltablemodel.data",
+            "qt.dsn.qsqltablemodel.select",
+        }
+        for test_id in required_cases:
+            self.assertFalse(any(harness.glob_ids({test_id}, pattern) for pattern in unsupported), test_id)
+        cursor_reason = unsupported["qt.*.qsqlquery.{first,prev,last,seek,task_217003}"]
+        self.assertIn("backward", cursor_reason)
+        self.assertIn("forward-only cursor contract", cursor_reason)
     def test_result_guards(self):
         required = {"required": ["sample.case"]}
         self.assertFalse(self.validate([{"id": "sample.case", "status": "passed"}], required))
