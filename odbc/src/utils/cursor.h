@@ -21,6 +21,7 @@ struct TColumnMeta {
     SQLULEN Size;
     SQLSMALLINT Nullable;
     SQLSMALLINT DecimalDigits = 0;
+    bool Unsigned = false;
 };
 
 using TTable = std::vector<std::vector<TValue>>;
