@@ -4,9 +4,26 @@
 #include "utils/diag.h"
 
 #include <cstdint>
+#include <string>
 
 namespace NYdb {
 namespace NOdbc {
+
+namespace {
+
+SQLRETURN SetForwardOnlyCursorAttr(
+    bool forwardOnly,
+    const char* valueName,
+    TErrorManager& errors) {
+    if (forwardOnly) {
+        return SQL_SUCCESS;
+    }
+    return errors.AddError(
+        "01S02", 0, std::string(valueName) + " was changed to forward-only",
+        SQL_SUCCESS_WITH_INFO);
+}
+
+} // namespace
 
 SQLRETURN TStatementAttributes::SetStmtAttr(
     SQLINTEGER attr,
@@ -48,12 +65,17 @@ SQLRETURN TStatementAttributes::SetStmtAttr(
         }
         case SQL_ATTR_CURSOR_TYPE: {
             const SQLULEN cursorType = ReadIntegerAttr<SQLULEN>(value);
-            if (cursorType != SQL_CURSOR_FORWARD_ONLY) {
-                return errors.AddError(
-                    "01S02", 0, "Only SQL_CURSOR_FORWARD_ONLY is supported", SQL_SUCCESS_WITH_INFO);
+            return SetForwardOnlyCursorAttr(
+                cursorType == SQL_CURSOR_FORWARD_ONLY, "SQL_ATTR_CURSOR_TYPE", errors);
+        }
+        case SQL_ATTR_CURSOR_SCROLLABLE: {
+            const auto scrollable = ReadIntegerAttrIfIn<SQLULEN>(
+                value, {SQL_NONSCROLLABLE, SQL_SCROLLABLE});
+            if (!scrollable) {
+                return Diag::AddInvalidAttrValue(errors, "SQL_ATTR_CURSOR_SCROLLABLE");
             }
-            CursorType_ = cursorType;
-            return SQL_SUCCESS;
+            return SetForwardOnlyCursorAttr(
+                *scrollable == SQL_NONSCROLLABLE, "SQL_ATTR_CURSOR_SCROLLABLE", errors);
         }
         default:
             return Diag::AddNotImplemented(errors);
@@ -87,6 +109,11 @@ SQLRETURN TStatementAttributes::GetStmtAttr(
             return SQL_SUCCESS;
         case SQL_ATTR_CURSOR_TYPE:
             *reinterpret_cast<SQLULEN*>(value) = CursorType_;
+            return SQL_SUCCESS;
+        case SQL_ATTR_CURSOR_SCROLLABLE:
+            *reinterpret_cast<SQLULEN*>(value) = CursorType_ == SQL_CURSOR_FORWARD_ONLY
+                ? SQL_NONSCROLLABLE
+                : SQL_SCROLLABLE;
             return SQL_SUCCESS;
         default:
             return Diag::AddNotImplemented(errors);

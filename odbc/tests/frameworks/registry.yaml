@@ -76,11 +76,18 @@ consumers:
         qt.*.qsqlquery.lastInsertId: Generated-key retrieval is outside the binding contract.
         qt.*.qsqlquery.joins: Exercises generic ANSI join syntax instead of the YQL dialect accepted by the driver.
         qt.*.qsqlquery.transaction: Upstream permanently disables this query-level experiment; qsqldatabase.transaction exercises the required transaction contract.
-        qt.*.qsqlquery.{first,prev,last,seek,task_217003}: Exercises rewinding, prior-row navigation, or backward absolute positioning beyond the documented forward-only cursor contract.
-        qt.*.qsqlquery.numRowsAffected: The documented row-count limitation returns -1 instead of extracting affected rows from YDB query statistics.
+        qt.*.qsqlquery.{first,prev,last,seek,nullResult,task_217003}: Covered by proposal delivery step 4; these cases navigate a static result snapshot.
+        qt.*.qsqlquery.record: YDB result-set metadata does not carry the base-table origin required for SQL_DESC_BASE_TABLE_NAME.
         qt.*.qsqlquery.precision: The fixture relies on implicit conversion of an ANSI floating-point literal to Decimal; the documented SQL-dialect limitation does not translate arbitrary ANSI coercions into YQL.
+        qt.*.qsqlquerymodel.{insertColumn,removeColumn,fetchMore,withSortFilterProxyModel}: Covered by proposal delivery step 4; Qt query models require a static result snapshot.
+        qt.*.qsqlrelationaldelegate.comboBoxEditor: Covered by proposal delivery step 4; Qt relational delegates populate their models from a static result snapshot.
+        qt.*.qsqlrelationaltablemodel.{data,setData,multipleRelation,insertRecord,setRecord,insertWithStrategies,removeColumn,filter,sort,revert,clearDisplayValuesCache,insertRecordDuplicateFieldNames,invalidData,relationModel,casing,escapedRelations,escapedTableName,selectAfterUpdate,relationOnFirstColumn,setRelation}: Covered by proposal delivery step 4; Qt relational table models require a static result snapshot before exercising their write and relation behavior.
         qt.*.qsqlrelationaltablemodel.whiteSpaceInIdentifiers: YDB table paths are outside Qt's whitespace-delimited SQL identifier scenario.
         qt.*.qsqlrelationaltablemodel.psqlSchemaTest: Requires Qt's PostgreSQL plugin and PostgreSQL schema semantics rather than QODBC.
+        qt.*.qsqltablemodel.{select,selectRow,selectRowOverride,insertColumns,submitAll,setData,setRecord,setRecordReimpl,recordReimpl,insertRow,insertRowFailure,insertRecord,insertMultiRecords,removeRow,removeRows,removeInsertedRow,removeInsertedRows,isDirty,setFilter,setInvalidFilter,emptyTable,insertRecordBeforeSelect,insertRecordsInLoop,tableModifyWithBlank,removeColumnAndRow,insertBeforeDelete,invalidFilterAndHeaderData}: Covered by proposal delivery step 4; Qt table models require a static result snapshot before exercising their edit behavior.
         qt.*.qsqltablemodel.{insertWithAutoColumn,revert,primaryKeyOrder,sqlite_bigTable,sqlite_attachedDatabase,sqlite_selectFromIdentifierWithDot,modelInAnotherThread}: Requires Qt's SQLite plugin and SQLite-specific behavior rather than QODBC.
         qt.*.qsqltablemodel.tablesAndSchemas: Requires Qt's PostgreSQL plugin and PostgreSQL schema semantics rather than QODBC.
         qt.*.qsqltablemodel.whitespaceInIdentifiers: YDB table paths are outside Qt's whitespace-delimited SQL identifier scenario.
+      skipped:
+        qt.*.qsqlquery.{blob,blobsPreparedQuery}: Qt 6.4 QODBC exposes its BLOB feature only for MySQL; YDB binary binding is covered by native ODBC integration tests.
+        qt.*.qsqlquery.numRowsAffected: Qt skips its DML assertions when a preceding SELECT returns the ODBC-defined unknown row count; YDB DML counts are covered by native ODBC integration tests.

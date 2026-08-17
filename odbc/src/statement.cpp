@@ -30,7 +30,8 @@ namespace {
 
     size_t CTypeSize(SQLSMALLINT type, SQLLEN bufferLength) {
         switch (type) {
-            case SQL_C_CHAR: case SQL_C_BINARY: return std::max<SQLLEN>(bufferLength, 0);
+            case SQL_C_CHAR: case SQL_C_WCHAR: case SQL_C_BINARY:
+                return std::max<SQLLEN>(bufferLength, 0);
             case SQL_C_BIT: case SQL_C_TINYINT: case SQL_C_UTINYINT: return sizeof(SQLCHAR);
             case SQL_C_SHORT: case SQL_C_USHORT: return sizeof(SQLSMALLINT);
             case SQL_C_LONG: case SQL_C_ULONG: return sizeof(SQLINTEGER);
@@ -38,8 +39,17 @@ namespace {
             case SQL_C_FLOAT: return sizeof(SQLREAL);
             case SQL_C_DOUBLE: return sizeof(SQLDOUBLE);
             case SQL_C_TYPE_DATE: return sizeof(SQL_DATE_STRUCT);
+#if defined(SQL_C_DATE) && SQL_C_DATE != SQL_C_TYPE_DATE
+            case SQL_C_DATE: return sizeof(SQL_DATE_STRUCT);
+#endif
             case SQL_C_TYPE_TIME: return sizeof(SQL_TIME_STRUCT);
+#if defined(SQL_C_TIME) && SQL_C_TIME != SQL_C_TYPE_TIME
+            case SQL_C_TIME: return sizeof(SQL_TIME_STRUCT);
+#endif
             case SQL_C_TYPE_TIMESTAMP: return sizeof(SQL_TIMESTAMP_STRUCT);
+#if defined(SQL_C_TIMESTAMP) && SQL_C_TIMESTAMP != SQL_C_TYPE_TIMESTAMP
+            case SQL_C_TIMESTAMP: return sizeof(SQL_TIMESTAMP_STRUCT);
+#endif
             case SQL_C_GUID: return sizeof(SQLGUID);
             default:
                 return static_cast<size_t>(std::max<SQLLEN>(bufferLength, 0));
@@ -639,6 +649,16 @@ std::vector<TBoundParam> TStatement::GetBoundParams(SQLULEN paramSet) const {
 SQLRETURN TStatement::BuildParams(NYdb::TParams& out, SQLULEN paramSet) {
     ClearErrors();
     NYdb::TParamsBuilder paramsBuilder;
+    const auto conversionError = [&](const TBoundParam& param) {
+        const char* state = ConsumeLastConvertSqlState();
+        return AddError(
+            state ? state : "07006",
+            0,
+            "Invalid ODBC parameter " + std::to_string(param.ParamNumber)
+                + " in parameter set " + std::to_string(paramSet + 1)
+                + " (C type " + std::to_string(static_cast<int>(param.ValueType))
+                + ", SQL type " + std::to_string(static_cast<int>(param.ParameterType)) + ")");
+    };
     for (const TBoundParam& param : GetBoundParams(paramSet)) {
         const std::string paramName = "$p" + std::to_string(param.ParamNumber);
         if (param.AtExec) {
@@ -655,19 +675,13 @@ SQLRETURN TStatement::BuildParams(NYdb::TParams& out, SQLULEN paramSet) {
             tmp.StrLenOrIndPtr = &indicator;
             const SQLRETURN convRc = ConvertParam(tmp, paramsBuilder.AddParam(paramName));
             if (convRc != SQL_SUCCESS) {
-                return AddError("07006", 0, "Unsupported or invalid ODBC parameter type for parameter "
-                    + std::to_string(param.ParamNumber));
+                return conversionError(param);
             }
             continue;
         }
         const SQLRETURN convRc = ConvertParam(param, paramsBuilder.AddParam(paramName));
         if (convRc != SQL_SUCCESS) {
-            return AddError(
-                "07006",
-                0,
-                "Unsupported or invalid ODBC parameter type for parameter " + std::to_string(param.ParamNumber)
-                    + " (C type " + std::to_string(static_cast<int>(param.ValueType)) + ", SQL type "
-                    + std::to_string(static_cast<int>(param.ParameterType)) + ")");
+            return conversionError(param);
         }
     }
     out = paramsBuilder.Build();

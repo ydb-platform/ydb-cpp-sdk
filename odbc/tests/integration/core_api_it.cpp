@@ -46,6 +46,24 @@ TEST(CoreApi, SQLGetTypeInfoFilter) {
     SQLFreeHandle(SQL_HANDLE_ENV, env);
 }
 
+TEST(CoreApi, SQLGetTypeInfoTimestampAlias) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLGetTypeInfo(stmt, SQL_TIMESTAMP), stmt, SQL_HANDLE_STMT);
+    SQLINTEGER columnSize = 0;
+    SQLLEN indicator = 0;
+    SQLBindCol(stmt, 3, SQL_C_LONG, &columnSize, 0, &indicator);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    EXPECT_EQ(columnSize, 26);
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
 TEST(CoreApi, SQLNumParamsQuestionMarks) {
     SQLHENV env;
     SQLHDBC dbc;
