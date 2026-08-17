@@ -63,13 +63,6 @@ consumers:
         qt.*.qsqldatabase.mysqlOdbc_unsignedIntegers: Exercises the MySQL ODBC driver rather than the YDB ODBC driver.
         qt.*.qsqldatabase.{eventNotification,eventNotificationIBase,eventNotificationPSQL,eventNotificationSQLite}: Database event notifications are outside the binding contract.
         qt.*.qsqldatabase.whitespaceInIdentifiers: YDB table paths are outside Qt's whitespace-delimited SQL identifier scenario.
-        qt.*.qsqldatabase.{tables,recordODBC,alterTable,caseSensivity}: Exercises table and column discovery through SQLTables and SQLColumns.
-        qt.*.qsqldatabase.transaction: Exercises transactional read-your-writes, commit, and rollback on one Qt connection.
-        qt.*.qsqldatabase.{bigIntField,odbc_uintfield}: Exercises signed and unsigned integer parameter conversion across Qt and ODBC types.
-        qt.*.qsqldatabase.{formatValueTrimStrings,odbc_reopenDatabase,odbc_bindBoolean,odbc_testqGetString,sqlStatementUseIsNull_189093}: Exercises Qt's default scrollable-result behavior on a forward-only ODBC cursor.
-        qt.*.qsqldatabase.precisionPolicy: Exercises integer and decimal coercion into YDB fixture columns.
-        qt.*.qsqldriver.{record,primaryIndex}: Exercises SQLColumns and SQLPrimaryKeys catalog metadata.
-        qt.*.qsqldriver.formatValue: Exercises ODBC literal formatting for the Qt field type matrix.
         qt.*.qsqlquery.{record_sqlite,sqlite_finish,sqliteVirtualTable,QTBUG_12186,QTBUG_21884,QTBUG_16967,QTBUG_23895,QTBUG_14904,sqlite_constraint,sqlite_real,QTBUG_57138}: Requires Qt's SQLite plugin and SQLite-specific SQL rather than QODBC.
         qt.*.qsqlquery.{psql_forwardOnlyQueryResultsLost,psql_bindWithDoubleColonCastOperator,psql_specialFloatValues,task_233829,QTBUG_12477,QTBUG_5251,QTBUG_36211}: Requires Qt's PostgreSQL plugin and PostgreSQL-specific SQL rather than QODBC.
         qt.*.qsqlquery.{oci_nullBlob,oci_rawField,oraOutValues,oraClob,oraClobBatch,oraLong,oraOCINumber,oraRowId,oraArrayBind,QTBUG_551,QTBUG_6421,QTBUG_14132,dateTime}: Requires Qt's Oracle plugin and Oracle-specific SQL rather than QODBC.
@@ -83,20 +76,11 @@ consumers:
         qt.*.qsqlquery.lastInsertId: Generated-key retrieval is outside the binding contract.
         qt.*.qsqlquery.joins: Exercises generic ANSI join syntax instead of the YQL dialect accepted by the driver.
         qt.*.qsqlquery.transaction: Upstream permanently disables this query-level experiment; qsqldatabase.transaction exercises the required transaction contract.
-        qt.*.qsqlquery.{isValid,isActive,isNull,query_exec,first,next,prev,last,seek,finish,char1Select,synonyms,prepare_bind_exec,prepared_select,QTBUG_43874,bindBool,seekForwardOnlyQuery,emptyTableNavigate,task_217003,task_250026,aggregateFunctionTypes}: Exercises Qt navigation that requires static cursor emulation beyond the forward-only cursor contract.
-        qt.*.qsqlquery.record: Exercises result-column metadata exposed through SQLDescribeCol and SQLColAttribute.
-        qt.*.qsqlquery.numRowsAffected: Exercises affected-row reporting through SQLRowCount.
-        qt.*.qsqlquery.{blob,blobsPreparedQuery}: Exercises binary type discovery, binding, and fetching.
-        qt.*.qsqlquery.char1SelectUnicode: Exercises Unicode capability reporting and fixed-width text conversion.
-        qt.*.qsqlquery.{writeNull,precision,QTBUG_73286}: Exercises binary, null, and decimal coercion into YDB fixture columns.
-        qt.*.qsqlquery.{batchExec,QTBUG_2192}: Exercises parameter-array and date/time parameter conversion.
-        qt.*.qsqlthread.{simpleThreading,readWriteThreading}: Exercises concurrent Qt ODBC connections and mutable handle use across threads.
-        qt.*.qsqlquerymodel.{insertColumn,removeColumn,record,fetchMore,withSortFilterProxyModel}: Exercises scrollable result metadata and incremental Qt query-model fetching.
-        qt.*.qsqlrelationaldelegate.comboBoxEditor: Exercises relational model discovery through ODBC catalog metadata.
-        qt.*.qsqlrelationaltablemodel.{data,setData,multipleRelation,insertRecord,setRecord,insertWithStrategies,removeColumn,filter,sort,revert,clearDisplayValuesCache,insertRecordDuplicateFieldNames,invalidData,relationModel,casing,escapedRelations,escapedTableName,selectAfterUpdate,relationOnFirstColumn,setRelation}: Exercises relational table discovery, key metadata, and generated write statements through QODBC.
+        qt.*.qsqlquery.{first,prev,last,seek,task_217003}: Exercises rewinding, prior-row navigation, or backward absolute positioning beyond the documented forward-only cursor contract.
+        qt.*.qsqlquery.numRowsAffected: The documented row-count limitation returns -1 instead of extracting affected rows from YDB query statistics.
+        qt.*.qsqlquery.precision: The fixture relies on implicit conversion of an ANSI floating-point literal to Decimal; the documented SQL-dialect limitation does not translate arbitrary ANSI coercions into YQL.
         qt.*.qsqlrelationaltablemodel.whiteSpaceInIdentifiers: YDB table paths are outside Qt's whitespace-delimited SQL identifier scenario.
         qt.*.qsqlrelationaltablemodel.psqlSchemaTest: Requires Qt's PostgreSQL plugin and PostgreSQL schema semantics rather than QODBC.
-        qt.*.qsqltablemodel.{select,selectRow,selectRowOverride,insertColumns,submitAll,setData,setRecord,setRecordReimpl,recordReimpl,insertRow,insertRowFailure,insertRecord,insertMultiRecords,removeRow,removeRows,removeInsertedRow,removeInsertedRows,isDirty,setFilter,setInvalidFilter,emptyTable,insertRecordBeforeSelect,insertRecordsInLoop,tableModifyWithBlank,removeColumnAndRow,insertBeforeDelete,invalidFilterAndHeaderData}: Exercises table discovery, primary-key metadata, cursor navigation, and generated write statements through QODBC.
         qt.*.qsqltablemodel.{insertWithAutoColumn,revert,primaryKeyOrder,sqlite_bigTable,sqlite_attachedDatabase,sqlite_selectFromIdentifierWithDot,modelInAnotherThread}: Requires Qt's SQLite plugin and SQLite-specific behavior rather than QODBC.
         qt.*.qsqltablemodel.tablesAndSchemas: Requires Qt's PostgreSQL plugin and PostgreSQL schema semantics rather than QODBC.
         qt.*.qsqltablemodel.whitespaceInIdentifiers: YDB table paths are outside Qt's whitespace-delimited SQL identifier scenario.
