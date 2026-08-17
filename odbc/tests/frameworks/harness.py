@@ -69,11 +69,14 @@ def load_registry(path=REGISTRY):
                     f"{consumer}: invalid declarative test")
             if test.get("output_regex"): re.compile(test["output_regex"])
         expected = item.get("expected", {})
-        required, unsupported = expected.get("required", []), expected.get("unsupported", {})
+        required = expected.get("required", [])
+        unsupported = expected.get("unsupported", {})
+        skipped = expected.get("skipped", {})
         require(isinstance(required, list) and (required or expected.get("discovered")),
                 f"{consumer}: required tests are empty")
         require(isinstance(unsupported, dict), f"{consumer}: unsupported tests must be a mapping")
-        require(not (set(required) & set(unsupported)) and all(unsupported.values()),
+        require(isinstance(skipped, dict), f"{consumer}: skipped tests must be a mapping")
+        require(not (set(unsupported) & set(skipped)) and all(unsupported.values()) and all(skipped.values()),
                 f"{consumer}: duplicate or unexplained expectations")
         require(not any(re.fullmatch(r"qt\.\*\.[^.]+\.\*", pattern) for pattern in unsupported),
                 f"{consumer}: suite-wide Qt exclusions are forbidden")
@@ -312,7 +315,8 @@ def validate_results(consumer, native, allure):
         if not test_id or test_id in actual: errors.append(f"missing or duplicate test id: {test_id}")
         else: actual[test_id] = test
     expectations = consumer["expected"]; required = set(expectations["required"])
-    unsupported = set(expectations.get("unsupported", {})); expected = required | unsupported
+    unsupported = set(expectations.get("unsupported", {}))
+    skipped = set(expectations.get("skipped", {})); expected = required | unsupported | skipped
     infrastructure = [test for test_id, test in actual.items() if test_id.endswith(".infrastructure")]
     if expectations.get("discovered") and infrastructure:
         for test in infrastructure:
@@ -321,12 +325,14 @@ def validate_results(consumer, native, allure):
     elif expectations.get("discovered"):
         required_matches = {pattern: glob_ids(actual, pattern) for pattern in required}
         matched = {pattern: glob_ids(actual, pattern) for pattern in unsupported}
-        for pattern, ids in list(required_matches.items()) + list(matched.items()):
+        skipped_matches = {pattern: glob_ids(actual, pattern) for pattern in skipped}
+        for pattern, ids in list(required_matches.items()) + list(matched.items()) + list(skipped_matches.items()):
             if not ids: errors.append(f"expectation pattern matched no tests: {pattern}")
         for test_id, test in actual.items():
             is_required = any(test_id in ids for ids in required_matches.values())
             is_unsupported = any(test_id in ids for ids in matched.values())
-            wanted = {"broken", "failed", "skipped"} if is_unsupported else {"passed"} if is_required else None
+            is_skipped = any(test_id in ids for ids in skipped_matches.values())
+            wanted = {"skipped"} if is_skipped else {"broken", "failed", "skipped"} if is_unsupported else {"passed"} if is_required else None
             if wanted is None:
                 errors.append(f"{test_id}: missing discovered expectation"); continue
             if test.get("status") not in wanted: errors.append(f"{test_id}: unexpected status {test.get('status')}")
@@ -336,7 +342,9 @@ def validate_results(consumer, native, allure):
     for test_id in sorted(set(actual) - expected): errors.append(f"unexpected test: {test_id}")
     for test_id in sorted(expected & set(actual)):
         status = actual[test_id].get("status")
-        if (test_id in required and status != "passed") or (test_id in unsupported and status not in {"broken", "failed", "skipped"}):
+        if ((test_id in required and status != "passed")
+                or (test_id in unsupported and status not in {"broken", "failed", "skipped"})
+                or (test_id in skipped and status != "skipped")):
             errors.append(f"{test_id}: unexpected status {status}")
     if len(list(allure.glob("*-result.json"))) != len(tests): errors.append("Allure/native result count differs")
     validation = {"consumer": consumer["id"], "connection_mode": os.environ.get("ODBC_TEST_MODE", "all"),

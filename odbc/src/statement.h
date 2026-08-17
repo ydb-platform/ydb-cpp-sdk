@@ -125,6 +125,8 @@ private:
 
     SQLUSMALLINT FindNextNeedDataParam() const;
     std::string GetTraversalRoot(const std::string& pattern) const;
+    std::string GetMetadataTableName(const std::string& path) const;
+    bool MetadataNamespaceMatches(const std::string& catalog, const std::string& schema) const;
 
     NQuery::TExecuteQueryResult ExecuteQuery(NQuery::TSession& session, const NYdb::TParams& params);
 

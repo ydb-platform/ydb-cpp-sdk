@@ -1,9 +1,11 @@
 #include "metadata.h"
 
 #include "utils/diag.h"
+#include "utils/sql_type_map.h"
 
 #include <algorithm>
 #include <cstring>
+#include <limits>
 
 namespace NYdb::NOdbc {
 namespace {
@@ -238,6 +240,16 @@ SQLRETURN NMetadata::GetInfo(
         case SQL_GETDATA_EXTENSIONS:
             return WriteInfoScalar<SQLUINTEGER>(conn, SQL_GD_ANY_COLUMN | SQL_GD_ANY_ORDER, infoValuePtr, stringLengthPtr);
 
+        case SQL_CONVERT_CHAR:
+        case SQL_CONVERT_VARCHAR:
+        case SQL_CONVERT_LONGVARCHAR:
+            return WriteInfoScalar<SQLUINTEGER>(
+                conn,
+                SQL_CVT_CHAR | SQL_CVT_VARCHAR | SQL_CVT_LONGVARCHAR
+                    | SQL_CVT_WCHAR | SQL_CVT_WVARCHAR | SQL_CVT_WLONGVARCHAR,
+                infoValuePtr,
+                stringLengthPtr);
+
         // Async Execution (not supported)
         case SQL_ASYNC_MODE:
             return WriteInfoScalar<SQLUINTEGER>(conn, SQL_AM_NONE, infoValuePtr, stringLengthPtr);
@@ -323,18 +335,11 @@ SQLRETURN NMetadata::ColAttribute(
     SQLSMALLINT bufferLength,
     SQLSMALLINT* stringLengthAttributePtr,
     SQLLEN* numericAttributePtr) {
-    SQLCHAR name[256] = {};
-    SQLSMALLINT nameLength = 0;
-    SQLSMALLINT dataType = 0;
-    SQLULEN columnSize = 0;
-    SQLSMALLINT decimalDigits = 0;
-    SQLSMALLINT nullable = 0;
-
-    const SQLRETURN describeRc = DescribeCol(
-        stmt, columnNumber, name, sizeof(name), &nameLength, &dataType, &columnSize, &decimalDigits, &nullable);
-    if (describeRc != SQL_SUCCESS) {
-        return describeRc;
+    const auto& columns = stmt->GetColumnMeta();
+    if (columnNumber < 1 || columnNumber > columns.size()) {
+        throw TOdbcException("07009", 0, "Invalid descriptor index");
     }
+    const auto& column = columns[columnNumber - 1];
 
     const auto setNumericAttr = [&](SQLLEN value) -> SQLRETURN {
         if (!numericAttributePtr) {
@@ -344,48 +349,64 @@ SQLRETURN NMetadata::ColAttribute(
         return SQL_SUCCESS;
     };
 
+    const auto setStringAttr = [&](std::string_view value) -> SQLRETURN {
+        if (bufferLength < 0 || (!characterAttributePtr && bufferLength != 0)) {
+            return stmt->AddError("HY090", 0, "Invalid string or buffer length");
+        }
+        const SQLSMALLINT fullLen = static_cast<SQLSMALLINT>(
+            std::min<size_t>(value.size(), static_cast<size_t>(std::numeric_limits<SQLSMALLINT>::max())));
+        if (stringLengthAttributePtr) {
+            *stringLengthAttributePtr = fullLen;
+        }
+        if (bufferLength == 0) {
+            return fullLen == 0 ? SQL_SUCCESS
+                : stmt->AddError("01004", 0, "String data, right truncated", SQL_SUCCESS_WITH_INFO);
+        }
+        auto* out = static_cast<char*>(characterAttributePtr);
+        const SQLSMALLINT copyLen = static_cast<SQLSMALLINT>(
+            std::min<int>(fullLen, bufferLength - 1));
+        if (copyLen > 0) {
+            std::memcpy(out, value.data(), static_cast<size_t>(copyLen));
+        }
+        if (out) {
+            out[copyLen] = '\0';
+        }
+        return copyLen < fullLen
+            ? stmt->AddError("01004", 0, "String data, right truncated", SQL_SUCCESS_WITH_INFO)
+            : SQL_SUCCESS;
+    };
+
     switch (fieldIdentifier) {
         case SQL_DESC_NAME:
-        case SQL_COLUMN_NAME: {
-            if (!characterAttributePtr && bufferLength != 0) {
-                return stmt->AddError("HY090", 0, "Invalid string or buffer length");
-            }
-            const SQLSMALLINT fullLen = nameLength;
-            if (stringLengthAttributePtr) {
-                *stringLengthAttributePtr = fullLen;
-            }
-            if (bufferLength == 0) {
-                return fullLen == 0 ? SQL_SUCCESS
-                    : stmt->AddError("01004", 0, "String data, right truncated", SQL_SUCCESS_WITH_INFO);
-            }
-            auto* out = reinterpret_cast<char*>(characterAttributePtr);
-            const SQLSMALLINT copyLen = static_cast<SQLSMALLINT>(std::min<int>(fullLen, bufferLength - 1));
-            if (copyLen > 0) {
-                std::memcpy(out, name, static_cast<size_t>(copyLen));
-            }
-            if (out) {
-                out[copyLen] = '\0';
-            }
-            if (copyLen < fullLen) {
-                return stmt->AddError("01004", 0, "String data, right truncated", SQL_SUCCESS_WITH_INFO);
-            }
-            return SQL_SUCCESS;
+        case SQL_COLUMN_NAME:
+            return setStringAttr(column.Name);
+        case SQL_DESC_BASE_TABLE_NAME:
+            return setStringAttr("");
+        case SQL_DESC_TYPE_NAME: {
+            const TSqlTypeSpec* spec = FindSqlTypeSpec(column.SqlType);
+            return setStringAttr(spec ? spec->Name : "UNKNOWN");
         }
         case SQL_DESC_TYPE:
-        case SQL_COLUMN_TYPE:
-            return setNumericAttr(dataType);
+        case SQL_DESC_CONCISE_TYPE:
+            return setNumericAttr(column.SqlType);
         case SQL_DESC_LENGTH:
+        case SQL_DESC_DISPLAY_SIZE:
+        case SQL_DESC_OCTET_LENGTH:
         case SQL_COLUMN_LENGTH:
-            return setNumericAttr(static_cast<SQLLEN>(columnSize));
+            return setNumericAttr(static_cast<SQLLEN>(column.Size));
         case SQL_DESC_PRECISION:
         case SQL_COLUMN_PRECISION:
-            return setNumericAttr(static_cast<SQLLEN>(columnSize));
+            return setNumericAttr(static_cast<SQLLEN>(column.Size));
         case SQL_DESC_SCALE:
         case SQL_COLUMN_SCALE:
-            return setNumericAttr(decimalDigits);
+            return setNumericAttr(column.DecimalDigits);
         case SQL_DESC_NULLABLE:
         case SQL_COLUMN_NULLABLE:
-            return setNumericAttr(nullable);
+            return setNumericAttr(column.Nullable);
+        case SQL_DESC_UNSIGNED:
+            return setNumericAttr(column.Unsigned ? SQL_TRUE : SQL_FALSE);
+        case SQL_DESC_AUTO_UNIQUE_VALUE:
+            return setNumericAttr(SQL_FALSE);
         default:
             return stmt->AddError("HYC00", 0, "Optional feature not implemented");
     }
