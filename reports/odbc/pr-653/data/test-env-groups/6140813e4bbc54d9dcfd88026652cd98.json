@@ -1,1 +1,1 @@
-{"id":"6140813e4bbc54d9dcfd88026652cd98","fullName":"qt.qt.dsn.qsqlquery.nullResult","name":"Qt qsqlquery: nullResult (dsn)","status":"passed","testResultsByEnv":{"default":"3d9c25f9f923d89bb2a351d147eff35e"}}
+{"id":"6140813e4bbc54d9dcfd88026652cd98","fullName":"qt.qt.dsn.qsqlquery.nullResult","name":"Qt qsqlquery: nullResult (dsn)","status":"failed","testResultsByEnv":{"default":"3d9c25f9f923d89bb2a351d147eff35e"}}

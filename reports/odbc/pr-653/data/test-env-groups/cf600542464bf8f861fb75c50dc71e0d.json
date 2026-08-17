@@ -1,1 +1,1 @@
-{"id":"cf600542464bf8f861fb75c50dc71e0d","fullName":"qt.qt.connection_string.qsqldriver.primaryIndex","name":"Qt qsqldriver: primaryIndex (connection_string)","status":"failed","testResultsByEnv":{"default":"cfc932f391b06d940c59534bed7da693"}}
+{"id":"cf600542464bf8f861fb75c50dc71e0d","fullName":"qt.qt.connection_string.qsqldriver.primaryIndex","name":"Qt qsqldriver: primaryIndex (connection_string)","status":"passed","testResultsByEnv":{"default":"cfc932f391b06d940c59534bed7da693"}}

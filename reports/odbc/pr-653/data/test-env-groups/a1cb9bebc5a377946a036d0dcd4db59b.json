@@ -1,1 +1,1 @@
-{"id":"a1cb9bebc5a377946a036d0dcd4db59b","fullName":"qt.qt.dsn.qsqlquery.QTBUG_73286","name":"Qt qsqlquery: QTBUG_73286 (dsn)","status":"failed","testResultsByEnv":{"default":"d2ec4b9a26e6792864d08b460b179b54"}}
+{"id":"a1cb9bebc5a377946a036d0dcd4db59b","fullName":"qt.qt.dsn.qsqlquery.QTBUG_73286","name":"Qt qsqlquery: QTBUG_73286 (dsn)","status":"passed","testResultsByEnv":{"default":"d2ec4b9a26e6792864d08b460b179b54"}}

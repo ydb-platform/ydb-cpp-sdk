@@ -1,1 +1,1 @@
-{"id":"377c363b5741de31721cb5e2125da536","fullName":"qt.qt.dsn.qsqldatabase.sqlStatementUseIsNull_189093","name":"Qt qsqldatabase: sqlStatementUseIsNull_189093 (dsn)","status":"failed","testResultsByEnv":{"default":"9f0dcd9d4811698eb7388daa11e671e8"}}
+{"id":"377c363b5741de31721cb5e2125da536","fullName":"qt.qt.dsn.qsqldatabase.sqlStatementUseIsNull_189093","name":"Qt qsqldatabase: sqlStatementUseIsNull_189093 (dsn)","status":"passed","testResultsByEnv":{"default":"9f0dcd9d4811698eb7388daa11e671e8"}}

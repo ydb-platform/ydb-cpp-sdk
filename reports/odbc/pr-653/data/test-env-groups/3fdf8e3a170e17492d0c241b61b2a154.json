@@ -1,1 +1,1 @@
-{"id":"3fdf8e3a170e17492d0c241b61b2a154","fullName":"qt.qt.dsn.qsqldatabase.odbc_bindBoolean","name":"Qt qsqldatabase: odbc_bindBoolean (dsn)","status":"failed","testResultsByEnv":{"default":"e66de9f45be34d4c10f3c8d9c0a7d3b7"}}
+{"id":"3fdf8e3a170e17492d0c241b61b2a154","fullName":"qt.qt.dsn.qsqldatabase.odbc_bindBoolean","name":"Qt qsqldatabase: odbc_bindBoolean (dsn)","status":"passed","testResultsByEnv":{"default":"e66de9f45be34d4c10f3c8d9c0a7d3b7"}}

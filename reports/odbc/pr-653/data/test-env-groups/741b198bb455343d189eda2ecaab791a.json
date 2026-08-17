@@ -1,1 +1,1 @@
-{"id":"741b198bb455343d189eda2ecaab791a","fullName":"qt.qt.connection_string.qsqlquery.isValid","name":"Qt qsqlquery: isValid (connection_string)","status":"failed","testResultsByEnv":{"default":"87833485f34e0e4dc2c8fb5b4aa786af"}}
+{"id":"741b198bb455343d189eda2ecaab791a","fullName":"qt.qt.connection_string.qsqlquery.isValid","name":"Qt qsqlquery: isValid (connection_string)","status":"passed","testResultsByEnv":{"default":"87833485f34e0e4dc2c8fb5b4aa786af"}}

@@ -1,1 +1,1 @@
-{"id":"0b90d621c97aa4c4f9418d869755470e","fullName":"qt.qt.connection_string.qsqlquerymodel.record","name":"Qt qsqlquerymodel: record (connection_string)","status":"failed","testResultsByEnv":{"default":"3e881c527a2cc8ee6b688bd6651d0c15"}}
+{"id":"0b90d621c97aa4c4f9418d869755470e","fullName":"qt.qt.connection_string.qsqlquerymodel.record","name":"Qt qsqlquerymodel: record (connection_string)","status":"passed","testResultsByEnv":{"default":"3e881c527a2cc8ee6b688bd6651d0c15"}}

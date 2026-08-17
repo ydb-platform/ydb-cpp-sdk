@@ -1,1 +1,1 @@
-{"id":"4d2dfe535e75171c2e171b4734e1a880","fullName":"qt.qt.dsn.qsqldatabase.caseSensivity","name":"Qt qsqldatabase: caseSensivity (dsn)","status":"failed","testResultsByEnv":{"default":"08caa57d5cd76259818c3d81f564c131"}}
+{"id":"4d2dfe535e75171c2e171b4734e1a880","fullName":"qt.qt.dsn.qsqldatabase.caseSensivity","name":"Qt qsqldatabase: caseSensivity (dsn)","status":"passed","testResultsByEnv":{"default":"08caa57d5cd76259818c3d81f564c131"}}

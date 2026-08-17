@@ -1,1 +1,1 @@
-{"id":"8def7a8decc61454a7ccecacaf7ba699","fullName":"qt.qt.connection_string.qsqlquery.isActive","name":"Qt qsqlquery: isActive (connection_string)","status":"failed","testResultsByEnv":{"default":"c98a2287878150e3de4ef149e148156c"}}
+{"id":"8def7a8decc61454a7ccecacaf7ba699","fullName":"qt.qt.connection_string.qsqlquery.isActive","name":"Qt qsqlquery: isActive (connection_string)","status":"passed","testResultsByEnv":{"default":"c98a2287878150e3de4ef149e148156c"}}

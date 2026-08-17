@@ -1,1 +1,1 @@
-{"id":"ffadee07485914d81cabdc57e3bd83f5","fullName":"qt.qt.dsn.qsqlquery.char1Select","name":"Qt qsqlquery: char1Select (dsn)","status":"failed","testResultsByEnv":{"default":"373b4fa69e1ad12901669c111772159b"}}
+{"id":"ffadee07485914d81cabdc57e3bd83f5","fullName":"qt.qt.dsn.qsqlquery.char1Select","name":"Qt qsqlquery: char1Select (dsn)","status":"passed","testResultsByEnv":{"default":"373b4fa69e1ad12901669c111772159b"}}
