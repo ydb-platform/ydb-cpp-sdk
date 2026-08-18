@@ -92,6 +92,12 @@ public:
         SQLSMALLINT* stringLengthPtr) override;
 
 private:
+    struct TAtExecValue {
+        std::string Data;
+        SQLLEN Indicator = 0;
+        bool Complete = false;
+    };
+
     TConnection* Conn_;
     std::unique_ptr<ICursor> Cursor_;
     std::string PreparedQuery_;
@@ -111,6 +117,7 @@ private:
     SQLUSMALLINT NeedDataParam_ = 0;
     bool InAtExec_ = false;
     bool NeedDataTokenDelivered_ = false;
+    std::vector<TAtExecValue> AtExecValues_; // indexed by parameter number
     SQLRETURN LastFetchRc_ = SQL_SUCCESS;
     SQLULEN BindingRow_ = 0;
     std::vector<SQLLEN> GetDataOffsets_;

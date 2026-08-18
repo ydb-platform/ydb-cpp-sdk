@@ -5,14 +5,11 @@
 
 #include <ydb-cpp-sdk/client/types/fwd.h>
 
-#include <string>
-
 namespace NYdb {
 namespace NOdbc {
 
 struct TBoundParam {
     SQLUSMALLINT ParamNumber;
-    SQLSMALLINT InputOutputType;
     SQLSMALLINT ValueType;
     SQLSMALLINT ParameterType;
     SQLULEN ColumnSize;
@@ -21,8 +18,6 @@ struct TBoundParam {
     SQLLEN BufferLength;
     SQLLEN* StrLenOrIndPtr;
     bool AtExec = false;
-    bool AtExecComplete = false;
-    std::string AtExecChunk;
 };
 
 } // namespace NOdbc

@@ -28,58 +28,6 @@ namespace NYdb::NOdbc {
 
 namespace {
 
-    size_t CTypeSize(SQLSMALLINT type, SQLLEN bufferLength) {
-        switch (type) {
-            case SQL_C_CHAR: case SQL_C_WCHAR: case SQL_C_BINARY:
-                return std::max<SQLLEN>(bufferLength, 0);
-            case SQL_C_BIT: case SQL_C_TINYINT: case SQL_C_UTINYINT: return sizeof(SQLCHAR);
-            case SQL_C_SHORT: case SQL_C_USHORT: return sizeof(SQLSMALLINT);
-            case SQL_C_LONG: case SQL_C_ULONG: return sizeof(SQLINTEGER);
-            case SQL_C_SBIGINT: case SQL_C_UBIGINT: return sizeof(SQLBIGINT);
-            case SQL_C_FLOAT: return sizeof(SQLREAL);
-            case SQL_C_DOUBLE: return sizeof(SQLDOUBLE);
-            case SQL_C_TYPE_DATE: return sizeof(SQL_DATE_STRUCT);
-#if defined(SQL_C_DATE) && SQL_C_DATE != SQL_C_TYPE_DATE
-            case SQL_C_DATE: return sizeof(SQL_DATE_STRUCT);
-#endif
-            case SQL_C_TYPE_TIME: return sizeof(SQL_TIME_STRUCT);
-#if defined(SQL_C_TIME) && SQL_C_TIME != SQL_C_TYPE_TIME
-            case SQL_C_TIME: return sizeof(SQL_TIME_STRUCT);
-#endif
-            case SQL_C_TYPE_TIMESTAMP: return sizeof(SQL_TIMESTAMP_STRUCT);
-#if defined(SQL_C_TIMESTAMP) && SQL_C_TIMESTAMP != SQL_C_TYPE_TIMESTAMP
-            case SQL_C_TIMESTAMP: return sizeof(SQL_TIMESTAMP_STRUCT);
-#endif
-            case SQL_C_GUID: return sizeof(SQLGUID);
-            default:
-                return static_cast<size_t>(std::max<SQLLEN>(bufferLength, 0));
-        }
-    }
-
-    template<typename T>
-    T* OffsetPointer(T* pointer, SQLULEN offset, SQLULEN row, SQLULEN stride) {
-        if (!pointer) {
-            return nullptr;
-        }
-        auto* bytes = reinterpret_cast<unsigned char*>(pointer);
-        return reinterpret_cast<T*>(bytes + offset + row * stride);
-    }
-
-    TBoundParam ParamAt(const TBoundParam& param, SQLULEN row, SQLULEN bindType, SQLULEN offset) {
-        TBoundParam adjusted = param;
-        const SQLULEN dataStride = bindType == SQL_PARAM_BIND_BY_COLUMN
-            ? CTypeSize(param.ValueType, param.BufferLength)
-            : bindType;
-        const SQLULEN indicatorStride = bindType == SQL_PARAM_BIND_BY_COLUMN
-            ? sizeof(SQLLEN)
-            : bindType;
-        adjusted.ParameterValuePtr = OffsetPointer(
-            static_cast<unsigned char*>(param.ParameterValuePtr), offset, row, dataStride);
-        adjusted.StrLenOrIndPtr = OffsetPointer(
-            param.StrLenOrIndPtr, offset, row, indicatorStride);
-        return adjusted;
-    }
-
     bool StartsWithStatement(
         std::string_view queryText,
         std::initializer_list<std::string_view> keywords) {
@@ -170,6 +118,7 @@ void TStatement::DetachDescriptor(TDescriptor* desc) {
     }
     if (CurrentAppParamDesc_ == desc) {
         CurrentAppParamDesc_ = &AppParamDesc_;
+        AtExecValues_.clear();
     }
     desc->Detach(this);
 }
@@ -330,19 +279,15 @@ SQLRETURN TStatement::ExecuteParamSet(
     InAtExec_ = false;
     NeedDataParam_ = 0;
     NeedDataTokenDelivered_ = false;
-    for (SQLSMALLINT i = 1; i <= CurrentAppParamDesc_->GetRecordCount(); ++i) {
-        if (TDescRecord* param = CurrentAppParamDesc_->FindRecord(i); param && param->AtExec) {
-            param->AtExecComplete = false;
-            param->AtExecChunk.clear();
-        }
-    }
+    AtExecValues_.clear();
     return SQL_SUCCESS;
 }
 
 SQLUSMALLINT TStatement::FindNextNeedDataParam() const {
     for (SQLSMALLINT i = 1; i <= CurrentAppParamDesc_->GetRecordCount(); ++i) {
         const TDescRecord* record = CurrentAppParamDesc_->FindRecord(i);
-        if (record && record->AtExec && !record->AtExecComplete) {
+        if (record && record->AtExec
+            && (AtExecValues_.size() <= static_cast<size_t>(i) || !AtExecValues_[i].Complete)) {
             return static_cast<SQLUSMALLINT>(i);
         }
     }
@@ -485,30 +430,17 @@ void TStatement::FillBoundColumns() {
         return;
     }
     LastFetchRc_ = SQL_SUCCESS;
-    const SQLULEN bindType = CurrentAppRowDesc_->GetBindType();
-    const SQLULEN offset = CurrentAppRowDesc_->GetBindOffsetPtr()
-        ? *CurrentAppRowDesc_->GetBindOffsetPtr()
-        : 0;
     for (SQLSMALLINT number = 1; number <= CurrentAppRowDesc_->GetRecordCount(); ++number) {
         const TDescRecord* col = CurrentAppRowDesc_->FindRecord(number);
         if (!col || !col->DataPtr) {
             continue;
         }
-        const SQLULEN dataStride = bindType == SQL_BIND_BY_COLUMN
-            ? CTypeSize(col->Type, col->OctetLength)
-            : bindType;
-        const SQLULEN indicatorStride = bindType == SQL_BIND_BY_COLUMN
-            ? sizeof(SQLLEN)
-            : bindType;
-        SQLPOINTER target = OffsetPointer(
-            static_cast<unsigned char*>(col->DataPtr), offset, BindingRow_, dataStride);
-        SQLLEN* indicator = OffsetPointer(
-            col->IndicatorPtr, offset, BindingRow_, indicatorStride);
-        SQLLEN* length = OffsetPointer(
-            col->OctetLengthPtr, offset, BindingRow_, indicatorStride);
+        const TResolvedBinding binding = CurrentAppRowDesc_->ResolveBinding(*col, BindingRow_);
+        SQLLEN* indicator = binding.Indicator;
+        SQLLEN* length = binding.OctetLength;
         SQLLEN convertedLength = 0;
         SQLRETURN rc = Cursor_->GetData(
-            static_cast<SQLUSMALLINT>(number), col->Type, target, col->OctetLength,
+            static_cast<SQLUSMALLINT>(number), col->Type, binding.Data, col->OctetLength,
             &convertedLength);
         if (convertedLength == SQL_NULL_DATA) {
             if (!indicator) {
@@ -588,6 +520,9 @@ SQLRETURN TStatement::BindParameter(SQLUSMALLINT paramNumber,
     if (!parameterValuePtr && !strLenOrIndPtr) {
         CurrentAppParamDesc_->RemoveRecord(static_cast<SQLSMALLINT>(paramNumber));
         ImpParamDesc_.RemoveRecord(static_cast<SQLSMALLINT>(paramNumber));
+        if (AtExecValues_.size() > paramNumber) {
+            AtExecValues_[paramNumber] = {};
+        }
         return SQL_SUCCESS;
     }
     TDescRecord& app = CurrentAppParamDesc_->Record(static_cast<SQLSMALLINT>(paramNumber));
@@ -599,9 +534,10 @@ SQLRETURN TStatement::BindParameter(SQLUSMALLINT paramNumber,
     app.OctetLengthPtr = strLenOrIndPtr;
     app.ParameterType = inputOutputType;
     app.AtExec = atExec;
-    app.AtExecComplete = false;
-    app.AtExecIndicator = 0;
-    app.AtExecChunk.clear();
+    if (AtExecValues_.size() <= paramNumber) {
+        AtExecValues_.resize(paramNumber + 1);
+    }
+    AtExecValues_[paramNumber] = {};
 
     TDescRecord& imp = ImpParamDesc_.Record(static_cast<SQLSMALLINT>(paramNumber));
     imp.Type = parameterType;
@@ -616,30 +552,22 @@ SQLRETURN TStatement::BindParameter(SQLUSMALLINT paramNumber,
 
 std::vector<TBoundParam> TStatement::GetBoundParams(SQLULEN paramSet) const {
     std::vector<TBoundParam> params;
-    const SQLULEN offset = CurrentAppParamDesc_->GetBindOffsetPtr()
-        ? *CurrentAppParamDesc_->GetBindOffsetPtr()
-        : 0;
     for (SQLSMALLINT number = 1; number <= ParamCount_; ++number) {
         const TDescRecord* app = CurrentAppParamDesc_->FindRecord(number);
         const TDescRecord* imp = ImpParamDesc_.FindRecord(number);
         if (!app || !imp) {
             continue;
         }
+        const TResolvedBinding binding = CurrentAppParamDesc_->ResolveBinding(*app, paramSet);
         SQLLEN* lengthOrIndicator = app->IndicatorPtr == app->OctetLengthPtr
-            ? app->IndicatorPtr
-            : app->OctetLengthPtr;
+            ? binding.Indicator
+            : binding.OctetLength;
         TBoundParam param{
-            static_cast<SQLUSMALLINT>(number), imp->ParameterType, app->Type, imp->Type,
-            static_cast<SQLULEN>(imp->Length), imp->Scale, app->DataPtr, app->OctetLength,
-            lengthOrIndicator, app->AtExec, app->AtExecComplete, app->AtExecChunk};
-        param = ParamAt(param, paramSet, CurrentAppParamDesc_->GetBindType(), offset);
-        SQLLEN* indicator = OffsetPointer(
-            app->IndicatorPtr, offset, paramSet,
-            CurrentAppParamDesc_->GetBindType() == SQL_PARAM_BIND_BY_COLUMN
-                ? sizeof(SQLLEN)
-                : CurrentAppParamDesc_->GetBindType());
-        if (indicator && *indicator == SQL_NULL_DATA) {
-            param.StrLenOrIndPtr = indicator;
+            static_cast<SQLUSMALLINT>(number), app->Type, imp->Type,
+            static_cast<SQLULEN>(imp->Length), imp->Scale, binding.Data, app->OctetLength,
+            lengthOrIndicator, app->AtExec};
+        if (binding.Indicator && *binding.Indicator == SQL_NULL_DATA) {
+            param.StrLenOrIndPtr = binding.Indicator;
         }
         params.push_back(std::move(param));
     }
@@ -662,16 +590,16 @@ SQLRETURN TStatement::BuildParams(NYdb::TParams& out, SQLULEN paramSet) {
     for (const TBoundParam& param : GetBoundParams(paramSet)) {
         const std::string paramName = "$p" + std::to_string(param.ParamNumber);
         if (param.AtExec) {
-            if (!param.AtExecComplete) {
+            if (AtExecValues_.size() <= param.ParamNumber
+                || !AtExecValues_[param.ParamNumber].Complete) {
                 return AddError("HY000", 0, "Missing data-at-execution parameter value");
             }
-            const TDescRecord* record = CurrentAppParamDesc_->FindRecord(
-                static_cast<SQLSMALLINT>(param.ParamNumber));
-            SQLLEN indicator = record && record->AtExecIndicator == SQL_NULL_DATA
+            TAtExecValue& value = AtExecValues_[param.ParamNumber];
+            SQLLEN indicator = value.Indicator == SQL_NULL_DATA
                 ? SQL_NULL_DATA
                 : SQL_NTS;
             TBoundParam tmp = param;
-            tmp.ParameterValuePtr = const_cast<char*>(param.AtExecChunk.data());
+            tmp.ParameterValuePtr = value.Data.data();
             tmp.StrLenOrIndPtr = &indicator;
             const SQLRETURN convRc = ConvertParam(tmp, paramsBuilder.AddParam(paramName));
             if (convRc != SQL_SUCCESS) {
@@ -743,10 +671,10 @@ SQLRETURN TStatement::ParamData(SQLPOINTER* valuePtr) {
         return SQL_NO_DATA;
     }
     if (NeedDataParam_ != 0 && NeedDataTokenDelivered_) {
-        if (TDescRecord* record = CurrentAppParamDesc_->FindRecord(
-                static_cast<SQLSMALLINT>(NeedDataParam_))) {
-            record->AtExecComplete = true;
+        if (AtExecValues_.size() <= NeedDataParam_) {
+            AtExecValues_.resize(NeedDataParam_ + 1);
         }
+        AtExecValues_[NeedDataParam_].Complete = true;
         NeedDataParam_ = 0;
         NeedDataTokenDelivered_ = false;
     }
@@ -771,9 +699,13 @@ SQLRETURN TStatement::PutData(SQLPOINTER data, SQLLEN strLenOrInd) {
     if (!param || !NeedDataTokenDelivered_) {
         throw TOdbcException("HY010", 0, "Function sequence error");
     }
+    if (AtExecValues_.size() <= NeedDataParam_) {
+        AtExecValues_.resize(NeedDataParam_ + 1);
+    }
+    TAtExecValue& value = AtExecValues_[NeedDataParam_];
     SQLLEN chunkLen = strLenOrInd;
     if (chunkLen == SQL_NULL_DATA) {
-        param->AtExecIndicator = SQL_NULL_DATA;
+        value.Indicator = SQL_NULL_DATA;
         return SQL_SUCCESS;
     }
     if (chunkLen == SQL_DEFAULT_PARAM) {
@@ -792,7 +724,7 @@ SQLRETURN TStatement::PutData(SQLPOINTER data, SQLLEN strLenOrInd) {
         if (!data) {
             throw TOdbcException("HY009", 0, "Invalid use of null pointer");
         }
-        param->AtExecChunk.append(static_cast<const char*>(data), static_cast<size_t>(chunkLen));
+        value.Data.append(static_cast<const char*>(data), static_cast<size_t>(chunkLen));
     }
     return SQL_SUCCESS;
 }
@@ -805,13 +737,7 @@ SQLRETURN TStatement::Cancel() {
     InAtExec_ = false;
     NeedDataParam_ = 0;
     NeedDataTokenDelivered_ = false;
-    for (SQLSMALLINT i = 1; i <= CurrentAppParamDesc_->GetRecordCount(); ++i) {
-        if (TDescRecord* param = CurrentAppParamDesc_->FindRecord(i)) {
-            param->AtExecComplete = false;
-            param->AtExecIndicator = 0;
-            param->AtExecChunk.clear();
-        }
-    }
+    AtExecValues_.clear();
     RowsFetched_ = 0;
     return SQL_SUCCESS;
 }
@@ -844,6 +770,7 @@ void TStatement::UnbindColumns() {
 void TStatement::ResetParams() {
     CurrentAppParamDesc_->ClearRecords();
     ImpParamDesc_.ClearRecords();
+    AtExecValues_.clear();
 }
 
 SQLRETURN TStatement::RowCount(SQLLEN* rowCount) {
@@ -910,6 +837,9 @@ SQLRETURN TStatement::SetStmtAttr(SQLINTEGER attr, SQLPOINTER value, SQLINTEGER 
             TDescriptor* const previous = current;
             current = next;
             current->Attach(this);
+            if (attr == SQL_ATTR_APP_PARAM_DESC) {
+                AtExecValues_.clear();
+            }
             if (CurrentAppRowDesc_ != previous && CurrentAppParamDesc_ != previous) {
                 previous->Detach(this);
             }

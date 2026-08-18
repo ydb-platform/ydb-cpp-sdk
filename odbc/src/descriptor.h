@@ -36,9 +36,12 @@ struct TDescRecord {
     SQLSMALLINT ParameterType = SQL_PARAM_INPUT;
     bool Active = false;
     bool AtExec = false;
-    bool AtExecComplete = false;
-    SQLLEN AtExecIndicator = 0;
-    std::string AtExecChunk;
+};
+
+struct TResolvedBinding {
+    SQLPOINTER Data = nullptr;
+    SQLLEN* Indicator = nullptr;
+    SQLLEN* OctetLength = nullptr;
 };
 
 class TDescriptor : public TErrorManager {
@@ -66,6 +69,7 @@ public:
     void RemoveRecord(SQLSMALLINT number);
     void ClearRecords() noexcept { Records_.clear(); }
     SQLSMALLINT GetRecordCount() const noexcept;
+    TResolvedBinding ResolveBinding(const TDescRecord& record, SQLULEN index) const noexcept;
 
     void Attach(TStatement* stmt);
     void Detach(TStatement* stmt);
