@@ -97,6 +97,30 @@ TEST(OdbcConvert, DoubleToYdb) {
     CheckProto(value->GetProto(), "double_value: 3.14\n");
 }
 
+TEST(OdbcConvert, DoubleToYdbDecimalPreservesPrecisionAndScale) {
+    SQLDOUBLE v = 123.456;
+    TBoundParam param{
+        1, SQL_PARAM_INPUT, SQL_C_DOUBLE, SQL_DECIMAL, 18, 5, &v, sizeof(v), nullptr
+    };
+    TParamsBuilder paramsBuilder;
+    ASSERT_EQ(ConvertParam(param, paramsBuilder.AddParam("$p1")), SQL_SUCCESS);
+    const auto value = paramsBuilder.Build().GetValue("$p1");
+    ASSERT_TRUE(value);
+
+    TValueParser parser(*value);
+    const auto decimal = parser.GetOptionalDecimal();
+    ASSERT_TRUE(decimal);
+    EXPECT_EQ(decimal->DecimalType_.Precision, 18);
+    EXPECT_EQ(decimal->DecimalType_.Scale, 5);
+    EXPECT_EQ(decimal->ToString(), "123.456");
+
+    char text[16] = {};
+    SQLLEN textLength = 0;
+    ASSERT_EQ(ConvertColumn(parser, SQL_C_CHAR, text, sizeof(text), &textLength), SQL_SUCCESS);
+    EXPECT_EQ(textLength, 9);
+    EXPECT_STREQ(text, "123.45600");
+}
+
 TEST(OdbcConvert, StringToYdbUtf8) {
     const char* str = "hello";
     SQLLEN len = 5;
