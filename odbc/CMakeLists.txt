@@ -1,9 +1,6 @@
 add_library(ydb-odbc SHARED
-  src/utils/attr.cpp
   src/utils/escape.cpp
   src/utils/sql_type_map.cpp
-  src/utils/param_rewrite.cpp
-  src/utils/type_info_rows.cpp
   src/utils/cursor.cpp
   src/utils/types.cpp
   src/utils/util.cpp
@@ -14,7 +11,6 @@ add_library(ydb-odbc SHARED
   src/connection_attr.cpp
   src/connection_config.cpp
   src/connection.cpp
-  src/statement_attr.cpp
   src/statement.cpp
   src/statement_metadata.cpp
   src/environment.cpp

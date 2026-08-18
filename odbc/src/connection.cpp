@@ -137,6 +137,13 @@ bool TConnection::GetAutocommit() const {
 }
 
 SQLRETURN TConnection::SetConnectAttr(SQLINTEGER attr, SQLPOINTER value, SQLINTEGER stringLength) {
+    if (attr == SQL_ATTR_AUTOCOMMIT) {
+        const intptr_t token = ReadIntegerAttr<intptr_t>(value);
+        if (token != SQL_AUTOCOMMIT_ON && token != SQL_AUTOCOMMIT_OFF) {
+            return Diag::AddInvalidAttrValue(*this, "SQL_ATTR_AUTOCOMMIT");
+        }
+        return SetAutocommit(token == SQL_AUTOCOMMIT_ON);
+    }
     if (attr == SQL_ATTR_CURRENT_CATALOG) {
         std::optional<std::string> rebindDatabase;
         SQLRETURN rc = Attributes_.ApplyCatalogChange(value, stringLength, Database_, rebindDatabase, *this);
@@ -148,9 +155,7 @@ SQLRETURN TConnection::SetConnectAttr(SQLINTEGER attr, SQLPOINTER value, SQLINTE
         }
         return SQL_SUCCESS;
     }
-    return Attributes_.SetConnectAttr(attr, value, stringLength, [this](bool autocommit) {
-        return SetAutocommit(autocommit);
-    }, *this);
+    return Attributes_.SetConnectAttr(attr, value, *this);
 }
 
 SQLRETURN TConnection::GetConnectAttr(SQLINTEGER attr, SQLPOINTER value, SQLINTEGER bufferLength,
