@@ -1,496 +1,382 @@
 #include "statement.h"
 
-#include "utils/types.h"
 #include "utils/sql_like.h"
-#include "utils/type_info_rows.h"
-#include "utils/cursor.h"
+#include "utils/sql_type_map.h"
+#include "utils/types.h"
 #include "utils/util.h"
-
-#include <ydb-cpp-sdk/client/value/value.h>
 
 #include <algorithm>
 #include <cctype>
-#include <optional>
 #include <ranges>
+#include <string_view>
 
-namespace NYdb {
-namespace NOdbc {
-
+namespace NYdb::NOdbc {
 namespace {
 
-bool MatchesTableTypeFilter(const std::string& filter, const std::string& entryType) {
+TColumnMeta C(std::string_view name, SQLSMALLINT type, SQLULEN size,
+              SQLSMALLINT nullable = SQL_NULLABLE) {
+    return {std::string(name), type, size, nullable};
+}
+
+TColumnMeta V(std::string_view name, SQLULEN size = 128,
+              SQLSMALLINT nullable = SQL_NULLABLE) {
+    return C(name, SQL_VARCHAR, size, nullable);
+}
+
+TColumnMeta N(std::string_view name, SQLSMALLINT type,
+              SQLSMALLINT nullable = SQL_NULLABLE) {
+    return C(name, type, 0, nullable);
+}
+
+const TColumnMeta kColumnsSchema[] = {
+    V("TABLE_CAT"),
+    V("TABLE_SCHEM"),
+    V("TABLE_NAME", 128, SQL_NO_NULLS),
+    V("COLUMN_NAME", 128, SQL_NO_NULLS),
+    N("DATA_TYPE", SQL_SMALLINT, SQL_NO_NULLS),
+    V("TYPE_NAME", 128, SQL_NO_NULLS),
+    N("COLUMN_SIZE", SQL_INTEGER),
+    N("BUFFER_LENGTH", SQL_INTEGER),
+    N("DECIMAL_DIGITS", SQL_SMALLINT),
+    N("NUM_PREC_RADIX", SQL_SMALLINT),
+    N("NULLABLE", SQL_SMALLINT, SQL_NO_NULLS),
+    V("REMARKS", 762),
+    V("COLUMN_DEF", 254),
+    N("SQL_DATA_TYPE", SQL_SMALLINT, SQL_NO_NULLS),
+    N("SQL_DATETIME_SUB", SQL_SMALLINT),
+    N("CHAR_OCTET_LENGTH", SQL_INTEGER),
+    N("ORDINAL_POSITION", SQL_INTEGER, SQL_NO_NULLS),
+    V("IS_NULLABLE", 254, SQL_NO_NULLS),
+};
+
+const TColumnMeta kTablesSchema[] = {
+    V("TABLE_CAT"),
+    V("TABLE_SCHEM"),
+    V("TABLE_NAME", 128, SQL_NO_NULLS),
+    V("TABLE_TYPE", 128, SQL_NO_NULLS),
+    V("REMARKS", 254),
+};
+
+const TColumnMeta kTypeInfoSchema[] = {
+    V("TYPE_NAME", 128, SQL_NO_NULLS),
+    N("DATA_TYPE", SQL_SMALLINT, SQL_NO_NULLS),
+    N("COLUMN_SIZE", SQL_INTEGER),
+    V("LITERAL_PREFIX"),
+    V("LITERAL_SUFFIX"),
+    V("CREATE_PARAMS"),
+    N("NULLABLE", SQL_SMALLINT, SQL_NO_NULLS),
+    N("CASE_SENSITIVE", SQL_SMALLINT, SQL_NO_NULLS),
+    N("SEARCHABLE", SQL_SMALLINT, SQL_NO_NULLS),
+    C("UNSIGNED_ATTRIBUTE", SQL_CHAR, 1),
+    N("FIXED_PREC_SCALE", SQL_SMALLINT, SQL_NO_NULLS),
+    N("AUTO_UNIQUE_VALUE", SQL_SMALLINT, SQL_NO_NULLS),
+    V("LOCAL_TYPE_NAME"),
+    N("MINIMUM_SCALE", SQL_SMALLINT),
+    N("MAXIMUM_SCALE", SQL_SMALLINT),
+    N("SQL_DATA_TYPE", SQL_SMALLINT, SQL_NO_NULLS),
+    N("SQL_DATETIME_SUB", SQL_SMALLINT),
+    N("NUM_PREC_RADIX", SQL_INTEGER),
+    N("INTERVAL_PRECISION", SQL_SMALLINT),
+};
+
+const TColumnMeta kStatisticsSchema[] = {
+    V("TABLE_CAT"),
+    V("TABLE_SCHEM"),
+    V("TABLE_NAME", 128, SQL_NO_NULLS),
+    C("NON_UNIQUE", SQL_CHAR, 1, SQL_NO_NULLS),
+    V("INDEX_QUALIFIER"),
+    V("INDEX_NAME"),
+    N("TYPE", SQL_SMALLINT, SQL_NO_NULLS),
+    N("ORDINAL_POSITION", SQL_SMALLINT),
+    V("COLUMN_NAME"),
+    C("ASC_OR_DESC", SQL_CHAR, 1),
+    N("CARDINALITY", SQL_INTEGER),
+    N("PAGES", SQL_INTEGER),
+    V("FILTER_CONDITION"),
+};
+
+const TColumnMeta kSpecialColumnsSchema[] = {
+    N("SCOPE", SQL_SMALLINT),
+    V("COLUMN_NAME", 128, SQL_NO_NULLS),
+    N("DATA_TYPE", SQL_SMALLINT, SQL_NO_NULLS),
+    V("TYPE_NAME", 128, SQL_NO_NULLS),
+    N("COLUMN_SIZE", SQL_INTEGER),
+    N("BUFFER_LENGTH", SQL_INTEGER),
+    N("DECIMAL_DIGITS", SQL_SMALLINT),
+    N("PSEUDO_COLUMN", SQL_SMALLINT, SQL_NO_NULLS),
+};
+
+const TColumnMeta kPrimaryKeysSchema[] = {
+    V("TABLE_CAT"),
+    V("TABLE_SCHEM"),
+    V("TABLE_NAME", 128, SQL_NO_NULLS),
+    V("COLUMN_NAME", 128, SQL_NO_NULLS),
+    N("KEY_SEQ", SQL_SMALLINT, SQL_NO_NULLS),
+    V("PK_NAME"),
+};
+
+const TColumnMeta kForeignKeysSchema[] = {
+    V("PKTABLE_CAT"),
+    V("PKTABLE_SCHEM"),
+    V("PKTABLE_NAME", 128, SQL_NO_NULLS),
+    V("PKCOLUMN_NAME", 128, SQL_NO_NULLS),
+    V("FKTABLE_CAT"),
+    V("FKTABLE_SCHEM"),
+    V("FKTABLE_NAME", 128, SQL_NO_NULLS),
+    V("FKCOLUMN_NAME", 128, SQL_NO_NULLS),
+    N("KEY_SEQ", SQL_SMALLINT, SQL_NO_NULLS),
+    N("UPDATE_RULE", SQL_SMALLINT),
+    N("DELETE_RULE", SQL_SMALLINT),
+    V("FK_NAME"),
+    V("PK_NAME"),
+    N("DEFERRABILITY", SQL_SMALLINT),
+};
+
+TOdbcScalar Null() {
+    return std::monostate{};
+}
+
+template <class T>
+TOdbcScalar I(T value) {
+    return static_cast<int64_t>(value);
+}
+
+template <class T>
+TOdbcScalar Maybe(const std::optional<T>& value) {
+    return value ? I(*value) : Null();
+}
+
+template <class Visitor>
+void DescribeTable(TConnection* connection, const std::string& path, Visitor&& visitor) {
+    auto client = connection->GetTableClient();
+    if (!client) {
+        throw TOdbcException("HY000", 0, "No client connection");
+    }
+    auto status = client->RetryOperationSync(
+        [path, &visitor](NTable::TSession session) -> TStatus {
+            auto result = session.DescribeTable(path).ExtractValueSync();
+            NStatusHelpers::ThrowOnError(result);
+            visitor(result.GetTableDescription());
+            return TStatus(EStatus::SUCCESS, {});
+        });
+    NStatusHelpers::ThrowOnError(status);
+}
+
+bool MatchesTableTypeFilter(std::string_view filter, std::string_view entryType) {
     if (filter.empty()) {
         return true;
     }
-    size_t start = 0;
-    while (start <= filter.size()) {
-        const size_t comma = filter.find(',', start);
-        std::string token = filter.substr(start, comma == std::string::npos ? std::string::npos : comma - start);
+    while (true) {
+        const size_t comma = filter.find(',');
+        std::string_view token = filter.substr(0, comma);
         while (!token.empty() && std::isspace(static_cast<unsigned char>(token.front()))) {
-            token.erase(token.begin());
+            token.remove_prefix(1);
         }
         while (!token.empty() && std::isspace(static_cast<unsigned char>(token.back()))) {
-            token.pop_back();
+            token.remove_suffix(1);
         }
         if (token.size() >= 2 && token.front() == '\'' && token.back() == '\'') {
             token = token.substr(1, token.size() - 2);
         }
-        if (!token.empty() && token.size() == entryType.size() &&
-            StartsWithPrefix(entryType.c_str(), entryType.size(), token.c_str(), token.size())) {
+        if (token.size() == entryType.size()
+            && StartsWithPrefix(entryType.data(), entryType.size(), token.data(), token.size())) {
             return true;
         }
-        if (comma == std::string::npos) {
-            break;
+        if (comma == std::string_view::npos) {
+            return false;
         }
-        start = comma + 1;
+        filter.remove_prefix(comma + 1);
     }
-    return false;
 }
 
-namespace NColumnsRow {
-constexpr int kTableCat = 0;
-constexpr int kTableSchem = 1;
-constexpr int kTableName = 2;
-constexpr int kColumnName = 3;
-constexpr int kDataType = 4;
-constexpr int kTypeName = 5;
-constexpr int kColumnSize = 6;
-constexpr int kBufferLength = 7;
-constexpr int kDecimalDigits = 8;
-constexpr int kNumPrecRadix = 9;
-constexpr int kNullable = 10;
-constexpr int kRemarks = 11;
-constexpr int kColumnDef = 12;
-constexpr int kSqlDataType = 13;
-constexpr int kSqlDatetimeSub = 14;
-constexpr int kCharOctetLength = 15;
-constexpr int kOrdinalPosition = 16;
-constexpr int kIsNullable = 17;
-} // namespace NColumnsRow
+TTable BuildTypeInfoRows(SQLSMALLINT dataType) {
+    if (dataType == SQL_DATE) {
+        dataType = SQL_TYPE_DATE;
+    } else if (dataType == SQL_TIME) {
+        dataType = SQL_TYPE_TIME;
+    } else if (dataType == SQL_TIMESTAMP) {
+        dataType = SQL_TYPE_TIMESTAMP;
+    }
+
+    TTable table;
+    for (const TSqlTypeSpec& spec : GetSqlTypeSpecs()) {
+        if ((dataType == SQL_ALL_TYPES && !spec.Advertise)
+            || (dataType != SQL_ALL_TYPES && spec.Type != dataType)) {
+            continue;
+        }
+        std::string typeName(spec.Name);
+        std::ranges::transform(typeName, typeName.begin(), [](unsigned char c) {
+            return static_cast<char>(std::tolower(c));
+        });
+        table.push_back({
+            typeName, I(spec.Type), I(static_cast<SQLINTEGER>(spec.ColumnSize)), Null(), Null(),
+            Null(), I(SQL_NULLABLE),
+            I(SQL_FALSE), I(SQL_PRED_SEARCHABLE), Null(), I(SQL_FALSE), I(SQL_FALSE), typeName,
+            I(0), I(0), I(spec.Type), I(0), I(10), I(0),
+        });
+    }
+    return table;
+}
 
 } // namespace
 
-SQLRETURN TStatement::Columns(const std::string& catalogName,
-                              const std::string& schemaName,
-                              const std::string& tableName,
-                              const std::string& columnName) {
+SQLRETURN TStatement::Columns(const std::string& catalogName, const std::string& schemaName,
+                              const std::string& tableName, const std::string& columnName) {
     ResetForMetadata();
-
-    std::vector<TColumnMeta> columns = {
-        {"TABLE_CAT", SQL_VARCHAR, 128, SQL_NULLABLE},
-        {"TABLE_SCHEM", SQL_VARCHAR, 128, SQL_NULLABLE},
-        {"TABLE_NAME", SQL_VARCHAR, 128, SQL_NO_NULLS},
-        {"COLUMN_NAME", SQL_VARCHAR, 128, SQL_NO_NULLS},
-        {"DATA_TYPE", SQL_SMALLINT, 0, SQL_NO_NULLS},
-        {"TYPE_NAME", SQL_VARCHAR, 128, SQL_NO_NULLS},
-        {"COLUMN_SIZE", SQL_INTEGER, 0, SQL_NULLABLE},
-        {"BUFFER_LENGTH", SQL_INTEGER, 0, SQL_NULLABLE},
-        {"DECIMAL_DIGITS", SQL_SMALLINT, 0, SQL_NULLABLE},
-        {"NUM_PREC_RADIX", SQL_SMALLINT, 0, SQL_NULLABLE},
-        {"NULLABLE", SQL_SMALLINT, 0, SQL_NO_NULLS},
-        {"REMARKS", SQL_VARCHAR, 762, SQL_NULLABLE},
-        {"COLUMN_DEF", SQL_VARCHAR, 254, SQL_NULLABLE},
-        {"SQL_DATA_TYPE", SQL_SMALLINT, 0, SQL_NO_NULLS},
-        {"SQL_DATETIME_SUB", SQL_SMALLINT, 0, SQL_NULLABLE},
-        {"CHAR_OCTET_LENGTH", SQL_INTEGER, 0, SQL_NULLABLE},
-        {"ORDINAL_POSITION", SQL_INTEGER, 0, SQL_NO_NULLS},
-        {"IS_NULLABLE", SQL_VARCHAR, 254, SQL_NO_NULLS}
-    };
-
     if (!MetadataNamespaceMatches(catalogName, schemaName)) {
-        SetCursor(CreateVirtualCursor(columns, TTable{}));
+        SetCursor(CreateVirtualCursor(kColumnsSchema));
         return SQL_SUCCESS;
     }
 
     const std::string catalog = Conn_->GetCatalogBinding().Catalog;
-
-    auto entries = GetPatternEntries(tableName);
-
     TTable table;
-    table.reserve(entries.size());
-
-    if (entries.empty()) {
-        SetCursor(CreateVirtualCursor(columns, table));
-        return SQL_SUCCESS;
-    }
-
-    for (const auto& entry : entries) {
-        if (entry.Type != NScheme::ESchemeEntryType::Table &&
-            entry.Type != NScheme::ESchemeEntryType::ColumnTable) {
+    for (const auto& entry : GetPatternEntries(tableName)) {
+        if (entry.Type != NScheme::ESchemeEntryType::Table
+            && entry.Type != NScheme::ESchemeEntryType::ColumnTable) {
             continue;
         }
-
-        auto tableClient = Conn_->GetTableClient();
-        if (!tableClient) {
-            throw TOdbcException("HY000", 0, "No client connection");
-        }
-
-        auto status = tableClient->RetryOperationSync([this, path = entry.Name, catalog, &table, &columnName](NTable::TSession session) -> TStatus {
-            auto result = session.DescribeTable(path).ExtractValueSync();
-            NStatusHelpers::ThrowOnError(result);
-
-            auto columns = result.GetTableDescription().GetTableColumns();
-
-            auto columnMatches = [&](const NTable::TTableColumn& column) {
-                if (columnName.empty()) {
-                    return true;
-                }
-                if (Attributes_.GetMetadataId() == SQL_TRUE) {
-                    return column.Name == columnName;
-                }
-                return SqlLikeMatch(column.Name, columnName);
-            };
-
-            bool foundColumn = false;
-            for (size_t columnIndex = 0; columnIndex < columns.size(); ++columnIndex) {
-                const auto& column = columns[columnIndex];
-                if (!columnMatches(column)) {
+        DescribeTable(Conn_, entry.Name, [&](const auto& description) {
+            const auto& columns = description.GetTableColumns();
+            for (size_t index = 0; index < columns.size(); ++index) {
+                const auto& column = columns[index];
+                const bool matches = columnName.empty()
+                    || (Attributes_.GetMetadataId() == SQL_TRUE ? column.Name == columnName
+                                                                : SqlLikeMatch(column.Name, columnName));
+                if (!matches) {
                     continue;
                 }
-                foundColumn = true;
-
                 const TYdbTypeInfo type = DescribeYdbType(column.Type);
-                const std::optional<SQLINTEGER> colSize = type.ColumnSize > 0
-                    ? std::optional<SQLINTEGER>(static_cast<SQLINTEGER>(type.ColumnSize))
-                    : std::nullopt;
-
+                const TOdbcScalar size = type.ColumnSize
+                    ? I(static_cast<SQLINTEGER>(type.ColumnSize)) : Null();
+                const bool notNull = column.NotNull && *column.NotNull;
                 table.push_back({
-                    TValueBuilder().OptionalUtf8(catalog).Build(),
-                    TValueBuilder().OptionalUtf8(std::nullopt).Build(),
-                    TValueBuilder().Utf8(GetMetadataTableName(path)).Build(),
-                    TValueBuilder().Utf8(column.Name).Build(),
-                    TValueBuilder().Int16(type.SqlType).Build(),
-                    TValueBuilder().Utf8(column.Type.ToString()).Build(),
-                    TValueBuilder().OptionalInt32(colSize).Build(),
-                    TValueBuilder().OptionalInt32(colSize).Build(),
-                    TValueBuilder().OptionalInt16(type.DecimalDigits).Build(),
-                    TValueBuilder().OptionalInt16(type.Radix).Build(),
-                    TValueBuilder().Int16(column.NotNull && *column.NotNull ? SQL_NO_NULLS : SQL_NULLABLE).Build(),
-                    TValueBuilder().OptionalUtf8(std::nullopt).Build(),
-                    TValueBuilder().OptionalUtf8(std::nullopt).Build(),
-                    TValueBuilder().Int16(type.SqlType).Build(),
-                    TValueBuilder().OptionalInt16(std::nullopt).Build(),
-                    TValueBuilder().OptionalInt32(colSize).Build(),
-                    TValueBuilder().OptionalInt32(columnIndex + 1).Build(),
-                    TValueBuilder().Utf8(column.NotNull && *column.NotNull ? "NO" : "YES").Build(),
+                    catalog, Null(), GetMetadataTableName(entry.Name), column.Name, I(type.SqlType),
+                    column.Type.ToString(), size, size, Maybe(type.DecimalDigits), Maybe(type.Radix),
+                    I(notNull ? SQL_NO_NULLS : SQL_NULLABLE), Null(), Null(), I(type.SqlType), Null(),
+                    size, I(static_cast<SQLINTEGER>(index + 1)), std::string(notNull ? "NO" : "YES"),
                 });
             }
-            if (!foundColumn && !columnName.empty()) {
-                return TStatus(EStatus::SUCCESS, {});
-            }
-            return TStatus(EStatus::SUCCESS, {});
         });
-
-        NStatusHelpers::ThrowOnError(status);
     }
-
-    SetCursor(CreateVirtualCursor(columns, table));
+    SetCursor(CreateVirtualCursor(kColumnsSchema, std::move(table)));
     return SQL_SUCCESS;
 }
 
-SQLRETURN TStatement::Tables(const std::string& catalogName,
-                             const std::string& schemaName,
-                             const std::string& tableName,
-                             const std::string& tableType) {
+SQLRETURN TStatement::Tables(const std::string& catalogName, const std::string& schemaName,
+                             const std::string& tableName, const std::string& tableType) {
     ResetForMetadata();
-
-    std::vector<TColumnMeta> columns = {
-        {"TABLE_CAT", SQL_VARCHAR, 128, SQL_NULLABLE},
-        {"TABLE_SCHEM", SQL_VARCHAR, 128, SQL_NULLABLE},
-        {"TABLE_NAME", SQL_VARCHAR, 128, SQL_NO_NULLS},
-        {"TABLE_TYPE", SQL_VARCHAR, 128, SQL_NO_NULLS},
-        {"REMARKS", SQL_VARCHAR, 254, SQL_NULLABLE}
-    };
-
     if (!MetadataNamespaceMatches(catalogName, schemaName)) {
-        SetCursor(CreateVirtualCursor(columns, TTable{}));
+        SetCursor(CreateVirtualCursor(kTablesSchema));
         return SQL_SUCCESS;
     }
 
     const std::string catalog = Conn_->GetCatalogBinding().Catalog;
-
-    auto entries = GetPatternEntries(tableName);
-
     TTable table;
-    table.reserve(entries.size());
-
-    for (const auto& entry : entries) {
-        const auto entryType = GetTableType(entry.Type);
-        if (!entryType || !MatchesTableTypeFilter(tableType, *entryType)) {
-            continue;
+    for (const auto& entry : GetPatternEntries(tableName)) {
+        const auto type = GetTableType(entry.Type);
+        if (type && MatchesTableTypeFilter(tableType, *type)) {
+            table.push_back({catalog, Null(), GetMetadataTableName(entry.Name), *type, Null()});
         }
-
-        table.push_back({
-            TValueBuilder().OptionalUtf8(catalog).Build(),
-            TValueBuilder().OptionalUtf8(std::nullopt).Build(),
-            TValueBuilder().Utf8(GetMetadataTableName(entry.Name)).Build(),
-            TValueBuilder().Utf8(*entryType).Build(),
-            TValueBuilder().OptionalUtf8(std::nullopt).Build(),
-        });
     }
-
-    SetCursor(CreateVirtualCursor(columns, table));
+    SetCursor(CreateVirtualCursor(kTablesSchema, std::move(table)));
     return SQL_SUCCESS;
 }
 
 SQLRETURN TStatement::GetTypeInfo(SQLSMALLINT dataType) {
     ResetForMetadata();
-
-    static const std::vector<TColumnMeta> columns = {
-        {"TYPE_NAME", SQL_VARCHAR, 128, SQL_NO_NULLS},
-        {"DATA_TYPE", SQL_SMALLINT, 0, SQL_NO_NULLS},
-        {"COLUMN_SIZE", SQL_INTEGER, 0, SQL_NULLABLE},
-        {"LITERAL_PREFIX", SQL_VARCHAR, 128, SQL_NULLABLE},
-        {"LITERAL_SUFFIX", SQL_VARCHAR, 128, SQL_NULLABLE},
-        {"CREATE_PARAMS", SQL_VARCHAR, 128, SQL_NULLABLE},
-        {"NULLABLE", SQL_SMALLINT, 0, SQL_NO_NULLS},
-        {"CASE_SENSITIVE", SQL_SMALLINT, 0, SQL_NO_NULLS},
-        {"SEARCHABLE", SQL_SMALLINT, 0, SQL_NO_NULLS},
-        {"UNSIGNED_ATTRIBUTE", SQL_CHAR, 1, SQL_NULLABLE},
-        {"FIXED_PREC_SCALE", SQL_SMALLINT, 0, SQL_NO_NULLS},
-        {"AUTO_UNIQUE_VALUE", SQL_SMALLINT, 0, SQL_NO_NULLS},
-        {"LOCAL_TYPE_NAME", SQL_VARCHAR, 128, SQL_NULLABLE},
-        {"MINIMUM_SCALE", SQL_SMALLINT, 0, SQL_NULLABLE},
-        {"MAXIMUM_SCALE", SQL_SMALLINT, 0, SQL_NULLABLE},
-        {"SQL_DATA_TYPE", SQL_SMALLINT, 0, SQL_NO_NULLS},
-        {"SQL_DATETIME_SUB", SQL_SMALLINT, 0, SQL_NULLABLE},
-        {"NUM_PREC_RADIX", SQL_INTEGER, 0, SQL_NULLABLE},
-        {"INTERVAL_PRECISION", SQL_SMALLINT, 0, SQL_NULLABLE},
-    };
-
-    SetCursor(CreateVirtualCursor(columns, BuildTypeInfoRows(dataType)));
+    SetCursor(CreateVirtualCursor(kTypeInfoSchema, BuildTypeInfoRows(dataType)));
     return SQL_SUCCESS;
 }
 
-SQLRETURN TStatement::Statistics(const std::string& /*catalogName*/,
-                                 const std::string& /*schemaName*/,
-                                 const std::string& /*tableName*/,
-                                 SQLUSMALLINT /*unique*/,
-                                 SQLUSMALLINT /*accuracy*/) {
+SQLRETURN TStatement::Statistics(const std::string&, const std::string&, const std::string&,
+                                 SQLUSMALLINT, SQLUSMALLINT) {
     ResetForMetadata();
-
-    static const std::vector<TColumnMeta> columns = {
-        {"TABLE_CAT", SQL_VARCHAR, 128, SQL_NULLABLE},
-        {"TABLE_SCHEM", SQL_VARCHAR, 128, SQL_NULLABLE},
-        {"TABLE_NAME", SQL_VARCHAR, 128, SQL_NO_NULLS},
-        {"NON_UNIQUE", SQL_CHAR, 1, SQL_NO_NULLS},
-        {"INDEX_QUALIFIER", SQL_VARCHAR, 128, SQL_NULLABLE},
-        {"INDEX_NAME", SQL_VARCHAR, 128, SQL_NULLABLE},
-        {"TYPE", SQL_SMALLINT, 0, SQL_NO_NULLS},
-        {"ORDINAL_POSITION", SQL_SMALLINT, 0, SQL_NULLABLE},
-        {"COLUMN_NAME", SQL_VARCHAR, 128, SQL_NULLABLE},
-        {"ASC_OR_DESC", SQL_CHAR, 1, SQL_NULLABLE},
-        {"CARDINALITY", SQL_INTEGER, 0, SQL_NULLABLE},
-        {"PAGES", SQL_INTEGER, 0, SQL_NULLABLE},
-        {"FILTER_CONDITION", SQL_VARCHAR, 128, SQL_NULLABLE},
-    };
-
-    SetCursor(CreateVirtualCursor(columns, TTable{}));
+    SetCursor(CreateVirtualCursor(kStatisticsSchema));
     return SQL_SUCCESS;
 }
 
-SQLRETURN TStatement::SpecialColumns(const std::string& catalogName,
-                                     const std::string& schemaName,
-                                     const std::string& tableName,
-                                     SQLUSMALLINT identifierType,
-                                     SQLUSMALLINT /*scope*/) {
+SQLRETURN TStatement::SpecialColumns(const std::string& catalogName, const std::string& schemaName,
+                                     const std::string& tableName, SQLUSMALLINT identifierType,
+                                     SQLUSMALLINT) {
     if (identifierType != SQL_BEST_ROWID) {
         return AddError("HYC00", 0, "Optional feature not implemented");
     }
-
     ResetForMetadata();
-
-    std::vector<TColumnMeta> columns = {
-        {"SCOPE", SQL_SMALLINT, 0, SQL_NULLABLE},
-        {"COLUMN_NAME", SQL_VARCHAR, 128, SQL_NO_NULLS},
-        {"DATA_TYPE", SQL_SMALLINT, 0, SQL_NO_NULLS},
-        {"TYPE_NAME", SQL_VARCHAR, 128, SQL_NO_NULLS},
-        {"COLUMN_SIZE", SQL_INTEGER, 0, SQL_NULLABLE},
-        {"BUFFER_LENGTH", SQL_INTEGER, 0, SQL_NULLABLE},
-        {"DECIMAL_DIGITS", SQL_SMALLINT, 0, SQL_NULLABLE},
-        {"PSEUDO_COLUMN", SQL_SMALLINT, 0, SQL_NO_NULLS},
-    };
-
     if (!MetadataNamespaceMatches(catalogName, schemaName)) {
-        SetCursor(CreateVirtualCursor(columns, TTable{}));
+        SetCursor(CreateVirtualCursor(kSpecialColumnsSchema));
         return SQL_SUCCESS;
     }
 
-    TTable table;
     auto entries = GetPatternEntries(tableName);
-    if (entries.size() != 1) {
-        if (entries.empty()) {
-            SetCursor(CreateVirtualCursor(columns, table));
-            return SQL_SUCCESS;
-        }
+    if (entries.size() > 1) {
         throw TOdbcException("HY000", 0, "Ambiguous table name");
     }
-
-    auto tableClient = Conn_->GetTableClient();
-    if (!tableClient) {
-        throw TOdbcException("HY000", 0, "No client connection");
-    }
-
-    const std::string path = entries.front().Name;
-    auto status = tableClient->RetryOperationSync([path, &table, &columns](NTable::TSession session) -> TStatus {
-        auto result = session.DescribeTable(path).ExtractValueSync();
-        NStatusHelpers::ThrowOnError(result);
-
-        const auto& pkColumns = result.GetTableDescription().GetPrimaryKeyColumns();
-        const auto& tableColumns = result.GetTableDescription().GetTableColumns();
-        for (const auto& pkName : pkColumns) {
-            const auto columnIt = std::ranges::find_if(tableColumns,
-                [&](const NTable::TTableColumn& column) { return column.Name == pkName; });
-            if (columnIt == tableColumns.end()) {
-                continue;
+    TTable table;
+    if (!entries.empty()) {
+        DescribeTable(Conn_, entries.front().Name, [&](const auto& description) {
+            const auto& columns = description.GetTableColumns();
+            for (const auto& pkName : description.GetPrimaryKeyColumns()) {
+                const auto column = std::ranges::find_if(
+                    columns, [&](const auto& item) { return item.Name == pkName; });
+                if (column == columns.end()) {
+                    continue;
+                }
+                const TYdbTypeInfo type = DescribeYdbType(column->Type);
+                const TOdbcScalar size = type.ColumnSize
+                    ? I(static_cast<SQLINTEGER>(type.ColumnSize)) : Null();
+                table.push_back({I(SQL_SCOPE_SESSION), pkName, I(type.SqlType), column->Type.ToString(),
+                                 size, size, Maybe(type.DecimalDigits), I(SQL_PC_NOT_PSEUDO)});
             }
-            const TYdbTypeInfo type = DescribeYdbType(columnIt->Type);
-            const std::optional<SQLINTEGER> colSize = type.ColumnSize > 0
-                ? std::optional<SQLINTEGER>(static_cast<SQLINTEGER>(type.ColumnSize))
-                : std::nullopt;
-            table.push_back({
-                TValueBuilder().OptionalInt16(SQL_SCOPE_SESSION).Build(),
-                TValueBuilder().Utf8(pkName).Build(),
-                TValueBuilder().Int16(type.SqlType).Build(),
-                TValueBuilder().Utf8(columnIt->Type.ToString()).Build(),
-                TValueBuilder().OptionalInt32(colSize).Build(),
-                TValueBuilder().OptionalInt32(colSize).Build(),
-                TValueBuilder().OptionalInt16(type.DecimalDigits).Build(),
-                TValueBuilder().Int16(SQL_PC_NOT_PSEUDO).Build(),
-            });
-        }
-        return TStatus(EStatus::SUCCESS, {});
-    });
-    NStatusHelpers::ThrowOnError(status);
-
-    SetCursor(CreateVirtualCursor(columns, table));
+        });
+    }
+    SetCursor(CreateVirtualCursor(kSpecialColumnsSchema, std::move(table)));
     return SQL_SUCCESS;
 }
 
-SQLRETURN TStatement::PrimaryKeys(const std::string& catalogName,
-                                  const std::string& schemaName,
+SQLRETURN TStatement::PrimaryKeys(const std::string& catalogName, const std::string& schemaName,
                                   const std::string& tableName) {
     ResetForMetadata();
-
-    std::vector<TColumnMeta> columns = {
-        {"TABLE_CAT", SQL_VARCHAR, 128, SQL_NULLABLE},
-        {"TABLE_SCHEM", SQL_VARCHAR, 128, SQL_NULLABLE},
-        {"TABLE_NAME", SQL_VARCHAR, 128, SQL_NO_NULLS},
-        {"COLUMN_NAME", SQL_VARCHAR, 128, SQL_NO_NULLS},
-        {"KEY_SEQ", SQL_SMALLINT, 0, SQL_NO_NULLS},
-        {"PK_NAME", SQL_VARCHAR, 128, SQL_NULLABLE},
-    };
-
     if (!MetadataNamespaceMatches(catalogName, schemaName)) {
-        SetCursor(CreateVirtualCursor(columns, TTable{}));
+        SetCursor(CreateVirtualCursor(kPrimaryKeysSchema));
         return SQL_SUCCESS;
     }
 
-    const std::string catalog = Conn_->GetCatalogBinding().Catalog;
-
-    TTable table;
     auto entries = GetPatternEntries(tableName);
-    if (entries.size() != 1) {
-        if (entries.empty()) {
-            SetCursor(CreateVirtualCursor(columns, table));
-            return SQL_SUCCESS;
-        }
+    if (entries.size() > 1) {
         throw TOdbcException("HY000", 0, "Ambiguous table name");
     }
-
-    auto tableClient = Conn_->GetTableClient();
-    if (!tableClient) {
-        throw TOdbcException("HY000", 0, "No client connection");
+    TTable table;
+    if (!entries.empty()) {
+        const std::string catalog = Conn_->GetCatalogBinding().Catalog;
+        DescribeTable(Conn_, entries.front().Name, [&](const auto& description) {
+            SQLSMALLINT sequence = 1;
+            for (const auto& name : description.GetPrimaryKeyColumns()) {
+                table.push_back({catalog, Null(), GetMetadataTableName(entries.front().Name),
+                                 name, I(sequence++), Null()});
+            }
+        });
     }
-
-    const std::string path = entries.front().Name;
-    auto status = tableClient->RetryOperationSync([this, path, catalog, &table](NTable::TSession session) -> TStatus {
-        auto result = session.DescribeTable(path).ExtractValueSync();
-        NStatusHelpers::ThrowOnError(result);
-
-        const auto& pkColumns = result.GetTableDescription().GetPrimaryKeyColumns();
-        SQLSMALLINT keySeq = 1;
-        for (const auto& pkName : pkColumns) {
-            table.push_back({
-                TValueBuilder().OptionalUtf8(catalog).Build(),
-                TValueBuilder().OptionalUtf8(std::nullopt).Build(),
-                TValueBuilder().Utf8(GetMetadataTableName(path)).Build(),
-                TValueBuilder().Utf8(pkName).Build(),
-                TValueBuilder().Int16(keySeq++).Build(),
-                TValueBuilder().OptionalUtf8(std::nullopt).Build(),
-            });
-        }
-        return TStatus(EStatus::SUCCESS, {});
-    });
-    NStatusHelpers::ThrowOnError(status);
-
-    SetCursor(CreateVirtualCursor(columns, table));
+    SetCursor(CreateVirtualCursor(kPrimaryKeysSchema, std::move(table)));
     return SQL_SUCCESS;
 }
 
-SQLRETURN TStatement::ForeignKeys(const std::string& /*pkCatalogName*/,
-                                    const std::string& /*pkSchemaName*/,
-                                    const std::string& /*pkTableName*/,
-                                    const std::string& /*fkCatalogName*/,
-                                    const std::string& /*fkSchemaName*/,
-                                    const std::string& /*fkTableName*/) {
+SQLRETURN TStatement::ForeignKeys(const std::string&, const std::string&, const std::string&,
+                                  const std::string&, const std::string&, const std::string&) {
     ResetForMetadata();
-
-    std::vector<TColumnMeta> columns = {
-        {"PKTABLE_CAT", SQL_VARCHAR, 128, SQL_NULLABLE},
-        {"PKTABLE_SCHEM", SQL_VARCHAR, 128, SQL_NULLABLE},
-        {"PKTABLE_NAME", SQL_VARCHAR, 128, SQL_NO_NULLS},
-        {"PKCOLUMN_NAME", SQL_VARCHAR, 128, SQL_NO_NULLS},
-        {"FKTABLE_CAT", SQL_VARCHAR, 128, SQL_NULLABLE},
-        {"FKTABLE_SCHEM", SQL_VARCHAR, 128, SQL_NULLABLE},
-        {"FKTABLE_NAME", SQL_VARCHAR, 128, SQL_NO_NULLS},
-        {"FKCOLUMN_NAME", SQL_VARCHAR, 128, SQL_NO_NULLS},
-        {"KEY_SEQ", SQL_SMALLINT, 0, SQL_NO_NULLS},
-        {"UPDATE_RULE", SQL_SMALLINT, 0, SQL_NULLABLE},
-        {"DELETE_RULE", SQL_SMALLINT, 0, SQL_NULLABLE},
-        {"FK_NAME", SQL_VARCHAR, 128, SQL_NULLABLE},
-        {"PK_NAME", SQL_VARCHAR, 128, SQL_NULLABLE},
-        {"DEFERRABILITY", SQL_SMALLINT, 0, SQL_NULLABLE},
-    };
-
-    SetCursor(CreateVirtualCursor(columns, TTable{}));
+    SetCursor(CreateVirtualCursor(kForeignKeysSchema));
     return SQL_SUCCESS;
 }
 
 std::string TStatement::GetTraversalRoot(const std::string& pattern) const {
-    if (pattern.empty()) {
-        return "";
-    }
-    const auto hasWildcard = [](const std::string& value) {
-        return value.find('%') != std::string::npos || value.find('_') != std::string::npos;
-    };
-    if (Attributes_.GetMetadataId() == SQL_TRUE && !hasWildcard(pattern)) {
-        const auto pos = pattern.find_last_of('/');
-        return pos == std::string::npos ? "" : pattern.substr(0, pos);
-    }
-    size_t wildPos = pattern.size();
-    const auto pct = pattern.find('%');
-    const auto usc = pattern.find('_');
-    if (pct != std::string::npos) {
-        wildPos = std::min(wildPos, pct);
-    }
-    if (usc != std::string::npos) {
-        wildPos = std::min(wildPos, usc);
-    }
-    const std::string prefix = pattern.substr(0, wildPos);
-    const auto pos = prefix.find_last_of('/');
-    return pos == std::string::npos ? "" : prefix.substr(0, pos);
+    const size_t slash = pattern.rfind('/', pattern.find_first_of("%_"));
+    return slash == std::string::npos ? "" : pattern.substr(0, slash);
 }
 
 std::vector<NScheme::TSchemeEntry> TStatement::GetPatternEntries(const std::string& pattern) {
     const std::string catalog = Conn_->GetCatalogBinding().Catalog;
     std::string searchPattern = pattern;
     if (!pattern.empty() && pattern.front() != '/' && pattern.find('/') == std::string::npos) {
-        searchPattern = catalog;
-        if (searchPattern.empty() || searchPattern.back() != '/') {
-            searchPattern += '/';
-        }
-        searchPattern += pattern;
+        searchPattern = catalog + (catalog.empty() || catalog.back() != '/' ? "/" : "") + pattern;
     }
     std::vector<NScheme::TSchemeEntry> entries;
     VisitEntry(pattern.empty() ? catalog : GetTraversalRoot(searchPattern), searchPattern, entries);
@@ -506,96 +392,58 @@ std::string TStatement::GetMetadataTableName(const std::string& path) const {
     return path.starts_with(prefix) ? path.substr(prefix.size()) : path;
 }
 
-bool TStatement::MetadataNamespaceMatches(
-    const std::string& catalog,
-    const std::string& schema) const {
-    const std::string currentCatalog = Conn_->GetCatalogBinding().Catalog;
+bool TStatement::MetadataNamespaceMatches(const std::string& catalog, const std::string& schema) const {
     const auto matches = [&](const std::string& value, const std::string& pattern) {
-        if (pattern.empty()) {
-            return true;
-        }
-        return Attributes_.GetMetadataId() == SQL_TRUE
-            ? value == pattern
-            : SqlLikeMatch(value, pattern);
+        return pattern.empty() || (Attributes_.GetMetadataId() == SQL_TRUE
+            ? value == pattern : SqlLikeMatch(value, pattern));
     };
-    return matches(currentCatalog, catalog) && matches("", schema);
+    return matches(Conn_->GetCatalogBinding().Catalog, catalog) && matches("", schema);
 }
 
-SQLRETURN TStatement::VisitEntry(const std::string& path, const std::string& pattern, std::vector<NScheme::TSchemeEntry>& resultEntries) {
-    auto schemeClient = Conn_->GetSchemeClient();
-    if (!schemeClient) {
+SQLRETURN TStatement::VisitEntry(const std::string& path, const std::string& pattern,
+                                 std::vector<NScheme::TSchemeEntry>& result) {
+    auto client = Conn_->GetSchemeClient();
+    if (!client) {
         throw TOdbcException("HY000", 0, "No client connection");
     }
-    auto listDirectoryResult = schemeClient->ListDirectory(path + "/").ExtractValueSync();
-    NStatusHelpers::ThrowOnError(listDirectoryResult);
-
-    for (const auto& entry : listDirectoryResult.GetChildren()) {
-        std::string fullPath = path + "/" + entry.Name;
-        if (entry.Type == NScheme::ESchemeEntryType::Directory ||
-            entry.Type == NScheme::ESchemeEntryType::SubDomain) {
-            VisitEntry(fullPath, pattern, resultEntries);
+    auto listing = client->ListDirectory(path + "/").ExtractValueSync();
+    NStatusHelpers::ThrowOnError(listing);
+    for (const auto& entry : listing.GetChildren()) {
+        const std::string fullPath = path + "/" + entry.Name;
+        if (entry.Type == NScheme::ESchemeEntryType::Directory
+            || entry.Type == NScheme::ESchemeEntryType::SubDomain) {
+            VisitEntry(fullPath, pattern, result);
         } else if (IsPatternMatch(fullPath, pattern)) {
-            NScheme::TSchemeEntry entryCopy = entry;
-            entryCopy.Name = fullPath;
-            resultEntries.push_back(entryCopy);
+            result.push_back(entry);
+            result.back().Name = fullPath;
         }
     }
     return SQL_SUCCESS;
 }
 
 bool TStatement::IsPatternMatch(const std::string& path, const std::string& pattern) {
-    if (pattern.empty()) {
-        return true;
-    }
-    if (Attributes_.GetMetadataId() == SQL_TRUE) {
-        return path == pattern;
-    }
-    return SqlLikeMatch(path, pattern);
+    return pattern.empty() || (Attributes_.GetMetadataId() == SQL_TRUE
+        ? path == pattern : SqlLikeMatch(path, pattern));
 }
 
 std::optional<std::string> TStatement::GetTableType(NScheme::ESchemeEntryType type) {
-    switch (type) {
-        case NScheme::ESchemeEntryType::Table:
-            return "TABLE";
-        case NScheme::ESchemeEntryType::View:
-            return "VIEW";
-        case NScheme::ESchemeEntryType::ColumnStore:
-            return "COLUMN_STORE";
-        case NScheme::ESchemeEntryType::ColumnTable:
-            return "COLUMN_TABLE";
-        case NScheme::ESchemeEntryType::Sequence:
-            return "SEQUENCE";
-        case NScheme::ESchemeEntryType::Replication:
-            return "REPLICATION";
-        case NScheme::ESchemeEntryType::Topic:
-            return "TOPIC";
-        case NScheme::ESchemeEntryType::ExternalTable:
-            return "EXTERNAL_TABLE";
-        case NScheme::ESchemeEntryType::ExternalDataSource:
-            return "EXTERNAL_DATA_SOURCE";
-        case NScheme::ESchemeEntryType::ResourcePool:
-            return "RESOURCE_POOL";
-        case NScheme::ESchemeEntryType::PqGroup:
-            return "PQ_GROUP";
-        case NScheme::ESchemeEntryType::RtmrVolume:
-            return "RTMR_VOLUME";
-        case NScheme::ESchemeEntryType::BlockStoreVolume:
-            return "BLOCK_STORE_VOLUME";
-        case NScheme::ESchemeEntryType::CoordinationNode:
-            return "COORDINATION_NODE";
-        case NScheme::ESchemeEntryType::Unknown:
-            return "UNKNOWN";
-        case NScheme::ESchemeEntryType::SysView:
-            return "SYSTEM VIEW";
-        case NScheme::ESchemeEntryType::Transfer:
-            return "TRANSFER";
-        case NScheme::ESchemeEntryType::Directory:
-        case NScheme::ESchemeEntryType::SubDomain:
-            return std::nullopt;
-        default:
-            return std::nullopt;
+    using E = NScheme::ESchemeEntryType;
+    static constexpr std::pair<E, std::string_view> types[] = {
+        {E::Table, "TABLE"}, {E::View, "VIEW"}, {E::ColumnStore, "COLUMN_STORE"},
+        {E::ColumnTable, "COLUMN_TABLE"}, {E::Sequence, "SEQUENCE"},
+        {E::Replication, "REPLICATION"}, {E::Topic, "TOPIC"},
+        {E::ExternalTable, "EXTERNAL_TABLE"}, {E::ExternalDataSource, "EXTERNAL_DATA_SOURCE"},
+        {E::ResourcePool, "RESOURCE_POOL"}, {E::PqGroup, "PQ_GROUP"},
+        {E::RtmrVolume, "RTMR_VOLUME"}, {E::BlockStoreVolume, "BLOCK_STORE_VOLUME"},
+        {E::CoordinationNode, "COORDINATION_NODE"}, {E::Unknown, "UNKNOWN"},
+        {E::SysView, "SYSTEM VIEW"}, {E::Transfer, "TRANSFER"},
+    };
+    for (const auto& [entryType, name] : types) {
+        if (entryType == type) {
+            return std::string(name);
+        }
     }
+    return std::nullopt;
 }
 
-} // namespace NOdbc
-} // namespace NYdb
+} // namespace NYdb::NOdbc

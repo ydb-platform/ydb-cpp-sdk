@@ -62,6 +62,16 @@ TEST(OdbcEscapeRewrite, NestedFnEscapes) {
     EXPECT_EQ(RewriteOdbcEscapes("{fn {fn ABS(1)}}"), "ABS(1)");
 }
 
+TEST(OdbcEscapeRewrite, NestedConvertArguments) {
+    EXPECT_EQ(
+        RewriteOdbcEscapes("{fn CONVERT(COALESCE(x, 1), SQL_INTEGER)}"),
+        "CAST(COALESCE(x, 1) AS Int32)");
+}
+
+TEST(OdbcEscapeRewrite, LeavesQuotedEscapesAlone) {
+    EXPECT_EQ(RewriteOdbcEscapes("SELECT '{fn ABS(1)}'"), "SELECT '{fn ABS(1)}'");
+}
+
 TEST(OdbcEscapeRewrite, UnknownBraceLeftUnchanged) {
     EXPECT_EQ(RewriteOdbcEscapes("{not_a_keyword 1}"), "{not_a_keyword 1}");
 }

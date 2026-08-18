@@ -395,3 +395,36 @@ TEST(OdbcConvert, BinaryEmptyToYdb) {
     ASSERT_TRUE(value);
     CheckProto(value->GetProto(), "bytes_value: \"\"\n");
 }
+
+TEST(OdbcConvert, VirtualScalarUsesSharedIntegerConversion) {
+    const TOdbcScalar value = int64_t{123};
+    SQLSMALLINT result = 0;
+    SQLLEN length = 0;
+
+    ASSERT_EQ(ConvertColumn(value, SQL_C_SHORT, &result, sizeof(result), &length), SQL_SUCCESS);
+    EXPECT_EQ(result, 123);
+    EXPECT_EQ(length, sizeof(result));
+}
+
+TEST(OdbcConvert, VirtualScalarPreservesRangeSqlState) {
+    const TOdbcScalar value = uint64_t{256};
+    SQLCHAR result = 0;
+
+    EXPECT_EQ(ConvertColumn(value, SQL_C_UTINYINT, &result, sizeof(result), nullptr), SQL_ERROR);
+    EXPECT_STREQ(ConsumeLastConvertSqlState(), "22003");
+}
+
+TEST(OdbcConvert, VirtualScalarNullRequiresIndicator) {
+    const TOdbcScalar value = std::monostate{};
+
+    EXPECT_EQ(ConvertColumn(value, SQL_C_CHAR, nullptr, 0, nullptr), SQL_ERROR);
+    EXPECT_STREQ(ConsumeLastConvertSqlState(), "22002");
+}
+
+TEST(OdbcConvert, InvalidUtf8ToWidePreservesConversionState) {
+    const TOdbcScalar value = std::string("\xff", 1);
+    SQLWCHAR output[2] = {};
+
+    EXPECT_EQ(ConvertColumn(value, SQL_C_WCHAR, output, sizeof(output), nullptr), SQL_ERROR);
+    EXPECT_STREQ(ConsumeLastConvertSqlState(), "22018");
+}

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utils/error_manager.h"
+#include "utils/attr.h"
 
 #include <sql.h>
 #include <sqlext.h>
@@ -45,6 +45,21 @@ struct TResolvedBinding {
 };
 
 class TDescriptor : public TErrorManager {
+    struct THeader {
+        SQLULEN ArraySize = 1;
+        SQLULEN BindType = SQL_BIND_BY_COLUMN;
+        SQLULEN* BindOffsetPtr = nullptr;
+        SQLUSMALLINT* ArrayStatusPtr = nullptr;
+        SQLULEN* RowsProcessedPtr = nullptr;
+    };
+
+    using THeaderProperties = TScalarProperties<
+        TScalarProperty<SQL_DESC_ARRAY_SIZE, &THeader::ArraySize, true, false>,
+        TScalarProperty<SQL_DESC_BIND_TYPE, &THeader::BindType>,
+        TScalarProperty<SQL_DESC_BIND_OFFSET_PTR, &THeader::BindOffsetPtr>,
+        TScalarProperty<SQL_DESC_ARRAY_STATUS_PTR, &THeader::ArrayStatusPtr>,
+        TScalarProperty<SQL_DESC_ROWS_PROCESSED_PTR, &THeader::RowsProcessedPtr>>;
+
 public:
     TDescriptor(EDescType type, TConnection* conn);
     ~TDescriptor();
@@ -52,16 +67,9 @@ public:
     EDescType GetDescType() const noexcept { return Type_; }
     TConnection* GetConnection() const noexcept { return Conn_; }
 
-    SQLULEN GetArraySize() const noexcept { return ArraySize_; }
-    SQLULEN GetBindType() const noexcept { return BindType_; }
-    SQLULEN* GetBindOffsetPtr() const noexcept { return BindOffsetPtr_; }
-    SQLUSMALLINT* GetArrayStatusPtr() const noexcept { return ArrayStatusPtr_; }
-    SQLULEN* GetRowsProcessedPtr() const noexcept { return RowsProcessedPtr_; }
-    void SetArraySize(SQLULEN value) noexcept { ArraySize_ = value; }
-    void SetBindType(SQLULEN value) noexcept { BindType_ = value; }
-    void SetBindOffsetPtr(SQLULEN* value) noexcept { BindOffsetPtr_ = value; }
-    void SetArrayStatusPtr(SQLUSMALLINT* value) noexcept { ArrayStatusPtr_ = value; }
-    void SetRowsProcessedPtr(SQLULEN* value) noexcept { RowsProcessedPtr_ = value; }
+    SQLULEN GetArraySize() const noexcept { return Header_.ArraySize; }
+    SQLUSMALLINT* GetArrayStatusPtr() const noexcept { return Header_.ArrayStatusPtr; }
+    SQLULEN* GetRowsProcessedPtr() const noexcept { return Header_.RowsProcessedPtr; }
 
     TDescRecord& Record(SQLSMALLINT number);
     const TDescRecord* FindRecord(SQLSMALLINT number) const noexcept;
@@ -92,11 +100,7 @@ public:
 private:
     EDescType Type_;
     TConnection* Conn_;
-    SQLULEN ArraySize_ = 1;
-    SQLULEN BindType_ = SQL_BIND_BY_COLUMN;
-    SQLULEN* BindOffsetPtr_ = nullptr;
-    SQLUSMALLINT* ArrayStatusPtr_ = nullptr;
-    SQLULEN* RowsProcessedPtr_ = nullptr;
+    THeader Header_;
     std::vector<TDescRecord> Records_;
     std::vector<TStatement*> Statements_;
 };
