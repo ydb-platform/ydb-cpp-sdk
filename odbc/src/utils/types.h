@@ -9,14 +9,17 @@
 namespace NYdb {
 namespace NOdbc {
 
-SQLSMALLINT GetTypeId(const TType& type);
-SQLSMALLINT IsNullable(const TType& type);
-SQLULEN GetColumnSize(SQLSMALLINT sqlType);
-SQLULEN GetColumnSize(const TType& type);
-bool IsUnsigned(const TType& type);
+struct TYdbTypeInfo {
+    SQLSMALLINT SqlType = SQL_UNKNOWN_TYPE;
+    SQLULEN ColumnSize = 4096;
+    SQLSMALLINT Nullable = SQL_NO_NULLS;
+    std::optional<SQLSMALLINT> DecimalDigits;
+    std::optional<SQLSMALLINT> Radix;
+    bool Unsigned = false;
+};
 
-std::optional<SQLSMALLINT> GetDecimalDigits(const TType& type);
-std::optional<SQLSMALLINT> GetRadix(const TType& type);
+TYdbTypeInfo DescribeYdbType(const TType& type);
+SQLULEN GetColumnSize(SQLSMALLINT sqlType);
 
 } // namespace NOdbc
 } // namespace NYdb
