@@ -10,28 +10,28 @@ namespace NYdb::NOdbc {
 namespace {
 
 constexpr std::array TypeSpecs{
-    TSqlTypeSpec{SQL_BIGINT, "BIGINT", "Int64", 19, true},
-    TSqlTypeSpec{SQL_INTEGER, "INTEGER", "Int32", 10, true},
-    TSqlTypeSpec{SQL_SMALLINT, "SMALLINT", "Int16", 5, true},
-    TSqlTypeSpec{SQL_DOUBLE, "DOUBLE", "Double", 15, true},
-    TSqlTypeSpec{SQL_REAL, "REAL", "Float", 7, true},
-    TSqlTypeSpec{SQL_VARCHAR, "VARCHAR", "Utf8", 255, true},
-    TSqlTypeSpec{SQL_CHAR, "CHAR", "Utf8", 255, true},
-    TSqlTypeSpec{SQL_LONGVARCHAR, "LONGVARCHAR", "Utf8", 4096, false},
-    TSqlTypeSpec{SQL_WCHAR, "WCHAR", "Utf8", 255, false},
-    TSqlTypeSpec{SQL_WVARCHAR, "WVARCHAR", "Utf8", 255, false},
-    TSqlTypeSpec{SQL_WLONGVARCHAR, "WLONGVARCHAR", "Utf8", 4096, false},
-    TSqlTypeSpec{SQL_BIT, "BIT", "Bool", 1, false},
-    TSqlTypeSpec{SQL_TINYINT, "TINYINT", "Int8", 3, false},
-    TSqlTypeSpec{SQL_FLOAT, "FLOAT", "Double", 15, false},
-    TSqlTypeSpec{SQL_DECIMAL, "DECIMAL", "Decimal(22, 9)", 22, false},
-    TSqlTypeSpec{SQL_NUMERIC, "NUMERIC", "Decimal(22, 9)", 22, false},
-    TSqlTypeSpec{SQL_BINARY, "BINARY", "String", 4096, false},
-    TSqlTypeSpec{SQL_VARBINARY, "VARBINARY", "String", 4096, false},
-    TSqlTypeSpec{SQL_LONGVARBINARY, "LONGVARBINARY", "String", 4096, false},
-    TSqlTypeSpec{SQL_TYPE_DATE, "DATE", "Date", 10, false},
-    TSqlTypeSpec{SQL_TYPE_TIME, "TIME", "Datetime", 8, false},
-    TSqlTypeSpec{SQL_TYPE_TIMESTAMP, "TIMESTAMP", "Timestamp", 26, false},
+    TSqlTypeSpec{SQL_BIGINT, "BIGINT", EParamYdbType::Int64, "Int64", 19, true},
+    TSqlTypeSpec{SQL_INTEGER, "INTEGER", EParamYdbType::Int32, "Int32", 10, true},
+    TSqlTypeSpec{SQL_SMALLINT, "SMALLINT", EParamYdbType::Int16, "Int16", 5, true},
+    TSqlTypeSpec{SQL_DOUBLE, "DOUBLE", EParamYdbType::Double, "Double", 15, true},
+    TSqlTypeSpec{SQL_REAL, "REAL", EParamYdbType::Float, "Float", 7, true},
+    TSqlTypeSpec{SQL_VARCHAR, "VARCHAR", EParamYdbType::Utf8, "Utf8", 255, true},
+    TSqlTypeSpec{SQL_CHAR, "CHAR", EParamYdbType::Utf8, "Utf8", 255, true},
+    TSqlTypeSpec{SQL_LONGVARCHAR, "LONGVARCHAR", EParamYdbType::Utf8, "Utf8", 4096, false},
+    TSqlTypeSpec{SQL_WCHAR, "WCHAR", EParamYdbType::Utf8, "Utf8", 255, false},
+    TSqlTypeSpec{SQL_WVARCHAR, "WVARCHAR", EParamYdbType::Utf8, "Utf8", 255, false},
+    TSqlTypeSpec{SQL_WLONGVARCHAR, "WLONGVARCHAR", EParamYdbType::Utf8, "Utf8", 4096, false},
+    TSqlTypeSpec{SQL_BIT, "BIT", EParamYdbType::Bool, "Bool", 1, false},
+    TSqlTypeSpec{SQL_TINYINT, "TINYINT", EParamYdbType::Int8, "Int8", 3, false},
+    TSqlTypeSpec{SQL_FLOAT, "FLOAT", EParamYdbType::Double, "Double", 15, false},
+    TSqlTypeSpec{SQL_DECIMAL, "DECIMAL", EParamYdbType::Decimal, "Decimal(22, 9)", 22, false},
+    TSqlTypeSpec{SQL_NUMERIC, "NUMERIC", EParamYdbType::Decimal, "Decimal(22, 9)", 22, false},
+    TSqlTypeSpec{SQL_BINARY, "BINARY", EParamYdbType::String, "String", 4096, false},
+    TSqlTypeSpec{SQL_VARBINARY, "VARBINARY", EParamYdbType::String, "String", 4096, false},
+    TSqlTypeSpec{SQL_LONGVARBINARY, "LONGVARBINARY", EParamYdbType::String, "String", 4096, false},
+    TSqlTypeSpec{SQL_TYPE_DATE, "DATE", EParamYdbType::Date, "Date", 10, false},
+    TSqlTypeSpec{SQL_TYPE_TIME, "TIME", EParamYdbType::Datetime, "Datetime", 8, false},
+    TSqlTypeSpec{SQL_TYPE_TIMESTAMP, "TIMESTAMP", EParamYdbType::Timestamp, "Timestamp", 26, false},
 };
 
 std::string ToUpperAscii(std::string_view value) {
@@ -75,36 +75,22 @@ std::optional<TParamTypeSpec> ResolveParamType(const TBoundParam& param) {
         }
     };
 
-    if (param.ParameterType == SQL_TYPE_DATE || param.ParameterType == SQL_DATE) {
-        return simple(EParamYdbType::Date, "Date");
-    }
-    if (param.ParameterType == SQL_TYPE_TIME || param.ParameterType == SQL_TIME) {
-        return simple(EParamYdbType::Datetime, "Datetime");
-    }
-    if (param.ParameterType == SQL_TYPE_TIMESTAMP || param.ParameterType == SQL_TIMESTAMP) {
-        return simple(EParamYdbType::Timestamp, "Timestamp");
+    SQLSMALLINT sqlType = param.ParameterType;
+    if (sqlType == SQL_DATE) sqlType = SQL_TYPE_DATE;
+    if (sqlType == SQL_TIME) sqlType = SQL_TYPE_TIME;
+    if (sqlType == SQL_TIMESTAMP) sqlType = SQL_TYPE_TIMESTAMP;
+    const TSqlTypeSpec* spec = FindSqlTypeSpec(sqlType);
+    if (!spec) {
+        return std::nullopt;
     }
 
-    switch (param.ParameterType) {
+    switch (sqlType) {
         case SQL_BIGINT:
-            if (auto type = unsignedInteger()) return type;
-            return simple(EParamYdbType::Int64, "Int64");
         case SQL_INTEGER:
-            if (auto type = unsignedInteger()) return type;
-            return simple(EParamYdbType::Int32, "Int32");
         case SQL_SMALLINT:
-            if (auto type = unsignedInteger()) return type;
-            return simple(EParamYdbType::Int16, "Int16");
         case SQL_TINYINT:
             if (auto type = unsignedInteger()) return type;
-            return simple(EParamYdbType::Int8, "Int8");
-        case SQL_BIT:
-            return simple(EParamYdbType::Bool, "Bool");
-        case SQL_REAL:
-            return simple(EParamYdbType::Float, "Float");
-        case SQL_FLOAT:
-        case SQL_DOUBLE:
-            return simple(EParamYdbType::Double, "Double");
+            break;
         case SQL_DECIMAL:
         case SQL_NUMERIC: {
             if (param.DecimalDigits == 0) {
@@ -122,20 +108,10 @@ std::optional<TParamTypeSpec> ResolveParamType(const TBoundParam& param) {
                 precision,
                 scale};
         }
-        case SQL_CHAR:
-        case SQL_VARCHAR:
-        case SQL_LONGVARCHAR:
-        case SQL_WCHAR:
-        case SQL_WVARCHAR:
-        case SQL_WLONGVARCHAR:
-            return simple(EParamYdbType::Utf8, "Utf8");
-        case SQL_BINARY:
-        case SQL_VARBINARY:
-        case SQL_LONGVARBINARY:
-            return simple(EParamYdbType::String, "String");
         default:
-            return std::nullopt;
+            break;
     }
+    return simple(spec->ParamType, std::string(spec->YqlType));
 }
 
 std::string FormatYqlParamDeclareType(const TBoundParam& param) {

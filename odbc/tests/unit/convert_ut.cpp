@@ -23,7 +23,6 @@ TEST(OdbcConvert, Int64ToYdb) {
     SQLBIGINT v = 42;
     TBoundParam param{
         1, // ParamNumber
-        SQL_PARAM_INPUT, // InputOutputType
         SQL_C_SBIGINT, // ValueType
         SQL_BIGINT, // ParameterType
         0, 0, // ColumnSize, DecimalDigits
@@ -44,7 +43,7 @@ TEST(OdbcConvert, Int64ToYdb) {
 TEST(OdbcConvert, UnsignedCSelectsYdbUnsignedType) {
     SQLUBIGINT v = 123;
     TBoundParam param{
-        1, SQL_PARAM_INPUT, SQL_C_UBIGINT, SQL_BIGINT, 0, 0, &v, sizeof(v), nullptr
+        1, SQL_C_UBIGINT, SQL_BIGINT, 0, 0, &v, sizeof(v), nullptr
     };
     TParamsBuilder paramsBuilder;
     ConvertParam(param, paramsBuilder.AddParam("$p1"));
@@ -59,7 +58,7 @@ TEST(OdbcConvert, WideStringToYdbUtf8) {
     SQLWCHAR text[] = {'h', 'e', 'l', 'l', 'o', 0};
     SQLLEN length = SQL_NTS;
     TBoundParam param{
-        1, SQL_PARAM_INPUT, SQL_C_WCHAR, SQL_WVARCHAR, 0, 0,
+        1, SQL_C_WCHAR, SQL_WVARCHAR, 0, 0,
         text, sizeof(text), &length
     };
     TParamsBuilder paramsBuilder;
@@ -73,7 +72,7 @@ TEST(OdbcConvert, WideStringToYdbUtf8) {
 TEST(OdbcConvert, TimestampStructToYdbTimestamp) {
     SQL_TIMESTAMP_STRUCT timestamp{2024, 6, 15, 14, 30, 20, 123456000};
     TBoundParam param{
-        1, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0,
+        1, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0,
         &timestamp, sizeof(timestamp), nullptr
     };
     TParamsBuilder paramsBuilder;
@@ -86,7 +85,7 @@ TEST(OdbcConvert, TimestampStructToYdbTimestamp) {
 TEST(OdbcConvert, DoubleToYdb) {
     SQLDOUBLE v = 3.14;
     TBoundParam param{
-        1, SQL_PARAM_INPUT, SQL_C_DOUBLE, SQL_DOUBLE, 0, 0, &v, sizeof(v), nullptr
+        1, SQL_C_DOUBLE, SQL_DOUBLE, 0, 0, &v, sizeof(v), nullptr
     };
     TParamsBuilder paramsBuilder;
     ConvertParam(param, paramsBuilder.AddParam("$p1"));
@@ -100,7 +99,7 @@ TEST(OdbcConvert, DoubleToYdb) {
 TEST(OdbcConvert, DoubleToYdbDecimalPreservesPrecisionAndScale) {
     SQLDOUBLE v = 123.456;
     TBoundParam param{
-        1, SQL_PARAM_INPUT, SQL_C_DOUBLE, SQL_DECIMAL, 18, 5, &v, sizeof(v), nullptr
+        1, SQL_C_DOUBLE, SQL_DECIMAL, 18, 5, &v, sizeof(v), nullptr
     };
     TParamsBuilder paramsBuilder;
     ASSERT_EQ(ConvertParam(param, paramsBuilder.AddParam("$p1")), SQL_SUCCESS);
@@ -125,7 +124,7 @@ TEST(OdbcConvert, StringToYdbUtf8) {
     const char* str = "hello";
     SQLLEN len = 5;
     TBoundParam param{
-        1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, (SQLPOINTER)str, len, nullptr
+        1, SQL_C_CHAR, SQL_VARCHAR, 0, 0, (SQLPOINTER)str, len, nullptr
     };
     TParamsBuilder paramsBuilder;
     ConvertParam(param, paramsBuilder.AddParam("$p1"));
@@ -140,7 +139,7 @@ TEST(OdbcConvert, StringToYdbBinary) {
     const char* str = "bin\x01\x02";
     SQLLEN len = 5;
     TBoundParam param{
-        1, SQL_PARAM_INPUT, SQL_C_BINARY, SQL_BINARY, 0, 0, (SQLPOINTER)str, len, nullptr
+        1, SQL_C_BINARY, SQL_BINARY, 0, 0, (SQLPOINTER)str, len, nullptr
     };
     TParamsBuilder paramsBuilder;
     ConvertParam(param, paramsBuilder.AddParam("$p1"));
@@ -155,7 +154,7 @@ TEST(OdbcConvert, Int64NullToYdb) {
     SQLBIGINT v = 42;
     SQLLEN nullInd = SQL_NULL_DATA;
     TBoundParam param{
-        1, SQL_PARAM_INPUT, SQL_C_SBIGINT, SQL_BIGINT, 0, 0, &v, sizeof(v), &nullInd
+        1, SQL_C_SBIGINT, SQL_BIGINT, 0, 0, &v, sizeof(v), &nullInd
     };
     TParamsBuilder paramsBuilder;
     ConvertParam(param, paramsBuilder.AddParam("$p1"));
@@ -170,7 +169,7 @@ TEST(OdbcConvert, StringNullToYdb) {
     const char* str = "test";
     SQLLEN nullInd = SQL_NULL_DATA;
     TBoundParam param{
-        1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, (SQLPOINTER)str, 4, &nullInd
+        1, SQL_C_CHAR, SQL_VARCHAR, 0, 0, (SQLPOINTER)str, 4, &nullInd
     };
     TParamsBuilder paramsBuilder;
     ConvertParam(param, paramsBuilder.AddParam("$p1"));
@@ -184,7 +183,7 @@ TEST(OdbcConvert, StringNullToYdb) {
 TEST(OdbcConvert, Int32ToYdb) {
     SQLINTEGER v = 42;
     TBoundParam param{
-        1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, &v, sizeof(v), nullptr
+        1, SQL_C_LONG, SQL_INTEGER, 0, 0, &v, sizeof(v), nullptr
     };
     TParamsBuilder paramsBuilder;
     ConvertParam(param, paramsBuilder.AddParam("$p1"));
@@ -198,7 +197,7 @@ TEST(OdbcConvert, Int32ToYdb) {
 TEST(OdbcConvert, Int32NegativeToYdb) {
     SQLINTEGER v = -999;
     TBoundParam param{
-        1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, &v, sizeof(v), nullptr
+        1, SQL_C_LONG, SQL_INTEGER, 0, 0, &v, sizeof(v), nullptr
     };
     TParamsBuilder paramsBuilder;
     ConvertParam(param, paramsBuilder.AddParam("$p1"));
@@ -211,7 +210,7 @@ TEST(OdbcConvert, Int32NegativeToYdb) {
 TEST(OdbcConvert, Int32ZeroToYdb) {
     SQLINTEGER v = 0;
     TBoundParam param{
-        1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, &v, sizeof(v), nullptr
+        1, SQL_C_LONG, SQL_INTEGER, 0, 0, &v, sizeof(v), nullptr
     };
     TParamsBuilder paramsBuilder;
     ConvertParam(param, paramsBuilder.AddParam("$p1"));
@@ -224,7 +223,7 @@ TEST(OdbcConvert, Int32ZeroToYdb) {
 TEST(OdbcConvert, Int32MaxToYdb) {
     SQLINTEGER v = 2147483647;  // INT32_MAX
     TBoundParam param{
-        1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, &v, sizeof(v), nullptr
+        1, SQL_C_LONG, SQL_INTEGER, 0, 0, &v, sizeof(v), nullptr
     };
     TParamsBuilder paramsBuilder;
     ConvertParam(param, paramsBuilder.AddParam("$p1"));
@@ -238,7 +237,7 @@ TEST(OdbcConvert, Int32NullToYdb) {
     SQLINTEGER v = 42;
     SQLLEN nullInd = SQL_NULL_DATA;
     TBoundParam param{
-        1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, &v, sizeof(v), &nullInd
+        1, SQL_C_LONG, SQL_INTEGER, 0, 0, &v, sizeof(v), &nullInd
     };
     TParamsBuilder paramsBuilder;
     ConvertParam(param, paramsBuilder.AddParam("$p1"));
@@ -251,7 +250,7 @@ TEST(OdbcConvert, Int32NullToYdb) {
 TEST(OdbcConvert, Int64NegativeToYdb) {
     SQLBIGINT v = -123456789012345LL;
     TBoundParam param{
-        1, SQL_PARAM_INPUT, SQL_C_SBIGINT, SQL_BIGINT, 0, 0, &v, sizeof(v), nullptr
+        1, SQL_C_SBIGINT, SQL_BIGINT, 0, 0, &v, sizeof(v), nullptr
     };
     TParamsBuilder paramsBuilder;
     ConvertParam(param, paramsBuilder.AddParam("$p1"));
@@ -264,7 +263,7 @@ TEST(OdbcConvert, Int64NegativeToYdb) {
 TEST(OdbcConvert, Int64ZeroToYdb) {
     SQLBIGINT v = 0;
     TBoundParam param{
-        1, SQL_PARAM_INPUT, SQL_C_SBIGINT, SQL_BIGINT, 0, 0, &v, sizeof(v), nullptr
+        1, SQL_C_SBIGINT, SQL_BIGINT, 0, 0, &v, sizeof(v), nullptr
     };
     TParamsBuilder paramsBuilder;
     ConvertParam(param, paramsBuilder.AddParam("$p1"));
@@ -277,7 +276,7 @@ TEST(OdbcConvert, Int64ZeroToYdb) {
 TEST(OdbcConvert, DoubleNegativeToYdb) {
     SQLDOUBLE v = -2.71828;
     TBoundParam param{
-        1, SQL_PARAM_INPUT, SQL_C_DOUBLE, SQL_DOUBLE, 0, 0, &v, sizeof(v), nullptr
+        1, SQL_C_DOUBLE, SQL_DOUBLE, 0, 0, &v, sizeof(v), nullptr
     };
     TParamsBuilder paramsBuilder;
     ConvertParam(param, paramsBuilder.AddParam("$p1"));
@@ -289,7 +288,7 @@ TEST(OdbcConvert, DoubleNegativeToYdb) {
 TEST(OdbcConvert, DoubleZeroToYdb) {
     SQLDOUBLE v = 0.0;
     TBoundParam param{
-        1, SQL_PARAM_INPUT, SQL_C_DOUBLE, SQL_DOUBLE, 0, 0, &v, sizeof(v), nullptr
+        1, SQL_C_DOUBLE, SQL_DOUBLE, 0, 0, &v, sizeof(v), nullptr
     };
     TParamsBuilder paramsBuilder;
     ConvertParam(param, paramsBuilder.AddParam("$p1"));
@@ -303,7 +302,7 @@ TEST(OdbcConvert, DoubleNullToYdb) {
     SQLDOUBLE v = 3.14;
     SQLLEN nullInd = SQL_NULL_DATA;
     TBoundParam param{
-        1, SQL_PARAM_INPUT, SQL_C_DOUBLE, SQL_DOUBLE, 0, 0, &v, sizeof(v), &nullInd
+        1, SQL_C_DOUBLE, SQL_DOUBLE, 0, 0, &v, sizeof(v), &nullInd
     };
     TParamsBuilder paramsBuilder;
     ConvertParam(param, paramsBuilder.AddParam("$p1"));
@@ -317,7 +316,7 @@ TEST(OdbcConvert, StringEmptyToYdb) {
     const char* str = "";
     SQLLEN len = 0;
     TBoundParam param{
-        1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, (SQLPOINTER)str, len, &len
+        1, SQL_C_CHAR, SQL_VARCHAR, 0, 0, (SQLPOINTER)str, len, &len
     };
     TParamsBuilder paramsBuilder;
     ConvertParam(param, paramsBuilder.AddParam("$p1"));
@@ -331,7 +330,7 @@ TEST(OdbcConvert, StringUnicodeToYdb) {
     const char* str = "Привет";
     SQLLEN len = SQL_NTS;
     TBoundParam param{
-        1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, (SQLPOINTER)str, 0, &len
+        1, SQL_C_CHAR, SQL_VARCHAR, 0, 0, (SQLPOINTER)str, 0, &len
     };
     TParamsBuilder paramsBuilder;
     ConvertParam(param, paramsBuilder.AddParam("$p1"));
@@ -344,7 +343,7 @@ TEST(OdbcConvert, StringWithLengthToYdb) {
     const char* str = "hello world";
     SQLLEN len = 5;  // Only "hello"
     TBoundParam param{
-        1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, (SQLPOINTER)str, len, &len
+        1, SQL_C_CHAR, SQL_VARCHAR, 0, 0, (SQLPOINTER)str, len, &len
     };
     TParamsBuilder paramsBuilder;
     ConvertParam(param, paramsBuilder.AddParam("$p1"));
@@ -358,7 +357,7 @@ TEST(OdbcConvert, StringNullTerminatedToYdb) {
     const char* str = "test";
     SQLLEN len = SQL_NTS;
     TBoundParam param{
-        1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 0, 0, (SQLPOINTER)str, 0, &len
+        1, SQL_C_CHAR, SQL_VARCHAR, 0, 0, (SQLPOINTER)str, 0, &len
     };
     TParamsBuilder paramsBuilder;
     ConvertParam(param, paramsBuilder.AddParam("$p1"));
@@ -373,7 +372,7 @@ TEST(OdbcConvert, BinaryNullToYdb) {
     const char* data = "\x01\x02\x03";
     SQLLEN nullInd = SQL_NULL_DATA;
     TBoundParam param{
-        1, SQL_PARAM_INPUT, SQL_C_BINARY, SQL_BINARY, 0, 0, (SQLPOINTER)data, 3, &nullInd
+        1, SQL_C_BINARY, SQL_BINARY, 0, 0, (SQLPOINTER)data, 3, &nullInd
     };
     TParamsBuilder paramsBuilder;
     ConvertParam(param, paramsBuilder.AddParam("$p1"));
@@ -387,7 +386,7 @@ TEST(OdbcConvert, BinaryEmptyToYdb) {
     const char* data = "";
     SQLLEN len = 0;
     TBoundParam param{
-        1, SQL_PARAM_INPUT, SQL_C_BINARY, SQL_BINARY, 0, 0, (SQLPOINTER)data, len, &len
+        1, SQL_C_BINARY, SQL_BINARY, 0, 0, (SQLPOINTER)data, len, &len
     };
     TParamsBuilder paramsBuilder;
     ConvertParam(param, paramsBuilder.AddParam("$p1"));
