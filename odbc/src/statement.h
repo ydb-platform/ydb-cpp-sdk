@@ -1,9 +1,8 @@
 #pragma once
 
 #include "connection.h"
-#include "statement_attr.h"
 #include "descriptor.h"
-#include "utils/error_manager.h"
+#include "utils/attr.h"
 #include "utils/bindings.h"
 #include "utils/cursor.h"
 
@@ -21,7 +20,6 @@
 namespace NYdb::NOdbc {
 
 class TStatement : public TErrorManager {
-    friend class TDescriptor;
 public:
     TStatement(TConnection* conn);
     ~TStatement();
@@ -92,6 +90,26 @@ public:
         SQLSMALLINT* stringLengthPtr) override;
 
 private:
+    struct TAttributes {
+        SQLUINTEGER QueryTimeoutSec = 0;
+        SQLULEN MaxRows = 0;
+        SQLULEN NoScan = SQL_NOSCAN_OFF;
+        SQLULEN MetadataId = SQL_FALSE;
+        SQLULEN CursorType = SQL_CURSOR_FORWARD_ONLY;
+
+        SQLUINTEGER GetQueryTimeoutSec() const noexcept { return QueryTimeoutSec; }
+        SQLULEN GetMaxRows() const noexcept { return MaxRows; }
+        SQLULEN GetNoScanMode() const noexcept { return NoScan; }
+        SQLULEN GetMetadataId() const noexcept { return MetadataId; }
+    };
+
+    using TDirectAttributes = TScalarProperties<
+        TScalarProperty<SQL_ATTR_QUERY_TIMEOUT, &TAttributes::QueryTimeoutSec>,
+        TScalarProperty<SQL_ATTR_MAX_ROWS, &TAttributes::MaxRows>,
+        TScalarProperty<SQL_ATTR_NOSCAN, &TAttributes::NoScan>,
+        TScalarProperty<SQL_ATTR_METADATA_ID, &TAttributes::MetadataId>,
+        TScalarProperty<SQL_ATTR_CURSOR_TYPE, &TAttributes::CursorType>>;
+
     struct TAtExecValue {
         std::string Data;
         SQLLEN Indicator = 0;
@@ -106,7 +124,7 @@ private:
 
     SQLULEN RowsFetched_ = 0;
     SQLLEN RowCount_ = -1;
-    TStatementAttributes Attributes_;
+    TAttributes Attributes_;
     std::string CursorName_;
     TDescriptor AppRowDesc_;
     TDescriptor AppParamDesc_;
@@ -129,6 +147,11 @@ private:
     void SetCursor(std::unique_ptr<ICursor> cursor);
 
     void ResetForMetadata();
+    struct TDescriptorAttribute {
+        TDescriptor* Descriptor;
+        SQLSMALLINT Field;
+    };
+    std::optional<TDescriptorAttribute> ResolveDescriptorAttribute(SQLINTEGER attr);
 
     SQLUSMALLINT FindNextNeedDataParam() const;
     std::string GetTraversalRoot(const std::string& pattern) const;

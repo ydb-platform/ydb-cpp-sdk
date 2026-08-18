@@ -6,10 +6,7 @@
 #include <util/datetime/base.h>
 
 #include <algorithm>
-#include <climits>
-#include <cmath>
 #include <cstdio>
-#include <cstdint>
 #include <cstring>
 #include <iomanip>
 #include <limits>
@@ -18,142 +15,69 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <type_traits>
+#include <utility>
 
 namespace NYdb::NOdbc {
 namespace {
 
 thread_local const char* LastConvertSqlState = nullptr;
 
-void SetNumericOutOfRange() {
-    LastConvertSqlState = "22003";
+SQLRETURN Error(const char* state = nullptr) {
+    LastConvertSqlState = state;
+    return SQL_ERROR;
 }
 
-void SetInvalidCharacterValue() {
-    LastConvertSqlState = "22018";
-}
-
-void SetInvalidDatetime() {
-    LastConvertSqlState = "22007";
-}
-
-bool FitsInt16(int64_t value) {
-    return value >= INT16_MIN && value <= INT16_MAX;
-}
-
-bool FitsInt32(int64_t value) {
-    return value >= INT32_MIN && value <= INT32_MAX;
-}
-
-template <typename T>
-bool FitsUnsigned(uint64_t value) {
-    return value <= static_cast<uint64_t>(std::numeric_limits<T>::max());
-}
-
-std::optional<int64_t> GetAsInt64(TValueParser& parser, EPrimitiveType type) {
-    switch (type) {
-        case EPrimitiveType::Bool: return parser.GetBool() ? 1 : 0;
-        case EPrimitiveType::Int8: return parser.GetInt8();
-        case EPrimitiveType::Uint8: return parser.GetUint8();
-        case EPrimitiveType::Int16: return parser.GetInt16();
-        case EPrimitiveType::Uint16: return parser.GetUint16();
-        case EPrimitiveType::Int32: return parser.GetInt32();
-        case EPrimitiveType::Uint32: return parser.GetUint32();
-        case EPrimitiveType::Int64: return parser.GetInt64();
-        case EPrimitiveType::Uint64: {
-            const uint64_t value = parser.GetUint64();
-            if (value <= static_cast<uint64_t>(INT64_MAX)) return static_cast<int64_t>(value);
-            SetNumericOutOfRange();
-            return std::nullopt;
-        }
-        default: return std::nullopt;
-    }
-}
-
-std::optional<uint64_t> GetAsUint64(TValueParser& parser, EPrimitiveType type) {
-    switch (type) {
-        case EPrimitiveType::Bool: return parser.GetBool() ? 1 : 0;
-        case EPrimitiveType::Uint8: return parser.GetUint8();
-        case EPrimitiveType::Uint16: return parser.GetUint16();
-        case EPrimitiveType::Uint32: return parser.GetUint32();
-        case EPrimitiveType::Uint64: return parser.GetUint64();
-        case EPrimitiveType::Int8: {
-            const auto value = parser.GetInt8();
-            if (value >= 0) return static_cast<uint64_t>(value);
-            break;
-        }
-        case EPrimitiveType::Int16: {
-            const auto value = parser.GetInt16();
-            if (value >= 0) return static_cast<uint64_t>(value);
-            break;
-        }
-        case EPrimitiveType::Int32: {
-            const auto value = parser.GetInt32();
-            if (value >= 0) return static_cast<uint64_t>(value);
-            break;
-        }
-        case EPrimitiveType::Int64: {
-            const auto value = parser.GetInt64();
-            if (value >= 0) return static_cast<uint64_t>(value);
-            break;
-        }
-        default: return std::nullopt;
-    }
-    SetNumericOutOfRange();
-    return std::nullopt;
-}
-
-std::optional<int64_t> ReadInteger(const TBoundParam& param) {
-    if (!param.ParameterValuePtr) return std::nullopt;
-    const auto type = param.ValueType;
-    if (type == SQL_C_SBIGINT) return *static_cast<const SQLBIGINT*>(param.ParameterValuePtr);
-    if (type == SQL_C_UBIGINT) {
-        const SQLUBIGINT value = *static_cast<const SQLUBIGINT*>(param.ParameterValuePtr);
-        if (value <= static_cast<SQLUBIGINT>(INT64_MAX)) return static_cast<int64_t>(value);
-        SetNumericOutOfRange();
+template <typename To, typename From>
+std::optional<To> CheckedInteger(From value) {
+    if (!std::in_range<To>(value)) {
+        Error("22003");
         return std::nullopt;
     }
-    if (type == SQL_C_LONG || type == SQL_C_SLONG)
-        return *static_cast<const SQLINTEGER*>(param.ParameterValuePtr);
-    if (type == SQL_C_ULONG)
-        return *static_cast<const SQLUINTEGER*>(param.ParameterValuePtr);
-    if (type == SQL_C_SHORT || type == SQL_C_SSHORT)
-        return *static_cast<const SQLSMALLINT*>(param.ParameterValuePtr);
-    if (type == SQL_C_USHORT)
-        return *static_cast<const SQLUSMALLINT*>(param.ParameterValuePtr);
-    if (type == SQL_C_TINYINT || type == SQL_C_STINYINT)
-        return *static_cast<const SQLSCHAR*>(param.ParameterValuePtr);
-    if (type == SQL_C_UTINYINT || type == SQL_C_BIT)
-        return *static_cast<const SQLCHAR*>(param.ParameterValuePtr);
-    return std::nullopt;
+    return static_cast<To>(value);
 }
 
-std::optional<uint64_t> ReadUnsignedInteger(const TBoundParam& param) {
-    if (!param.ParameterValuePtr) return std::nullopt;
-    const auto type = param.ValueType;
-    if (type == SQL_C_UBIGINT)
-        return *static_cast<const SQLUBIGINT*>(param.ParameterValuePtr);
-    if (type == SQL_C_ULONG)
-        return *static_cast<const SQLUINTEGER*>(param.ParameterValuePtr);
-    if (type == SQL_C_USHORT)
-        return *static_cast<const SQLUSMALLINT*>(param.ParameterValuePtr);
-    if (type == SQL_C_UTINYINT || type == SQL_C_BIT)
-        return *static_cast<const SQLCHAR*>(param.ParameterValuePtr);
-    const auto value = ReadInteger(param);
-    if (value && *value >= 0) return static_cast<uint64_t>(*value);
-    if (value) SetNumericOutOfRange();
+template <typename To>
+std::optional<To> ReadInteger(const TBoundParam& param) {
+    if (!param.ParameterValuePtr) {
+        return std::nullopt;
+    }
+    const auto value = VisitCInteger(param.ValueType, [&](auto type) {
+        using T = typename decltype(type)::type;
+        return CheckedInteger<To>(*static_cast<const T*>(param.ParameterValuePtr));
+    });
+    return value ? *value : std::nullopt;
+}
+
+template <typename To>
+std::optional<To> ReadReal(const TBoundParam& param) {
+    if (!param.ParameterValuePtr) {
+        return std::nullopt;
+    }
+    if (param.ValueType == SQL_C_FLOAT) {
+        return static_cast<To>(*static_cast<const SQLREAL*>(param.ParameterValuePtr));
+    }
+    if (param.ValueType == SQL_C_DOUBLE) {
+        return static_cast<To>(*static_cast<const SQLDOUBLE*>(param.ParameterValuePtr));
+    }
     return std::nullopt;
 }
 
 std::optional<std::string> ReadBytes(const TBoundParam& param) {
-    if (!param.ParameterValuePtr) return std::nullopt;
-    const char* data = static_cast<const char*>(param.ParameterValuePtr);
-    SQLLEN length = param.BufferLength;
-    if (param.StrLenOrIndPtr) {
-        length = *param.StrLenOrIndPtr;
-        if (length == SQL_NTS) return std::string(data);
-        if (length < 0) length = param.BufferLength;
+    if (!param.ParameterValuePtr) {
+        return std::nullopt;
     }
-    if (length < 0) return std::nullopt;
+    const char* data = static_cast<const char*>(param.ParameterValuePtr);
+    SQLLEN length = param.StrLenOrIndPtr ? *param.StrLenOrIndPtr : param.BufferLength;
+    if (length == SQL_NTS) {
+        return std::string(data);
+    }
+    if (length < 0) {
+        length = param.BufferLength;
+    }
+    if (length < 0) {
+        return std::nullopt;
+    }
     return std::string(data, static_cast<size_t>(length));
 }
 
@@ -164,20 +88,19 @@ std::optional<std::string> ReadText(const TBoundParam& param) {
     if (param.ValueType != SQL_C_WCHAR || !param.ParameterValuePtr) {
         return std::nullopt;
     }
-    SQLLEN length = param.StrLenOrIndPtr ? *param.StrLenOrIndPtr : param.BufferLength;
+    const SQLLEN length = param.StrLenOrIndPtr ? *param.StrLenOrIndPtr : param.BufferLength;
     if (length == SQL_NTS) {
         return GetString(static_cast<SQLWCHAR*>(param.ParameterValuePtr), SQL_NTS);
     }
-    if (length < 0 || length % static_cast<SQLLEN>(sizeof(SQLWCHAR)) != 0) {
-        SetInvalidCharacterValue();
+    if (length < 0 || length % static_cast<SQLLEN>(sizeof(SQLWCHAR))) {
+        Error("22018");
         return std::nullopt;
     }
-    return GetString(
-        static_cast<SQLWCHAR*>(param.ParameterValuePtr),
-        static_cast<SQLINTEGER>(length / sizeof(SQLWCHAR)));
+    return GetString(static_cast<SQLWCHAR*>(param.ParameterValuePtr),
+                     static_cast<SQLINTEGER>(length / sizeof(SQLWCHAR)));
 }
 
-std::optional<std::string> ReadNumericStruct(const SQL_NUMERIC_STRUCT& numeric) {
+std::string ReadNumericStruct(const SQL_NUMERIC_STRUCT& numeric) {
     unsigned __int128 magnitude = 0;
     for (size_t i = 0; i < SQL_MAX_NUMERIC_LEN; ++i) {
         magnitude |= static_cast<unsigned __int128>(numeric.val[i]) << (i * 8);
@@ -186,7 +109,7 @@ std::optional<std::string> ReadNumericStruct(const SQL_NUMERIC_STRUCT& numeric) 
     do {
         digits.push_back(static_cast<char>('0' + magnitude % 10));
         magnitude /= 10;
-    } while (magnitude != 0);
+    } while (magnitude);
     std::reverse(digits.begin(), digits.end());
     const int scale = numeric.scale;
     if (scale < 0) {
@@ -204,20 +127,23 @@ std::optional<std::string> ReadNumericStruct(const SQL_NUMERIC_STRUCT& numeric) 
 }
 
 std::optional<std::string> ReadDecimalText(const TBoundParam& param) {
-    if (auto text = ReadText(param)) return text;
+    if (auto text = ReadText(param)) {
+        return text;
+    }
     if (param.ValueType == SQL_C_NUMERIC && param.ParameterValuePtr) {
         return ReadNumericStruct(*static_cast<const SQL_NUMERIC_STRUCT*>(param.ParameterValuePtr));
     }
-    if (const auto value = ReadInteger(param)) return std::to_string(*value);
-    std::ostringstream out;
-    if (param.ValueType == SQL_C_FLOAT && param.ParameterValuePtr) {
-        out << std::setprecision(std::numeric_limits<float>::max_digits10)
-            << *static_cast<const SQLREAL*>(param.ParameterValuePtr);
-        return out.str();
+    if (const auto value = ReadInteger<int64_t>(param)) {
+        return std::to_string(*value);
     }
-    if (param.ValueType == SQL_C_DOUBLE && param.ParameterValuePtr) {
-        out << std::setprecision(std::numeric_limits<double>::max_digits10)
-            << *static_cast<const SQLDOUBLE*>(param.ParameterValuePtr);
+    std::ostringstream out;
+    if (const auto value = ReadReal<double>(param)) {
+        if (param.ValueType == SQL_C_FLOAT) {
+            out << std::setprecision(std::numeric_limits<float>::max_digits10);
+        } else {
+            out << std::setprecision(std::numeric_limits<double>::max_digits10);
+        }
+        out << *value;
         return out.str();
     }
     return std::nullopt;
@@ -226,80 +152,125 @@ std::optional<std::string> ReadDecimalText(const TBoundParam& param) {
 std::string FormatDecimalText(const TDecimalValue& decimal) {
     std::string text = decimal.ToString();
     const size_t point = text.find('.');
-    const size_t fractionSize = point == std::string::npos ? 0 : text.size() - point - 1;
-    if (decimal.DecimalType_.Scale > fractionSize) {
+    const size_t fraction = point == std::string::npos ? 0 : text.size() - point - 1;
+    if (decimal.DecimalType_.Scale > fraction) {
         if (point == std::string::npos) {
             text.push_back('.');
         }
-        text.append(decimal.DecimalType_.Scale - fractionSize, '0');
+        text.append(decimal.DecimalType_.Scale - fraction, '0');
     }
     return text;
 }
 
-std::optional<TInstant> ReadTemporal(const TBoundParam& param, EParamYdbType type) {
-    if (!param.ParameterValuePtr) return std::nullopt;
+std::optional<TInstant> ReadTemporal(const TBoundParam& param, EPrimitiveType type) {
+    if (!param.ParameterValuePtr) {
+        return std::nullopt;
+    }
     char text[64] = {};
-    if (type == EParamYdbType::Date
+    if (type == EPrimitiveType::Date
         && (param.ValueType == SQL_C_TYPE_DATE || param.ValueType == SQL_C_DATE)) {
-        const auto& value = *static_cast<const SQL_DATE_STRUCT*>(param.ParameterValuePtr);
-        std::snprintf(text, sizeof(text), "%04d-%02u-%02uT00:00:00Z",
-                      value.year, value.month, value.day);
-    } else if (type == EParamYdbType::Datetime
+        const auto& v = *static_cast<const SQL_DATE_STRUCT*>(param.ParameterValuePtr);
+        std::snprintf(text, sizeof(text), "%04d-%02u-%02uT00:00:00Z", v.year, v.month, v.day);
+    } else if (type == EPrimitiveType::Datetime
                && (param.ValueType == SQL_C_TYPE_TIME || param.ValueType == SQL_C_TIME)) {
-        const auto& value = *static_cast<const SQL_TIME_STRUCT*>(param.ParameterValuePtr);
+        const auto& v = *static_cast<const SQL_TIME_STRUCT*>(param.ParameterValuePtr);
         std::snprintf(text, sizeof(text), "1970-01-01T%02u:%02u:%02uZ",
-                      value.hour, value.minute, value.second);
-    } else if (type == EParamYdbType::Timestamp
+                      v.hour, v.minute, v.second);
+    } else if (type == EPrimitiveType::Timestamp
                && (param.ValueType == SQL_C_TYPE_TIMESTAMP || param.ValueType == SQL_C_TIMESTAMP)) {
-        const auto& value = *static_cast<const SQL_TIMESTAMP_STRUCT*>(param.ParameterValuePtr);
+        const auto& v = *static_cast<const SQL_TIMESTAMP_STRUCT*>(param.ParameterValuePtr);
         std::snprintf(text, sizeof(text), "%04d-%02u-%02uT%02u:%02u:%02u.%09uZ",
-                      value.year, value.month, value.day, value.hour, value.minute,
-                      value.second, value.fraction);
+                      v.year, v.month, v.day, v.hour, v.minute, v.second, v.fraction);
     } else {
-        SetInvalidDatetime();
+        Error("22007");
         return std::nullopt;
     }
     TInstant instant;
     if (!TInstant::TryParseIso8601(text, instant)) {
-        SetInvalidDatetime();
+        Error("22007");
         return std::nullopt;
     }
     return instant;
 }
 
-SQLRETURN CopyVariable(
-    const void* data,
-    SQLLEN size,
-    SQLLEN terminatorSize,
-    SQLLEN unitSize,
-    SQLPOINTER targetValue,
-    SQLLEN bufferLength,
-    SQLLEN* strLenOrInd,
-    SQLLEN* offset) {
-    if (offset && *offset < 0) return SQL_NO_DATA;
+SQLRETURN CopyVariable(const void* data, SQLLEN size, SQLLEN terminator, SQLLEN unit,
+                       SQLPOINTER target, SQLLEN bufferLength, SQLLEN* indicator,
+                       SQLLEN* offset) {
+    if (offset && *offset < 0) {
+        return SQL_NO_DATA;
+    }
     const SQLLEN start = offset ? *offset : 0;
-    if (start < 0 || start > size || start % unitSize != 0) {
-        LastConvertSqlState = "HY090";
-        return SQL_ERROR;
+    if (start < 0 || start > size || start % unit) {
+        return Error("HY090");
     }
     const SQLLEN remaining = size - start;
     SQLLEN copied = 0;
-    if (targetValue && bufferLength >= terminatorSize) {
-        SQLLEN capacity = bufferLength - terminatorSize;
-        capacity -= capacity % unitSize;
+    if (target && bufferLength >= terminator) {
+        SQLLEN capacity = bufferLength - terminator;
+        capacity -= capacity % unit;
         copied = std::min(remaining, capacity);
-        if (copied > 0) {
-            std::memcpy(targetValue, static_cast<const char*>(data) + start,
-                        static_cast<size_t>(copied));
+        if (copied) {
+            std::memcpy(target, static_cast<const char*>(data) + start, copied);
         }
-        if (terminatorSize > 0) {
-            std::memset(static_cast<char*>(targetValue) + copied, 0,
-                        static_cast<size_t>(terminatorSize));
+        if (terminator) {
+            std::memset(static_cast<char*>(target) + copied, 0, terminator);
         }
     }
-    if (offset) *offset = copied == remaining ? -1 : start + copied;
-    if (strLenOrInd) *strLenOrInd = remaining;
-    return targetValue && copied < remaining ? SQL_SUCCESS_WITH_INFO : SQL_SUCCESS;
+    if (offset) {
+        *offset = copied == remaining ? -1 : start + copied;
+    }
+    if (indicator) {
+        *indicator = remaining;
+    }
+    return target && copied < remaining ? SQL_SUCCESS_WITH_INFO : SQL_SUCCESS;
+}
+
+template <typename Value>
+SQLRETURN WriteScalar(Value value, SQLPOINTER target, SQLLEN* indicator) {
+    if (target) {
+        *static_cast<Value*>(target) = value;
+    }
+    if (indicator) {
+        *indicator = sizeof(Value);
+    }
+    return SQL_SUCCESS;
+}
+
+template <typename Target, typename Source>
+SQLRETURN WriteCheckedInteger(Source value, SQLPOINTER target, SQLLEN* indicator) {
+    const auto converted = CheckedInteger<Target>(value);
+    return converted ? WriteScalar(*converted, target, indicator) : SQL_ERROR;
+}
+
+bool IsUnsignedIntegerTarget(SQLSMALLINT type) {
+    return type == SQL_C_UTINYINT || type == SQL_C_USHORT
+        || type == SQL_C_ULONG || type == SQL_C_UBIGINT;
+}
+
+bool IsIntegerTarget(SQLSMALLINT type) {
+    return IsUnsignedIntegerTarget(type) || type == SQL_C_TINYINT || type == SQL_C_STINYINT
+        || type == SQL_C_SHORT || type == SQL_C_SSHORT || type == SQL_C_LONG
+        || type == SQL_C_SLONG || type == SQL_C_SBIGINT || type == SQL_C_BIT;
+}
+
+template <typename Source>
+SQLRETURN WriteInteger(Source value, SQLSMALLINT type, SQLPOINTER target, SQLLEN* indicator) {
+    if (type == SQL_C_BIT) {
+        if (value != 0 && value != 1) {
+            return Error("22003");
+        }
+        return WriteScalar<SQLCHAR>(value != 0, target, indicator);
+    }
+    return VisitCInteger(type, [&](auto targetType) {
+        using T = typename decltype(targetType)::type;
+        return WriteCheckedInteger<T>(value, target, indicator);
+    }).value_or(SQL_ERROR);
+}
+
+SQLRETURN WriteReal(double value, SQLSMALLINT type, SQLPOINTER target, SQLLEN* indicator) {
+    return type == SQL_C_DOUBLE
+        ? WriteScalar<SQLDOUBLE>(value, target, indicator)
+        : WriteScalar<SQLREAL>(static_cast<SQLREAL>(value), target, indicator);
 }
 
 std::optional<TInstant> GetAsInstant(TValueParser& parser, EPrimitiveType type) {
@@ -308,113 +279,106 @@ std::optional<TInstant> GetAsInstant(TValueParser& parser, EPrimitiveType type) 
         case EPrimitiveType::Datetime: return parser.GetDatetime();
         case EPrimitiveType::Timestamp: return parser.GetTimestamp();
         case EPrimitiveType::Date32: {
-            const auto days = parser.GetDate32().time_since_epoch().count();
-            if (days >= 0) return TInstant::Days(static_cast<uint64_t>(days));
+            const auto value = parser.GetDate32().time_since_epoch().count();
+            if (value >= 0) {
+                return TInstant::Days(static_cast<uint64_t>(value));
+            }
             break;
         }
         case EPrimitiveType::Datetime64: {
-            const auto seconds = parser.GetDatetime64().time_since_epoch().count();
-            if (seconds >= 0) return TInstant::Seconds(static_cast<uint64_t>(seconds));
+            const auto value = parser.GetDatetime64().time_since_epoch().count();
+            if (value >= 0) {
+                return TInstant::Seconds(static_cast<uint64_t>(value));
+            }
             break;
         }
         case EPrimitiveType::Timestamp64: {
-            const auto micros = parser.GetTimestamp64().time_since_epoch().count();
-            if (micros >= 0) return TInstant::MicroSeconds(static_cast<uint64_t>(micros));
+            const auto value = parser.GetTimestamp64().time_since_epoch().count();
+            if (value >= 0) {
+                return TInstant::MicroSeconds(static_cast<uint64_t>(value));
+            }
             break;
         }
         case EPrimitiveType::TzDate:
         case EPrimitiveType::TzDatetime:
         case EPrimitiveType::TzTimestamp: {
-            const std::string value = type == EPrimitiveType::TzDate
-                ? parser.GetTzDate()
-                : type == EPrimitiveType::TzDatetime
-                    ? parser.GetTzDatetime()
-                    : parser.GetTzTimestamp();
+            const std::string value = type == EPrimitiveType::TzDate ? parser.GetTzDate()
+                : type == EPrimitiveType::TzDatetime ? parser.GetTzDatetime()
+                                                     : parser.GetTzTimestamp();
             TInstant instant;
-            if (TInstant::TryParseIso8601(value, instant)) return instant;
+            if (TInstant::TryParseIso8601(value, instant)) {
+                return instant;
+            }
             break;
         }
         default: return std::nullopt;
     }
-    SetInvalidDatetime();
+    Error("22007");
     return std::nullopt;
 }
 
-SQLRETURN WriteTemporal(
-    TValueParser& parser,
-    EPrimitiveType type,
-    SQLSMALLINT targetType,
-    SQLPOINTER targetValue,
-    SQLLEN* strLenOrInd) {
+SQLRETURN WriteTemporal(TValueParser& parser, EPrimitiveType type, SQLSMALLINT targetType,
+                        SQLPOINTER target, SQLLEN* indicator) {
     const auto instant = GetAsInstant(parser, type);
-    if (!instant) return SQL_ERROR;
     struct tm value = {};
-    if (!instant->GmTime(&value)) {
-        SetInvalidDatetime();
+    if (!instant) {
         return SQL_ERROR;
     }
-    if (targetType == SQL_C_TYPE_DATE || targetType == SQL_C_DATE) {
-        if (targetValue) {
-            auto& out = *static_cast<SQL_DATE_STRUCT*>(targetValue);
-            out.year = static_cast<SQLSMALLINT>(value.tm_year + 1900);
-            out.month = static_cast<SQLUSMALLINT>(value.tm_mon + 1);
-            out.day = static_cast<SQLUSMALLINT>(value.tm_mday);
-        }
-        if (strLenOrInd) *strLenOrInd = sizeof(SQL_DATE_STRUCT);
-    } else if (targetType == SQL_C_TYPE_TIME || targetType == SQL_C_TIME) {
-        if (targetValue) {
-            auto& out = *static_cast<SQL_TIME_STRUCT*>(targetValue);
-            out.hour = static_cast<SQLUSMALLINT>(value.tm_hour);
-            out.minute = static_cast<SQLUSMALLINT>(value.tm_min);
-            out.second = static_cast<SQLUSMALLINT>(value.tm_sec);
-        }
-        if (strLenOrInd) *strLenOrInd = sizeof(SQL_TIME_STRUCT);
-    } else {
-        if (targetValue) {
-            auto& out = *static_cast<SQL_TIMESTAMP_STRUCT*>(targetValue);
-            out.year = static_cast<SQLSMALLINT>(value.tm_year + 1900);
-            out.month = static_cast<SQLUSMALLINT>(value.tm_mon + 1);
-            out.day = static_cast<SQLUSMALLINT>(value.tm_mday);
-            out.hour = static_cast<SQLUSMALLINT>(value.tm_hour);
-            out.minute = static_cast<SQLUSMALLINT>(value.tm_min);
-            out.second = static_cast<SQLUSMALLINT>(value.tm_sec);
-            out.fraction = instant->MicroSecondsOfSecond() * 1000;
-        }
-        if (strLenOrInd) *strLenOrInd = sizeof(SQL_TIMESTAMP_STRUCT);
+    if (!instant->GmTime(&value)) {
+        return Error("22007");
     }
-    return SQL_SUCCESS;
+    if (targetType == SQL_C_TYPE_DATE || targetType == SQL_C_DATE) {
+        SQL_DATE_STRUCT out{static_cast<SQLSMALLINT>(value.tm_year + 1900),
+                            static_cast<SQLUSMALLINT>(value.tm_mon + 1),
+                            static_cast<SQLUSMALLINT>(value.tm_mday)};
+        return WriteScalar(out, target, indicator);
+    }
+    if (targetType == SQL_C_TYPE_TIME || targetType == SQL_C_TIME) {
+        SQL_TIME_STRUCT out{static_cast<SQLUSMALLINT>(value.tm_hour),
+                            static_cast<SQLUSMALLINT>(value.tm_min),
+                            static_cast<SQLUSMALLINT>(value.tm_sec)};
+        return WriteScalar(out, target, indicator);
+    }
+    SQL_TIMESTAMP_STRUCT out{static_cast<SQLSMALLINT>(value.tm_year + 1900),
+                             static_cast<SQLUSMALLINT>(value.tm_mon + 1),
+                             static_cast<SQLUSMALLINT>(value.tm_mday),
+                             static_cast<SQLUSMALLINT>(value.tm_hour),
+                             static_cast<SQLUSMALLINT>(value.tm_min),
+                             static_cast<SQLUSMALLINT>(value.tm_sec),
+                             instant->MicroSecondsOfSecond() * 1000};
+    return WriteScalar(out, target, indicator);
 }
 
-SQLRETURN WriteNumericStruct(
-    std::string text,
-    SQLPOINTER targetValue,
-    SQLLEN* strLenOrInd,
-    SQLULEN precision,
-    SQLSMALLINT scale) {
+SQLRETURN WriteNumericStruct(std::string text, SQLPOINTER target, SQLLEN* indicator,
+                             SQLULEN precision, SQLSMALLINT scale) {
     bool positive = true;
     if (!text.empty() && (text.front() == '-' || text.front() == '+')) {
         positive = text.front() != '-';
         text.erase(text.begin());
     }
     const auto point = text.find('.');
-    if (point != std::string::npos) text.erase(point, 1);
-    while (!text.empty() && text.front() == '0') text.erase(text.begin());
-    if (text.empty()) text = "0";
+    if (point != std::string::npos) {
+        text.erase(point, 1);
+    }
+    while (!text.empty() && text.front() == '0') {
+        text.erase(text.begin());
+    }
+    if (text.empty()) {
+        text = "0";
+    }
     unsigned __int128 magnitude = 0;
     for (const char ch : text) {
         if (ch < '0' || ch > '9') {
-            SetInvalidCharacterValue();
-            return SQL_ERROR;
+            return Error("22018");
         }
         const auto previous = magnitude;
         magnitude = magnitude * 10 + static_cast<unsigned>(ch - '0');
         if (magnitude < previous) {
-            SetNumericOutOfRange();
-            return SQL_ERROR;
+            return Error("22003");
         }
     }
-    if (targetValue) {
-        auto& out = *static_cast<SQL_NUMERIC_STRUCT*>(targetValue);
+    if (target) {
+        auto& out = *static_cast<SQL_NUMERIC_STRUCT*>(target);
         std::memset(&out, 0, sizeof(out));
         out.precision = static_cast<SQLCHAR>(precision);
         out.scale = static_cast<SQLSCHAR>(scale);
@@ -423,107 +387,238 @@ SQLRETURN WriteNumericStruct(
             out.val[i] = static_cast<SQLCHAR>(magnitude & 0xff);
             magnitude >>= 8;
         }
-        if (magnitude != 0) {
-            SetNumericOutOfRange();
-            return SQL_ERROR;
+        if (magnitude) {
+            return Error("22003");
         }
     }
-    if (strLenOrInd) *strLenOrInd = sizeof(SQL_NUMERIC_STRUCT);
-    return SQL_SUCCESS;
-}
-
-bool IsSignedIntegerTarget(SQLSMALLINT type) {
-    return type == SQL_C_TINYINT || type == SQL_C_STINYINT
-        || type == SQL_C_SHORT || type == SQL_C_SSHORT
-        || type == SQL_C_LONG || type == SQL_C_SLONG
-        || type == SQL_C_SBIGINT || type == SQL_C_BIT;
-}
-
-bool IsUnsignedIntegerTarget(SQLSMALLINT type) {
-    return type == SQL_C_UTINYINT || type == SQL_C_USHORT
-        || type == SQL_C_ULONG || type == SQL_C_UBIGINT;
-}
-
-SQLRETURN WriteSignedInteger(
-    int64_t value, SQLSMALLINT targetType, SQLPOINTER targetValue, SQLLEN* strLenOrInd) {
-    if (targetType == SQL_C_TINYINT || targetType == SQL_C_STINYINT) {
-        if (value < INT8_MIN || value > INT8_MAX) { SetNumericOutOfRange(); return SQL_ERROR; }
-        if (targetValue) *static_cast<SQLSCHAR*>(targetValue) = static_cast<SQLSCHAR>(value);
-        if (strLenOrInd) *strLenOrInd = sizeof(SQLSCHAR);
-    } else if (targetType == SQL_C_SHORT || targetType == SQL_C_SSHORT) {
-        if (!FitsInt16(value)) { SetNumericOutOfRange(); return SQL_ERROR; }
-        if (targetValue) *static_cast<SQLSMALLINT*>(targetValue) = static_cast<SQLSMALLINT>(value);
-        if (strLenOrInd) *strLenOrInd = sizeof(SQLSMALLINT);
-    } else if (targetType == SQL_C_LONG || targetType == SQL_C_SLONG) {
-        if (!FitsInt32(value)) { SetNumericOutOfRange(); return SQL_ERROR; }
-        if (targetValue) *static_cast<SQLINTEGER*>(targetValue) = static_cast<SQLINTEGER>(value);
-        if (strLenOrInd) *strLenOrInd = sizeof(SQLINTEGER);
-    } else if (targetType == SQL_C_SBIGINT) {
-        if (targetValue) *static_cast<SQLBIGINT*>(targetValue) = value;
-        if (strLenOrInd) *strLenOrInd = sizeof(SQLBIGINT);
-    } else if (targetType == SQL_C_BIT) {
-        if (value != 0 && value != 1) { SetNumericOutOfRange(); return SQL_ERROR; }
-        if (targetValue) *static_cast<SQLCHAR*>(targetValue) = value != 0;
-        if (strLenOrInd) *strLenOrInd = sizeof(SQLCHAR);
-    } else {
-        return SQL_ERROR;
+    if (indicator) {
+        *indicator = sizeof(SQL_NUMERIC_STRUCT);
     }
     return SQL_SUCCESS;
 }
 
-SQLRETURN WriteUnsignedInteger(
-    uint64_t value, SQLSMALLINT targetType, SQLPOINTER targetValue, SQLLEN* strLenOrInd) {
-    if (targetType == SQL_C_UTINYINT) {
-        if (!FitsUnsigned<SQLCHAR>(value)) { SetNumericOutOfRange(); return SQL_ERROR; }
-        if (targetValue) *static_cast<SQLCHAR*>(targetValue) = static_cast<SQLCHAR>(value);
-        if (strLenOrInd) *strLenOrInd = sizeof(SQLCHAR);
-    } else if (targetType == SQL_C_USHORT) {
-        if (!FitsUnsigned<SQLUSMALLINT>(value)) { SetNumericOutOfRange(); return SQL_ERROR; }
-        if (targetValue) *static_cast<SQLUSMALLINT*>(targetValue) = static_cast<SQLUSMALLINT>(value);
-        if (strLenOrInd) *strLenOrInd = sizeof(SQLUSMALLINT);
-    } else if (targetType == SQL_C_ULONG) {
-        if (!FitsUnsigned<SQLUINTEGER>(value)) { SetNumericOutOfRange(); return SQL_ERROR; }
-        if (targetValue) *static_cast<SQLUINTEGER*>(targetValue) = static_cast<SQLUINTEGER>(value);
-        if (strLenOrInd) *strLenOrInd = sizeof(SQLUINTEGER);
-    } else if (targetType == SQL_C_UBIGINT) {
-        if (targetValue) *static_cast<SQLUBIGINT*>(targetValue) = value;
-        if (strLenOrInd) *strLenOrInd = sizeof(SQLUBIGINT);
-    } else {
+SQLRETURN WriteText(std::string_view text, SQLSMALLINT type, SQLPOINTER target,
+                    SQLLEN bufferLength, SQLLEN* indicator, SQLLEN* offset) {
+    if (type == SQL_C_CHAR) {
+        return CopyVariable(text.data(), text.size(), 1, 1, target, bufferLength, indicator, offset);
+    }
+    if (type != SQL_C_WCHAR) {
         return SQL_ERROR;
     }
-    return SQL_SUCCESS;
+    try {
+        const TUtf16String wide = UTF8ToWide(text);
+        static_assert(sizeof(TUtf16String::value_type) == sizeof(SQLWCHAR));
+        return CopyVariable(wide.data(), wide.size() * sizeof(SQLWCHAR), sizeof(SQLWCHAR),
+                            sizeof(SQLWCHAR), target, bufferLength, indicator, offset);
+    } catch (...) {
+        return Error("22018");
+    }
 }
 
-std::string DecimalIntegralPart(const std::string& text) {
-    const size_t point = text.find('.');
-    return point == std::string::npos ? text : text.substr(0, point);
+template <typename Integer>
+std::optional<Integer> ParseDecimalInteger(const std::string& text) {
+    try {
+        const std::string integral = text.substr(0, text.find('.'));
+        if constexpr (std::is_unsigned_v<Integer>) {
+            if (!integral.empty() && integral.front() == '-') {
+                throw std::out_of_range("negative");
+            }
+        }
+        size_t parsed = 0;
+        const Integer value = std::is_unsigned_v<Integer>
+            ? static_cast<Integer>(std::stoull(integral, &parsed))
+            : static_cast<Integer>(std::stoll(integral, &parsed));
+        if (parsed != integral.size()) {
+            throw std::invalid_argument("decimal");
+        }
+        return value;
+    } catch (...) {
+        Error("22003");
+        return std::nullopt;
+    }
 }
 
-std::optional<EPrimitiveType> ParamPrimitive(EParamYdbType type) {
+SQLRETURN ConvertDecimal(TValueParser& parser, SQLSMALLINT type, SQLPOINTER target,
+                         SQLLEN bufferLength, SQLLEN* indicator, SQLLEN* offset) {
+    const TDecimalValue decimal = parser.GetDecimal();
+    const std::string text = FormatDecimalText(decimal);
+    if (type == SQL_C_DOUBLE || type == SQL_C_FLOAT) {
+        try {
+            return WriteReal(std::stod(text), type, target, indicator);
+        } catch (...) {
+            return Error("22003");
+        }
+    }
+    if (type == SQL_C_NUMERIC) {
+        return WriteNumericStruct(text, target, indicator, decimal.DecimalType_.Precision,
+                                  decimal.DecimalType_.Scale);
+    }
+    if (IsIntegerTarget(type)) {
+        if (IsUnsignedIntegerTarget(type)) {
+            const auto value = ParseDecimalInteger<uint64_t>(text);
+            return value ? WriteInteger(*value, type, target, indicator) : SQL_ERROR;
+        }
+        const auto value = ParseDecimalInteger<int64_t>(text);
+        return value ? WriteInteger(*value, type, target, indicator) : SQL_ERROR;
+    }
+    return WriteText(text, type, target, bufferLength, indicator, offset);
+}
+
+template <typename Value>
+TOdbcScalar MakeScalar(Value value) {
+    if constexpr (std::is_floating_point_v<Value>) {
+        return double(value);
+    } else if constexpr (std::is_unsigned_v<Value>) {
+        return uint64_t(value);
+    } else {
+        return int64_t(value);
+    }
+}
+
+template <typename Value>
+std::optional<Value> ReadScalar(const TBoundParam& param) {
+    if constexpr (std::is_floating_point_v<Value>) {
+        return ReadReal<Value>(param);
+    } else {
+        return ReadInteger<Value>(param);
+    }
+}
+
+template <typename Result, typename Fn>
+std::optional<Result> VisitScalar(EPrimitiveType type, Fn&& fn) {
+#define ODBC_VISIT_SCALAR(name, cppType, sqlType, isUnsigned)                      \
+    case EPrimitiveType::name:                                                    \
+        return fn.template operator()<cppType>(                                   \
+            [](TValueParser& parser) { return parser.Get##name(); },              \
+            [](TParamValueBuilder& builder, cppType value) {                      \
+                builder.Optional##name(value);                                    \
+            });
     switch (type) {
-        case EParamYdbType::Bool: return EPrimitiveType::Bool;
-        case EParamYdbType::Int8: return EPrimitiveType::Int8;
-        case EParamYdbType::Uint8: return EPrimitiveType::Uint8;
-        case EParamYdbType::Int16: return EPrimitiveType::Int16;
-        case EParamYdbType::Uint16: return EPrimitiveType::Uint16;
-        case EParamYdbType::Int32: return EPrimitiveType::Int32;
-        case EParamYdbType::Uint32: return EPrimitiveType::Uint32;
-        case EParamYdbType::Int64: return EPrimitiveType::Int64;
-        case EParamYdbType::Uint64: return EPrimitiveType::Uint64;
-        case EParamYdbType::Float: return EPrimitiveType::Float;
-        case EParamYdbType::Double: return EPrimitiveType::Double;
-        case EParamYdbType::Utf8: return EPrimitiveType::Utf8;
-        case EParamYdbType::String: return EPrimitiveType::String;
-        case EParamYdbType::Date: return EPrimitiveType::Date;
-        case EParamYdbType::Datetime: return EPrimitiveType::Datetime;
-        case EParamYdbType::Timestamp: return EPrimitiveType::Timestamp;
-        case EParamYdbType::Decimal: return std::nullopt;
+        YDB_ODBC_SCALAR_TYPES(ODBC_VISIT_SCALAR)
+        default:
+            return std::nullopt;
     }
-    return std::nullopt;
+#undef ODBC_VISIT_SCALAR
 }
 
-bool IsNull(const TBoundParam& param) {
-    return param.StrLenOrIndPtr && *param.StrLenOrIndPtr == SQL_NULL_DATA;
+std::optional<TOdbcScalar> PrimitiveScalar(TValueParser& parser, EPrimitiveType type) {
+    if (auto scalar = VisitScalar<TOdbcScalar>(type, [&]<typename T>(auto get, auto) {
+            return MakeScalar(get(parser));
+        })) {
+        return *scalar;
+    }
+    switch (type) {
+        case EPrimitiveType::Bool: return TOdbcScalar{int64_t(parser.GetBool())};
+        case EPrimitiveType::Utf8: return TOdbcScalar{parser.GetUtf8()};
+        case EPrimitiveType::String: return TOdbcScalar{parser.GetString()};
+        case EPrimitiveType::Yson: return TOdbcScalar{parser.GetYson()};
+        case EPrimitiveType::Json: return TOdbcScalar{parser.GetJson()};
+        case EPrimitiveType::JsonDocument: return TOdbcScalar{parser.GetJsonDocument()};
+        case EPrimitiveType::DyNumber: return TOdbcScalar{parser.GetDyNumber()};
+        case EPrimitiveType::Uuid: return TOdbcScalar{parser.GetUuid().ToString()};
+        default: return std::nullopt;
+    }
+}
+
+std::string FormatInstant(TInstant value, const char* format, bool fraction) {
+    const TString formatted = value.FormatGmTime(format);
+    std::string text(formatted.data(), formatted.size());
+    if (fraction && value.MicroSecondsOfSecond()) {
+        char suffix[8] = {};
+        std::snprintf(suffix, sizeof(suffix), ".%06u", value.MicroSecondsOfSecond());
+        text += suffix;
+    }
+    return text;
+}
+
+std::optional<std::string> TemporalText(TValueParser& parser, EPrimitiveType type) {
+    switch (type) {
+        case EPrimitiveType::Date:
+            return FormatInstant(parser.GetDate(), "%Y-%m-%d", false);
+        case EPrimitiveType::Datetime:
+            return FormatInstant(parser.GetDatetime(), "%Y-%m-%d %H:%M:%S", false);
+        case EPrimitiveType::Timestamp:
+            return FormatInstant(parser.GetTimestamp(), "%Y-%m-%d %H:%M:%S", true);
+        case EPrimitiveType::Date32: {
+            const auto value = parser.GetDate32().time_since_epoch().count();
+            return value < 0 ? std::nullopt
+                             : std::optional<std::string>(FormatInstant(
+                                   TInstant::Days(value), "%Y-%m-%d", false));
+        }
+        case EPrimitiveType::Datetime64: {
+            const auto value = parser.GetDatetime64().time_since_epoch().count();
+            return value < 0 ? std::nullopt
+                             : std::optional<std::string>(FormatInstant(
+                                   TInstant::Seconds(value), "%Y-%m-%d %H:%M:%S", false));
+        }
+        case EPrimitiveType::Timestamp64: {
+            const auto value = parser.GetTimestamp64().time_since_epoch().count();
+            return value < 0 ? std::nullopt
+                             : std::optional<std::string>(FormatInstant(
+                                   TInstant::MicroSeconds(value), "%Y-%m-%d %H:%M:%S", true));
+        }
+        case EPrimitiveType::TzDate: return parser.GetTzDate();
+        case EPrimitiveType::TzDatetime: return parser.GetTzDatetime();
+        case EPrimitiveType::TzTimestamp: return parser.GetTzTimestamp();
+        default: return std::nullopt;
+    }
+}
+
+template <typename Value, typename Put>
+bool PutValue(std::optional<Value> value, Put put) {
+    if (!value) {
+        return false;
+    }
+    put(*value);
+    return true;
+}
+
+bool ConvertParamValue(const TBoundParam& param, EPrimitiveType type, TParamValueBuilder& builder) {
+    if (auto converted = VisitScalar<bool>(type, [&]<typename T>(auto, auto put) {
+            return PutValue(ReadScalar<T>(param), [&](T value) {
+                put(builder, value);
+            });
+        })) {
+        return *converted;
+    }
+    switch (type) {
+        case EPrimitiveType::Bool:
+            if (const auto value = ReadInteger<int64_t>(param); value && *value >= 0 && *value <= 1) {
+                builder.OptionalBool(*value != 0);
+                return true;
+            }
+            Error("22003");
+            return false;
+        case EPrimitiveType::Utf8:
+            return PutValue(ReadText(param), [&](const auto& v) { builder.OptionalUtf8(v); });
+        case EPrimitiveType::String: {
+            if (param.ValueType != SQL_C_BINARY) {
+                return false;
+            }
+            const auto value = ReadBytes(param);
+            if (value) {
+                builder.OptionalString(*value);
+            }
+            return value.has_value();
+        }
+        case EPrimitiveType::Date:
+        case EPrimitiveType::Datetime:
+        case EPrimitiveType::Timestamp: {
+            const auto value = ReadTemporal(param, type);
+            if (!value) {
+                return false;
+            }
+            if (type == EPrimitiveType::Date) {
+                builder.OptionalDate(*value);
+            } else if (type == EPrimitiveType::Datetime) {
+                builder.OptionalDatetime(*value);
+            } else {
+                builder.OptionalTimestamp(*value);
+            }
+            return true;
+        }
+        default: return false;
+    }
 }
 
 } // namespace
@@ -531,147 +626,92 @@ bool IsNull(const TBoundParam& param) {
 SQLRETURN ConvertParam(const TBoundParam& param, TParamValueBuilder& builder) {
     LastConvertSqlState = nullptr;
     const auto type = ResolveParamType(param);
-    if (!type) return SQL_ERROR;
-    if (IsNull(param)) {
+    if (!type) {
+        return SQL_ERROR;
+    }
+    if (param.StrLenOrIndPtr && *param.StrLenOrIndPtr == SQL_NULL_DATA) {
         TTypeBuilder itemType;
-        if (type->Type == EParamYdbType::Decimal) {
-            itemType.Decimal(TDecimalType(
-                static_cast<uint8_t>(type->Precision), static_cast<uint8_t>(type->Scale)));
+        if (!type->Type) {
+            itemType.Decimal(TDecimalType(static_cast<uint8_t>(type->Precision),
+                                          static_cast<uint8_t>(type->Scale)));
         } else {
-            const auto primitive = ParamPrimitive(type->Type);
-            if (!primitive) return SQL_ERROR;
-            itemType.Primitive(*primitive);
+            itemType.Primitive(*type->Type);
         }
         builder.EmptyOptional(itemType.Build()).Build();
         return SQL_SUCCESS;
     }
-
-    switch (type->Type) {
-        case EParamYdbType::Bool: {
-            const auto value = ReadInteger(param);
-            if (!value || (*value != 0 && *value != 1)) {
-                SetNumericOutOfRange();
-                return SQL_ERROR;
-            }
-            builder.OptionalBool(*value != 0);
-            break;
+    if (!type->Type) {
+        const auto text = ReadDecimalText(param);
+        if (!text) {
+            return SQL_ERROR;
         }
-        case EParamYdbType::Int8:
-        case EParamYdbType::Int16:
-        case EParamYdbType::Int32:
-        case EParamYdbType::Int64: {
-            const auto value = ReadInteger(param);
-            if (!value) return SQL_ERROR;
-            if (type->Type == EParamYdbType::Int8) {
-                if (*value < INT8_MIN || *value > INT8_MAX) { SetNumericOutOfRange(); return SQL_ERROR; }
-                builder.OptionalInt8(static_cast<int8_t>(*value));
-            } else if (type->Type == EParamYdbType::Int16) {
-                if (!FitsInt16(*value)) { SetNumericOutOfRange(); return SQL_ERROR; }
-                builder.OptionalInt16(static_cast<int16_t>(*value));
-            } else if (type->Type == EParamYdbType::Int32) {
-                if (!FitsInt32(*value)) { SetNumericOutOfRange(); return SQL_ERROR; }
-                builder.OptionalInt32(static_cast<int32_t>(*value));
-            } else {
-                builder.OptionalInt64(*value);
-            }
-            break;
+        try {
+            builder.BeginOptional()
+                .Decimal(TDecimalValue(*text, static_cast<uint8_t>(type->Precision),
+                                       static_cast<uint8_t>(type->Scale)))
+                .EndOptional();
+        } catch (...) {
+            return Error("22018");
         }
-        case EParamYdbType::Uint8:
-        case EParamYdbType::Uint16:
-        case EParamYdbType::Uint32:
-        case EParamYdbType::Uint64: {
-            const auto value = ReadUnsignedInteger(param);
-            if (!value) return SQL_ERROR;
-            if (type->Type == EParamYdbType::Uint8) {
-                if (!FitsUnsigned<uint8_t>(*value)) { SetNumericOutOfRange(); return SQL_ERROR; }
-                builder.OptionalUint8(static_cast<uint8_t>(*value));
-            } else if (type->Type == EParamYdbType::Uint16) {
-                if (!FitsUnsigned<uint16_t>(*value)) { SetNumericOutOfRange(); return SQL_ERROR; }
-                builder.OptionalUint16(static_cast<uint16_t>(*value));
-            } else if (type->Type == EParamYdbType::Uint32) {
-                if (!FitsUnsigned<uint32_t>(*value)) { SetNumericOutOfRange(); return SQL_ERROR; }
-                builder.OptionalUint32(static_cast<uint32_t>(*value));
-            } else {
-                builder.OptionalUint64(*value);
-            }
-            break;
-        }
-        case EParamYdbType::Float: {
-            if (!param.ParameterValuePtr) return SQL_ERROR;
-            if (param.ValueType == SQL_C_FLOAT) {
-                builder.OptionalFloat(*static_cast<const SQLREAL*>(param.ParameterValuePtr));
-            } else if (param.ValueType == SQL_C_DOUBLE) {
-                builder.OptionalFloat(static_cast<float>(
-                    *static_cast<const SQLDOUBLE*>(param.ParameterValuePtr)));
-            } else {
-                return SQL_ERROR;
-            }
-            break;
-        }
-        case EParamYdbType::Double: {
-            if (!param.ParameterValuePtr) return SQL_ERROR;
-            if (param.ValueType == SQL_C_DOUBLE) {
-                builder.OptionalDouble(*static_cast<const SQLDOUBLE*>(param.ParameterValuePtr));
-            } else if (param.ValueType == SQL_C_FLOAT) {
-                builder.OptionalDouble(*static_cast<const SQLREAL*>(param.ParameterValuePtr));
-            } else {
-                return SQL_ERROR;
-            }
-            break;
-        }
-        case EParamYdbType::Decimal: {
-            const auto text = ReadDecimalText(param);
-            if (!text) return SQL_ERROR;
-            try {
-                builder.BeginOptional()
-                    .Decimal(TDecimalValue(
-                        *text, static_cast<uint8_t>(type->Precision), static_cast<uint8_t>(type->Scale)))
-                    .EndOptional();
-            } catch (...) {
-                SetInvalidCharacterValue();
-                return SQL_ERROR;
-            }
-            break;
-        }
-        case EParamYdbType::Utf8: {
-            const auto text = ReadText(param);
-            if (!text) return SQL_ERROR;
-            builder.OptionalUtf8(*text);
-            break;
-        }
-        case EParamYdbType::String: {
-            if (param.ValueType != SQL_C_BINARY) return SQL_ERROR;
-            const auto bytes = ReadBytes(param);
-            if (!bytes) return SQL_ERROR;
-            builder.OptionalString(*bytes);
-            break;
-        }
-        case EParamYdbType::Date:
-        case EParamYdbType::Datetime:
-        case EParamYdbType::Timestamp: {
-            const auto instant = ReadTemporal(param, type->Type);
-            if (!instant) return SQL_ERROR;
-            if (type->Type == EParamYdbType::Date) builder.OptionalDate(*instant);
-            else if (type->Type == EParamYdbType::Datetime) builder.OptionalDatetime(*instant);
-            else builder.OptionalTimestamp(*instant);
-            break;
-        }
+        builder.Build();
+        return SQL_SUCCESS;
+    }
+    if (!ConvertParamValue(param, *type->Type, builder)) {
+        return SQL_ERROR;
     }
     builder.Build();
     return SQL_SUCCESS;
+}
+
+SQLRETURN ConvertColumn(const TOdbcScalar& value, SQLSMALLINT targetType, SQLPOINTER targetValue,
+                        SQLLEN bufferLength, SQLLEN* strLenOrInd, SQLLEN* offset) {
+    LastConvertSqlState = nullptr;
+    if (bufferLength < 0) {
+        return Error("HY090");
+    }
+    if (std::holds_alternative<std::monostate>(value)) {
+        if (!strLenOrInd) {
+            return Error("22002");
+        }
+        *strLenOrInd = SQL_NULL_DATA;
+        return SQL_SUCCESS;
+    }
+    return std::visit(
+        [&](const auto& scalar) -> SQLRETURN {
+            using T = std::decay_t<decltype(scalar)>;
+            if constexpr (std::is_same_v<T, std::string>) {
+                return WriteText(
+                    scalar, targetType, targetValue, bufferLength, strLenOrInd, offset);
+            } else if constexpr (std::is_same_v<T, std::monostate>) {
+                return SQL_ERROR;
+            } else {
+                if constexpr (!std::is_floating_point_v<T>) {
+                    if (IsIntegerTarget(targetType)) {
+                        return WriteInteger(scalar, targetType, targetValue, strLenOrInd);
+                    }
+                }
+                if (targetType == SQL_C_DOUBLE || targetType == SQL_C_FLOAT) {
+                    return WriteReal(scalar, targetType, targetValue, strLenOrInd);
+                }
+                if (targetType == SQL_C_CHAR || targetType == SQL_C_WCHAR) {
+                    return WriteText(std::to_string(scalar), targetType, targetValue, bufferLength,
+                                     strLenOrInd, offset);
+                }
+                return SQL_ERROR;
+            }
+        },
+        value);
 }
 
 SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER targetValue,
                         SQLLEN bufferLength, SQLLEN* strLenOrInd, SQLLEN* offset) {
     LastConvertSqlState = nullptr;
     if (bufferLength < 0) {
-        LastConvertSqlState = "HY090";
-        return SQL_ERROR;
+        return Error("HY090");
     }
     if (parser.IsNull()) {
         if (!strLenOrInd) {
-            LastConvertSqlState = "22002";
-            return SQL_ERROR;
+            return Error("22002");
         }
         *strLenOrInd = SQL_NULL_DATA;
         return SQL_SUCCESS;
@@ -684,197 +724,31 @@ SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER
         return result;
     }
     if (parser.GetKind() == TTypeParser::ETypeKind::Decimal) {
-        const TDecimalValue decimal = parser.GetDecimal();
-        const std::string text = FormatDecimalText(decimal);
-        if (targetType == SQL_C_DOUBLE || targetType == SQL_C_FLOAT) {
-            try {
-                const double value = std::stod(text);
-                if (targetType == SQL_C_DOUBLE) {
-                    if (targetValue) *static_cast<SQLDOUBLE*>(targetValue) = value;
-                    if (strLenOrInd) *strLenOrInd = sizeof(SQLDOUBLE);
-                } else {
-                    if (targetValue) *static_cast<SQLREAL*>(targetValue) = static_cast<float>(value);
-                    if (strLenOrInd) *strLenOrInd = sizeof(SQLREAL);
-                }
-                return SQL_SUCCESS;
-            } catch (...) {
-                SetNumericOutOfRange();
-                return SQL_ERROR;
-            }
-        }
-        if (targetType == SQL_C_NUMERIC) {
-            return WriteNumericStruct(
-                text, targetValue, strLenOrInd,
-                decimal.DecimalType_.Precision, decimal.DecimalType_.Scale);
-        }
-        if (IsSignedIntegerTarget(targetType)) {
-            try {
-                size_t parsed = 0;
-                const std::string integral = DecimalIntegralPart(text);
-                const int64_t value = std::stoll(integral, &parsed);
-                if (parsed != integral.size()) throw std::invalid_argument("decimal");
-                return WriteSignedInteger(value, targetType, targetValue, strLenOrInd);
-            } catch (...) {
-                SetNumericOutOfRange();
-                return SQL_ERROR;
-            }
-        }
-        if (IsUnsignedIntegerTarget(targetType)) {
-            try {
-                size_t parsed = 0;
-                const std::string integral = DecimalIntegralPart(text);
-                if (!integral.empty() && integral.front() == '-') {
-                    throw std::out_of_range("negative decimal");
-                }
-                const uint64_t value = std::stoull(integral, &parsed);
-                if (parsed != integral.size()) throw std::invalid_argument("decimal");
-                return WriteUnsignedInteger(value, targetType, targetValue, strLenOrInd);
-            } catch (...) {
-                SetNumericOutOfRange();
-                return SQL_ERROR;
-            }
-        }
-        if (targetType == SQL_C_CHAR) {
-            return CopyVariable(text.data(), static_cast<SQLLEN>(text.size()), 1, 1,
-                                targetValue, bufferLength, strLenOrInd, offset);
-        }
-        if (targetType == SQL_C_WCHAR) {
-            const TUtf16String wide = UTF8ToWide(text);
-            static_assert(sizeof(TUtf16String::value_type) == sizeof(SQLWCHAR));
-            return CopyVariable(wide.data(), static_cast<SQLLEN>(wide.size() * sizeof(SQLWCHAR)),
-                                sizeof(SQLWCHAR), sizeof(SQLWCHAR), targetValue, bufferLength,
-                                strLenOrInd, offset);
-        }
+        return ConvertDecimal(parser, targetType, targetValue, bufferLength, strLenOrInd, offset);
+    }
+    if (parser.GetKind() != TTypeParser::ETypeKind::Primitive) {
         return SQL_ERROR;
     }
-    if (parser.GetKind() != TTypeParser::ETypeKind::Primitive) return SQL_ERROR;
-    const EPrimitiveType ydbType = parser.GetPrimitiveType();
-
-    if (IsSignedIntegerTarget(targetType)) {
-        const auto raw = GetAsInt64(parser, ydbType);
-        if (!raw) return SQL_ERROR;
-        return WriteSignedInteger(*raw, targetType, targetValue, strLenOrInd);
-    }
-    if (IsUnsignedIntegerTarget(targetType)) {
-        const auto raw = GetAsUint64(parser, ydbType);
-        if (!raw) return SQL_ERROR;
-        return WriteUnsignedInteger(*raw, targetType, targetValue, strLenOrInd);
-    }
-    if (targetType == SQL_C_DOUBLE || targetType == SQL_C_FLOAT) {
-        double value;
-        if (ydbType == EPrimitiveType::Double) value = parser.GetDouble();
-        else if (ydbType == EPrimitiveType::Float) value = parser.GetFloat();
-        else if (const auto integer = GetAsInt64(parser, ydbType)) value = static_cast<double>(*integer);
-        else if (const auto integer = GetAsUint64(parser, ydbType)) value = static_cast<double>(*integer);
-        else return SQL_ERROR;
-        if (targetType == SQL_C_DOUBLE) {
-            if (targetValue) *static_cast<SQLDOUBLE*>(targetValue) = value;
-            if (strLenOrInd) *strLenOrInd = sizeof(SQLDOUBLE);
-        } else {
-            if (targetValue) *static_cast<SQLREAL*>(targetValue) = static_cast<float>(value);
-            if (strLenOrInd) *strLenOrInd = sizeof(SQLREAL);
-        }
-        return SQL_SUCCESS;
-    }
+    const EPrimitiveType type = parser.GetPrimitiveType();
     if (targetType == SQL_C_TYPE_DATE || targetType == SQL_C_DATE
         || targetType == SQL_C_TYPE_TIME || targetType == SQL_C_TIME
         || targetType == SQL_C_TYPE_TIMESTAMP || targetType == SQL_C_TIMESTAMP) {
-        return WriteTemporal(parser, ydbType, targetType, targetValue, strLenOrInd);
+        return WriteTemporal(parser, type, targetType, targetValue, strLenOrInd);
     }
     if (targetType == SQL_C_BINARY) {
-        if (ydbType != EPrimitiveType::String) return SQL_ERROR;
+        if (type != EPrimitiveType::String) {
+            return SQL_ERROR;
+        }
         const std::string& bytes = parser.GetString();
-        return CopyVariable(bytes.data(), static_cast<SQLLEN>(bytes.size()), 0, 1,
-                            targetValue, bufferLength, strLenOrInd, offset);
-    }
-    if (targetType != SQL_C_CHAR && targetType != SQL_C_WCHAR) return SQL_ERROR;
-
-    std::string text;
-    switch (ydbType) {
-        case EPrimitiveType::Utf8: text = parser.GetUtf8(); break;
-        case EPrimitiveType::String: text = parser.GetString(); break;
-        case EPrimitiveType::Yson: text = parser.GetYson(); break;
-        case EPrimitiveType::Json: text = parser.GetJson(); break;
-        case EPrimitiveType::JsonDocument: text = parser.GetJsonDocument(); break;
-        case EPrimitiveType::DyNumber: text = parser.GetDyNumber(); break;
-        case EPrimitiveType::Uuid: text = parser.GetUuid().ToString(); break;
-        case EPrimitiveType::Bool: text = parser.GetBool() ? "1" : "0"; break;
-        case EPrimitiveType::Int8: text = std::to_string(parser.GetInt8()); break;
-        case EPrimitiveType::Uint8: text = std::to_string(parser.GetUint8()); break;
-        case EPrimitiveType::Int16: text = std::to_string(parser.GetInt16()); break;
-        case EPrimitiveType::Uint16: text = std::to_string(parser.GetUint16()); break;
-        case EPrimitiveType::Int32: text = std::to_string(parser.GetInt32()); break;
-        case EPrimitiveType::Uint32: text = std::to_string(parser.GetUint32()); break;
-        case EPrimitiveType::Int64: text = std::to_string(parser.GetInt64()); break;
-        case EPrimitiveType::Uint64: text = std::to_string(parser.GetUint64()); break;
-        case EPrimitiveType::Float: text = std::to_string(parser.GetFloat()); break;
-        case EPrimitiveType::Double: text = std::to_string(parser.GetDouble()); break;
-        case EPrimitiveType::Date: {
-            const TString value = parser.GetDate().FormatGmTime("%Y-%m-%d");
-            text.assign(value.data(), value.size()); break;
-        }
-        case EPrimitiveType::Date32: {
-            const auto days = parser.GetDate32().time_since_epoch().count();
-            if (days < 0) return SQL_ERROR;
-            const TString value = TInstant::Days(static_cast<ui64>(days)).FormatGmTime("%Y-%m-%d");
-            text.assign(value.data(), value.size()); break;
-        }
-        case EPrimitiveType::Datetime: {
-            const TString value = parser.GetDatetime().FormatGmTime("%Y-%m-%d %H:%M:%S");
-            text.assign(value.data(), value.size()); break;
-        }
-        case EPrimitiveType::Datetime64: {
-            const auto seconds = parser.GetDatetime64().time_since_epoch().count();
-            if (seconds < 0) return SQL_ERROR;
-            const TString value = TInstant::Seconds(static_cast<ui64>(seconds))
-                .FormatGmTime("%Y-%m-%d %H:%M:%S");
-            text.assign(value.data(), value.size()); break;
-        }
-        case EPrimitiveType::Timestamp: {
-            const TString value = parser.GetTimestamp().FormatGmTime("%Y-%m-%d %H:%M:%S");
-            text.assign(value.data(), value.size());
-            if (parser.GetTimestamp().MicroSecondsOfSecond()) {
-                char fraction[8] = {};
-                std::snprintf(fraction, sizeof(fraction), ".%06u",
-                              parser.GetTimestamp().MicroSecondsOfSecond());
-                text += fraction;
-            }
-            break;
-        }
-        case EPrimitiveType::Timestamp64: {
-            const auto micros = parser.GetTimestamp64().time_since_epoch().count();
-            if (micros < 0) return SQL_ERROR;
-            const TString value = TInstant::MicroSeconds(static_cast<ui64>(micros))
-                .FormatGmTime("%Y-%m-%d %H:%M:%S");
-            text.assign(value.data(), value.size());
-            const auto fractionValue = static_cast<unsigned>(micros % 1000000);
-            if (fractionValue) {
-                char fraction[8] = {};
-                std::snprintf(fraction, sizeof(fraction), ".%06u", fractionValue);
-                text += fraction;
-            }
-            break;
-        }
-        case EPrimitiveType::TzDate: text = parser.GetTzDate(); break;
-        case EPrimitiveType::TzDatetime: text = parser.GetTzDatetime(); break;
-        case EPrimitiveType::TzTimestamp: text = parser.GetTzTimestamp(); break;
-        default: return SQL_ERROR;
-    }
-
-    if (targetType == SQL_C_CHAR) {
-        return CopyVariable(text.data(), static_cast<SQLLEN>(text.size()), 1, 1,
-                            targetValue, bufferLength, strLenOrInd, offset);
-    }
-    try {
-        const TUtf16String wide = UTF8ToWide(text);
-        static_assert(sizeof(TUtf16String::value_type) == sizeof(SQLWCHAR));
-        return CopyVariable(wide.data(), static_cast<SQLLEN>(wide.size() * sizeof(SQLWCHAR)),
-                            sizeof(SQLWCHAR), sizeof(SQLWCHAR), targetValue, bufferLength,
+        return CopyVariable(bytes.data(), bytes.size(), 0, 1, targetValue, bufferLength,
                             strLenOrInd, offset);
-    } catch (...) {
-        SetInvalidCharacterValue();
-        return SQL_ERROR;
     }
+    if (const auto scalar = PrimitiveScalar(parser, type)) {
+        return ConvertColumn(*scalar, targetType, targetValue, bufferLength, strLenOrInd, offset);
+    }
+    const auto text = TemporalText(parser, type);
+    return text ? WriteText(*text, targetType, targetValue, bufferLength, strLenOrInd, offset)
+                : SQL_ERROR;
 }
 
 const char* ConsumeLastConvertSqlState() {

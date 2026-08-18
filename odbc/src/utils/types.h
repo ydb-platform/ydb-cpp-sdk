@@ -6,8 +6,7 @@
 #include <sqlext.h>
 #include <optional>
 
-namespace NYdb {
-namespace NOdbc {
+namespace NYdb::NOdbc {
 
 struct TYdbTypeInfo {
     SQLSMALLINT SqlType = SQL_UNKNOWN_TYPE;
@@ -19,7 +18,5 @@ struct TYdbTypeInfo {
 };
 
 TYdbTypeInfo DescribeYdbType(const TType& type);
-SQLULEN GetColumnSize(SQLSMALLINT sqlType);
 
-} // namespace NOdbc
-} // namespace NYdb
+} // namespace NYdb::NOdbc
