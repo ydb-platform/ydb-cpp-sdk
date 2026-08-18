@@ -5,37 +5,9 @@
 #include "utils/sql_type_map.h"
 
 #include <algorithm>
-#include <cstring>
 
 namespace NYdb::NOdbc {
 namespace {
-
-SQLULEN CTypeSize(SQLSMALLINT type, SQLLEN length) {
-    switch (type) {
-        case SQL_C_CHAR: case SQL_C_WCHAR: case SQL_C_BINARY:
-            return static_cast<SQLULEN>(std::max<SQLLEN>(length, 0));
-        case SQL_C_BIT: case SQL_C_TINYINT: case SQL_C_UTINYINT: return sizeof(SQLCHAR);
-        case SQL_C_SHORT: case SQL_C_USHORT: return sizeof(SQLSMALLINT);
-        case SQL_C_LONG: case SQL_C_ULONG: return sizeof(SQLINTEGER);
-        case SQL_C_SBIGINT: case SQL_C_UBIGINT: return sizeof(SQLBIGINT);
-        case SQL_C_FLOAT: return sizeof(SQLREAL);
-        case SQL_C_DOUBLE: return sizeof(SQLDOUBLE);
-        case SQL_C_TYPE_DATE: return sizeof(SQL_DATE_STRUCT);
-#if defined(SQL_C_DATE) && SQL_C_DATE != SQL_C_TYPE_DATE
-        case SQL_C_DATE: return sizeof(SQL_DATE_STRUCT);
-#endif
-        case SQL_C_TYPE_TIME: return sizeof(SQL_TIME_STRUCT);
-#if defined(SQL_C_TIME) && SQL_C_TIME != SQL_C_TYPE_TIME
-        case SQL_C_TIME: return sizeof(SQL_TIME_STRUCT);
-#endif
-        case SQL_C_TYPE_TIMESTAMP: return sizeof(SQL_TIMESTAMP_STRUCT);
-#if defined(SQL_C_TIMESTAMP) && SQL_C_TIMESTAMP != SQL_C_TYPE_TIMESTAMP
-        case SQL_C_TIMESTAMP: return sizeof(SQL_TIMESTAMP_STRUCT);
-#endif
-        case SQL_C_GUID: return sizeof(SQLGUID);
-        default: return static_cast<SQLULEN>(std::max<SQLLEN>(length, 0));
-    }
-}
 
 SQLPOINTER Offset(SQLPOINTER pointer, SQLULEN offset, SQLULEN index, SQLULEN stride) {
     return pointer
@@ -62,31 +34,32 @@ std::string TypeName(SQLSMALLINT type) {
     return spec ? std::string(spec->Name) : type == SQL_GUID ? "GUID" : "";
 }
 
-SQLRETURN WriteString(TErrorManager& errors, const std::string& text, SQLPOINTER value,
-                      SQLINTEGER bufferLength, SQLINTEGER* lengthPtr) {
-    if (lengthPtr) {
-        *lengthPtr = static_cast<SQLINTEGER>(text.size());
-    }
-    if (!value) {
-        return SQL_SUCCESS;
-    }
-    if (bufferLength < 0) {
-        return Diag::AddInvalidBufferLength(errors);
-    }
-    if (bufferLength == 0) {
-        return text.empty() ? SQL_SUCCESS : Diag::AddRightTruncated(errors);
-    }
-    const auto copyLength = std::min<size_t>(text.size(), static_cast<size_t>(bufferLength - 1));
-    std::memcpy(value, text.data(), copyLength);
-    static_cast<char*>(value)[copyLength] = '\0';
-    return copyLength == text.size() ? SQL_SUCCESS : Diag::AddRightTruncated(errors);
-}
-
 template<typename T>
 SQLRETURN WriteScalar(SQLPOINTER value, T scalar) {
     *static_cast<T*>(value) = scalar;
     return SQL_SUCCESS;
 }
+
+template<typename T, typename U>
+void WriteIf(T* output, U value) {
+    if (output) {
+        *output = static_cast<T>(value);
+    }
+}
+
+using TRecordProperties = TScalarProperties<
+    TScalarProperty<SQL_DESC_TYPE, &TDescRecord::Type, false, true>,
+    TScalarProperty<SQL_DESC_CONCISE_TYPE, &TDescRecord::Type>,
+    TScalarProperty<SQL_DESC_LENGTH, &TDescRecord::Length>,
+    TScalarProperty<SQL_DESC_OCTET_LENGTH, &TDescRecord::OctetLength>,
+    TScalarProperty<SQL_DESC_DISPLAY_SIZE, &TDescRecord::Length, true, false>,
+    TScalarProperty<SQL_DESC_PRECISION, &TDescRecord::Precision>,
+    TScalarProperty<SQL_DESC_SCALE, &TDescRecord::Scale>,
+    TScalarProperty<SQL_DESC_NULLABLE, &TDescRecord::Nullable>,
+    TScalarProperty<SQL_DESC_PARAMETER_TYPE, &TDescRecord::ParameterType>,
+    TScalarProperty<SQL_DESC_DATA_PTR, &TDescRecord::DataPtr>,
+    TScalarProperty<SQL_DESC_INDICATOR_PTR, &TDescRecord::IndicatorPtr>,
+    TScalarProperty<SQL_DESC_OCTET_LENGTH_PTR, &TDescRecord::OctetLengthPtr>>;
 
 } // namespace
 
@@ -153,10 +126,11 @@ SQLSMALLINT TDescriptor::GetRecordCount() const noexcept {
 
 TResolvedBinding TDescriptor::ResolveBinding(
     const TDescRecord& record, SQLULEN index) const noexcept {
-    const SQLULEN offset = BindOffsetPtr_ ? *BindOffsetPtr_ : 0;
-    const SQLULEN dataStride = BindType_ == SQL_BIND_BY_COLUMN
-        ? CTypeSize(record.Type, record.OctetLength) : BindType_;
-    const SQLULEN lengthStride = BindType_ == SQL_BIND_BY_COLUMN ? sizeof(SQLLEN) : BindType_;
+    const SQLULEN offset = Header_.BindOffsetPtr ? *Header_.BindOffsetPtr : 0;
+    const SQLULEN dataStride = Header_.BindType == SQL_BIND_BY_COLUMN
+        ? GetCTypeSize(record.Type, record.OctetLength) : Header_.BindType;
+    const SQLULEN lengthStride = Header_.BindType == SQL_BIND_BY_COLUMN
+        ? sizeof(SQLLEN) : Header_.BindType;
     return {
         Offset(record.DataPtr, offset, index, dataStride),
         static_cast<SQLLEN*>(Offset(record.IndicatorPtr, offset, index, lengthStride)),
@@ -183,17 +157,15 @@ SQLRETURN TDescriptor::GetDescField(SQLSMALLINT recNumber, SQLSMALLINT field, SQ
     if (!value && (!stringField || !lengthPtr)) {
         return Diag::AddNullPointer(*this);
     }
-    switch (field) {
-        case SQL_DESC_ALLOC_TYPE:
-            return WriteScalar(value, static_cast<SQLSMALLINT>(
-                Type_ == EDescType::Explicit ? SQL_DESC_ALLOC_USER : SQL_DESC_ALLOC_AUTO));
-        case SQL_DESC_COUNT: return WriteScalar(value, GetRecordCount());
-        case SQL_DESC_ARRAY_SIZE: return WriteScalar(value, ArraySize_);
-        case SQL_DESC_BIND_TYPE: return WriteScalar(value, BindType_);
-        case SQL_DESC_BIND_OFFSET_PTR: return WriteScalar(value, BindOffsetPtr_);
-        case SQL_DESC_ARRAY_STATUS_PTR: return WriteScalar(value, ArrayStatusPtr_);
-        case SQL_DESC_ROWS_PROCESSED_PTR: return WriteScalar(value, RowsProcessedPtr_);
-        default: break;
+    if (field == SQL_DESC_ALLOC_TYPE) {
+        return WriteScalar(value, static_cast<SQLSMALLINT>(
+            Type_ == EDescType::Explicit ? SQL_DESC_ALLOC_USER : SQL_DESC_ALLOC_AUTO));
+    }
+    if (field == SQL_DESC_COUNT) {
+        return WriteScalar(value, GetRecordCount());
+    }
+    if (auto result = THeaderProperties::Get(field, Header_, value)) {
+        return *result;
     }
 
     const TDescRecord* record = FindRecord(recNumber);
@@ -202,30 +174,28 @@ SQLRETURN TDescriptor::GetDescField(SQLSMALLINT recNumber, SQLSMALLINT field, SQ
             ? SQL_NO_DATA
             : AddError("07009", 0, "Invalid descriptor index");
     }
+    if (auto result = TRecordProperties::Get(field, *record, value)) {
+        return *result;
+    }
     switch (field) {
         case SQL_DESC_BASE_COLUMN_NAME:
         case SQL_DESC_NAME:
-            return WriteString(*this, record->Name, value, bufferLength, lengthPtr);
+            return Diag::WriteString<Diag::EStringWriteMode::Descriptor>(
+                this, record->Name, value, bufferLength, lengthPtr);
         case SQL_DESC_TYPE_NAME:
         case SQL_DESC_LOCAL_TYPE_NAME:
-            return WriteString(*this, TypeName(record->Type), value, bufferLength, lengthPtr);
+            return Diag::WriteString<Diag::EStringWriteMode::Descriptor>(
+                this, TypeName(record->Type), value, bufferLength, lengthPtr);
         case SQL_DESC_LITERAL_PREFIX:
         case SQL_DESC_LITERAL_SUFFIX:
-            return WriteString(
-                *this, IsCharacter(record->Type) || DateTimeCode(record->Type) ? "'" : "",
+            return Diag::WriteString<Diag::EStringWriteMode::Descriptor>(this,
+                IsCharacter(record->Type) || DateTimeCode(record->Type) ? "'" : "",
                 value, bufferLength, lengthPtr);
         case SQL_DESC_TYPE:
             return WriteScalar(value, static_cast<SQLSMALLINT>(
                 DateTimeCode(record->Type) ? SQL_DATETIME : record->Type));
-        case SQL_DESC_CONCISE_TYPE: return WriteScalar(value, record->Type);
         case SQL_DESC_DATETIME_INTERVAL_CODE:
             return WriteScalar(value, DateTimeCode(record->Type));
-        case SQL_DESC_LENGTH: return WriteScalar(value, record->Length);
-        case SQL_DESC_OCTET_LENGTH: return WriteScalar(value, record->OctetLength);
-        case SQL_DESC_DISPLAY_SIZE: return WriteScalar(value, record->Length);
-        case SQL_DESC_PRECISION: return WriteScalar(value, record->Precision);
-        case SQL_DESC_SCALE: return WriteScalar(value, record->Scale);
-        case SQL_DESC_NULLABLE: return WriteScalar(value, record->Nullable);
         case SQL_DESC_CASE_SENSITIVE:
             return WriteScalar(value, static_cast<SQLSMALLINT>(IsCharacter(record->Type)));
         case SQL_DESC_FIXED_PREC_SCALE:
@@ -239,10 +209,6 @@ SQLRETURN TDescriptor::GetDescField(SQLSMALLINT recNumber, SQLSMALLINT field, SQ
         case SQL_DESC_UNSIGNED: return WriteScalar(value, static_cast<SQLSMALLINT>(SQL_FALSE));
         case SQL_DESC_UPDATABLE:
             return WriteScalar(value, static_cast<SQLSMALLINT>(SQL_ATTR_READONLY));
-        case SQL_DESC_PARAMETER_TYPE: return WriteScalar(value, record->ParameterType);
-        case SQL_DESC_DATA_PTR: return WriteScalar(value, record->DataPtr);
-        case SQL_DESC_INDICATOR_PTR: return WriteScalar(value, record->IndicatorPtr);
-        case SQL_DESC_OCTET_LENGTH_PTR: return WriteScalar(value, record->OctetLengthPtr);
         default: return Diag::AddNotImplemented(*this);
     }
 }
@@ -258,20 +224,21 @@ SQLRETURN TDescriptor::GetDescRec(SQLSMALLINT recNumber, SQLCHAR* name, SQLSMALL
             ? SQL_NO_DATA
             : AddError("07009", 0, "Invalid descriptor index");
     }
-    SQLINTEGER nameLength = 0;
+    SQLSMALLINT nameLength = 0;
     SQLRETURN result = SQL_SUCCESS;
     if (name) {
-        result = WriteString(*this, record->Name, name, bufferLength, &nameLength);
+        result = Diag::WriteString<Diag::EStringWriteMode::Descriptor>(
+            this, record->Name, name, bufferLength, &nameLength);
     } else {
-        nameLength = static_cast<SQLINTEGER>(record->Name.size());
+        nameLength = static_cast<SQLSMALLINT>(record->Name.size());
     }
-    if (nameLengthPtr) *nameLengthPtr = static_cast<SQLSMALLINT>(nameLength);
-    if (typePtr) *typePtr = DateTimeCode(record->Type) ? SQL_DATETIME : record->Type;
-    if (subTypePtr) *subTypePtr = DateTimeCode(record->Type);
-    if (lengthPtr) *lengthPtr = record->Length;
-    if (precisionPtr) *precisionPtr = record->Precision;
-    if (scalePtr) *scalePtr = record->Scale;
-    if (nullablePtr) *nullablePtr = record->Nullable;
+    WriteIf(nameLengthPtr, nameLength);
+    WriteIf(typePtr, DateTimeCode(record->Type) ? SQL_DATETIME : record->Type);
+    WriteIf(subTypePtr, DateTimeCode(record->Type));
+    WriteIf(lengthPtr, record->Length);
+    WriteIf(precisionPtr, record->Precision);
+    WriteIf(scalePtr, record->Scale);
+    WriteIf(nullablePtr, record->Nullable);
     return result;
 }
 
@@ -280,24 +247,27 @@ SQLRETURN TDescriptor::SetDescField(SQLSMALLINT recNumber, SQLSMALLINT field, SQ
     switch (field) {
         case SQL_DESC_COUNT: {
             const auto count = static_cast<SQLSMALLINT>(reinterpret_cast<intptr_t>(value));
-            if (count < 0) return AddError("HY024", 0, "Invalid SQL_DESC_COUNT value");
+            if (count < 0) {
+                return AddError("HY024", 0, "Invalid SQL_DESC_COUNT value");
+            }
             Records_.resize(static_cast<size_t>(count));
-            for (auto& record : Records_) record.Active = true;
+            for (auto& record : Records_) {
+                record.Active = true;
+            }
             return SQL_SUCCESS;
         }
         case SQL_DESC_ARRAY_SIZE: {
             const auto size = static_cast<SQLULEN>(reinterpret_cast<uintptr_t>(value));
-            if (size == 0) return AddError("HY024", 0, "Invalid SQL_DESC_ARRAY_SIZE value");
-            ArraySize_ = size;
+            if (size == 0) {
+                return AddError("HY024", 0, "Invalid SQL_DESC_ARRAY_SIZE value");
+            }
+            Header_.ArraySize = size;
             return SQL_SUCCESS;
         }
-        case SQL_DESC_BIND_TYPE:
-            BindType_ = static_cast<SQLULEN>(reinterpret_cast<uintptr_t>(value));
-            return SQL_SUCCESS;
-        case SQL_DESC_BIND_OFFSET_PTR: BindOffsetPtr_ = static_cast<SQLULEN*>(value); return SQL_SUCCESS;
-        case SQL_DESC_ARRAY_STATUS_PTR: ArrayStatusPtr_ = static_cast<SQLUSMALLINT*>(value); return SQL_SUCCESS;
-        case SQL_DESC_ROWS_PROCESSED_PTR: RowsProcessedPtr_ = static_cast<SQLULEN*>(value); return SQL_SUCCESS;
         default: break;
+    }
+    if (THeaderProperties::Set(field, Header_, value)) {
+        return SQL_SUCCESS;
     }
 
     if (Type_ == EDescType::ImpRow) {
@@ -305,27 +275,19 @@ SQLRETURN TDescriptor::SetDescField(SQLSMALLINT recNumber, SQLSMALLINT field, SQ
     }
 
     TDescRecord& record = Record(recNumber);
-    const auto integer = reinterpret_cast<intptr_t>(value);
-    switch (field) {
-        case SQL_DESC_TYPE:
-        case SQL_DESC_CONCISE_TYPE: record.Type = static_cast<SQLSMALLINT>(integer); return SQL_SUCCESS;
-        case SQL_DESC_LENGTH: record.Length = static_cast<SQLLEN>(integer); return SQL_SUCCESS;
-        case SQL_DESC_OCTET_LENGTH: record.OctetLength = static_cast<SQLLEN>(integer); return SQL_SUCCESS;
-        case SQL_DESC_PRECISION: record.Precision = static_cast<SQLSMALLINT>(integer); return SQL_SUCCESS;
-        case SQL_DESC_SCALE: record.Scale = static_cast<SQLSMALLINT>(integer); return SQL_SUCCESS;
-        case SQL_DESC_NULLABLE: record.Nullable = static_cast<SQLSMALLINT>(integer); return SQL_SUCCESS;
-        case SQL_DESC_PARAMETER_TYPE: record.ParameterType = static_cast<SQLSMALLINT>(integer); return SQL_SUCCESS;
-        case SQL_DESC_DATA_PTR: record.DataPtr = value; return SQL_SUCCESS;
-        case SQL_DESC_INDICATOR_PTR: record.IndicatorPtr = static_cast<SQLLEN*>(value); return SQL_SUCCESS;
-        case SQL_DESC_OCTET_LENGTH_PTR: record.OctetLengthPtr = static_cast<SQLLEN*>(value); return SQL_SUCCESS;
-        case SQL_DESC_NAME:
-            if (!value) return Diag::AddNullPointer(*this);
-            record.Name = bufferLength == SQL_NTS
-                ? std::string(static_cast<const char*>(value))
-                : std::string(static_cast<const char*>(value), static_cast<size_t>(bufferLength));
-            return SQL_SUCCESS;
-        default: return Diag::AddNotImplemented(*this);
+    if (TRecordProperties::Set(field, record, value)) {
+        return SQL_SUCCESS;
     }
+    if (field == SQL_DESC_NAME) {
+        if (!value) {
+            return Diag::AddNullPointer(*this);
+        }
+        record.Name = bufferLength == SQL_NTS
+            ? std::string(static_cast<const char*>(value))
+            : std::string(static_cast<const char*>(value), static_cast<size_t>(bufferLength));
+        return SQL_SUCCESS;
+    }
+    return Diag::AddNotImplemented(*this);
 }
 
 SQLRETURN TDescriptor::SetDescRec(SQLSMALLINT recNumber, SQLSMALLINT type, SQLSMALLINT subType,
@@ -349,15 +311,13 @@ SQLRETURN TDescriptor::SetDescRec(SQLSMALLINT recNumber, SQLSMALLINT type, SQLSM
 }
 
 SQLRETURN TDescriptor::CopyDesc(TDescriptor* target) {
-    if (!target) return Diag::AddNullPointer(*this);
+    if (!target) {
+        return Diag::AddNullPointer(*this);
+    }
     if (target->Type_ == EDescType::ImpRow) {
         return AddError("HY016", 0, "Cannot modify an implementation row descriptor");
     }
-    target->ArraySize_ = ArraySize_;
-    target->BindType_ = BindType_;
-    target->BindOffsetPtr_ = BindOffsetPtr_;
-    target->ArrayStatusPtr_ = ArrayStatusPtr_;
-    target->RowsProcessedPtr_ = RowsProcessedPtr_;
+    target->Header_ = Header_;
     target->Records_ = Records_;
     return SQL_SUCCESS;
 }
