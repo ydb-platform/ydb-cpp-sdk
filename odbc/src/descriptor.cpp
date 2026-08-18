@@ -10,6 +10,39 @@
 namespace NYdb::NOdbc {
 namespace {
 
+SQLULEN CTypeSize(SQLSMALLINT type, SQLLEN length) {
+    switch (type) {
+        case SQL_C_CHAR: case SQL_C_WCHAR: case SQL_C_BINARY:
+            return static_cast<SQLULEN>(std::max<SQLLEN>(length, 0));
+        case SQL_C_BIT: case SQL_C_TINYINT: case SQL_C_UTINYINT: return sizeof(SQLCHAR);
+        case SQL_C_SHORT: case SQL_C_USHORT: return sizeof(SQLSMALLINT);
+        case SQL_C_LONG: case SQL_C_ULONG: return sizeof(SQLINTEGER);
+        case SQL_C_SBIGINT: case SQL_C_UBIGINT: return sizeof(SQLBIGINT);
+        case SQL_C_FLOAT: return sizeof(SQLREAL);
+        case SQL_C_DOUBLE: return sizeof(SQLDOUBLE);
+        case SQL_C_TYPE_DATE: return sizeof(SQL_DATE_STRUCT);
+#if defined(SQL_C_DATE) && SQL_C_DATE != SQL_C_TYPE_DATE
+        case SQL_C_DATE: return sizeof(SQL_DATE_STRUCT);
+#endif
+        case SQL_C_TYPE_TIME: return sizeof(SQL_TIME_STRUCT);
+#if defined(SQL_C_TIME) && SQL_C_TIME != SQL_C_TYPE_TIME
+        case SQL_C_TIME: return sizeof(SQL_TIME_STRUCT);
+#endif
+        case SQL_C_TYPE_TIMESTAMP: return sizeof(SQL_TIMESTAMP_STRUCT);
+#if defined(SQL_C_TIMESTAMP) && SQL_C_TIMESTAMP != SQL_C_TYPE_TIMESTAMP
+        case SQL_C_TIMESTAMP: return sizeof(SQL_TIMESTAMP_STRUCT);
+#endif
+        case SQL_C_GUID: return sizeof(SQLGUID);
+        default: return static_cast<SQLULEN>(std::max<SQLLEN>(length, 0));
+    }
+}
+
+SQLPOINTER Offset(SQLPOINTER pointer, SQLULEN offset, SQLULEN index, SQLULEN stride) {
+    return pointer
+        ? static_cast<unsigned char*>(pointer) + offset + index * stride
+        : nullptr;
+}
+
 bool IsCharacter(SQLSMALLINT type) {
     return type == SQL_CHAR || type == SQL_VARCHAR || type == SQL_LONGVARCHAR
         || type == SQL_WCHAR || type == SQL_WVARCHAR || type == SQL_WLONGVARCHAR;
@@ -116,6 +149,19 @@ void TDescriptor::RemoveRecord(SQLSMALLINT number) {
 
 SQLSMALLINT TDescriptor::GetRecordCount() const noexcept {
     return static_cast<SQLSMALLINT>(Records_.size());
+}
+
+TResolvedBinding TDescriptor::ResolveBinding(
+    const TDescRecord& record, SQLULEN index) const noexcept {
+    const SQLULEN offset = BindOffsetPtr_ ? *BindOffsetPtr_ : 0;
+    const SQLULEN dataStride = BindType_ == SQL_BIND_BY_COLUMN
+        ? CTypeSize(record.Type, record.OctetLength) : BindType_;
+    const SQLULEN lengthStride = BindType_ == SQL_BIND_BY_COLUMN ? sizeof(SQLLEN) : BindType_;
+    return {
+        Offset(record.DataPtr, offset, index, dataStride),
+        static_cast<SQLLEN*>(Offset(record.IndicatorPtr, offset, index, lengthStride)),
+        static_cast<SQLLEN*>(Offset(record.OctetLengthPtr, offset, index, lengthStride)),
+    };
 }
 
 void TDescriptor::Attach(TStatement* stmt) {

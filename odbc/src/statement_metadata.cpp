@@ -149,29 +149,28 @@ SQLRETURN TStatement::Columns(const std::string& catalogName,
                 }
                 foundColumn = true;
 
-                const auto sqlType = GetTypeId(column.Type);
-                const auto colSize = GetColumnSize(column.Type);
-                const auto decDigits = GetDecimalDigits(column.Type);
-                const auto radix = GetRadix(column.Type);
-                const std::optional<SQLINTEGER> colSizeOpt = colSize > 0 ? std::optional<SQLINTEGER>(static_cast<SQLINTEGER>(colSize)) : std::nullopt;
+                const TYdbTypeInfo type = DescribeYdbType(column.Type);
+                const std::optional<SQLINTEGER> colSize = type.ColumnSize > 0
+                    ? std::optional<SQLINTEGER>(static_cast<SQLINTEGER>(type.ColumnSize))
+                    : std::nullopt;
 
                 table.push_back({
                     TValueBuilder().OptionalUtf8(catalog).Build(),
                     TValueBuilder().OptionalUtf8(std::nullopt).Build(),
                     TValueBuilder().Utf8(GetMetadataTableName(path)).Build(),
                     TValueBuilder().Utf8(column.Name).Build(),
-                    TValueBuilder().Int16(sqlType).Build(),
+                    TValueBuilder().Int16(type.SqlType).Build(),
                     TValueBuilder().Utf8(column.Type.ToString()).Build(),
-                    TValueBuilder().OptionalInt32(colSizeOpt).Build(),
-                    TValueBuilder().OptionalInt32(colSizeOpt).Build(),
-                    TValueBuilder().OptionalInt16(decDigits).Build(),
-                    TValueBuilder().OptionalInt16(radix).Build(),
+                    TValueBuilder().OptionalInt32(colSize).Build(),
+                    TValueBuilder().OptionalInt32(colSize).Build(),
+                    TValueBuilder().OptionalInt16(type.DecimalDigits).Build(),
+                    TValueBuilder().OptionalInt16(type.Radix).Build(),
                     TValueBuilder().Int16(column.NotNull && *column.NotNull ? SQL_NO_NULLS : SQL_NULLABLE).Build(),
                     TValueBuilder().OptionalUtf8(std::nullopt).Build(),
                     TValueBuilder().OptionalUtf8(std::nullopt).Build(),
-                    TValueBuilder().Int16(sqlType).Build(),
+                    TValueBuilder().Int16(type.SqlType).Build(),
                     TValueBuilder().OptionalInt16(std::nullopt).Build(),
-                    TValueBuilder().OptionalInt32(colSizeOpt).Build(),
+                    TValueBuilder().OptionalInt32(colSize).Build(),
                     TValueBuilder().OptionalInt32(columnIndex + 1).Build(),
                     TValueBuilder().Utf8(column.NotNull && *column.NotNull ? "NO" : "YES").Build(),
                 });
@@ -345,17 +344,18 @@ SQLRETURN TStatement::SpecialColumns(const std::string& catalogName,
             if (columnIt == tableColumns.end()) {
                 continue;
             }
-            const auto sqlType = GetTypeId(columnIt->Type);
-            const auto colSize = GetColumnSize(columnIt->Type);
-            const std::optional<SQLINTEGER> colSizeOpt = colSize > 0 ? std::optional<SQLINTEGER>(static_cast<SQLINTEGER>(colSize)) : std::nullopt;
+            const TYdbTypeInfo type = DescribeYdbType(columnIt->Type);
+            const std::optional<SQLINTEGER> colSize = type.ColumnSize > 0
+                ? std::optional<SQLINTEGER>(static_cast<SQLINTEGER>(type.ColumnSize))
+                : std::nullopt;
             table.push_back({
                 TValueBuilder().OptionalInt16(SQL_SCOPE_SESSION).Build(),
                 TValueBuilder().Utf8(pkName).Build(),
-                TValueBuilder().Int16(sqlType).Build(),
+                TValueBuilder().Int16(type.SqlType).Build(),
                 TValueBuilder().Utf8(columnIt->Type.ToString()).Build(),
-                TValueBuilder().OptionalInt32(colSizeOpt).Build(),
-                TValueBuilder().OptionalInt32(colSizeOpt).Build(),
-                TValueBuilder().OptionalInt16(GetDecimalDigits(columnIt->Type)).Build(),
+                TValueBuilder().OptionalInt32(colSize).Build(),
+                TValueBuilder().OptionalInt32(colSize).Build(),
+                TValueBuilder().OptionalInt16(type.DecimalDigits).Build(),
                 TValueBuilder().Int16(SQL_PC_NOT_PSEUDO).Build(),
             });
         }
