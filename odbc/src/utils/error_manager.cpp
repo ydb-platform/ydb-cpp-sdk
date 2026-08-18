@@ -1,10 +1,7 @@
 #include "error_manager.h"
+#include "diag.h"
 
-#include <algorithm>
-#include <limits>
-#include <cstring>
 #include <string>
-#include <unordered_map>
 
 namespace NYdb::NOdbc {
 
@@ -15,98 +12,79 @@ namespace {
         SQLRETURN returnCode;
     };
 
-    const std::unordered_map<EStatus, OdbcErrorMapping> ERROR_MAPPINGS = {
-        {EStatus::SUCCESS,              {"00000", "Success", SQL_SUCCESS}},
-        {EStatus::BAD_REQUEST,          {"42000", "Syntax error or access rule violation", SQL_ERROR}},
-        {EStatus::UNAUTHORIZED,         {"28000", "Invalid authorization specification", SQL_ERROR}},
-        {EStatus::INTERNAL_ERROR,       {"HY000", "General error", SQL_ERROR}},
-        {EStatus::ABORTED,              {"40001", "Serialization failure", SQL_ERROR}},
-        {EStatus::UNAVAILABLE,          {"08S01", "Communication link failure", SQL_ERROR}},
-        {EStatus::OVERLOADED,           {"HY000", "General error - server overloaded", SQL_ERROR}},
-        {EStatus::SCHEME_ERROR,         {"42S02", "Base table or view not found", SQL_ERROR}},
-        {EStatus::GENERIC_ERROR,        {"HY000", "General error", SQL_ERROR}},
-        {EStatus::TIMEOUT,              {"HYT00", "Timeout expired", SQL_ERROR}},
-        {EStatus::BAD_SESSION,          {"08003", "Connection does not exist", SQL_ERROR}},
-        {EStatus::PRECONDITION_FAILED,  {"23000", "Integrity constraint violation", SQL_ERROR}},
-        {EStatus::ALREADY_EXISTS,       {"23000", "Integrity constraint violation", SQL_ERROR}},
-        {EStatus::NOT_FOUND,            {"02000", "No data found", SQL_NO_DATA}},
-        {EStatus::SESSION_EXPIRED,      {"08003", "Connection does not exist", SQL_ERROR}},
-        {EStatus::CANCELLED,            {"HY008", "Operation canceled", SQL_ERROR}},
-        {EStatus::UNDETERMINED,         {"40003", "Statement completion unknown", SQL_ERROR}},
-        {EStatus::UNSUPPORTED,          {"HYC00", "Optional feature not implemented", SQL_ERROR}},
-        {EStatus::SESSION_BUSY,         {"HY000", "General error - session busy", SQL_ERROR}},
-        // Transport errors
-        {EStatus::TRANSPORT_UNAVAILABLE, {"08S01", "Communication link failure", SQL_ERROR}},
-        {EStatus::CLIENT_RESOURCE_EXHAUSTED, {"HY000", "General error - resource exhausted", SQL_ERROR}},
-        {EStatus::CLIENT_DEADLINE_EXCEEDED, {"HYT00", "Timeout expired", SQL_ERROR}},
-        {EStatus::CLIENT_INTERNAL_ERROR, {"HY000", "General error", SQL_ERROR}},
-        {EStatus::CLIENT_CANCELLED,     {"HY008", "Operation canceled", SQL_ERROR}},
-        {EStatus::CLIENT_UNAUTHENTICATED, {"28000", "Invalid authorization specification", SQL_ERROR}},
-        {EStatus::CLIENT_LIMITS_REACHED, {"HY000", "General error - limits reached", SQL_ERROR}},
-        {EStatus::CLIENT_DISCOVERY_FAILED, {"08001", "Client unable to establish connection", SQL_ERROR}},
-        {EStatus::CLIENT_CALL_UNIMPLEMENTED, {"HYC00", "Optional feature not implemented", SQL_ERROR}},
-        {EStatus::CLIENT_OUT_OF_RANGE,  {"22003", "Numeric value out of range", SQL_ERROR}},
-    };
-
-    const OdbcErrorMapping DEFAULT_ERROR_MAPPING = {"HY000", "Unknown YDB error", SQL_ERROR};
-
     OdbcErrorMapping GetErrorMappingForStatus(EStatus status) {
-        auto it = ERROR_MAPPINGS.find(status);
-        if (it != ERROR_MAPPINGS.end()) {
-            return it->second;
+#define ODBC_STATUS(name, state, text, result) case EStatus::name: return {state, text, result}
+        switch (status) {
+            ODBC_STATUS(SUCCESS, "00000", "Success", SQL_SUCCESS);
+            ODBC_STATUS(BAD_REQUEST, "42000", "Syntax error or access rule violation", SQL_ERROR);
+            ODBC_STATUS(UNAUTHORIZED, "28000", "Invalid authorization specification", SQL_ERROR);
+            ODBC_STATUS(INTERNAL_ERROR, "HY000", "General error", SQL_ERROR);
+            ODBC_STATUS(ABORTED, "40001", "Serialization failure", SQL_ERROR);
+            ODBC_STATUS(UNAVAILABLE, "08S01", "Communication link failure", SQL_ERROR);
+            ODBC_STATUS(OVERLOADED, "HY000", "General error - server overloaded", SQL_ERROR);
+            ODBC_STATUS(SCHEME_ERROR, "42S02", "Base table or view not found", SQL_ERROR);
+            ODBC_STATUS(GENERIC_ERROR, "HY000", "General error", SQL_ERROR);
+            ODBC_STATUS(TIMEOUT, "HYT00", "Timeout expired", SQL_ERROR);
+            ODBC_STATUS(BAD_SESSION, "08003", "Connection does not exist", SQL_ERROR);
+            ODBC_STATUS(PRECONDITION_FAILED, "23000", "Integrity constraint violation", SQL_ERROR);
+            ODBC_STATUS(ALREADY_EXISTS, "23000", "Integrity constraint violation", SQL_ERROR);
+            ODBC_STATUS(NOT_FOUND, "02000", "No data found", SQL_NO_DATA);
+            ODBC_STATUS(SESSION_EXPIRED, "08003", "Connection does not exist", SQL_ERROR);
+            ODBC_STATUS(CANCELLED, "HY008", "Operation canceled", SQL_ERROR);
+            ODBC_STATUS(UNDETERMINED, "40003", "Statement completion unknown", SQL_ERROR);
+            ODBC_STATUS(UNSUPPORTED, "HYC00", "Optional feature not implemented", SQL_ERROR);
+            ODBC_STATUS(SESSION_BUSY, "HY000", "General error - session busy", SQL_ERROR);
+            ODBC_STATUS(TRANSPORT_UNAVAILABLE, "08S01", "Communication link failure", SQL_ERROR);
+            ODBC_STATUS(CLIENT_RESOURCE_EXHAUSTED, "HY000", "General error - resource exhausted", SQL_ERROR);
+            ODBC_STATUS(CLIENT_DEADLINE_EXCEEDED, "HYT00", "Timeout expired", SQL_ERROR);
+            ODBC_STATUS(CLIENT_INTERNAL_ERROR, "HY000", "General error", SQL_ERROR);
+            ODBC_STATUS(CLIENT_CANCELLED, "HY008", "Operation canceled", SQL_ERROR);
+            ODBC_STATUS(CLIENT_UNAUTHENTICATED, "28000", "Invalid authorization specification", SQL_ERROR);
+            ODBC_STATUS(CLIENT_LIMITS_REACHED, "HY000", "General error - limits reached", SQL_ERROR);
+            ODBC_STATUS(CLIENT_DISCOVERY_FAILED, "08001", "Client unable to establish connection", SQL_ERROR);
+            ODBC_STATUS(CLIENT_CALL_UNIMPLEMENTED, "HYC00", "Optional feature not implemented", SQL_ERROR);
+            ODBC_STATUS(CLIENT_OUT_OF_RANGE, "22003", "Numeric value out of range", SQL_ERROR);
+            default: return {"HY000", "Unknown YDB error", SQL_ERROR};
         }
-        return DEFAULT_ERROR_MAPPING;
+#undef ODBC_STATUS
     }
 
-    SQLRETURN WriteDiagCStr(
-        const std::string& str,
-        SQLPOINTER diagInfoPtr,
-        SQLSMALLINT bufferLength,
-        SQLSMALLINT* stringLengthPtr,
-        bool sqlStateField = false) {
-        std::string storage;
-        const std::string* src = &str;
-        if (sqlStateField) {
-            storage = str;
-            if (storage.size() < 5) {
-                storage.append(5U - storage.size(), ' ');
-            } else {
-                storage.resize(5U);
-            }
-            src = &storage;
+    SQLRETURN WriteDiagCStr(std::string_view value, SQLPOINTER output, SQLSMALLINT bufferLength,
+                            SQLSMALLINT* length, bool sqlState = false) {
+        std::string normalized;
+        if (sqlState) {
+            normalized = value;
+            normalized.resize(5, ' ');
+            value = normalized;
         }
-        const size_t fullLen = src->size();
-        if (stringLengthPtr) {
-            *stringLengthPtr = static_cast<SQLSMALLINT>(
-                std::min(fullLen, static_cast<size_t>(std::numeric_limits<SQLSMALLINT>::max())));
-        }
-        if (!diagInfoPtr) {
-            return SQL_SUCCESS;
-        }
-        if (bufferLength < 0) {
-            return SQL_ERROR;
-        }
-        if (bufferLength == 0) {
-            return fullLen == 0 ? SQL_SUCCESS : SQL_SUCCESS_WITH_INFO;
-        }
-        auto* out = static_cast<SQLCHAR*>(diagInfoPtr);
-        const size_t maxData = static_cast<size_t>(bufferLength - 1U);
-        const size_t copyLen = std::min(fullLen, maxData);
-        std::memcpy(out, src->data(), copyLen);
-        out[copyLen] = 0;
-        return (fullLen > maxData) ? SQL_SUCCESS_WITH_INFO : SQL_SUCCESS;
+        return Diag::WriteString<Diag::EStringWriteMode::Diagnostic>(
+            nullptr, value, output, bufferLength, length);
     }
 
 } // namespace
 
+SQLRETURN RecordCurrentException(TErrorManager& errors) {
+    try {
+        throw;
+    } catch (const NStatusHelpers::TYdbErrorException& ex) {
+        return errors.AddError(ex.GetStatus());
+    } catch (const TOdbcException& ex) {
+        return errors.AddError(ex);
+    } catch (const std::exception& ex) {
+        return errors.AddError("HY000", 0, ex.what());
+    } catch (...) {
+        return errors.AddError("HY000", 0, "Unknown error");
+    }
+}
+
 SQLRETURN TErrorManager::AddError(const std::string& sqlState, SQLINTEGER nativeError, const std::string& message, SQLRETURN returnCode) {
-    Errors_.push_back({sqlState, nativeError, message, returnCode});
+    Errors_.push_back({sqlState, nativeError, message});
     LastReturnCode_ = returnCode;
     return returnCode;
 }
 
 SQLRETURN TErrorManager::AddError(const TOdbcException& ex) {
-    Errors_.push_back({ex.GetSqlState(), ex.GetNativeError(), ex.GetMessage(), ex.GetReturnCode()});
+    Errors_.push_back({ex.GetSqlState(), ex.GetNativeError(), ex.GetMessage()});
     LastReturnCode_ = ex.GetReturnCode();
     return ex.GetReturnCode();
 }
@@ -117,7 +95,7 @@ SQLRETURN TErrorManager::AddError(const TStatus& status) {
     if (!status.GetIssues().Empty()) {
         message += ": " + status.GetIssues().ToString();
     }
-    Errors_.push_back({mapping.sqlState, static_cast<SQLINTEGER>(status.GetStatus()), message, mapping.returnCode});
+    Errors_.push_back({mapping.sqlState, static_cast<SQLINTEGER>(status.GetStatus()), message});
     LastReturnCode_ = mapping.returnCode;
     return mapping.returnCode;
 }
@@ -196,28 +174,6 @@ SQLRETURN TErrorManager::GetDiagField(SQLSMALLINT recNumber, SQLSMALLINT diagIde
             return SQL_SUCCESS;
         default:
             return SQL_ERROR;
-    }
-}
-
-SQLRETURN HandleOdbcExceptions(
-    SQLHANDLE handlePtr,
-    std::function<SQLRETURN()>&& func,
-    ENullInputHandlePolicy nullInputPolicy) {
-    if (!handlePtr && nullInputPolicy != ENullInputHandlePolicy::Allow) {
-        return SQL_INVALID_HANDLE;
-    }
-
-    try {
-        const SQLRETURN r = func();
-        if (handlePtr) {
-            static_cast<TErrorManager*>(handlePtr)->SetLastReturnCode(r);
-        }
-        return r;
-    } catch (...) {
-        if (handlePtr) {
-            static_cast<TErrorManager*>(handlePtr)->SetLastReturnCode(SQL_ERROR);
-        }
-        return SQL_ERROR;
     }
 }
 

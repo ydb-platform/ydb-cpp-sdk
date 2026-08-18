@@ -3,8 +3,9 @@
 
 #include <gtest/gtest.h>
 
-using NYdb::NOdbc::RewriteOdbcQuestionMarks;
+using NYdb::NOdbc::RewriteOdbcSql;
 using NYdb::NOdbc::CountOdbcParams;
+using NYdb::NOdbc::StartsWithSqlStatement;
 using NYdb::NOdbc::TBoundParam;
 
 namespace {
@@ -14,16 +15,29 @@ TBoundParam IntParam(SQLUSMALLINT n) {
     return {n, SQL_C_LONG, SQL_INTEGER, 0, 0, &value, 0, nullptr};
 }
 
+NYdb::NOdbc::TParamRewriteResult RewriteParams(
+    std::string_view sql,
+    const std::vector<TBoundParam>& params) {
+    return RewriteOdbcSql(sql, params, false);
+}
+
 } // namespace
 
 TEST(OdbcParamRewrite, RewritesQuestionMarks) {
     const std::vector<TBoundParam> params = {IntParam(1), IntParam(2)};
-    const auto result = RewriteOdbcQuestionMarks("SELECT ? + ? AS result", params);
+    const auto result = RewriteParams("SELECT ? + ? AS result", params);
     ASSERT_TRUE(result.Success);
     EXPECT_EQ(result.Sql,
         "DECLARE $p1 AS Int32?;\n"
         "DECLARE $p2 AS Int32?;\n"
         "SELECT $p1 + $p2 AS result");
+}
+
+TEST(OdbcParamRewrite, RewritesEscapesAndParametersInOnePass) {
+    const auto result = RewriteOdbcSql(
+        "SELECT {fn CONVERT(?, SQL_INTEGER)}", {IntParam(1)}, true);
+    ASSERT_TRUE(result.Success);
+    EXPECT_EQ(result.Sql, "DECLARE $p1 AS Int32?;\nSELECT CAST($p1 AS Int32)");
 }
 
 TEST(OdbcParamRewrite, UsesBoundCTypeForYdbDeclaration) {
@@ -32,7 +46,7 @@ TEST(OdbcParamRewrite, UsesBoundCTypeForYdbDeclaration) {
         1, SQL_C_UBIGINT, SQL_BIGINT, 0, 0,
         &value, sizeof(value), nullptr
     }};
-    EXPECT_EQ(RewriteOdbcQuestionMarks("SELECT ?", params).Sql,
+    EXPECT_EQ(RewriteParams("SELECT ?", params).Sql,
               "DECLARE $p1 AS Uint64?;\nSELECT $p1");
 }
 
@@ -45,7 +59,7 @@ TEST(OdbcParamRewrite, PreservesTemporalAndDecimalTypes) {
         {2, SQL_C_DOUBLE, SQL_DECIMAL, 18, 5,
          &decimal, sizeof(decimal), nullptr},
     };
-    EXPECT_EQ(RewriteOdbcQuestionMarks("SELECT ?, ?", params).Sql,
+    EXPECT_EQ(RewriteParams("SELECT ?, ?", params).Sql,
               "DECLARE $p1 AS Timestamp?;\n"
               "DECLARE $p2 AS Decimal(18, 5)?;\n"
               "SELECT $p1, $p2");
@@ -53,17 +67,17 @@ TEST(OdbcParamRewrite, PreservesTemporalAndDecimalTypes) {
 
 TEST(OdbcParamRewrite, SkipsLiteralAndYqlOptionalSyntax) {
     const std::vector<TBoundParam> params = {IntParam(1)};
-    EXPECT_EQ(RewriteOdbcQuestionMarks("SELECT '?', ?", params).Sql,
+    EXPECT_EQ(RewriteParams("SELECT '?', ?", params).Sql,
         "DECLARE $p1 AS Int32?;\nSELECT '?', $p1");
-    EXPECT_EQ(RewriteOdbcQuestionMarks("DECLARE $p1 AS Int32?;\nSELECT $p1", params).Sql,
+    EXPECT_EQ(RewriteParams("DECLARE $p1 AS Int32?;\nSELECT $p1", params).Sql,
         "DECLARE $p1 AS Int32?;\nSELECT $p1");
-    EXPECT_EQ(RewriteOdbcQuestionMarks("SELECT $p1 + 10", params).Sql,
+    EXPECT_EQ(RewriteParams("SELECT $p1 + 10", params).Sql,
         "DECLARE $p1 AS Int32?;\nSELECT $p1 + 10");
 }
 
 TEST(OdbcParamRewrite, PrependsDeclareForNativeDollarParams) {
     const std::vector<TBoundParam> params = {IntParam(1), IntParam(2)};
-    const auto result = RewriteOdbcQuestionMarks("SELECT $p1 + $p2 AS result", params);
+    const auto result = RewriteParams("SELECT $p1 + $p2 AS result", params);
     ASSERT_TRUE(result.Success);
     EXPECT_EQ(result.Sql,
         "DECLARE $p1 AS Int32?;\n"
@@ -72,7 +86,7 @@ TEST(OdbcParamRewrite, PrependsDeclareForNativeDollarParams) {
 }
 
 TEST(OdbcParamRewrite, RejectsMismatchedBindCount) {
-    const auto result = RewriteOdbcQuestionMarks("SELECT ? + ?", {IntParam(1)});
+    const auto result = RewriteParams("SELECT ? + ?", {IntParam(1)});
     ASSERT_FALSE(result.Success);
     EXPECT_EQ(result.SqlState, "07002");
 }
@@ -82,4 +96,9 @@ TEST(OdbcParamRewrite, CountOdbcParams) {
     EXPECT_EQ(CountOdbcParams("SELECT $p1"), 1);
     EXPECT_EQ(CountOdbcParams("SELECT $p1 + $p2"), 2);
     EXPECT_EQ(CountOdbcParams("SELECT 1"), 0);
+}
+
+TEST(OdbcParamRewrite, ClassifiesAfterTrivia) {
+    EXPECT_TRUE(StartsWithSqlStatement(" -- lead\n /* block */ INSERT INTO t VALUES (1)", {"INSERT"}));
+    EXPECT_FALSE(StartsWithSqlStatement(" -- lead\n SELECT 1", {"INSERT", "UPDATE"}));
 }

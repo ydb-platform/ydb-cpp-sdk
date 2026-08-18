@@ -1,395 +1,356 @@
 #include "escape.h"
+
 #include "sql_type_map.h"
 
 #include <algorithm>
+#include <bitset>
 #include <cctype>
-#include <optional>
-#include <string_view>
 
 namespace NYdb::NOdbc {
 namespace {
 
 bool EqualNoCase(std::string_view lhs, std::string_view rhs) {
-    return lhs.size() == rhs.size() &&
-        std::equal(lhs.begin(), lhs.end(), rhs.begin(), [](char leftCh, char rightCh) {
-            return std::tolower(static_cast<unsigned char>(leftCh)) ==
-                std::tolower(static_cast<unsigned char>(rightCh));
-        });
+    return lhs.size() == rhs.size() && std::ranges::equal(lhs, rhs, [](unsigned char lhs, unsigned char rhs) {
+        return std::tolower(lhs) == std::tolower(rhs);
+    });
 }
 
-void SkipLeadingWhitespace(std::string_view sql, size_t& cursor) {
-    const auto strEnd = sql.end();
-    const auto firstNonSpace = std::find_if_not(
-        sql.begin() + static_cast<std::ptrdiff_t>(cursor),
-        strEnd,
-        [](unsigned char byte) {
-            return std::isspace(byte) != 0;
-        });
-    cursor = static_cast<size_t>(firstNonSpace - sql.begin());
-}
+struct TSqlScanner {
+    std::string_view Sql_;
+    std::string* Output_;
+    bool RewriteEscapes_;
 
-bool ReadIdent(std::string_view sql, size_t& cursor, std::string_view* outIdent) {
-    SkipLeadingWhitespace(sql, cursor);
-    const size_t identStart = cursor;
-    const auto afterIdent = std::find_if_not(
-        sql.begin() + static_cast<std::ptrdiff_t>(cursor),
-        sql.end(),
-        [](unsigned char byte) {
-            return std::isalpha(byte) != 0 || byte == '_';
-        });
-    cursor = static_cast<size_t>(afterIdent - sql.begin());
-    if (cursor == identStart) {
-        return false;
+    size_t QuestionCount = 0;
+    SQLSMALLINT MaxDollarIndex = 0;
+    std::bitset<1U << 16U> Indices;
+
+    void Append(std::string_view text) {
+        if (Output_) {
+            Output_->append(text);
+        }
     }
-    *outIdent = std::string_view(sql.data() + identStart, cursor - identStart);
-    return true;
-}
 
-bool ParseSingleQuoted(std::string_view sql, size_t& cursor, std::string* outValue) {
-    SkipLeadingWhitespace(sql, cursor);
-    if (cursor >= sql.size() || sql[cursor] != '\'') {
-        return false;
+    void Append(char ch) {
+        if (Output_) {
+            Output_->push_back(ch);
+        }
     }
-    ++cursor;
-    outValue->clear();
-    while (cursor < sql.size()) {
-        if (sql[cursor] == '\'') {
-            if (cursor + 1 < sql.size() && sql[cursor + 1] == '\'') {
-                outValue->push_back('\'');
-                cursor += 2;
+
+    size_t SkipTrivia(size_t pos, size_t end) const {
+        while (pos < end && std::isspace(static_cast<unsigned char>(Sql_[pos]))) {
+            ++pos;
+        }
+        return pos;
+    }
+
+    size_t SkipQuoted(size_t pos, size_t end) const {
+        const char quote = Sql_[pos++];
+        while (pos < end) {
+            if (Sql_[pos++] != quote) {
                 continue;
             }
-            ++cursor;
-            return true;
+            if (pos < end && Sql_[pos] == quote) {
+                ++pos;
+            } else {
+                return pos;
+            }
         }
-        outValue->push_back(sql[cursor++]);
-    }
-    return false;
-}
-
-size_t FindMatchingCloseBrace(std::string_view sql, size_t openBrace) {
-    if (openBrace >= sql.size() || sql[openBrace] != '{') {
         return std::string_view::npos;
     }
-    int braceDepth = 1;
-    for (size_t idx = openBrace + 1; idx < sql.size(); ++idx) {
-        if (sql[idx] == '{') {
-            ++braceDepth;
-        } else if (sql[idx] == '}') {
-            --braceDepth;
-            if (braceDepth == 0) {
-                return idx;
-            }
-        }
-    }
-    return std::string_view::npos;
-}
 
-std::string NormalizeOdbcTimestampLiteral(const std::string& raw) {
-    std::string normalized = raw;
-    const auto firstSpace = std::find(normalized.begin(), normalized.end(), ' ');
-    if (firstSpace != normalized.end()) {
-        *firstSpace = 'T';
-    }
-    if (std::find(normalized.begin(), normalized.end(), 'Z') == normalized.end()) {
-        normalized.push_back('Z');
-    }
-    return normalized;
-}
-
-std::string RewriteOdbcEscapesImpl(std::string_view sql);
-
-
-enum class OdbcBraceKind {
-    OutputProcedureCall, // {?= call ... }
-    FnBody,              // {fn ...}
-    OjBody,              // {oj ...}
-    DateLiteral,         // {d '...'}
-    TimeLiteral,         // {t '...'}
-    TimestampLiteral,    // {ts '...'}
-    ProcedureCall,       // {call ...}
-    LikeEscape,          // {escape '...'}
-};
-
-struct OdbcBraceParsed {
-    OdbcBraceKind Kind;
-    std::string_view RecurseTail;
-    std::string QuotedValue;
-};
-
-std::optional<OdbcBraceParsed> TryParseOutputCallBrace(std::string_view sql, size_t parsePos, size_t closeBrace) {
-    if (parsePos + 1 >= sql.size() || sql[parsePos] != '?' || sql[parsePos + 1] != '=') {
-        return std::nullopt;
-    }
-    size_t inner = parsePos + 2;
-    SkipLeadingWhitespace(sql, inner);
-    std::string_view keyword;
-    if (!ReadIdent(sql, inner, &keyword) || !EqualNoCase(keyword, "call")) {
-        return std::nullopt;
-    }
-    SkipLeadingWhitespace(sql, inner);
-    if (inner > closeBrace) {
-        return std::nullopt;
-    }
-    OdbcBraceParsed parsed;
-    parsed.Kind = OdbcBraceKind::OutputProcedureCall;
-    parsed.RecurseTail = std::string_view(sql.data() + inner, closeBrace - inner);
-    return parsed;
-}
-
-std::optional<OdbcBraceParsed> MakeRecurseTailBrace(OdbcBraceKind kind, std::string_view sql, size_t& parsePos, size_t closeBrace) {
-    SkipLeadingWhitespace(sql, parsePos);
-    if (parsePos > closeBrace) {
-        return std::nullopt;
-    }
-    OdbcBraceParsed parsed;
-    parsed.Kind = kind;
-    parsed.RecurseTail = std::string_view(sql.data() + parsePos, closeBrace - parsePos);
-    return parsed;
-}
-
-std::optional<OdbcBraceParsed> MakeQuotedBrace(OdbcBraceKind kind, std::string_view sql, size_t& parsePos, size_t closeBrace) {
-    std::string quotedLit;
-    if (!ParseSingleQuoted(sql, parsePos, &quotedLit) || parsePos > closeBrace) {
-        return std::nullopt;
-    }
-    SkipLeadingWhitespace(sql, parsePos);
-    if (parsePos != closeBrace) {
-        return std::nullopt;
-    }
-    OdbcBraceParsed parsed;
-    parsed.Kind = kind;
-    parsed.QuotedValue = std::move(quotedLit);
-    return parsed;
-}
-
-struct BraceKeywordSpec {
-    std::string_view Keyword;
-    OdbcBraceKind Kind;
-    bool IsQuotedLiteral;
-};
-
-static constexpr BraceKeywordSpec kBraceKeywordSpecs[] = {
-    {"fn", OdbcBraceKind::FnBody, false},
-    {"oj", OdbcBraceKind::OjBody, false},
-    {"d", OdbcBraceKind::DateLiteral, true},
-    {"t", OdbcBraceKind::TimeLiteral, true},
-    {"ts", OdbcBraceKind::TimestampLiteral, true},
-    {"call", OdbcBraceKind::ProcedureCall, false},
-    {"escape", OdbcBraceKind::LikeEscape, true},
-};
-
-std::optional<OdbcBraceParsed> TryParseOdbcBrace(std::string_view sql, size_t openBrace, size_t closeBrace) {
-    size_t parsePos = openBrace + 1;
-    SkipLeadingWhitespace(sql, parsePos);
-
-    if (std::optional<OdbcBraceParsed> outputCall = TryParseOutputCallBrace(sql, parsePos, closeBrace)) {
-        return outputCall;
-    }
-    if (parsePos + 1 < sql.size() && sql[parsePos] == '?' && sql[parsePos + 1] == '=') {
-        return std::nullopt;
-    }
-
-    std::string_view token;
-    if (!ReadIdent(sql, parsePos, &token)) {
-        return std::nullopt;
-    }
-
-    for (const BraceKeywordSpec& spec : kBraceKeywordSpecs) {
-        if (!EqualNoCase(token, spec.Keyword)) {
-            continue;
-        }
-        if (spec.IsQuotedLiteral) {
-            return MakeQuotedBrace(spec.Kind, sql, parsePos, closeBrace);
-        }
-        return MakeRecurseTailBrace(spec.Kind, sql, parsePos, closeBrace);
-    }
-
-    return std::nullopt;
-}
-
-void AppendRewrittenBrace(std::string& rewritten, const OdbcBraceParsed& parsed) {
-    switch (parsed.Kind) {
-        case OdbcBraceKind::OutputProcedureCall:
-        case OdbcBraceKind::ProcedureCall:
-            rewritten += "CALL ";
-            rewritten.append(RewriteOdbcEscapesImpl(parsed.RecurseTail));
-            return;
-        case OdbcBraceKind::FnBody:
-        case OdbcBraceKind::OjBody:
-            rewritten.append(RewriteOdbcEscapesImpl(parsed.RecurseTail));
-            return;
-        case OdbcBraceKind::DateLiteral:
-            rewritten += "CAST('";
-            rewritten += parsed.QuotedValue;
-            rewritten += "' AS Date)";
-            return;
-        case OdbcBraceKind::TimeLiteral:
-            rewritten += "CAST('";
-            rewritten += parsed.QuotedValue;
-            rewritten += "' AS Time)";
-            return;
-        case OdbcBraceKind::TimestampLiteral: {
-            const std::string normalizedTs = NormalizeOdbcTimestampLiteral(parsed.QuotedValue);
-            rewritten += "CAST('";
-            rewritten += normalizedTs;
-            rewritten += "' AS Datetime)";
-            return;
-        }
-        case OdbcBraceKind::LikeEscape:
-            rewritten += " ESCAPE '";
-            rewritten += parsed.QuotedValue;
-            rewritten += '\'';
-            return;
-    }
-}
-
-std::string RewriteOdbcEscapesImpl(std::string_view sql) {
-    std::string rewritten;
-    rewritten.reserve(sql.size());
-
-    for (size_t readPos = 0; readPos < sql.size();) {
-        if (sql[readPos] != '{') {
-            rewritten.push_back(sql[readPos++]);
-            continue;
-        }
-
-        const size_t closeBrace = FindMatchingCloseBrace(sql, readPos);
-        if (closeBrace == std::string_view::npos) {
-            rewritten.push_back(sql[readPos++]);
-            continue;
-        }
-
-        if (std::optional<OdbcBraceParsed> parsedBrace = TryParseOdbcBrace(sql, readPos, closeBrace)) {
-            AppendRewrittenBrace(rewritten, *parsedBrace);
-            readPos = closeBrace + 1;
-            continue;
-        }
-
-        rewritten.push_back(sql[readPos++]);
-    }
-
-    return rewritten;
-}
-
-std::string RewriteOdbcConvertCalls(std::string_view sql);
-
-class TOdbcConvertCallRewriter {
-public:
-    explicit TOdbcConvertCallRewriter(std::string_view sql)
-        : Sql_(sql) {
-        Rewritten_.reserve(sql.size());
-    }
-
-    std::string TakeResult() && {
-        return std::move(Rewritten_);
-    }
-
-    void Run() {
-        while (SegmentStart_ < Sql_.size()) {
-            const std::optional<size_t> convertKeywordPos = FindNextConvertKeyword(SegmentStart_);
-            if (!convertKeywordPos) {
-                Rewritten_.append(Sql_.substr(SegmentStart_));
-                break;
-            }
-            Rewritten_.append(Sql_.substr(SegmentStart_, *convertKeywordPos - SegmentStart_));
-            if (!TryRewriteConvertAt(*convertKeywordPos)) {
-                break;
-            }
-        }
-    }
-
-private:
-    static constexpr size_t kConvertTokenLen = 7;
-
-    std::optional<size_t> FindNextConvertKeyword(size_t from) const {
-        for (size_t probePos = from; probePos + kConvertTokenLen <= Sql_.size(); ++probePos) {
-            if (!EqualNoCase(Sql_.substr(probePos, kConvertTokenLen), "CONVERT")) {
+    size_t FindClose(size_t open, size_t end, char left, char right) const {
+        size_t depth = 1;
+        for (size_t pos = open + 1; pos < end;) {
+            if (Sql_[pos] == '\'' || Sql_[pos] == '"' || Sql_[pos] == '`') {
+                pos = SkipQuoted(pos, end);
                 continue;
             }
-            size_t afterKeyword = probePos + kConvertTokenLen;
-            SkipLeadingWhitespace(Sql_, afterKeyword);
-            if (afterKeyword < Sql_.size() && Sql_[afterKeyword] == '(') {
-                return probePos;
+            if (Sql_[pos] == left) {
+                ++depth;
+            } else if (Sql_[pos] == right && --depth == 0) {
+                return pos;
             }
+            ++pos;
         }
-        return std::nullopt;
+        return std::string_view::npos;
     }
 
-    bool TryRewriteConvertAt(size_t convertKeywordPos) {
-        size_t parsePos = convertKeywordPos + kConvertTokenLen;
-        SkipLeadingWhitespace(Sql_, parsePos);
-        if (parsePos >= Sql_.size() || Sql_[parsePos] != '(') {
-            Rewritten_.append(Sql_.substr(convertKeywordPos, kConvertTokenLen));
-            SegmentStart_ = convertKeywordPos + kConvertTokenLen;
+    std::string_view ReadIdent(size_t& pos, size_t end) const {
+        pos = SkipTrivia(pos, end);
+        const size_t start = pos;
+        while (pos < end && (std::isalpha(static_cast<unsigned char>(Sql_[pos])) || Sql_[pos] == '_')) {
+            ++pos;
+        }
+        return Sql_.substr(start, pos - start);
+    }
+
+    bool ReadQuoted(size_t& pos, size_t end, size_t& valueBegin, size_t& valueEnd) const {
+        pos = SkipTrivia(pos, end);
+        if (pos >= end || Sql_[pos] != '\'') {
+            return false;
+        }
+        valueBegin = pos + 1;
+        pos = SkipQuoted(pos, end);
+        if (pos != std::string_view::npos) {
+            valueEnd = pos - 1;
             return true;
         }
-        ++parsePos;
+        return false;
+    }
 
-        int parenDepth = 1;
-        const size_t firstArgStart = parsePos;
-        std::optional<size_t> typeCommaPos;
-        for (; parsePos < Sql_.size(); ++parsePos) {
-            if (Sql_[parsePos] == '(') {
-                ++parenDepth;
-            } else if (Sql_[parsePos] == ')') {
-                --parenDepth;
-            } else if (Sql_[parsePos] == ',' && parenDepth == 1) {
-                typeCommaPos = parsePos;
-                break;
+    void AppendDecoded(size_t begin, size_t end, bool timestamp = false) {
+        bool hasZulu = false;
+        bool changedSpace = false;
+        for (size_t pos = begin; pos < end; ++pos) {
+            char ch = Sql_[pos];
+            if (ch == '\'' && pos + 1 < end && Sql_[pos + 1] == '\'') {
+                ++pos;
             }
+            if (timestamp && ch == ' ' && !changedSpace) {
+                ch = 'T';
+                changedSpace = true;
+            }
+            hasZulu = hasZulu || ch == 'Z';
+            Append(ch);
         }
-        if (!typeCommaPos) {
-            Rewritten_.append(Sql_.substr(convertKeywordPos));
+        if (timestamp && !hasZulu) {
+            Append('Z');
+        }
+    }
+
+    bool RewriteBrace(size_t& pos, size_t end, bool parameters) {
+        const size_t close = FindClose(pos, end, '{', '}');
+        if (close == std::string_view::npos) {
             return false;
         }
-
-        const std::string_view firstArg(Sql_.data() + firstArgStart, *typeCommaPos - firstArgStart);
-        parsePos = *typeCommaPos + 1;
-        SkipLeadingWhitespace(Sql_, parsePos);
-        const size_t sqlTypeStart = parsePos;
-        const auto sqlTypeEnd = std::find_if_not(
-            Sql_.begin() + static_cast<std::ptrdiff_t>(parsePos),
-            Sql_.end(),
-            [](unsigned char byte) {
-                return std::isalpha(byte) != 0 || byte == '_';
-            });
-        parsePos = static_cast<size_t>(sqlTypeEnd - Sql_.begin());
-        const std::string_view sqlTypeToken(Sql_.data() + sqlTypeStart, parsePos - sqlTypeStart);
-        SkipLeadingWhitespace(Sql_, parsePos);
-        if (parsePos >= Sql_.size() || Sql_[parsePos] != ')') {
-            Rewritten_.append(Sql_.substr(convertKeywordPos));
+        size_t inner = SkipTrivia(pos + 1, close);
+        const bool outputCall = inner + 1 < close && Sql_[inner] == '?' && Sql_[inner + 1] == '=';
+        if (outputCall) {
+            inner += 2;
+        }
+        const std::string_view keyword = ReadIdent(inner, close);
+        if (outputCall && !EqualNoCase(keyword, "call")) {
             return false;
         }
-
-        const std::string yqlType = MapSqlTypeToken(sqlTypeToken);
-        Rewritten_ += "CAST(";
-        Rewritten_ += RewriteOdbcConvertCalls(RewriteOdbcEscapesImpl(firstArg));
-        Rewritten_ += " AS ";
-        Rewritten_ += yqlType;
-        Rewritten_ += ')';
-        SegmentStart_ = parsePos + 1;
+        const bool body = EqualNoCase(keyword, "fn") || EqualNoCase(keyword, "oj")
+            || EqualNoCase(keyword, "call");
+        if (body) {
+            inner = SkipTrivia(inner, close);
+            if (EqualNoCase(keyword, "call")) {
+                Append("CALL ");
+            }
+            Scan(inner, close, parameters);
+            pos = close + 1;
+            return true;
+        }
+        size_t valueBegin = 0, valueEnd = 0;
+        if ((!EqualNoCase(keyword, "d") && !EqualNoCase(keyword, "t")
+             && !EqualNoCase(keyword, "ts") && !EqualNoCase(keyword, "escape"))
+            || !ReadQuoted(inner, close, valueBegin, valueEnd) || SkipTrivia(inner, close) != close) {
+            return false;
+        }
+        if (EqualNoCase(keyword, "escape")) {
+            Append(" ESCAPE '");
+            AppendDecoded(valueBegin, valueEnd);
+            Append('\'');
+        } else {
+            Append("CAST('");
+            AppendDecoded(valueBegin, valueEnd, EqualNoCase(keyword, "ts"));
+            Append(EqualNoCase(keyword, "d") ? "' AS Date)"
+                : EqualNoCase(keyword, "t") ? "' AS Time)" : "' AS Datetime)");
+        }
+        pos = close + 1;
         return true;
     }
 
-    std::string_view Sql_;
-    std::string Rewritten_;
-    size_t SegmentStart_ = 0;
+    bool RewriteConvert(size_t& pos, size_t end, bool parameters) {
+        constexpr std::string_view Token = "CONVERT";
+        if (pos + Token.size() > end || !EqualNoCase(Sql_.substr(pos, Token.size()), Token)) {
+            return false;
+        }
+        size_t open = SkipTrivia(pos + Token.size(), end);
+        if (open >= end || Sql_[open] != '(') {
+            return false;
+        }
+        const size_t close = FindClose(open, end, '(', ')');
+        if (close == std::string_view::npos) {
+            return false;
+        }
+        size_t comma = open + 1;
+        size_t depth = 1;
+        for (; comma < close;) {
+            if (Sql_[comma] == '\'' || Sql_[comma] == '"' || Sql_[comma] == '`') {
+                comma = SkipQuoted(comma, close);
+                continue;
+            }
+            if (Sql_[comma] == '(') {
+                ++depth;
+            } else if (Sql_[comma] == ')') {
+                --depth;
+            } else if (Sql_[comma] == ',' && depth == 1) {
+                break;
+            }
+            ++comma;
+        }
+        size_t typePos = comma < close ? comma + 1 : close;
+        const std::string_view type = ReadIdent(typePos, close);
+        if (comma == close || type.empty() || SkipTrivia(typePos, close) != close) {
+            return false;
+        }
+        Append("CAST(");
+        Scan(open + 1, comma, parameters);
+        Append(" AS ");
+        Append(MapSqlTypeToken(type));
+        Append(')');
+        pos = close + 1;
+        return true;
+    }
+
+    bool IsQuestionMark(size_t pos) const {
+        const unsigned char previous = pos == 0 ? 0 : Sql_[pos - 1];
+        return Sql_[pos] == '?' && (pos == 0 || ((!std::isalnum(previous) && previous != '_') && previous != ')'));
+    }
+
+    bool ReadDollar(size_t pos, size_t end, SQLUSMALLINT& index) const {
+        if (pos + 2 >= end || Sql_[pos] != '$' || Sql_[pos + 1] != 'p'
+            || !std::isdigit(static_cast<unsigned char>(Sql_[pos + 2]))) {
+            return false;
+        }
+        unsigned value = 0;
+        for (size_t i = pos + 2; i < end && std::isdigit(static_cast<unsigned char>(Sql_[i])); ++i) {
+            value = value * 10 + static_cast<unsigned>(Sql_[i] - '0');
+        }
+        index = static_cast<SQLUSMALLINT>(value);
+        return true;
+    }
+
+    void Scan(size_t begin, size_t end, bool parameters) {
+        for (size_t pos = begin; pos < end;) {
+            if (Sql_[pos] == '\'' || Sql_[pos] == '"' || Sql_[pos] == '`') {
+                const size_t next = std::min(SkipQuoted(pos, end), end);
+                Append(Sql_.substr(pos, next - pos));
+                pos = next;
+                continue;
+            }
+            if (Sql_[pos] == '{') {
+                if (RewriteEscapes_ && RewriteBrace(pos, end, parameters)) {
+                    continue;
+                }
+                const size_t close = FindClose(pos, end, '{', '}');
+                const size_t next = close == std::string_view::npos ? end : close + 1;
+                Append(Sql_.substr(pos, next - pos));
+                pos = next;
+                continue;
+            }
+            if (RewriteEscapes_ && RewriteConvert(pos, end, parameters)) {
+                continue;
+            }
+            if (parameters && IsQuestionMark(pos)) {
+                const SQLUSMALLINT index = static_cast<SQLUSMALLINT>(++QuestionCount);
+                if (Output_) {
+                    Indices.set(index);
+                    Append("$p");
+                    Append(std::to_string(index));
+                }
+                ++pos;
+                continue;
+            }
+            SQLUSMALLINT index = 0;
+            if (parameters && ReadDollar(pos, end, index)) {
+                MaxDollarIndex = std::max(MaxDollarIndex, static_cast<SQLSMALLINT>(index));
+                if (Output_) {
+                    Indices.set(index);
+                }
+            }
+            Append(Sql_[pos++]);
+        }
+    }
+
 };
 
-std::string RewriteOdbcConvertCalls(std::string_view sql) {
-    TOdbcConvertCallRewriter rewriter(sql);
-    rewriter.Run();
-    return std::move(rewriter).TakeResult();
+TParamRewriteResult RewriteSql(
+    std::string_view sql,
+    const std::vector<TBoundParam>& boundParams,
+    bool escapes) {
+    std::string body;
+    body.reserve(sql.size());
+    TSqlScanner scanner{sql, &body, escapes};
+    scanner.Scan(0, sql.size(), true);
+    if (scanner.Indices.none()) {
+        return {.Sql = std::move(body)};
+    }
+    if (scanner.QuestionCount > 0 && scanner.QuestionCount != boundParams.size()) {
+        return {.Success = false, .SqlState = "07002", .Message = "COUNT field incorrect"};
+    }
+    std::string declarations;
+    for (size_t rawIndex = 0; rawIndex < scanner.Indices.size(); ++rawIndex) {
+        if (!scanner.Indices.test(rawIndex)) {
+            continue;
+        }
+        const auto index = static_cast<SQLUSMALLINT>(rawIndex);
+        const std::string prefix = "DECLARE $p" + std::to_string(index) + " AS";
+        if (sql.find(prefix) != std::string_view::npos) {
+            continue;
+        }
+        const auto bound = std::ranges::find(boundParams, index, &TBoundParam::ParamNumber);
+        if (bound == boundParams.end()) {
+            return {.Success = false, .SqlState = "07002", .Message = "COUNT field incorrect"};
+        }
+        const auto type = ResolveParamType(*bound);
+        if (!type) {
+            return {.Success = false, .SqlState = "07006", .Message = "Restricted data type attribute violation"};
+        }
+        declarations += prefix + " " + type->YqlType + "?;\n";
+    }
+    return {.Sql = declarations.empty() ? std::move(body) : declarations + body};
 }
 
 } // namespace
 
-
-
 std::string RewriteOdbcEscapes(const std::string& sql) {
-    std::string afterBraceRewrite = RewriteOdbcEscapesImpl(sql);
-    return RewriteOdbcConvertCalls(afterBraceRewrite);
+    std::string result;
+    result.reserve(sql.size());
+    TSqlScanner scanner{sql, &result, true};
+    scanner.Scan(0, sql.size(), false);
+    return result;
+}
+
+TParamRewriteResult RewriteOdbcSql(
+    std::string_view sql,
+    const std::vector<TBoundParam>& boundParams,
+    bool rewriteEscapes) {
+    return RewriteSql(sql, boundParams, rewriteEscapes);
+}
+
+SQLSMALLINT CountOdbcParams(std::string_view sql) {
+    TSqlScanner scanner{sql, nullptr, false};
+    scanner.Scan(0, sql.size(), true);
+    return scanner.QuestionCount > 0
+        ? static_cast<SQLSMALLINT>(scanner.QuestionCount)
+        : scanner.MaxDollarIndex;
+}
+
+bool StartsWithSqlStatement(
+    std::string_view sql,
+    std::initializer_list<std::string_view> keywords) {
+    size_t pos = 0;
+    while (pos < sql.size()) {
+        if (std::isspace(static_cast<unsigned char>(sql[pos]))) {
+            ++pos;
+        } else if (pos + 1 < sql.size() && sql[pos] == '-' && sql[pos + 1] == '-') {
+            const size_t newline = sql.find('\n', pos + 2);
+            pos = newline == std::string_view::npos ? sql.size() : newline + 1;
+        } else if (pos + 1 < sql.size() && sql[pos] == '/' && sql[pos + 1] == '*') {
+            const size_t close = sql.find("*/", pos + 2);
+            pos = close == std::string_view::npos ? sql.size() : close + 2;
+        } else {
+            break;
+        }
+    }
+    return std::ranges::any_of(keywords, [&](std::string_view keyword) {
+        return sql.size() - pos >= keyword.size()
+            && EqualNoCase(sql.substr(pos, keyword.size()), keyword);
+    });
 }
 
 } // namespace NYdb::NOdbc

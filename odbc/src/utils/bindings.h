@@ -5,8 +5,7 @@
 
 #include <ydb-cpp-sdk/client/types/fwd.h>
 
-namespace NYdb {
-namespace NOdbc {
+namespace NYdb::NOdbc {
 
 struct TBoundParam {
     SQLUSMALLINT ParamNumber;
@@ -20,5 +19,4 @@ struct TBoundParam {
     bool AtExec = false;
 };
 
-} // namespace NOdbc
-} // namespace NYdb
+} // namespace NYdb::NOdbc
