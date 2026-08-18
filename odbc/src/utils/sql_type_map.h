@@ -12,14 +12,6 @@
 
 namespace NYdb::NOdbc {
 
-struct TSqlTypeSpec {
-    SQLSMALLINT Type;
-    std::string_view Name;
-    std::string_view YqlType;
-    SQLULEN ColumnSize;
-    bool Advertise;
-};
-
 enum class EParamYdbType {
     Bool,
     Int8,
@@ -38,6 +30,15 @@ enum class EParamYdbType {
     Date,
     Datetime,
     Timestamp,
+};
+
+struct TSqlTypeSpec {
+    SQLSMALLINT Type;
+    std::string_view Name;
+    EParamYdbType ParamType;
+    std::string_view YqlType;
+    SQLULEN ColumnSize;
+    bool Advertise;
 };
 
 struct TParamTypeSpec {

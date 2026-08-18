@@ -78,7 +78,6 @@ SQLRETURN TConnection::Disconnect() {
     DestroyYdbState();
     DriverConfig_.reset();
     DbmsVersionCache_.reset();
-    Endpoint_.clear();
     Database_.clear();
     DataSourceName_.clear();
     return SQL_SUCCESS;
@@ -276,7 +275,6 @@ void TConnection::ApplyResolvedSettings(TResolvedConnectionSettings&& settings) 
     TConnectionAttributes::NormalizeCatalogPath(settings.Database);
     settings.DriverConfig.SetDatabase(settings.Database);
 
-    Endpoint_ = std::move(settings.Endpoint);
     Database_ = std::move(settings.Database);
     DataSourceName_ = std::move(settings.DataSourceName);
     DriverConfig_.emplace(std::move(settings.DriverConfig));

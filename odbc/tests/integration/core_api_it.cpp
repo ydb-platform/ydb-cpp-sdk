@@ -375,27 +375,47 @@ TEST(CoreApi, SQLFreeStmtDrop) {
 TEST(CoreApi, SQLParamDataPutDataNts) {
     SQLHENV env;
     SQLHDBC dbc;
-    SQLHSTMT stmt;
+    SQLHSTMT first;
+    SQLHSTMT second;
+    SQLHDESC sharedApd;
     AllocEnvAndConnect(&env, &dbc);
-    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
-    SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE IF EXISTS test_at_exec_nts", SQL_NTS);
-    SQLFreeStmt(stmt, SQL_CLOSE);
-    CHECK_ODBC_OK(SQLExecDirect(stmt,
-        (SQLCHAR*)"CREATE TABLE test_at_exec_nts (id Int32, val Text, PRIMARY KEY (id))", SQL_NTS),
-        stmt, SQL_HANDLE_STMT);
-    SQLFreeStmt(stmt, SQL_CLOSE);
-    CHECK_ODBC_OK(SQLPrepare(stmt, (SQLCHAR*)"UPSERT INTO test_at_exec_nts (id, val) VALUES (2, ?)", SQL_NTS),
-                  stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &first), SQL_SUCCESS);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &second), SQL_SUCCESS);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_DESC, dbc, &sharedApd), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLPrepare(first, (SQLCHAR*)"SELECT ?", SQL_NTS), first, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLPrepare(second, (SQLCHAR*)"SELECT ?", SQL_NTS), second, SQL_HANDLE_STMT);
     SQLLEN atExec = SQL_DATA_AT_EXEC;
-    CHECK_ODBC_OK(SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 32, 0,
-                                   nullptr, 0, &atExec), stmt, SQL_HANDLE_STMT);
-    ASSERT_EQ(SQLExecute(stmt), SQL_NEED_DATA);
+    SQLINTEGER tokenMarker = 0;
+    CHECK_ODBC_OK(SQLBindParameter(second, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 32, 0,
+                                   &tokenMarker, 0, &atExec), second, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLSetStmtAttr(first, SQL_ATTR_APP_PARAM_DESC, sharedApd, 0), first, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLBindParameter(first, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 32, 0,
+                                   &tokenMarker, 0, &atExec), first, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLSetStmtAttr(second, SQL_ATTR_APP_PARAM_DESC, sharedApd, 0), second, SQL_HANDLE_STMT);
+
     SQLPOINTER token = nullptr;
-    ASSERT_EQ(SQLParamData(stmt, &token), SQL_NEED_DATA);
-    const char payload[] = "nts-value";
-    CHECK_ODBC_OK(SQLPutData(stmt, (SQLPOINTER)payload, SQL_NTS), stmt, SQL_HANDLE_STMT);
-    CHECK_ODBC_OK(SQLParamData(stmt, &token), stmt, SQL_HANDLE_STMT);
-    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    ASSERT_EQ(SQLExecute(first), SQL_NEED_DATA);
+    ASSERT_EQ(SQLParamData(first, &token), SQL_NEED_DATA);
+    CHECK_ODBC_OK(SQLPutData(first, (SQLPOINTER)"first", SQL_NTS), first, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLExecute(second), SQL_NEED_DATA);
+    ASSERT_EQ(SQLParamData(second, &token), SQL_NEED_DATA);
+    ASSERT_EQ(SQLPutData(second, nullptr, 0), SQL_SUCCESS);
+    const SQLRETURN secondRc = SQLParamData(second, &token);
+    CHECK_ODBC_OK(secondRc, second, SQL_HANDLE_STMT);
+    const SQLRETURN firstRc = SQLParamData(first, &token);
+    CHECK_ODBC_OK(firstRc, first, SQL_HANDLE_STMT);
+
+    SQLHSTMT statements[] = {first, second};
+    const char* expected[] = {"first", ""};
+    for (size_t i = 0; i < 2; ++i) {
+        ASSERT_EQ(SQLFetch(statements[i]), SQL_SUCCESS);
+        char actual[8] = {};
+        CHECK_ODBC_OK(SQLGetData(statements[i], 1, SQL_C_CHAR, actual, sizeof(actual), nullptr),
+                      statements[i], SQL_HANDLE_STMT);
+        EXPECT_STREQ(actual, expected[i]);
+        SQLFreeHandle(SQL_HANDLE_STMT, statements[i]);
+    }
+    SQLFreeHandle(SQL_HANDLE_DESC, sharedApd);
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);
     SQLFreeHandle(SQL_HANDLE_ENV, env);

@@ -11,7 +11,7 @@ namespace {
 
 TBoundParam IntParam(SQLUSMALLINT n) {
     static SQLINTEGER value = 0;
-    return {n, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, &value, 0, nullptr};
+    return {n, SQL_C_LONG, SQL_INTEGER, 0, 0, &value, 0, nullptr};
 }
 
 } // namespace
@@ -29,7 +29,7 @@ TEST(OdbcParamRewrite, RewritesQuestionMarks) {
 TEST(OdbcParamRewrite, UsesBoundCTypeForYdbDeclaration) {
     SQLUBIGINT value = 42;
     const std::vector<TBoundParam> params = {{
-        1, SQL_PARAM_INPUT, SQL_C_UBIGINT, SQL_BIGINT, 0, 0,
+        1, SQL_C_UBIGINT, SQL_BIGINT, 0, 0,
         &value, sizeof(value), nullptr
     }};
     EXPECT_EQ(RewriteOdbcQuestionMarks("SELECT ?", params).Sql,
@@ -40,9 +40,9 @@ TEST(OdbcParamRewrite, PreservesTemporalAndDecimalTypes) {
     SQL_TIMESTAMP_STRUCT timestamp{};
     SQLDOUBLE decimal = 0;
     const std::vector<TBoundParam> params = {
-        {1, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0,
+        {1, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP, 0, 0,
          &timestamp, sizeof(timestamp), nullptr},
-        {2, SQL_PARAM_INPUT, SQL_C_DOUBLE, SQL_DECIMAL, 18, 5,
+        {2, SQL_C_DOUBLE, SQL_DECIMAL, 18, 5,
          &decimal, sizeof(decimal), nullptr},
     };
     EXPECT_EQ(RewriteOdbcQuestionMarks("SELECT ?, ?", params).Sql,

@@ -51,7 +51,6 @@ private:
     std::optional<NQuery::TTransaction> Tx_;
     std::optional<NQuery::TSession> QuerySession_;
 
-    std::string Endpoint_;
     std::string Database_;
     std::string DataSourceName_;
     TEnvironment* ParentEnv_ = nullptr;

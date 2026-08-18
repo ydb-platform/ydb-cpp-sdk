@@ -12,9 +12,9 @@ public:
     explicit TExecCursor(TResultSet resultSet)
         : Parser_(resultSet) {
         for (const auto& col : resultSet.GetColumnsMeta()) {
-            const SQLSMALLINT sqlType = GetTypeId(col.Type);
-            Columns_.push_back({col.Name, sqlType, GetColumnSize(col.Type), IsNullable(col.Type),
-                                GetDecimalDigits(col.Type).value_or(0), IsUnsigned(col.Type)});
+            const TYdbTypeInfo type = DescribeYdbType(col.Type);
+            Columns_.push_back({col.Name, type.SqlType, type.ColumnSize, type.Nullable,
+                                type.DecimalDigits.value_or(0), type.Unsigned});
         }
     }
 
