@@ -1,11 +1,9 @@
 #include "cursor.h"
-#include "convert.h"
 #include "types.h"
 
 #include <ydb-cpp-sdk/client/result/result.h>
 
-namespace NYdb {
-namespace NOdbc {
+namespace NYdb::NOdbc {
 
 class TExecCursor : public ICursor {
 public:
@@ -33,28 +31,19 @@ public:
             offset);
     }
 
-    const std::vector<TColumnMeta>& GetColumnMeta() const override {
-        return Columns_;
-    }
-
 private:
     TResultSetParser Parser_;
-    std::vector<TColumnMeta> Columns_;
 };
 
 class TVirtualCursor : public ICursor {
 public:
-    TVirtualCursor(const std::vector<TColumnMeta>& columns, const TTable& table)
-        : Columns_(columns)
-        , Table_(table)
-    {}
+    TVirtualCursor(TColumnSchema columns, TTable table)
+        : Table_(std::move(table)) {
+        Columns_.assign(columns.begin(), columns.end());
+    }
 
     bool Fetch() override {
-        Cursor_++;
-        if (Cursor_ >= static_cast<std::int64_t>(Table_.size())) {
-            return false;
-        }
-        return true;
+        return ++Cursor_ < static_cast<std::int64_t>(Table_.size());
     }
 
     SQLRETURN GetData(SQLUSMALLINT columnNumber, SQLSMALLINT targetType,
@@ -66,16 +55,11 @@ public:
         if (Cursor_ < 0 || columnNumber < 1 || columnNumber > Columns_.size()) {
             return SQL_ERROR;
         }
-        TValueParser parser{Table_[Cursor_][columnNumber - 1]};
-        return ConvertColumn(parser, targetType, targetValue, bufferLength, strLenOrInd, offset);
-    }
-
-    const std::vector<TColumnMeta>& GetColumnMeta() const override {
-        return Columns_;
+        return ConvertColumn(Table_[Cursor_][columnNumber - 1], targetType,
+                             targetValue, bufferLength, strLenOrInd, offset);
     }
 
 private:
-    std::vector<TColumnMeta> Columns_;
     TTable Table_;
     int64_t Cursor_ = -1;
 };
@@ -86,9 +70,8 @@ std::unique_ptr<ICursor> CreateExecCursor(const NQuery::TExecuteQueryResult& res
         : std::make_unique<TExecCursor>(result.GetResultSet(0));
 }
 
-std::unique_ptr<ICursor> CreateVirtualCursor(const std::vector<TColumnMeta>& columns, const TTable& table) {
-    return std::make_unique<TVirtualCursor>(columns, table);
+std::unique_ptr<ICursor> CreateVirtualCursor(TColumnSchema columns, TTable table) {
+    return std::make_unique<TVirtualCursor>(columns, std::move(table));
 }
 
-} // namespace NOdbc
-} // namespace NYdb
+} // namespace NYdb::NOdbc

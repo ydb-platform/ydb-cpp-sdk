@@ -5,269 +5,208 @@
 
 #include <algorithm>
 #include <cstring>
-#include <limits>
+#include <ranges>
+#include <string_view>
+#include <variant>
 
 namespace NYdb::NOdbc {
 namespace {
 
-SQLRETURN WriteInfoString(
-    TConnection* conn,
-    const char* value,
-    SQLPOINTER infoValuePtr,
-    SQLSMALLINT bufferLength,
-    SQLSMALLINT* stringLengthPtr) {
-    return Diag::WriteOdbcString(*conn, value, infoValuePtr, bufferLength, stringLengthPtr);
+using TInfoValue = std::variant<std::string_view, SQLUSMALLINT, SQLSMALLINT, SQLUINTEGER>;
+
+struct TInfo {
+    SQLUSMALLINT Id;
+    TInfoValue Value;
+};
+
+constexpr TInfo S(SQLUSMALLINT id, std::string_view value) {
+    return {id, value};
 }
 
-template <typename T>
-SQLRETURN WriteInfoScalar(
-    TConnection* conn,
-    T value,
-    SQLPOINTER infoValuePtr,
-    SQLSMALLINT* stringLengthPtr) {
-    if (!infoValuePtr) {
-        return conn->AddError("HY009", 0, "Invalid use of null pointer");
+constexpr TInfo U16(SQLUSMALLINT id, SQLUSMALLINT value) {
+    return {id, value};
+}
+
+constexpr TInfo I16(SQLUSMALLINT id, SQLSMALLINT value) {
+    return {id, value};
+}
+
+constexpr TInfo U32(SQLUSMALLINT id, SQLUINTEGER value) {
+    return {id, value};
+}
+
+constexpr TInfo kInfo[] = {
+    S(SQL_DRIVER_NAME, "ydb-odbc"),
+    S(SQL_DRIVER_VER, "unknown"),
+    S(SQL_DRIVER_ODBC_VER, "03.00"),
+    U32(SQL_ODBC_INTERFACE_CONFORMANCE, SQL_OIC_CORE),
+    U16(SQL_ODBC_API_CONFORMANCE, SQL_OAC_LEVEL1),
+    U16(SQL_ODBC_SAG_CLI_CONFORMANCE, SQL_OSCC_NOT_COMPLIANT),
+    I16(SQL_ODBC_SQL_CONFORMANCE, SQL_OSC_MINIMUM),
+    U16(SQL_MAX_TABLE_NAME_LEN, 255),
+    U16(SQL_MAX_COLUMN_NAME_LEN, 255),
+    U16(SQL_MAX_CATALOG_NAME_LEN, 255),
+    U16(SQL_MAX_IDENTIFIER_LEN, 255),
+    U16(SQL_MAX_SCHEMA_NAME_LEN, 0),
+    U16(SQL_MAX_PROCEDURE_NAME_LEN, 0),
+    U16(SQL_MAX_USER_NAME_LEN, 128),
+    U32(SQL_MAX_DRIVER_CONNECTIONS, 0),
+    U32(SQL_MAX_CONCURRENT_ACTIVITIES, 0),
+    U32(SQL_MAX_STATEMENT_LEN, 0),
+    U32(SQL_MAX_BINARY_LITERAL_LEN, 0),
+    U32(SQL_MAX_CHAR_LITERAL_LEN, 0),
+    U32(SQL_MAX_COLUMNS_IN_GROUP_BY, 0),
+    U32(SQL_MAX_COLUMNS_IN_ORDER_BY, 0),
+    U32(SQL_MAX_COLUMNS_IN_INDEX, 0),
+    U32(SQL_MAX_COLUMNS_IN_SELECT, 0),
+    U32(SQL_MAX_COLUMNS_IN_TABLE, 0),
+    S(SQL_SEARCH_PATTERN_ESCAPE, "\\"),
+    S(SQL_KEYWORDS, ""),
+    S(SQL_SPECIAL_CHARACTERS, ""),
+    U16(SQL_CONCAT_NULL_BEHAVIOR, SQL_CB_NULL),
+    U16(SQL_NULL_COLLATION, SQL_NC_HIGH),
+    U16(SQL_MAX_CURSOR_NAME_LEN, 128),
+    S(SQL_DBMS_NAME, "YDB"),
+    S(SQL_IDENTIFIER_QUOTE_CHAR, "`"),
+    U16(SQL_IDENTIFIER_CASE, SQL_IC_SENSITIVE),
+    S(SQL_CATALOG_NAME, "Y"),
+    S(SQL_CATALOG_NAME_SEPARATOR, "/"),
+    S(SQL_CATALOG_TERM, "path"),
+    U32(SQL_CATALOG_USAGE, SQL_CU_DML_STATEMENTS),
+    U32(SQL_SCHEMA_USAGE, 0),
+    S(SQL_SCHEMA_TERM, ""),
+    S(SQL_MULT_RESULT_SETS, "N"),
+    U32(SQL_DYNAMIC_CURSOR_ATTRIBUTES1, SQL_CA1_NEXT),
+    U32(SQL_FORWARD_ONLY_CURSOR_ATTRIBUTES1, SQL_CA1_NEXT),
+    U32(SQL_STATIC_CURSOR_ATTRIBUTES1, SQL_CA1_NEXT),
+    U16(SQL_CURSOR_COMMIT_BEHAVIOR, SQL_CB_CLOSE),
+    U16(SQL_CURSOR_ROLLBACK_BEHAVIOR, SQL_CB_CLOSE),
+    U16(SQL_TXN_CAPABLE, SQL_TC_DML),
+    U32(SQL_DEFAULT_TXN_ISOLATION, SQL_TXN_SERIALIZABLE),
+    S(SQL_PROCEDURES, "N"),
+    S(SQL_OUTER_JOINS, "Y"),
+    U32(SQL_POSITIONED_STATEMENTS, 0),
+    U32(SQL_BATCH_SUPPORT, 0),
+    U32(SQL_BATCH_ROW_COUNT, 0),
+    U32(SQL_PARAM_ARRAY_ROW_COUNTS, SQL_PARC_NO_BATCH),
+    U32(SQL_PARAM_ARRAY_SELECTS, SQL_PAS_NO_SELECT),
+    U32(SQL_BOOKMARK_PERSISTENCE, 0),
+    U16(SQL_FILE_USAGE, SQL_FILE_NOT_SUPPORTED),
+    U32(SQL_GETDATA_EXTENSIONS, SQL_GD_ANY_COLUMN | SQL_GD_ANY_ORDER),
+    U32(SQL_CONVERT_CHAR, SQL_CVT_CHAR | SQL_CVT_VARCHAR | SQL_CVT_LONGVARCHAR
+        | SQL_CVT_WCHAR | SQL_CVT_WVARCHAR | SQL_CVT_WLONGVARCHAR),
+    U32(SQL_CONVERT_VARCHAR, SQL_CVT_CHAR | SQL_CVT_VARCHAR | SQL_CVT_LONGVARCHAR
+        | SQL_CVT_WCHAR | SQL_CVT_WVARCHAR | SQL_CVT_WLONGVARCHAR),
+    U32(SQL_CONVERT_LONGVARCHAR, SQL_CVT_CHAR | SQL_CVT_VARCHAR | SQL_CVT_LONGVARCHAR
+        | SQL_CVT_WCHAR | SQL_CVT_WVARCHAR | SQL_CVT_WLONGVARCHAR),
+    U32(SQL_ASYNC_MODE, SQL_AM_NONE),
+    U16(SQL_QUOTED_IDENTIFIER_CASE, SQL_IC_SENSITIVE),
+};
+
+struct TFunctionRange {
+    SQLUSMALLINT First;
+    SQLUSMALLINT Last;
+};
+
+constexpr TFunctionRange kSupportedFunctions[] = {
+    {SQL_API_SQLBINDCOL, SQL_API_SQLDISCONNECT},
+    {SQL_API_SQLEXECDIRECT, SQL_API_SQLFETCH},
+    {SQL_API_SQLFREESTMT, SQL_API_SQLSETCURSORNAME},
+    {SQL_API_SQLCOLUMNS, SQL_API_SQLDRIVERCONNECT},
+    {SQL_API_SQLGETDATA, SQL_API_SQLGETINFO},
+    {SQL_API_SQLGETTYPEINFO, SQL_API_SQLPUTDATA},
+    {SQL_API_SQLSPECIALCOLUMNS, SQL_API_SQLTABLES},
+    {SQL_API_SQLDESCRIBEPARAM, SQL_API_SQLDESCRIBEPARAM},
+    {SQL_API_SQLFOREIGNKEYS, SQL_API_SQLNUMPARAMS},
+    {SQL_API_SQLPRIMARYKEYS, SQL_API_SQLPRIMARYKEYS},
+    {SQL_API_SQLBINDPARAMETER, SQL_API_SQLBINDPARAMETER},
+    {SQL_API_SQLALLOCHANDLE, SQL_API_SQLALLOCHANDLE},
+    {SQL_API_SQLCLOSECURSOR, SQL_API_SQLGETENVATTR},
+    {SQL_API_SQLGETSTMTATTR, SQL_API_SQLGETSTMTATTR},
+    {SQL_API_SQLSETCONNECTATTR, SQL_API_SQLFETCHSCROLL},
+};
+
+template <class T>
+SQLRETURN WriteInfoScalar(TConnection* connection, T value, SQLPOINTER output,
+                          SQLSMALLINT* length) {
+    if (!output) {
+        return connection->AddError("HY009", 0, "Invalid use of null pointer");
     }
-    *reinterpret_cast<T*>(infoValuePtr) = value;
-    if (stringLengthPtr) {
-        *stringLengthPtr = static_cast<SQLSMALLINT>(sizeof(T));
+    *static_cast<T*>(output) = value;
+    if (length) {
+        *length = static_cast<SQLSMALLINT>(sizeof(T));
     }
     return SQL_SUCCESS;
 }
 
+SQLRETURN WriteInfo(TConnection* connection, const TInfoValue& value, SQLPOINTER output,
+                    SQLSMALLINT bufferLength, SQLSMALLINT* length) {
+    return std::visit(
+        [&](auto item) -> SQLRETURN {
+            using T = decltype(item);
+            if constexpr (std::is_same_v<T, std::string_view>) {
+                return Diag::WriteOdbcString(*connection, item, output, bufferLength, length);
+            } else {
+                return WriteInfoScalar(connection, item, output, length);
+            }
+        },
+        value);
+}
 
-bool IsSupportedFunction(SQLUSMALLINT functionId) {
-    switch (functionId) {
-        case SQL_API_SQLALLOCHANDLE:
-        case SQL_API_SQLBINDCOL:
-        case SQL_API_SQLBINDPARAMETER:
-        case SQL_API_SQLCANCEL:
-        case SQL_API_SQLCLOSECURSOR:
-        case SQL_API_SQLCOLATTRIBUTE:
-        case SQL_API_SQLCOLUMNS:
-        case SQL_API_SQLCONNECT:
-        case SQL_API_SQLCOPYDESC:
-        case SQL_API_SQLDESCRIBECOL:
-        case SQL_API_SQLDESCRIBEPARAM:
-        case SQL_API_SQLDISCONNECT:
-        case SQL_API_SQLDRIVERCONNECT:
-        case SQL_API_SQLENDTRAN:
-        case SQL_API_SQLEXECDIRECT:
-        case SQL_API_SQLEXECUTE:
-        case SQL_API_SQLFETCH:
-        case SQL_API_SQLFETCHSCROLL:
-        case SQL_API_SQLFOREIGNKEYS:
-        case SQL_API_SQLFREEHANDLE:
-        case SQL_API_SQLFREESTMT:
-        case SQL_API_SQLGETCURSORNAME:
-        case SQL_API_SQLGETDATA:
-        case SQL_API_SQLGETDESCFIELD:
-        case SQL_API_SQLGETDESCREC:
-        case SQL_API_SQLGETDIAGFIELD:
-        case SQL_API_SQLGETDIAGREC:
-        case SQL_API_SQLGETFUNCTIONS:
-        case SQL_API_SQLGETCONNECTATTR:
-        case SQL_API_SQLGETENVATTR:
-        case SQL_API_SQLGETINFO:
-        case SQL_API_SQLGETSTMTATTR:
-        case SQL_API_SQLGETTYPEINFO:
-        case SQL_API_SQLMORERESULTS:
-        case SQL_API_SQLNATIVESQL:
-        case SQL_API_SQLNUMPARAMS:
-        case SQL_API_SQLNUMRESULTCOLS:
-        case SQL_API_SQLPARAMDATA:
-        case SQL_API_SQLPREPARE:
-        case SQL_API_SQLPRIMARYKEYS:
-        case SQL_API_SQLPUTDATA:
-        case SQL_API_SQLROWCOUNT:
-        case SQL_API_SQLSETCONNECTATTR:
-        case SQL_API_SQLSETCURSORNAME:
-        case SQL_API_SQLSETDESCFIELD:
-        case SQL_API_SQLSETDESCREC:
-        case SQL_API_SQLSETENVATTR:
-        case SQL_API_SQLSETSTMTATTR:
-        case SQL_API_SQLSPECIALCOLUMNS:
-        case SQL_API_SQLSTATISTICS:
-        case SQL_API_SQLTABLES:
-            return true;
-        default:
-            return false;
+bool IsSupportedFunction(SQLUSMALLINT id) {
+    return std::ranges::any_of(kSupportedFunctions, [id](const auto& range) {
+        return id >= range.First && id <= range.Last;
+    });
+}
+
+const TColumnMeta& GetColumn(TStatement* statement, SQLUSMALLINT number) {
+    const auto& columns = statement->GetColumnMeta();
+    if (number < 1 || number > columns.size()) {
+        throw TOdbcException("07009", 0, "Invalid descriptor index");
     }
+    return columns[number - 1];
+}
+
+SQLRETURN WriteAttributeNumber(TStatement* statement, SQLLEN value, SQLLEN* output) {
+    if (!output) {
+        return statement->AddError("HY009", 0, "Invalid use of null pointer");
+    }
+    *output = value;
+    return SQL_SUCCESS;
 }
 
 } // namespace
 
-SQLRETURN NMetadata::GetInfo(
-    TConnection* conn,
-    SQLUSMALLINT infoType,
-    SQLPOINTER infoValuePtr,
-    SQLSMALLINT bufferLength,
-    SQLSMALLINT* stringLengthPtr) {
+SQLRETURN NMetadata::GetInfo(TConnection* connection, SQLUSMALLINT infoType,
+                             SQLPOINTER infoValuePtr, SQLSMALLINT bufferLength,
+                             SQLSMALLINT* stringLengthPtr) {
     switch (infoType) {
-        // Driver Information
-        case SQL_DRIVER_NAME:
-            return WriteInfoString(conn, "ydb-odbc", infoValuePtr, bufferLength, stringLengthPtr);
-        case SQL_DRIVER_VER:
-            return WriteInfoString(conn, "unknown", infoValuePtr, bufferLength, stringLengthPtr);
-        case SQL_DRIVER_ODBC_VER:
-            return WriteInfoString(conn, "03.00", infoValuePtr, bufferLength, stringLengthPtr);
-        case SQL_ODBC_INTERFACE_CONFORMANCE:
-            return WriteInfoScalar<SQLUINTEGER>(conn, SQL_OIC_CORE, infoValuePtr, stringLengthPtr);
-        case SQL_ODBC_API_CONFORMANCE:
-            return WriteInfoScalar<SQLUSMALLINT>(conn, SQL_OAC_LEVEL1, infoValuePtr, stringLengthPtr);
-        case SQL_ODBC_SAG_CLI_CONFORMANCE:
-            return WriteInfoScalar<SQLUSMALLINT>(conn, SQL_OSCC_NOT_COMPLIANT, infoValuePtr, stringLengthPtr);
-        case SQL_ODBC_SQL_CONFORMANCE:
-            return WriteInfoScalar<SQLSMALLINT>(conn, SQL_OSC_MINIMUM, infoValuePtr, stringLengthPtr);
-        case SQL_MAX_TABLE_NAME_LEN:
-        case SQL_MAX_COLUMN_NAME_LEN:
-        case SQL_MAX_CATALOG_NAME_LEN:
-        case SQL_MAX_IDENTIFIER_LEN:
-            return WriteInfoScalar<SQLUSMALLINT>(conn, 255, infoValuePtr, stringLengthPtr);
-        case SQL_MAX_SCHEMA_NAME_LEN:
-        case SQL_MAX_PROCEDURE_NAME_LEN:
-            return WriteInfoScalar<SQLUSMALLINT>(conn, 0, infoValuePtr, stringLengthPtr);
-        case SQL_MAX_USER_NAME_LEN:
-            return WriteInfoScalar<SQLUSMALLINT>(conn, 128, infoValuePtr, stringLengthPtr);
-        case SQL_MAX_DRIVER_CONNECTIONS:
-        case SQL_MAX_CONCURRENT_ACTIVITIES:
-        case SQL_MAX_STATEMENT_LEN:
-        case SQL_MAX_BINARY_LITERAL_LEN:
-        case SQL_MAX_CHAR_LITERAL_LEN:
-        case SQL_MAX_COLUMNS_IN_GROUP_BY:
-        case SQL_MAX_COLUMNS_IN_ORDER_BY:
-        case SQL_MAX_COLUMNS_IN_INDEX:
-        case SQL_MAX_COLUMNS_IN_SELECT:
-        case SQL_MAX_COLUMNS_IN_TABLE:
-            return WriteInfoScalar<SQLUINTEGER>(conn, 0, infoValuePtr, stringLengthPtr);
-        case SQL_SEARCH_PATTERN_ESCAPE:
-            return WriteInfoString(conn, "\\", infoValuePtr, bufferLength, stringLengthPtr);
-        case SQL_KEYWORDS:
-        case SQL_SPECIAL_CHARACTERS:
-            return WriteInfoString(conn, "", infoValuePtr, bufferLength, stringLengthPtr);
-        case SQL_CONCAT_NULL_BEHAVIOR:
-            return WriteInfoScalar<SQLUSMALLINT>(conn, SQL_CB_NULL, infoValuePtr, stringLengthPtr);
-        case SQL_NULL_COLLATION:
-            return WriteInfoScalar<SQLUSMALLINT>(conn, SQL_NC_HIGH, infoValuePtr, stringLengthPtr);
-        case SQL_MAX_CURSOR_NAME_LEN:
-            return WriteInfoScalar<SQLUSMALLINT>(conn, 128, infoValuePtr, stringLengthPtr);
-
-        // DBMS Information
-        case SQL_DBMS_NAME:
-            return WriteInfoString(conn, "YDB", infoValuePtr, bufferLength, stringLengthPtr);
         case SQL_DBMS_VER:
-            return WriteInfoString(conn, conn->GetDbmsVersion().c_str(), infoValuePtr, bufferLength, stringLengthPtr);
-
-        // Identifier Handling
-        case SQL_IDENTIFIER_QUOTE_CHAR:
-            return WriteInfoString(conn, "`", infoValuePtr, bufferLength, stringLengthPtr);
-        case SQL_IDENTIFIER_CASE:
-            return WriteInfoScalar<SQLUSMALLINT>(conn, SQL_IC_SENSITIVE, infoValuePtr, stringLengthPtr);
-
-        // Catalog Support
-        case SQL_CATALOG_NAME:
-            return WriteInfoString(conn, "Y", infoValuePtr, bufferLength, stringLengthPtr);
-        case SQL_CATALOG_NAME_SEPARATOR:
-            return WriteInfoString(conn, "/", infoValuePtr, bufferLength, stringLengthPtr);
-        case SQL_CATALOG_TERM:
-            return WriteInfoString(conn, "path", infoValuePtr, bufferLength, stringLengthPtr);
-        case SQL_CATALOG_USAGE:
-            return WriteInfoScalar<SQLUINTEGER>(conn, SQL_CU_DML_STATEMENTS, infoValuePtr, stringLengthPtr);
-
-        // Schema Support (YDB doesn't use schemas)
-        case SQL_SCHEMA_USAGE:
-            return WriteInfoScalar<SQLUINTEGER>(conn, 0, infoValuePtr, stringLengthPtr);
-        case SQL_SCHEMA_TERM:
-            return WriteInfoString(conn, "", infoValuePtr, bufferLength, stringLengthPtr);
-
-        // Data Source Capabilities
+            return Diag::WriteOdbcString(
+                *connection, connection->GetDbmsVersion(), infoValuePtr, bufferLength, stringLengthPtr);
         case SQL_DATA_SOURCE_READ_ONLY:
-            return WriteInfoString(
-                conn, conn->IsDataSourceReadOnly() ? "Y" : "N", infoValuePtr, bufferLength, stringLengthPtr);
+            return Diag::WriteOdbcString(*connection, connection->IsDataSourceReadOnly() ? "Y" : "N",
+                                         infoValuePtr, bufferLength, stringLengthPtr);
         case SQL_DATA_SOURCE_NAME:
-            return WriteInfoString(conn, conn->GetDataSourceName().c_str(), infoValuePtr, bufferLength, stringLengthPtr);
-
-        // Result Set Capabilities
-        case SQL_MULT_RESULT_SETS:
-            return WriteInfoString(conn, "N", infoValuePtr, bufferLength, stringLengthPtr);
-        case SQL_DYNAMIC_CURSOR_ATTRIBUTES1:
-        case SQL_FORWARD_ONLY_CURSOR_ATTRIBUTES1:
-        case SQL_STATIC_CURSOR_ATTRIBUTES1:
-            return WriteInfoScalar<SQLUINTEGER>(conn, SQL_CA1_NEXT, infoValuePtr, stringLengthPtr);
-        case SQL_CURSOR_COMMIT_BEHAVIOR:
-        case SQL_CURSOR_ROLLBACK_BEHAVIOR:
-            return WriteInfoScalar<SQLUSMALLINT>(conn, SQL_CB_CLOSE, infoValuePtr, stringLengthPtr);
-
-        // Transaction Support
-        case SQL_TXN_CAPABLE:
-            return WriteInfoScalar<SQLUSMALLINT>(conn, SQL_TC_DML, infoValuePtr, stringLengthPtr);
-        case SQL_DEFAULT_TXN_ISOLATION:
-            return WriteInfoScalar<SQLUINTEGER>(conn, SQL_TXN_SERIALIZABLE, infoValuePtr, stringLengthPtr);
+            return Diag::WriteOdbcString(*connection, connection->GetDataSourceName(),
+                                         infoValuePtr, bufferLength, stringLengthPtr);
         case SQL_TXN_ISOLATION_OPTION:
-            return WriteInfoScalar<SQLUINTEGER>(
-                conn, conn->GetSupportedTxnIsolationOptions(), infoValuePtr, stringLengthPtr);
-
-        // Stored Procedures (not supported)
-        case SQL_PROCEDURES:
-            return WriteInfoString(conn, "N", infoValuePtr, bufferLength, stringLengthPtr);
-
-        case SQL_OUTER_JOINS:
-            return WriteInfoString(conn, "Y", infoValuePtr, bufferLength, stringLengthPtr);
-
-        // Positioned Operations (not supported)
-        case SQL_POSITIONED_STATEMENTS:
-            return WriteInfoScalar<SQLUINTEGER>(conn, 0, infoValuePtr, stringLengthPtr);
-
-        // Batch Operations (not supported)
-        case SQL_BATCH_SUPPORT:
-            return WriteInfoScalar<SQLUINTEGER>(conn, 0, infoValuePtr, stringLengthPtr);
-        case SQL_BATCH_ROW_COUNT:
-            return WriteInfoScalar<SQLUINTEGER>(conn, 0, infoValuePtr, stringLengthPtr);
-        case SQL_PARAM_ARRAY_ROW_COUNTS:
-            return WriteInfoScalar<SQLUINTEGER>(conn, SQL_PARC_NO_BATCH, infoValuePtr, stringLengthPtr);
-        case SQL_PARAM_ARRAY_SELECTS:
-            return WriteInfoScalar<SQLUINTEGER>(conn, SQL_PAS_NO_SELECT, infoValuePtr, stringLengthPtr);
-
-        // Bookmarks (not supported)
-        case SQL_BOOKMARK_PERSISTENCE:
-            return WriteInfoScalar<SQLUINTEGER>(conn, 0, infoValuePtr, stringLengthPtr);
-
-        // Named Cursors (not supported)
-        case SQL_FILE_USAGE:
-            return WriteInfoScalar<SQLUSMALLINT>(conn, SQL_FILE_NOT_SUPPORTED, infoValuePtr, stringLengthPtr);
-
-        // GetData Extensions
-        case SQL_GETDATA_EXTENSIONS:
-            return WriteInfoScalar<SQLUINTEGER>(conn, SQL_GD_ANY_COLUMN | SQL_GD_ANY_ORDER, infoValuePtr, stringLengthPtr);
-
-        case SQL_CONVERT_CHAR:
-        case SQL_CONVERT_VARCHAR:
-        case SQL_CONVERT_LONGVARCHAR:
-            return WriteInfoScalar<SQLUINTEGER>(
-                conn,
-                SQL_CVT_CHAR | SQL_CVT_VARCHAR | SQL_CVT_LONGVARCHAR
-                    | SQL_CVT_WCHAR | SQL_CVT_WVARCHAR | SQL_CVT_WLONGVARCHAR,
-                infoValuePtr,
-                stringLengthPtr);
-
-        // Async Execution (not supported)
-        case SQL_ASYNC_MODE:
-            return WriteInfoScalar<SQLUINTEGER>(conn, SQL_AM_NONE, infoValuePtr, stringLengthPtr);
-
-        case SQL_QUOTED_IDENTIFIER_CASE:
-            return WriteInfoScalar<SQLUSMALLINT>(conn, SQL_IC_SENSITIVE, infoValuePtr, stringLengthPtr);
-
+            return WriteInfoScalar(connection, connection->GetSupportedTxnIsolationOptions(),
+                                   infoValuePtr, stringLengthPtr);
         default:
-            return conn->AddError("HYC00", 0, "Optional feature not implemented");
+            break;
     }
+    const auto info = std::ranges::find(kInfo, infoType, &TInfo::Id);
+    if (info == std::end(kInfo)) {
+        return connection->AddError("HYC00", 0, "Optional feature not implemented");
+    }
+    return WriteInfo(connection, info->Value, infoValuePtr, bufferLength, stringLengthPtr);
 }
-
 
 SQLRETURN NMetadata::GetFunctions(SQLUSMALLINT functionId, SQLUSMALLINT* supportedPtr) {
     if (!supportedPtr) {
         return SQL_ERROR;
     }
-
     if (functionId == SQL_API_ALL_FUNCTIONS) {
         std::memset(supportedPtr, 0, 100 * sizeof(SQLUSMALLINT));
         for (SQLUSMALLINT id = 0; id < 100; ++id) {
@@ -275,42 +214,29 @@ SQLRETURN NMetadata::GetFunctions(SQLUSMALLINT functionId, SQLUSMALLINT* support
                 supportedPtr[id] = SQL_TRUE;
             }
         }
-        return SQL_SUCCESS;
-    }
-
-    if (functionId == SQL_API_ODBC3_ALL_FUNCTIONS) {
+    } else if (functionId == SQL_API_ODBC3_ALL_FUNCTIONS) {
         std::memset(supportedPtr, 0, SQL_API_ODBC3_ALL_FUNCTIONS_SIZE * sizeof(SQLUSMALLINT));
         for (SQLUSMALLINT id = 0; id < SQL_API_ODBC3_ALL_FUNCTIONS_SIZE * 16; ++id) {
             if (IsSupportedFunction(id)) {
                 supportedPtr[id >> 4] |= (1 << (id & 0x000F));
             }
         }
-        return SQL_SUCCESS;
+    } else {
+        *supportedPtr = IsSupportedFunction(functionId) ? SQL_TRUE : SQL_FALSE;
     }
-
-    *supportedPtr = IsSupportedFunction(functionId) ? SQL_TRUE : SQL_FALSE;
     return SQL_SUCCESS;
 }
 
-SQLRETURN NMetadata::DescribeCol(
-    TStatement* stmt,
-    SQLUSMALLINT columnNumber,
-    SQLCHAR* columnName,
-    SQLSMALLINT bufferLength,
-    SQLSMALLINT* nameLengthPtr,
-    SQLSMALLINT* dataTypePtr,
-    SQLULEN* columnSizePtr,
-    SQLSMALLINT* decimalDigitsPtr,
-    SQLSMALLINT* nullablePtr) {
-    const auto& columns = stmt->GetColumnMeta();
-    if (columnNumber < 1 || columnNumber > columns.size()) {
-        throw TOdbcException("07009", 0, "Invalid descriptor index");
-    }
-
-    const auto& column = columns[columnNumber - 1];
-    const SQLRETURN nameRc = Diag::WriteOdbcString(*stmt, column.Name, columnName, bufferLength, nameLengthPtr);
-    if (nameRc != SQL_SUCCESS) {
-        return nameRc;
+SQLRETURN NMetadata::DescribeCol(TStatement* statement, SQLUSMALLINT columnNumber,
+                                 SQLCHAR* columnName, SQLSMALLINT bufferLength,
+                                 SQLSMALLINT* nameLengthPtr, SQLSMALLINT* dataTypePtr,
+                                 SQLULEN* columnSizePtr, SQLSMALLINT* decimalDigitsPtr,
+                                 SQLSMALLINT* nullablePtr) {
+    const auto& column = GetColumn(statement, columnNumber);
+    const SQLRETURN result = Diag::WriteOdbcString(
+        *statement, column.Name, columnName, bufferLength, nameLengthPtr);
+    if (result != SQL_SUCCESS) {
+        return result;
     }
     if (dataTypePtr) {
         *dataTypePtr = column.SqlType;
@@ -327,88 +253,50 @@ SQLRETURN NMetadata::DescribeCol(
     return SQL_SUCCESS;
 }
 
-SQLRETURN NMetadata::ColAttribute(
-    TStatement* stmt,
-    SQLUSMALLINT columnNumber,
-    SQLUSMALLINT fieldIdentifier,
-    SQLPOINTER characterAttributePtr,
-    SQLSMALLINT bufferLength,
-    SQLSMALLINT* stringLengthAttributePtr,
-    SQLLEN* numericAttributePtr) {
-    const auto& columns = stmt->GetColumnMeta();
-    if (columnNumber < 1 || columnNumber > columns.size()) {
-        throw TOdbcException("07009", 0, "Invalid descriptor index");
-    }
-    const auto& column = columns[columnNumber - 1];
-
-    const auto setNumericAttr = [&](SQLLEN value) -> SQLRETURN {
-        if (!numericAttributePtr) {
-            return stmt->AddError("HY009", 0, "Invalid use of null pointer");
-        }
-        *numericAttributePtr = value;
-        return SQL_SUCCESS;
-    };
-
-    const auto setStringAttr = [&](std::string_view value) -> SQLRETURN {
-        if (bufferLength < 0 || (!characterAttributePtr && bufferLength != 0)) {
-            return stmt->AddError("HY090", 0, "Invalid string or buffer length");
-        }
-        const SQLSMALLINT fullLen = static_cast<SQLSMALLINT>(
-            std::min<size_t>(value.size(), static_cast<size_t>(std::numeric_limits<SQLSMALLINT>::max())));
-        if (stringLengthAttributePtr) {
-            *stringLengthAttributePtr = fullLen;
-        }
-        if (bufferLength == 0) {
-            return fullLen == 0 ? SQL_SUCCESS
-                : stmt->AddError("01004", 0, "String data, right truncated", SQL_SUCCESS_WITH_INFO);
-        }
-        auto* out = static_cast<char*>(characterAttributePtr);
-        const SQLSMALLINT copyLen = static_cast<SQLSMALLINT>(
-            std::min<int>(fullLen, bufferLength - 1));
-        if (copyLen > 0) {
-            std::memcpy(out, value.data(), static_cast<size_t>(copyLen));
-        }
-        if (out) {
-            out[copyLen] = '\0';
-        }
-        return copyLen < fullLen
-            ? stmt->AddError("01004", 0, "String data, right truncated", SQL_SUCCESS_WITH_INFO)
-            : SQL_SUCCESS;
-    };
-
+SQLRETURN NMetadata::ColAttribute(TStatement* statement, SQLUSMALLINT columnNumber,
+                                  SQLUSMALLINT fieldIdentifier, SQLPOINTER characterAttributePtr,
+                                  SQLSMALLINT bufferLength, SQLSMALLINT* stringLengthAttributePtr,
+                                  SQLLEN* numericAttributePtr) {
+    const auto& column = GetColumn(statement, columnNumber);
     switch (fieldIdentifier) {
         case SQL_DESC_NAME:
         case SQL_COLUMN_NAME:
-            return setStringAttr(column.Name);
+            return Diag::WriteString<Diag::EStringWriteMode::ColumnAttribute>(
+                statement, column.Name, characterAttributePtr, bufferLength,
+                stringLengthAttributePtr);
         case SQL_DESC_BASE_TABLE_NAME:
-            return setStringAttr("");
+            return Diag::WriteString<Diag::EStringWriteMode::ColumnAttribute>(
+                statement, "", characterAttributePtr, bufferLength,
+                stringLengthAttributePtr);
         case SQL_DESC_TYPE_NAME: {
             const TSqlTypeSpec* spec = FindSqlTypeSpec(column.SqlType);
-            return setStringAttr(spec ? spec->Name : "UNKNOWN");
+            return Diag::WriteString<Diag::EStringWriteMode::ColumnAttribute>(
+                statement, spec ? spec->Name : "UNKNOWN", characterAttributePtr,
+                bufferLength, stringLengthAttributePtr);
         }
         case SQL_DESC_TYPE:
         case SQL_DESC_CONCISE_TYPE:
-            return setNumericAttr(column.SqlType);
+            return WriteAttributeNumber(statement, column.SqlType, numericAttributePtr);
         case SQL_DESC_LENGTH:
         case SQL_DESC_DISPLAY_SIZE:
         case SQL_DESC_OCTET_LENGTH:
         case SQL_COLUMN_LENGTH:
-            return setNumericAttr(static_cast<SQLLEN>(column.Size));
         case SQL_DESC_PRECISION:
         case SQL_COLUMN_PRECISION:
-            return setNumericAttr(static_cast<SQLLEN>(column.Size));
+            return WriteAttributeNumber(statement, static_cast<SQLLEN>(column.Size), numericAttributePtr);
         case SQL_DESC_SCALE:
         case SQL_COLUMN_SCALE:
-            return setNumericAttr(column.DecimalDigits);
+            return WriteAttributeNumber(statement, column.DecimalDigits, numericAttributePtr);
         case SQL_DESC_NULLABLE:
         case SQL_COLUMN_NULLABLE:
-            return setNumericAttr(column.Nullable);
+            return WriteAttributeNumber(statement, column.Nullable, numericAttributePtr);
         case SQL_DESC_UNSIGNED:
-            return setNumericAttr(column.Unsigned ? SQL_TRUE : SQL_FALSE);
+            return WriteAttributeNumber(statement, column.Unsigned ? SQL_TRUE : SQL_FALSE,
+                                        numericAttributePtr);
         case SQL_DESC_AUTO_UNIQUE_VALUE:
-            return setNumericAttr(SQL_FALSE);
+            return WriteAttributeNumber(statement, SQL_FALSE, numericAttributePtr);
         default:
-            return stmt->AddError("HYC00", 0, "Optional feature not implemented");
+            return statement->AddError("HYC00", 0, "Optional feature not implemented");
     }
 }
 

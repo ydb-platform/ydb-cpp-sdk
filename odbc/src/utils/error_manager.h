@@ -2,11 +2,13 @@
 
 #include <sql.h>
 #include <sqlext.h>
+#include <functional>
 #include <vector>
 #include <string>
-#include <functional>
 #include <exception>
 #include <mutex>
+#include <type_traits>
+#include <utility>
 
 #include <ydb-cpp-sdk/client/types/status/status.h>
 
@@ -16,10 +18,7 @@ struct TErrorInfo {
     std::string SqlState;
     SQLINTEGER NativeError;
     std::string Message;
-    SQLRETURN ReturnCode;
 };
-
-using TErrorList = std::vector<TErrorInfo>;
 
 class TOdbcException : public std::exception {
 public:
@@ -65,13 +64,12 @@ public:
     SQLRETURN AddError(const TStatus& status);
 
     void ClearErrors();
-    std::recursive_mutex& GetMutex() const noexcept { return Mutex_; }
+    std::recursive_mutex& GetMutex() const noexcept {
+        return Mutex_;
+    }
 
     void SetLastReturnCode(SQLRETURN code) {
         LastReturnCode_ = code;
-    }
-    [[nodiscard]] SQLRETURN GetLastReturnCode() const {
-        return LastReturnCode_;
     }
 
     SQLRETURN GetDiagRec(SQLSMALLINT recNumber, SQLCHAR* sqlState, SQLINTEGER* nativeError, 
@@ -81,77 +79,73 @@ public:
 
 private:
     mutable std::recursive_mutex Mutex_;
-    TErrorList Errors_;
+    std::vector<TErrorInfo> Errors_;
     SQLRETURN LastReturnCode_ = SQL_SUCCESS;
 };
 
-enum class ENullInputHandlePolicy : unsigned char {
-    Reject,
-    Allow,
-};
+enum class ECallMode : unsigned char { Ordinary, Diagnostic, Consuming };
 
-template <typename Handle>
-SQLRETURN HandleOdbcExceptionsConsuming(SQLHANDLE handlePtr, std::function<SQLRETURN(Handle*)>&& func) {
-    if (!handlePtr) {
-        return SQL_INVALID_HANDLE;
-    }
-    auto handle = static_cast<Handle*>(handlePtr);
-    handle->ClearErrors();
+SQLRETURN RecordCurrentException(TErrorManager& errors);
 
-    try {
-        return func(handle);
-    } catch (const NStatusHelpers::TYdbErrorException& ex) {
-        return handle->AddError(ex.GetStatus());
-    } catch (const TOdbcException& ex) {
-        return handle->AddError(ex);
-    } catch (const std::exception& ex) {
-        return handle->AddError("HY000", 0, ex.what());
-    } catch (...) {
-        return handle->AddError("HY000", 0, "Unknown error");
+template <class Fn, class... Args>
+SQLRETURN InvokeOdbc(Fn&& fn, Args&&... args) {
+    if constexpr (std::is_void_v<std::invoke_result_t<Fn, Args...>>) {
+        std::invoke(std::forward<Fn>(fn), std::forward<Args>(args)...);
+        return SQL_SUCCESS;
+    } else {
+        return std::invoke(std::forward<Fn>(fn), std::forward<Args>(args)...);
     }
 }
 
-template <typename Handle>
-SQLRETURN HandleOdbcDiagnostics(SQLHANDLE handlePtr, std::function<SQLRETURN(Handle*)>&& func) {
+template <ECallMode Mode, typename Handle, class Fn>
+SQLRETURN CallOdbc(SQLHANDLE handlePtr, Fn&& func) {
     if (!handlePtr) {
         return SQL_INVALID_HANDLE;
     }
     auto* handle = static_cast<Handle*>(handlePtr);
-    std::lock_guard lock(handle->GetMutex());
+    std::unique_lock lock(handle->GetMutex(), std::defer_lock);
+    if constexpr (Mode != ECallMode::Consuming) {
+        lock.lock();
+    }
+    if constexpr (Mode != ECallMode::Diagnostic) {
+        handle->ClearErrors();
+    }
     try {
-        return func(handle);
+        const SQLRETURN ret = InvokeOdbc(std::forward<Fn>(func), handle);
+        if constexpr (Mode == ECallMode::Ordinary) {
+            handle->SetLastReturnCode(ret);
+        }
+        return ret;
     } catch (...) {
+        if constexpr (Mode == ECallMode::Diagnostic) {
+            return SQL_ERROR;
+        }
+        return RecordCurrentException(*handle);
+    }
+}
+
+enum class ENullInputHandlePolicy : unsigned char { Reject, Allow };
+
+template <class Fn>
+SQLRETURN CallOdbcUnchecked(
+    SQLHANDLE handlePtr,
+    Fn&& func,
+    ENullInputHandlePolicy nullInputPolicy = ENullInputHandlePolicy::Reject) {
+    if (!handlePtr && nullInputPolicy == ENullInputHandlePolicy::Reject) {
+        return SQL_INVALID_HANDLE;
+    }
+    try {
+        const SQLRETURN ret = InvokeOdbc(std::forward<Fn>(func));
+        if (handlePtr) {
+            static_cast<TErrorManager*>(handlePtr)->SetLastReturnCode(ret);
+        }
+        return ret;
+    } catch (...) {
+        if (handlePtr) {
+            static_cast<TErrorManager*>(handlePtr)->SetLastReturnCode(SQL_ERROR);
+        }
         return SQL_ERROR;
     }
 }
-
-template <typename Handle>
-SQLRETURN HandleOdbcExceptions(SQLHANDLE handlePtr, std::function<SQLRETURN(Handle*)>&& func) {
-    if (!handlePtr) {
-        return SQL_INVALID_HANDLE;
-    }
-    auto handle = static_cast<Handle*>(handlePtr);
-    std::lock_guard lock(handle->GetMutex());
-    handle->ClearErrors();
-
-    try {
-        const SQLRETURN ret = func(handle);
-        handle->SetLastReturnCode(ret);
-        return ret;
-    } catch (const NStatusHelpers::TYdbErrorException& ex) {
-        return handle->AddError(ex.GetStatus());
-    } catch (const TOdbcException& ex) {
-        return handle->AddError(ex);
-    } catch (const std::exception& ex) {
-        return handle->AddError("HY000", 0, ex.what());
-    } catch (...) {
-        return handle->AddError("HY000", 0, "Unknown error");
-    }
-}
-
-SQLRETURN HandleOdbcExceptions(
-    SQLHANDLE handlePtr,
-    std::function<SQLRETURN()>&& func,
-    ENullInputHandlePolicy nullInputPolicy = ENullInputHandlePolicy::Reject);
 
 } // namespace NYdb::NOdbc

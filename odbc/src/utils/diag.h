@@ -6,61 +6,116 @@
 #include <string_view>
 #include <algorithm>
 #include <cstring>
+#include <limits>
 
 namespace NYdb::NOdbc {
 namespace Diag {
-    
-    inline SQLRETURN AddNullPointer(TErrorManager& errors) {
-        return errors.AddError("HY009", 0, "Invalid use of null pointer");
-    }
-    
-    inline SQLRETURN AddNotImplemented(TErrorManager& errors) {
-        return errors.AddError("HYC00", 0, "Optional feature not implemented");
-    }
-    
-    inline SQLRETURN AddInvalidAttrValue(TErrorManager& errors, std::string_view attrName) {
-        return errors.AddError("HY024", 0, "Invalid " + std::string(attrName) + " value");
-    }
-    
-    inline SQLRETURN AddInvalidBufferLength(TErrorManager& errors) {
-        return errors.AddError("HY090", 0, "Invalid string or buffer length");
-    }
-    
-    inline SQLRETURN AddRightTruncated(TErrorManager& errors) {
-        return errors.AddError("01004", 0, "String data, right truncated", SQL_SUCCESS_WITH_INFO);
-    }
 
-    inline SQLRETURN WriteOdbcString(
-        TErrorManager& errors,
-        std::string_view value,
-        SQLPOINTER outPtr,
-        SQLSMALLINT bufferLength,
-        SQLSMALLINT* lengthPtr) {
-        if (!outPtr) {
-            return errors.AddError("HY009", 0, "Invalid use of null pointer");
+inline SQLRETURN AddNullPointer(TErrorManager& errors) {
+    return errors.AddError("HY009", 0, "Invalid use of null pointer");
+}
+
+inline SQLRETURN AddNotImplemented(TErrorManager& errors) {
+    return errors.AddError("HYC00", 0, "Optional feature not implemented");
+}
+
+inline SQLRETURN AddInvalidAttrValue(TErrorManager& errors, std::string_view name) {
+    return errors.AddError("HY024", 0, "Invalid " + std::string(name) + " value");
+}
+
+inline SQLRETURN AddInvalidBufferLength(TErrorManager& errors) {
+    return errors.AddError("HY090", 0, "Invalid string or buffer length");
+}
+
+inline SQLRETURN AddRightTruncated(TErrorManager& errors) {
+    return errors.AddError("01004", 0, "String data, right truncated", SQL_SUCCESS_WITH_INFO);
+}
+
+enum class EStringWriteMode : unsigned char {
+    Odbc,
+    Diagnostic,
+    ConnectionAttribute,
+    Descriptor,
+    ColumnAttribute,
+};
+
+template<EStringWriteMode Mode, typename TLength>
+SQLRETURN WriteString(TErrorManager* errors, std::string_view value, SQLPOINTER output,
+                      TLength bufferLength, TLength* length) {
+    const SQLLEN fullLength = static_cast<SQLLEN>(value.size());
+    const auto reportLength = [&] {
+        if (length) {
+            if constexpr (Mode == EStringWriteMode::Odbc
+                          || Mode == EStringWriteMode::Diagnostic
+                          || Mode == EStringWriteMode::ColumnAttribute) {
+                *length = static_cast<TLength>(std::min<SQLLEN>(
+                    fullLength, std::numeric_limits<TLength>::max()));
+            } else {
+                *length = static_cast<TLength>(fullLength);
+            }
         }
-        if (bufferLength < 0) {
-            return errors.AddError("HY090", 0, "Invalid string or buffer length");
+    };
+    if constexpr (Mode == EStringWriteMode::Diagnostic
+                  || Mode == EStringWriteMode::ConnectionAttribute
+                  || Mode == EStringWriteMode::Descriptor) {
+        reportLength();
+    }
+    if constexpr (Mode == EStringWriteMode::ColumnAttribute) {
+        if (bufferLength < 0 || (!output && bufferLength != 0)) {
+            return AddInvalidBufferLength(*errors);
         }
-        const SQLLEN fullLen = static_cast<SQLLEN>(value.size());
-        const SQLSMALLINT reportedLen = static_cast<SQLSMALLINT>(std::min<SQLLEN>(fullLen, 32767));
-        if (lengthPtr) {
-            *lengthPtr = reportedLen;
+    }
+    if (!output) {
+        if constexpr (Mode == EStringWriteMode::Diagnostic
+                      || Mode == EStringWriteMode::ConnectionAttribute
+                      || Mode == EStringWriteMode::Descriptor) {
+            return SQL_SUCCESS;
+        } else if constexpr (Mode == EStringWriteMode::Odbc) {
+            return AddNullPointer(*errors);
         }
+    }
+    if (bufferLength < 0) {
+        if constexpr (Mode == EStringWriteMode::Diagnostic) {
+            return SQL_ERROR;
+        }
+        return AddInvalidBufferLength(*errors);
+    }
+    if constexpr (Mode == EStringWriteMode::Odbc
+                  || Mode == EStringWriteMode::ColumnAttribute) {
+        reportLength();
+    }
+    if constexpr (Mode == EStringWriteMode::ConnectionAttribute) {
         if (bufferLength == 0) {
-            return fullLen == 0 ? SQL_SUCCESS : AddRightTruncated(errors);
+            return AddInvalidBufferLength(*errors);
         }
-        auto* out = reinterpret_cast<char*>(outPtr);
-        const SQLSMALLINT copyLen = static_cast<SQLSMALLINT>(std::min<SQLLEN>(fullLen, static_cast<SQLLEN>(bufferLength - 1)));
-        if (copyLen > 0) {
-            std::memcpy(out, value.data(), static_cast<size_t>(copyLen));
+    }
+    if (bufferLength == 0) {
+        if (!fullLength) {
+            return SQL_SUCCESS;
         }
-        out[copyLen] = '\0';
-        if (copyLen < fullLen) {
-            return AddRightTruncated(errors);
+        if constexpr (Mode == EStringWriteMode::Diagnostic) {
+            return SQL_SUCCESS_WITH_INFO;
         }
+        return AddRightTruncated(*errors);
+    }
+    const SQLLEN copied = std::min<SQLLEN>(fullLength, bufferLength - 1);
+    if (copied) {
+        std::memcpy(output, value.data(), static_cast<size_t>(copied));
+    }
+    static_cast<char*>(output)[copied] = 0;
+    if (copied == fullLength) {
         return SQL_SUCCESS;
     }
+    if constexpr (Mode == EStringWriteMode::Diagnostic) {
+        return SQL_SUCCESS_WITH_INFO;
+    }
+    return AddRightTruncated(*errors);
+}
+
+inline SQLRETURN WriteOdbcString(TErrorManager& errors, std::string_view value, SQLPOINTER output,
+                                 SQLSMALLINT bufferLength, SQLSMALLINT* length) {
+    return WriteString<EStringWriteMode::Odbc>(&errors, value, output, bufferLength, length);
+}
 
 } // namespace Diag
 

@@ -1,132 +1,87 @@
 #include "types.h"
 #include "sql_type_map.h"
 
-namespace NYdb {
-namespace NOdbc {
+#include <array>
+#include <type_traits>
+
+namespace NYdb::NOdbc {
+namespace {
+
+struct TPrimitiveSpec {
+    EPrimitiveType Type;
+    SQLSMALLINT SqlType;
+    bool Integer = false;
+    bool Unsigned = false;
+};
+
+constexpr std::array PrimitiveSpecs{
+    TPrimitiveSpec{EPrimitiveType::Bool, SQL_BIT},
+#define ODBC_PRIMITIVE_SPEC(name, cppType, sqlType, isUnsigned) \
+    TPrimitiveSpec{EPrimitiveType::name, sqlType, std::is_integral_v<cppType>, isUnsigned},
+    YDB_ODBC_SCALAR_TYPES(ODBC_PRIMITIVE_SPEC)
+#undef ODBC_PRIMITIVE_SPEC
+    TPrimitiveSpec{EPrimitiveType::Interval, SQL_BIGINT},
+    TPrimitiveSpec{EPrimitiveType::Interval64, SQL_BIGINT},
+    TPrimitiveSpec{EPrimitiveType::Date, SQL_TYPE_DATE},
+    TPrimitiveSpec{EPrimitiveType::Date32, SQL_TYPE_DATE},
+    TPrimitiveSpec{EPrimitiveType::TzDate, SQL_TYPE_DATE},
+    TPrimitiveSpec{EPrimitiveType::Datetime, SQL_TYPE_TIME},
+    TPrimitiveSpec{EPrimitiveType::Timestamp, SQL_TYPE_TIMESTAMP},
+    TPrimitiveSpec{EPrimitiveType::Datetime64, SQL_TYPE_TIMESTAMP},
+    TPrimitiveSpec{EPrimitiveType::Timestamp64, SQL_TYPE_TIMESTAMP},
+    TPrimitiveSpec{EPrimitiveType::TzDatetime, SQL_TYPE_TIMESTAMP},
+    TPrimitiveSpec{EPrimitiveType::TzTimestamp, SQL_TYPE_TIMESTAMP},
+    TPrimitiveSpec{EPrimitiveType::String, SQL_VARBINARY},
+    TPrimitiveSpec{EPrimitiveType::Utf8, SQL_VARCHAR},
+    TPrimitiveSpec{EPrimitiveType::Yson, SQL_VARCHAR},
+    TPrimitiveSpec{EPrimitiveType::Json, SQL_VARCHAR},
+    TPrimitiveSpec{EPrimitiveType::JsonDocument, SQL_VARCHAR},
+    TPrimitiveSpec{EPrimitiveType::DyNumber, SQL_VARCHAR},
+    TPrimitiveSpec{EPrimitiveType::Uuid, SQL_GUID},
+};
 
 SQLULEN GetColumnSize(SQLSMALLINT sqlType) {
     const TSqlTypeSpec* spec = FindSqlTypeSpec(sqlType);
     return spec ? spec->ColumnSize : sqlType == SQL_GUID ? 36 : 4096;
 }
 
+} // namespace
+
 TYdbTypeInfo DescribeYdbType(const TType& type) {
     TYdbTypeInfo info;
     TTypeParser parser(type);
     info.Nullable = parser.GetKind() == TTypeParser::ETypeKind::Optional
-        || parser.GetKind() == TTypeParser::ETypeKind::Null
+            || parser.GetKind() == TTypeParser::ETypeKind::Null
         ? SQL_NULLABLE
         : SQL_NO_NULLS;
-
-    size_t openedOptionals = 0;
+    size_t optionals = 0;
     while (parser.GetKind() == TTypeParser::ETypeKind::Optional) {
         parser.OpenOptional();
-        ++openedOptionals;
+        ++optionals;
     }
-
-    auto closeOpenedOptionals = [&]() {
-        while (openedOptionals > 0) {
-            parser.CloseOptional();
-            --openedOptionals;
-        }
-    };
-
-    const auto kind = parser.GetKind();
-    if (kind == TTypeParser::ETypeKind::Decimal) {
+    if (parser.GetKind() == TTypeParser::ETypeKind::Decimal) {
         const TDecimalType decimal = parser.GetDecimal();
         info.SqlType = SQL_DECIMAL;
         info.ColumnSize = decimal.Precision;
         info.DecimalDigits = decimal.Scale;
         info.Radix = 10;
-        closeOpenedOptionals();
-        return info;
+    } else if (parser.GetKind() == TTypeParser::ETypeKind::Primitive) {
+        const EPrimitiveType type = parser.GetPrimitive();
+        const auto it = std::ranges::find(PrimitiveSpecs, type, &TPrimitiveSpec::Type);
+        if (it != PrimitiveSpecs.end()) {
+            info.SqlType = it->SqlType;
+            info.ColumnSize = GetColumnSize(info.SqlType);
+            if (it->Integer) {
+                info.Unsigned = it->Unsigned;
+                info.DecimalDigits = 0;
+                info.Radix = 10;
+            }
+        }
     }
-    if (kind != TTypeParser::ETypeKind::Primitive) {
-        closeOpenedOptionals();
-        return info;
-    }
-
-    const EPrimitiveType primitive = parser.GetPrimitive();
-    closeOpenedOptionals();
-    switch (primitive) {
-        case EPrimitiveType::Bool:
-            info.SqlType = SQL_BIT;
-            break;
-        case EPrimitiveType::Int8:
-        case EPrimitiveType::Uint8:
-            info.SqlType = SQL_TINYINT;
-            break;
-        case EPrimitiveType::Int16:
-        case EPrimitiveType::Uint16:
-            info.SqlType = SQL_SMALLINT;
-            break;
-        case EPrimitiveType::Int32:
-        case EPrimitiveType::Uint32:
-            info.SqlType = SQL_INTEGER;
-            break;
-        case EPrimitiveType::Int64:
-        case EPrimitiveType::Uint64:
-            info.SqlType = SQL_BIGINT;
-            break;
-        case EPrimitiveType::Float:
-            info.SqlType = SQL_REAL;
-            break;
-        case EPrimitiveType::Double:
-            info.SqlType = SQL_DOUBLE;
-            break;
-        case EPrimitiveType::Date:
-        case EPrimitiveType::Date32:
-        case EPrimitiveType::TzDate:
-            info.SqlType = SQL_TYPE_DATE;
-            break;
-        case EPrimitiveType::Datetime:
-            info.SqlType = SQL_TYPE_TIME;
-            break;
-        case EPrimitiveType::Timestamp:
-        case EPrimitiveType::Datetime64:
-        case EPrimitiveType::Timestamp64:
-        case EPrimitiveType::TzDatetime:
-        case EPrimitiveType::TzTimestamp:
-            info.SqlType = SQL_TYPE_TIMESTAMP;
-            break;
-        case EPrimitiveType::Interval:
-        case EPrimitiveType::Interval64:
-            info.SqlType = SQL_BIGINT;
-            break;
-        case EPrimitiveType::String:
-            info.SqlType = SQL_VARBINARY;
-            break;
-        case EPrimitiveType::Utf8:
-        case EPrimitiveType::Yson:
-        case EPrimitiveType::Json:
-        case EPrimitiveType::JsonDocument:
-        case EPrimitiveType::DyNumber:
-            info.SqlType = SQL_VARCHAR;
-            break;
-        case EPrimitiveType::Uuid:
-            info.SqlType = SQL_GUID;
-            break;
-    }
-
-    info.ColumnSize = GetColumnSize(info.SqlType);
-    switch (primitive) {
-        case EPrimitiveType::Uint8:
-        case EPrimitiveType::Uint16:
-        case EPrimitiveType::Uint32:
-        case EPrimitiveType::Uint64:
-            info.Unsigned = true;
-            [[fallthrough]];
-        case EPrimitiveType::Int8:
-        case EPrimitiveType::Int16:
-        case EPrimitiveType::Int32:
-        case EPrimitiveType::Int64:
-            info.DecimalDigits = 0;
-            info.Radix = 10;
-            break;
-        default:
-            break;
+    while (optionals--) {
+        parser.CloseOptional();
     }
     return info;
 }
 
-} // namespace NOdbc
-} // namespace NYdb
+} // namespace NYdb::NOdbc

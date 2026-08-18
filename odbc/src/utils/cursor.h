@@ -1,19 +1,16 @@
 #pragma once
 
-#include "bindings.h"
+#include "convert.h"
 
 #include <ydb-cpp-sdk/client/query/client.h>
-#include <ydb-cpp-sdk/client/types/status/status.h>
-
 #include <sql.h>
 
 #include <memory>
-#include <optional>
+#include <span>
 #include <string>
 #include <vector>
 
-namespace NYdb {
-namespace NOdbc {
+namespace NYdb::NOdbc {
 
 struct TColumnMeta {
     std::string Name;
@@ -24,7 +21,8 @@ struct TColumnMeta {
     bool Unsigned = false;
 };
 
-using TTable = std::vector<std::vector<TValue>>;
+using TColumnSchema = std::span<const TColumnMeta>;
+using TTable = std::vector<std::vector<TOdbcScalar>>;
 
 class ICursor {
 public:
@@ -33,14 +31,18 @@ public:
     virtual SQLRETURN GetData(SQLUSMALLINT columnNumber, SQLSMALLINT targetType,
                               SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd,
                               SQLLEN* offset = nullptr) = 0;
-    virtual const std::vector<TColumnMeta>& GetColumnMeta() const = 0;
+    const std::vector<TColumnMeta>& GetColumnMeta() const {
+        return Columns_;
+    }
+
+protected:
+    std::vector<TColumnMeta> Columns_;
 };
 
 std::unique_ptr<ICursor> CreateExecCursor(const NYdb::NQuery::TExecuteQueryResult& result);
 
 std::unique_ptr<ICursor> CreateVirtualCursor(
-    const std::vector<TColumnMeta>& columns,
-    const TTable& table);
+    TColumnSchema columns,
+    TTable table = {});
 
-} // namespace NOdbc
-} // namespace NYdb
+} // namespace NYdb::NOdbc
