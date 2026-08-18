@@ -863,10 +863,12 @@ TEST(StatementApi, CoreBoundTypeConversions) {
     ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
     SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE IF EXISTS test_bound_types", SQL_NTS);
     SQLFreeStmt(stmt, SQL_CLOSE);
+    // Keep this server-backed test on YDB's default decimal shape, which does
+    // not require support for non-default parameterized decimals.
     CHECK_ODBC_OK(SQLExecDirect(stmt,
         (SQLCHAR*)"CREATE TABLE test_bound_types ("
                   "id Int32, u64 Uint64, text Utf8, bytes String, d Date, "
-                  "tm Datetime, ts Timestamp, dec Decimal(18, 5), PRIMARY KEY (id))",
+                  "tm Datetime, ts Timestamp, dec Decimal(22, 9), PRIMARY KEY (id))",
         SQL_NTS), stmt, SQL_HANDLE_STMT);
     SQLFreeStmt(stmt, SQL_CLOSE);
     CHECK_ODBC_OK(SQLPrepare(stmt,
@@ -899,7 +901,7 @@ TEST(StatementApi, CoreBoundTypeConversions) {
     CHECK_ODBC_OK(SQLBindParameter(stmt, 7, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP,
                                    0, 0, &timestamp, 0, nullptr), stmt, SQL_HANDLE_STMT);
     CHECK_ODBC_OK(SQLBindParameter(stmt, 8, SQL_PARAM_INPUT, SQL_C_DOUBLE, SQL_DECIMAL,
-                                   18, 5, &decimal, 0, nullptr), stmt, SQL_HANDLE_STMT);
+                                   0, 0, &decimal, 0, nullptr), stmt, SQL_HANDLE_STMT);
     CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
     SQLFreeStmt(stmt, SQL_RESET_PARAMS);
     SQLFreeStmt(stmt, SQL_CLOSE);
@@ -955,7 +957,7 @@ TEST(StatementApi, CoreBoundTypeConversions) {
     EXPECT_EQ(fetchedTime.second, time.second);
     EXPECT_EQ(fetchedTimestamp.fraction, timestamp.fraction);
     EXPECT_NEAR(fetchedDecimal, decimal, 1e-9);
-    EXPECT_STREQ(fetchedDecimalText, "123.45600");
+    EXPECT_STREQ(fetchedDecimalText, "123.456000000");
 
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
