@@ -3,8 +3,6 @@
 #include <sql.h>
 #include <sqlext.h>
 
-#include <ydb-cpp-sdk/client/types/fwd.h>
-
 namespace NYdb::NOdbc {
 
 struct TBoundParam {
