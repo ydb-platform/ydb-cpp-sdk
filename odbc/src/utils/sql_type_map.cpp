@@ -1,7 +1,5 @@
 #include "sql_type_map.h"
 
-#include <ydb-cpp-sdk/client/value/value.h>
-
 #include <algorithm>
 #include <array>
 #include <cctype>
@@ -10,36 +8,36 @@ namespace NYdb::NOdbc {
 namespace {
 
 constexpr std::array TypeSpecs{
-    TSqlTypeSpec{SQL_BIGINT, "BIGINT", EPrimitiveType::Int64, "Int64", 19, true},
-    TSqlTypeSpec{SQL_INTEGER, "INTEGER", EPrimitiveType::Int32, "Int32", 10, true},
-    TSqlTypeSpec{SQL_SMALLINT, "SMALLINT", EPrimitiveType::Int16, "Int16", 5, true},
-    TSqlTypeSpec{SQL_DOUBLE, "DOUBLE", EPrimitiveType::Double, "Double", 15, true},
-    TSqlTypeSpec{SQL_REAL, "REAL", EPrimitiveType::Float, "Float", 7, true},
-    TSqlTypeSpec{SQL_VARCHAR, "VARCHAR", EPrimitiveType::Utf8, "Utf8", 255, true},
-    TSqlTypeSpec{SQL_CHAR, "CHAR", EPrimitiveType::Utf8, "Utf8", 255, true},
-    TSqlTypeSpec{SQL_LONGVARCHAR, "LONGVARCHAR", EPrimitiveType::Utf8, "Utf8", 4096, false},
-    TSqlTypeSpec{SQL_WCHAR, "WCHAR", EPrimitiveType::Utf8, "Utf8", 255, false},
-    TSqlTypeSpec{SQL_WVARCHAR, "WVARCHAR", EPrimitiveType::Utf8, "Utf8", 255, false},
-    TSqlTypeSpec{SQL_WLONGVARCHAR, "WLONGVARCHAR", EPrimitiveType::Utf8, "Utf8", 4096, false},
-    TSqlTypeSpec{SQL_BIT, "BIT", EPrimitiveType::Bool, "Bool", 1, false},
-    TSqlTypeSpec{SQL_TINYINT, "TINYINT", EPrimitiveType::Int8, "Int8", 3, false},
-    TSqlTypeSpec{SQL_FLOAT, "FLOAT", EPrimitiveType::Double, "Double", 15, false},
-    TSqlTypeSpec{SQL_DECIMAL, "DECIMAL", std::nullopt, "Decimal(22, 9)", 22, false},
-    TSqlTypeSpec{SQL_NUMERIC, "NUMERIC", std::nullopt, "Decimal(22, 9)", 22, false},
-    TSqlTypeSpec{SQL_BINARY, "BINARY", EPrimitiveType::String, "String", 4096, false},
-    TSqlTypeSpec{SQL_VARBINARY, "VARBINARY", EPrimitiveType::String, "String", 4096, false},
-    TSqlTypeSpec{SQL_LONGVARBINARY, "LONGVARBINARY", EPrimitiveType::String, "String", 4096, false},
-    TSqlTypeSpec{SQL_TYPE_DATE, "DATE", EPrimitiveType::Date, "Date", 10, false},
-    TSqlTypeSpec{SQL_TYPE_TIME, "TIME", EPrimitiveType::Datetime, "Datetime", 8, false},
-    TSqlTypeSpec{SQL_TYPE_TIMESTAMP, "TIMESTAMP", EPrimitiveType::Timestamp, "Timestamp", 26, false},
+    TSqlTypeSpec{SQL_BIGINT, "BIGINT", EParamType::Int64, "Int64", 19, true},
+    TSqlTypeSpec{SQL_INTEGER, "INTEGER", EParamType::Int32, "Int32", 10, true},
+    TSqlTypeSpec{SQL_SMALLINT, "SMALLINT", EParamType::Int16, "Int16", 5, true},
+    TSqlTypeSpec{SQL_DOUBLE, "DOUBLE", EParamType::Double, "Double", 15, true},
+    TSqlTypeSpec{SQL_REAL, "REAL", EParamType::Float, "Float", 7, true},
+    TSqlTypeSpec{SQL_VARCHAR, "VARCHAR", EParamType::Utf8, "Utf8", 255, true},
+    TSqlTypeSpec{SQL_CHAR, "CHAR", EParamType::Utf8, "Utf8", 255, true},
+    TSqlTypeSpec{SQL_LONGVARCHAR, "LONGVARCHAR", EParamType::Utf8, "Utf8", 4096, false},
+    TSqlTypeSpec{SQL_WCHAR, "WCHAR", EParamType::Utf8, "Utf8", 255, false},
+    TSqlTypeSpec{SQL_WVARCHAR, "WVARCHAR", EParamType::Utf8, "Utf8", 255, false},
+    TSqlTypeSpec{SQL_WLONGVARCHAR, "WLONGVARCHAR", EParamType::Utf8, "Utf8", 4096, false},
+    TSqlTypeSpec{SQL_BIT, "BIT", EParamType::Bool, "Bool", 1, false},
+    TSqlTypeSpec{SQL_TINYINT, "TINYINT", EParamType::Int8, "Int8", 3, false},
+    TSqlTypeSpec{SQL_FLOAT, "FLOAT", EParamType::Double, "Double", 15, false},
+    TSqlTypeSpec{SQL_DECIMAL, "DECIMAL", EParamType::Decimal, "Decimal(22, 9)", 22, false},
+    TSqlTypeSpec{SQL_NUMERIC, "NUMERIC", EParamType::Decimal, "Decimal(22, 9)", 22, false},
+    TSqlTypeSpec{SQL_BINARY, "BINARY", EParamType::String, "String", 4096, false},
+    TSqlTypeSpec{SQL_VARBINARY, "VARBINARY", EParamType::String, "String", 4096, false},
+    TSqlTypeSpec{SQL_LONGVARBINARY, "LONGVARBINARY", EParamType::String, "String", 4096, false},
+    TSqlTypeSpec{SQL_TYPE_DATE, "DATE", EParamType::Date, "Date", 10, false},
+    TSqlTypeSpec{SQL_TYPE_TIME, "TIME", EParamType::Datetime, "Datetime", 8, false},
+    TSqlTypeSpec{SQL_TYPE_TIMESTAMP, "TIMESTAMP", EParamType::Timestamp, "Timestamp", 26, false},
 };
 
 std::optional<TParamTypeSpec> UnsignedType(SQLSMALLINT type) {
     switch (type) {
-        case SQL_C_UTINYINT: return TParamTypeSpec{EPrimitiveType::Uint8, "Uint8"};
-        case SQL_C_USHORT: return TParamTypeSpec{EPrimitiveType::Uint16, "Uint16"};
-        case SQL_C_ULONG: return TParamTypeSpec{EPrimitiveType::Uint32, "Uint32"};
-        case SQL_C_UBIGINT: return TParamTypeSpec{EPrimitiveType::Uint64, "Uint64"};
+        case SQL_C_UTINYINT: return TParamTypeSpec{EParamType::Uint8, "Uint8"};
+        case SQL_C_USHORT: return TParamTypeSpec{EParamType::Uint16, "Uint16"};
+        case SQL_C_ULONG: return TParamTypeSpec{EParamType::Uint32, "Uint32"};
+        case SQL_C_UBIGINT: return TParamTypeSpec{EParamType::Uint64, "Uint64"};
         default: return std::nullopt;
     }
 }
@@ -132,7 +130,7 @@ std::optional<TParamTypeSpec> ResolveParamType(const TBoundParam& param) {
         if (!precision || precision > 35 || scale < 0 || static_cast<SQLULEN>(scale) > precision) {
             return std::nullopt;
         }
-        return TParamTypeSpec{std::nullopt,
+        return TParamTypeSpec{EParamType::Decimal,
                               "Decimal(" + std::to_string(precision) + ", "
                                   + std::to_string(scale) + ")",
                               precision, scale};
