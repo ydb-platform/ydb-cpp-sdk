@@ -162,21 +162,21 @@ std::string FormatDecimalText(const TDecimalValue& decimal) {
     return text;
 }
 
-std::optional<TInstant> ReadTemporal(const TBoundParam& param, EPrimitiveType type) {
+std::optional<TInstant> ReadTemporal(const TBoundParam& param, EParamType type) {
     if (!param.ParameterValuePtr) {
         return std::nullopt;
     }
     char text[64] = {};
-    if (type == EPrimitiveType::Date
+    if (type == EParamType::Date
         && (param.ValueType == SQL_C_TYPE_DATE || param.ValueType == SQL_C_DATE)) {
         const auto& v = *static_cast<const SQL_DATE_STRUCT*>(param.ParameterValuePtr);
         std::snprintf(text, sizeof(text), "%04d-%02u-%02uT00:00:00Z", v.year, v.month, v.day);
-    } else if (type == EPrimitiveType::Datetime
+    } else if (type == EParamType::Datetime
                && (param.ValueType == SQL_C_TYPE_TIME || param.ValueType == SQL_C_TIME)) {
         const auto& v = *static_cast<const SQL_TIME_STRUCT*>(param.ParameterValuePtr);
         std::snprintf(text, sizeof(text), "1970-01-01T%02u:%02u:%02uZ",
                       v.hour, v.minute, v.second);
-    } else if (type == EPrimitiveType::Timestamp
+    } else if (type == EParamType::Timestamp
                && (param.ValueType == SQL_C_TYPE_TIMESTAMP || param.ValueType == SQL_C_TIMESTAMP)) {
         const auto& v = *static_cast<const SQL_TIMESTAMP_STRUCT*>(param.ParameterValuePtr);
         std::snprintf(text, sizeof(text), "%04d-%02u-%02uT%02u:%02u:%02u.%09uZ",
@@ -484,10 +484,10 @@ std::optional<Value> ReadScalar(const TBoundParam& param) {
     }
 }
 
-template <typename Result, typename Fn>
-std::optional<Result> VisitScalar(EPrimitiveType type, Fn&& fn) {
+template <typename Result, typename ScalarType, typename Fn>
+std::optional<Result> VisitScalar(ScalarType type, Fn&& fn) {
 #define ODBC_VISIT_SCALAR(name, cppType, sqlType, isUnsigned)                      \
-    case EPrimitiveType::name:                                                    \
+    case ScalarType::name:                                                        \
         return fn.template operator()<cppType>(                                   \
             [](TValueParser& parser) { return parser.Get##name(); },              \
             [](TParamValueBuilder& builder, cppType value) {                      \
@@ -499,6 +499,31 @@ std::optional<Result> VisitScalar(EPrimitiveType type, Fn&& fn) {
             return std::nullopt;
     }
 #undef ODBC_VISIT_SCALAR
+}
+
+std::optional<EPrimitiveType> ParamPrimitive(EParamType type) {
+#define ODBC_PARAM_PRIMITIVE(name, cppType, sqlType, isUnsigned) \
+    case EParamType::name:                                      \
+        return EPrimitiveType::name;
+    switch (type) {
+        YDB_ODBC_SCALAR_TYPES(ODBC_PARAM_PRIMITIVE)
+        case EParamType::Bool:
+            return EPrimitiveType::Bool;
+        case EParamType::Utf8:
+            return EPrimitiveType::Utf8;
+        case EParamType::String:
+            return EPrimitiveType::String;
+        case EParamType::Date:
+            return EPrimitiveType::Date;
+        case EParamType::Datetime:
+            return EPrimitiveType::Datetime;
+        case EParamType::Timestamp:
+            return EPrimitiveType::Timestamp;
+        case EParamType::Decimal:
+            return std::nullopt;
+    }
+#undef ODBC_PARAM_PRIMITIVE
+    return std::nullopt;
 }
 
 std::optional<TOdbcScalar> PrimitiveScalar(TValueParser& parser, EPrimitiveType type) {
@@ -573,7 +598,7 @@ bool PutValue(std::optional<Value> value, Put put) {
     return true;
 }
 
-bool ConvertParamValue(const TBoundParam& param, EPrimitiveType type, TParamValueBuilder& builder) {
+bool ConvertParamValue(const TBoundParam& param, EParamType type, TParamValueBuilder& builder) {
     if (auto converted = VisitScalar<bool>(type, [&]<typename T>(auto, auto put) {
             return PutValue(ReadScalar<T>(param), [&](T value) {
                 put(builder, value);
@@ -582,16 +607,16 @@ bool ConvertParamValue(const TBoundParam& param, EPrimitiveType type, TParamValu
         return *converted;
     }
     switch (type) {
-        case EPrimitiveType::Bool:
+        case EParamType::Bool:
             if (const auto value = ReadInteger<int64_t>(param); value && *value >= 0 && *value <= 1) {
                 builder.OptionalBool(*value != 0);
                 return true;
             }
             Error("22003");
             return false;
-        case EPrimitiveType::Utf8:
+        case EParamType::Utf8:
             return PutValue(ReadText(param), [&](const auto& v) { builder.OptionalUtf8(v); });
-        case EPrimitiveType::String: {
+        case EParamType::String: {
             if (param.ValueType != SQL_C_BINARY) {
                 return false;
             }
@@ -601,16 +626,16 @@ bool ConvertParamValue(const TBoundParam& param, EPrimitiveType type, TParamValu
             }
             return value.has_value();
         }
-        case EPrimitiveType::Date:
-        case EPrimitiveType::Datetime:
-        case EPrimitiveType::Timestamp: {
+        case EParamType::Date:
+        case EParamType::Datetime:
+        case EParamType::Timestamp: {
             const auto value = ReadTemporal(param, type);
             if (!value) {
                 return false;
             }
-            if (type == EPrimitiveType::Date) {
+            if (type == EParamType::Date) {
                 builder.OptionalDate(*value);
-            } else if (type == EPrimitiveType::Datetime) {
+            } else if (type == EParamType::Datetime) {
                 builder.OptionalDatetime(*value);
             } else {
                 builder.OptionalTimestamp(*value);
@@ -631,16 +656,20 @@ SQLRETURN ConvertParam(const TBoundParam& param, TParamValueBuilder& builder) {
     }
     if (param.StrLenOrIndPtr && *param.StrLenOrIndPtr == SQL_NULL_DATA) {
         TTypeBuilder itemType;
-        if (!type->Type) {
+        if (type->Type == EParamType::Decimal) {
             itemType.Decimal(TDecimalType(static_cast<uint8_t>(type->Precision),
                                           static_cast<uint8_t>(type->Scale)));
         } else {
-            itemType.Primitive(*type->Type);
+            const auto primitive = ParamPrimitive(type->Type);
+            if (!primitive) {
+                return SQL_ERROR;
+            }
+            itemType.Primitive(*primitive);
         }
         builder.EmptyOptional(itemType.Build()).Build();
         return SQL_SUCCESS;
     }
-    if (!type->Type) {
+    if (type->Type == EParamType::Decimal) {
         const auto text = ReadDecimalText(param);
         if (!text) {
             return SQL_ERROR;
@@ -656,7 +685,7 @@ SQLRETURN ConvertParam(const TBoundParam& param, TParamValueBuilder& builder) {
         builder.Build();
         return SQL_SUCCESS;
     }
-    if (!ConvertParamValue(param, *type->Type, builder)) {
+    if (!ConvertParamValue(param, type->Type, builder)) {
         return SQL_ERROR;
     }
     builder.Build();

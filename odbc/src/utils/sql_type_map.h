@@ -2,11 +2,10 @@
 
 #include "bindings.h"
 
-#include <ydb-cpp-sdk/client/value/value.h>
-
 #include <sql.h>
 #include <sqlext.h>
 
+#include <cstdint>
 #include <optional>
 #include <span>
 #include <string>
@@ -42,6 +41,19 @@
 
 namespace NYdb::NOdbc {
 
+enum class EParamType {
+    Bool,
+#define ODBC_PARAM_TYPE(name, cppType, sqlType, isUnsigned) name,
+    YDB_ODBC_SCALAR_TYPES(ODBC_PARAM_TYPE)
+#undef ODBC_PARAM_TYPE
+    Decimal,
+    Utf8,
+    String,
+    Date,
+    Datetime,
+    Timestamp,
+};
+
 template <typename Fn>
 auto VisitCInteger(SQLSMALLINT type, Fn&& fn)
     -> std::optional<std::invoke_result_t<Fn, std::type_identity<SQLBIGINT>>> {
@@ -59,14 +71,14 @@ auto VisitCInteger(SQLSMALLINT type, Fn&& fn)
 struct TSqlTypeSpec {
     SQLSMALLINT Type;
     std::string_view Name;
-    std::optional<EPrimitiveType> ParamType;
+    EParamType ParamType;
     std::string_view YqlType;
     SQLULEN ColumnSize;
     bool Advertise;
 };
 
 struct TParamTypeSpec {
-    std::optional<EPrimitiveType> Type;
+    EParamType Type;
     std::string YqlType;
     SQLULEN Precision{};
     SQLSMALLINT Scale{};
