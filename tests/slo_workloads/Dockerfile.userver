@@ -49,8 +49,9 @@ ENV USERVER_SOURCE_DIR=/userver-src
 COPY . /ydb-cpp-sdk
 WORKDIR /ydb-cpp-sdk
 
-RUN --mount=type=cache,target=/root/.cache/cpm,sharing=locked \
-    --mount=type=cache,target=/root/.ccache,sharing=locked \
+# Keep CPM sources on the image filesystem because gRPC's archive fallback
+# moves extracted directories into that cache with file(RENAME).
+RUN --mount=type=cache,target=/root/.ccache,sharing=locked \
     cmake -S . -B build-sdk -G Ninja \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_C_COMPILER_LAUNCHER=ccache \
@@ -64,8 +65,7 @@ RUN --mount=type=cache,target=/root/.cache/cpm,sharing=locked \
     && cmake --build build-sdk --parallel \
     && cmake --install build-sdk
 
-RUN --mount=type=cache,target=/root/.cache/cpm,sharing=locked \
-    --mount=type=cache,target=/root/.ccache,sharing=locked \
+RUN --mount=type=cache,target=/root/.ccache,sharing=locked \
     cmake -S . -B build -G Ninja \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_C_COMPILER_LAUNCHER=ccache \

@@ -17,8 +17,9 @@ COPY . /ydb-cpp-sdk
 WORKDIR /ydb-cpp-sdk
 
 # CPM provides every non-platform library during this single SDK build.
-RUN --mount=type=cache,target=/root/.cache/cpm,sharing=locked \
-    --mount=type=cache,target=/root/.ccache,sharing=locked \
+# Keep its source cache on the image filesystem: gRPC populates missing
+# archive contents with file(RENAME), which cannot cross a BuildKit mount.
+RUN --mount=type=cache,target=/root/.ccache,sharing=locked \
     cmake -S . -B build-sdk -G Ninja \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_C_COMPILER=clang \
@@ -34,8 +35,7 @@ RUN --mount=type=cache,target=/root/.cache/cpm,sharing=locked \
     && cmake --build build-sdk --parallel \
     && cmake --install build-sdk
 
-RUN --mount=type=cache,target=/root/.cache/cpm,sharing=locked \
-    --mount=type=cache,target=/root/.ccache,sharing=locked \
+RUN --mount=type=cache,target=/root/.ccache,sharing=locked \
     cmake -S . -B build -G Ninja \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_C_COMPILER=clang \
