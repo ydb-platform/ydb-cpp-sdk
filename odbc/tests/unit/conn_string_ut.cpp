@@ -8,6 +8,14 @@ TEST(ConnString, ParsesBraceEscapedSemicolons) {
     ASSERT_EQ(params.at("Server"), "host");
 }
 
+TEST(ConnString, DecodesEscapedClosingBrace) {
+    const auto params = NYdb::NOdbc::ParseConnectionString(
+        "PWD={a}}b};Database=/local;Server=host");
+    ASSERT_EQ(params.at("PWD"), "a}b");
+    ASSERT_EQ(params.at("Database"), "/local");
+    ASSERT_EQ(params.at("Server"), "host");
+}
+
 TEST(ConnString, ParsesSimplePairs) {
     const auto params = NYdb::NOdbc::ParseConnectionString("DSN=YDB;Database=/local;Server=grpc://localhost:2136");
     ASSERT_EQ(params.at("DSN"), "YDB");

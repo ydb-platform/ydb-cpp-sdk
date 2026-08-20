@@ -58,9 +58,29 @@ struct TSqlScanner {
         return std::string_view::npos;
     }
 
+    size_t SkipComment(size_t pos, size_t end) const {
+        if (pos + 1 >= end) {
+            return pos;
+        }
+        if (Sql_[pos] == '-' && Sql_[pos + 1] == '-') {
+            const size_t newline = Sql_.find('\n', pos + 2);
+            return newline == std::string_view::npos || newline >= end ? end : newline + 1;
+        }
+        if (Sql_[pos] == '/' && Sql_[pos + 1] == '*') {
+            const size_t close = Sql_.find("*/", pos + 2);
+            return close == std::string_view::npos || close + 2 > end ? end : close + 2;
+        }
+        return pos;
+    }
+
     size_t FindClose(size_t open, size_t end, char left, char right) const {
         size_t depth = 1;
         for (size_t pos = open + 1; pos < end;) {
+            const size_t commentEnd = SkipComment(pos, end);
+            if (commentEnd != pos) {
+                pos = commentEnd;
+                continue;
+            }
             if (Sql_[pos] == '\'' || Sql_[pos] == '"' || Sql_[pos] == '`') {
                 pos = SkipQuoted(pos, end);
                 continue;
@@ -179,6 +199,11 @@ struct TSqlScanner {
         size_t comma = open + 1;
         size_t depth = 1;
         for (; comma < close;) {
+            const size_t commentEnd = SkipComment(comma, close);
+            if (commentEnd != comma) {
+                comma = commentEnd;
+                continue;
+            }
             if (Sql_[comma] == '\'' || Sql_[comma] == '"' || Sql_[comma] == '`') {
                 comma = SkipQuoted(comma, close);
                 continue;
@@ -226,6 +251,12 @@ struct TSqlScanner {
 
     void Scan(size_t begin, size_t end, bool parameters) {
         for (size_t pos = begin; pos < end;) {
+            const size_t commentEnd = SkipComment(pos, end);
+            if (commentEnd != pos) {
+                Append(Sql_.substr(pos, commentEnd - pos));
+                pos = commentEnd;
+                continue;
+            }
             if (Sql_[pos] == '\'' || Sql_[pos] == '"' || Sql_[pos] == '`') {
                 const size_t next = std::min(SkipQuoted(pos, end), end);
                 Append(Sql_.substr(pos, next - pos));
