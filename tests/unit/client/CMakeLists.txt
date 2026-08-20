@@ -55,6 +55,15 @@ add_ydb_test(NAME client-endpoints_ut
     unit
 )
 
+add_ydb_test(NAME client-executor_ut GTEST
+  SOURCES
+    executor/executor_ut.cpp
+  LINK_LIBRARIES
+    client-types-executor
+  LABELS
+    unit
+)
+
 add_ydb_test(NAME client-iam_grpc_ut GTEST
   SOURCES
     iam/grpc_iam_ut.cpp

@@ -38,7 +38,9 @@ protected:
     std::mutex StartLock;
 };
 
-// Create default executor for thread pool.
+// Create the default asynchronous SDK executor.
+// The name is retained for source compatibility; the implementation uses a
+// TBB work-stealing task arena.
 IExecutor::TPtr CreateThreadPoolExecutor(std::size_t threadCount, std::size_t maxQueueSize = 0);
 
 } // namespace NYdb

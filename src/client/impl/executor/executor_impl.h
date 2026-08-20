@@ -28,4 +28,19 @@ private:
     const std::size_t MaxQueueSize_ = 0;
 };
 
+class TTbbExecutor final : public IExecutor {
+public:
+    TTbbExecutor(std::size_t threadCount, std::size_t maxQueueSize);
+    ~TTbbExecutor() override;
+
+    void DoStart() override;
+    void Stop() override;
+    void Post(TFunction&& f) override;
+    bool IsAsync() const override;
+
+private:
+    class TImpl;
+    std::unique_ptr<TImpl> Impl_;
+};
+
 }

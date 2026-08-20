@@ -60,6 +60,7 @@ find_package(base64 REQUIRED)
 find_package(Brotli 1.1.0 REQUIRED)
 find_package(jwt-cpp REQUIRED)
 find_package(double-conversion REQUIRED)
+find_package(TBB REQUIRED COMPONENTS tbb)
 
 if ("@YDB_SDK_DEPENDENCY_MODE@" STREQUAL "SYSTEM")
   find_package(yandex-googleapis-api-common-protos REQUIRED)

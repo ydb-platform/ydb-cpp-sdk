@@ -5,6 +5,7 @@ target_sources(impl-executor PRIVATE
 )
 
 target_link_libraries(impl-executor PUBLIC
+  threading-local-executor
   yutil
 )
 

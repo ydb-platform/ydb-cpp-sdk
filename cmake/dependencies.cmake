@@ -12,6 +12,7 @@ set(YDB_SDK_JWT_CPP_VERSION 0.6.0)
 set(YDB_SDK_OPENTELEMETRY_VERSION 1.26.0)
 set(YDB_SDK_GOOGLETEST_VERSION 1.15.2)
 set(YDB_SDK_HDR_HISTOGRAM_VERSION 0.11.8)
+set(YDB_SDK_TBB_VERSION 2023.1.0)
 
 set(YDB_SDK_ZLIB_VERSION 1.3.1)
 set(YDB_SDK_XXHASH_VERSION 0.8.3)
@@ -120,6 +121,7 @@ if(YDB_SDK_DEPENDENCY_MODE STREQUAL "SYSTEM")
   find_package(Snappy 1.1.8 REQUIRED)
   find_package(Brotli 1.1.0 REQUIRED)
   find_package(double-conversion REQUIRED)
+  find_package(TBB REQUIRED COMPONENTS tbb)
   if(YDB_SDK_USE_RAPID_JSON)
     find_package(RapidJSON REQUIRED)
     if(NOT TARGET RapidJSON::RapidJSON)
@@ -426,6 +428,20 @@ else()
     endif()
   endif()
 
+  CPMAddPackage(
+    NAME oneTBB
+    GITHUB_REPOSITORY uxlfoundation/oneTBB
+    GIT_TAG v${YDB_SDK_TBB_VERSION}
+    EXCLUDE_FROM_ALL ${_YDB_SDK_CPM_EXCLUDE_FROM_ALL}
+    OPTIONS
+      "TBB_TEST OFF"
+      "TBB_EXAMPLES OFF"
+      "TBB_STRICT OFF"
+      "TBBMALLOC_BUILD OFF"
+      "TBBMALLOC_PROXY_BUILD OFF"
+      "TBB_INSTALL ${YDB_SDK_INSTALL}"
+  )
+
   set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME "${_ydb_sdk_saved_install_component}")
 endif()
 
@@ -528,7 +544,7 @@ set(YDB_SDK_FASTLZ_SOURCE_DIR "${FastLZSource_SOURCE_DIR}")
 # collection must not compile their sources into the SDK a second time.
 foreach(_ydb_sdk_cpm_package IN ITEMS
     ZLIB abseil-cpp Protobuf c-ares re2 gRPC Brotli xxHash zstd lz4 Snappy
-    double-conversion RapidJSON base64 jwt-cpp curl opentelemetry-cpp)
+    double-conversion RapidJSON oneTBB base64 jwt-cpp curl opentelemetry-cpp)
   if(DEFINED ${_ydb_sdk_cpm_package}_SOURCE_DIR)
     set_property(GLOBAL APPEND PROPERTY YDB_SDK_CPM_SOURCE_DIRS
       "${${_ydb_sdk_cpm_package}_SOURCE_DIR}")

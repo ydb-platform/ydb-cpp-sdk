@@ -6,7 +6,6 @@ target_sources(client-types-executor PRIVATE
 
 target_link_libraries(client-types-executor PUBLIC
   yutil
-  impl-internal-thread_pool
   impl-executor
   client-types-exceptions
 )
