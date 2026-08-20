@@ -27,7 +27,7 @@ RUN set -eux; \
     wget -qO /tmp/release.json \
       "https://api.github.com/repos/userver-framework/userver/releases/tags/${USERVER_VERSION}" || true; \
     deb_url="$(jq -r '.assets[]?.browser_download_url // empty' /tmp/release.json | \
-      grep -E 'libuserver-all-dev.*ubuntu.*22\.04.*amd64.*\.deb' | head -n1 || true)"; \
+      grep -E 'ubuntu22\.04-libuserver-all-dev_.*_amd64\.deb$' | head -n1 || true)"; \
     if [ -n "$deb_url" ]; then \
       wget -qO /tmp/libuserver-all-dev.deb "$deb_url"; \
     else \
