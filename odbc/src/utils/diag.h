@@ -33,6 +33,7 @@ inline SQLRETURN AddRightTruncated(TErrorManager& errors) {
 
 enum class EStringWriteMode : unsigned char {
     Odbc,
+    OptionalOdbc,
     Diagnostic,
     ConnectionAttribute,
     Descriptor,
@@ -55,6 +56,15 @@ SQLRETURN WriteString(TErrorManager* errors, std::string_view value, SQLPOINTER 
             }
         }
     };
+    if constexpr (Mode == EStringWriteMode::OptionalOdbc) {
+        if (bufferLength < 0) {
+            return AddInvalidBufferLength(*errors);
+        }
+        reportLength();
+        if (!output) {
+            return SQL_SUCCESS;
+        }
+    }
     if constexpr (Mode == EStringWriteMode::Diagnostic
                   || Mode == EStringWriteMode::ConnectionAttribute
                   || Mode == EStringWriteMode::Descriptor) {
@@ -115,6 +125,13 @@ SQLRETURN WriteString(TErrorManager* errors, std::string_view value, SQLPOINTER 
 inline SQLRETURN WriteOdbcString(TErrorManager& errors, std::string_view value, SQLPOINTER output,
                                  SQLSMALLINT bufferLength, SQLSMALLINT* length) {
     return WriteString<EStringWriteMode::Odbc>(&errors, value, output, bufferLength, length);
+}
+
+template<typename TLength>
+SQLRETURN WriteOptionalOdbcString(TErrorManager& errors, std::string_view value, SQLPOINTER output,
+                                  TLength bufferLength, TLength* length) {
+    return WriteString<EStringWriteMode::OptionalOdbc>(
+        &errors, value, output, bufferLength, length);
 }
 
 } // namespace Diag

@@ -75,6 +75,18 @@ TEST(OdbcParamRewrite, SkipsLiteralAndYqlOptionalSyntax) {
         "DECLARE $p1 AS Int32?;\nSELECT $p1 + 10");
 }
 
+TEST(OdbcParamRewrite, SkipsParameterMarkersInComments) {
+    const std::string sql = "SELECT ? -- optional ? $p8\n/* disabled $p9 ? */";
+    const auto result = RewriteParams(sql, {IntParam(1)});
+    ASSERT_TRUE(result.Success);
+    EXPECT_EQ(result.Sql,
+        "DECLARE $p1 AS Int32?;\n"
+        "SELECT $p1 -- optional ? $p8\n/* disabled $p9 ? */");
+    EXPECT_EQ(CountOdbcParams(sql), 1);
+    EXPECT_EQ(CountOdbcParams("SELECT 1 -- optional ? $p8"), 0);
+    EXPECT_EQ(CountOdbcParams("SELECT 1 /* disabled ? $p9"), 0);
+}
+
 TEST(OdbcParamRewrite, PrependsDeclareForNativeDollarParams) {
     const std::vector<TBoundParam> params = {IntParam(1), IntParam(2)};
     const auto result = RewriteParams("SELECT $p1 + $p2 AS result", params);

@@ -42,11 +42,29 @@ TEST(ConnectionApi, SQLDriverConnectComplete) {
     SQLHDBC dbc;
     AllocEnv(&env);
     ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_DBC, env, &dbc), SQL_SUCCESS);
-    SQLCHAR outStr[256];
-    SQLSMALLINT outLen;
+    SQLCHAR outStr[1024] = {};
+    SQLSMALLINT outLen = -1;
     SQLRETURN rc = SQLDriverConnect(dbc, nullptr, (SQLCHAR*)kConnStr, SQL_NTS,
                                     outStr, sizeof(outStr), &outLen, SQL_DRIVER_COMPLETE);
-    CHECK_ODBC_OK(rc, dbc, SQL_HANDLE_DBC);
+    ASSERT_EQ(rc, SQL_SUCCESS) << GetOdbcError(dbc, SQL_HANDLE_DBC);
+    EXPECT_STREQ(reinterpret_cast<char*>(outStr), kConnStr);
+    EXPECT_EQ(outLen, static_cast<SQLSMALLINT>(std::strlen(kConnStr)));
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(ConnectionApi, SQLDriverConnectReportsOutputLengthWithoutBuffer) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    AllocEnv(&env);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_DBC, env, &dbc), SQL_SUCCESS);
+    SQLSMALLINT outLen = -1;
+    const SQLRETURN rc = SQLDriverConnect(
+        dbc, nullptr, (SQLCHAR*)kConnStr, SQL_NTS,
+        nullptr, 0, &outLen, SQL_DRIVER_NOPROMPT);
+    ASSERT_EQ(rc, SQL_SUCCESS) << GetOdbcError(dbc, SQL_HANDLE_DBC);
+    EXPECT_EQ(outLen, static_cast<SQLSMALLINT>(std::strlen(kConnStr)));
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);
     SQLFreeHandle(SQL_HANDLE_ENV, env);
