@@ -94,17 +94,14 @@ TEST(ErrorHandling, SuccessWithInfo) {
     SQLHDBC dbc;
     AllocEnv(&env);
     ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_DBC, env, &dbc), SQL_SUCCESS);
-    SQLCHAR outStr[10];
-    SQLSMALLINT outLen;
+    SQLCHAR outStr[10] = {};
+    SQLSMALLINT outLen = -1;
     SQLRETURN rc = SQLDriverConnect(dbc, nullptr, (SQLCHAR*)kConnStr, SQL_NTS,
                                     outStr, sizeof(outStr), &outLen, SQL_DRIVER_NOPROMPT);
-    if (rc == SQL_SUCCESS_WITH_INFO) {
-        SQLCHAR sqlState[6];
-        SQLINTEGER nativeError;
-        SQLCHAR msg[256];
-        SQLSMALLINT msgLen;
-        SQLGetDiagRec(SQL_HANDLE_DBC, dbc, 1, sqlState, &nativeError, msg, sizeof(msg), &msgLen);
-    }
+    ASSERT_EQ(rc, SQL_SUCCESS_WITH_INFO);
+    EXPECT_EQ(outLen, static_cast<SQLSMALLINT>(std::strlen(kConnStr)));
+    EXPECT_EQ(std::string(reinterpret_cast<char*>(outStr)), std::string(kConnStr, sizeof(outStr) - 1));
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(dbc, SQL_HANDLE_DBC), "01004"));
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);
     SQLFreeHandle(SQL_HANDLE_ENV, env);

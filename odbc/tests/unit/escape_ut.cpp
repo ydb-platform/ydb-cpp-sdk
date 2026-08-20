@@ -72,6 +72,12 @@ TEST(OdbcEscapeRewrite, LeavesQuotedEscapesAlone) {
     EXPECT_EQ(RewriteOdbcEscapes("SELECT '{fn ABS(1)}'"), "SELECT '{fn ABS(1)}'");
 }
 
+TEST(OdbcEscapeRewrite, LeavesCommentedEscapesAlone) {
+    EXPECT_EQ(
+        RewriteOdbcEscapes("-- {fn ABS(-1)}\nSELECT {fn ABS(-1)} /* {fn ABS(-2)} */"),
+        "-- {fn ABS(-1)}\nSELECT ABS(-1) /* {fn ABS(-2)} */");
+}
+
 TEST(OdbcEscapeRewrite, UnknownBraceLeftUnchanged) {
     EXPECT_EQ(RewriteOdbcEscapes("{not_a_keyword 1}"), "{not_a_keyword 1}");
 }

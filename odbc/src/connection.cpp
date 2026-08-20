@@ -23,7 +23,10 @@ void TConnection::DestroyYdbState() {
     Ydb_.reset();
 }
 
-SQLRETURN TConnection::DriverConnect(std::string_view connectionString) {
+SQLRETURN TConnection::DriverConnect(std::string_view connectionString,
+                                     SQLCHAR* outConnectionString,
+                                     SQLSMALLINT bufferLength,
+                                     SQLSMALLINT* stringLength2Ptr) {
     std::vector<std::string> ignoredAttributes;
     TConnectionParameters explicitParameters =
         ParseAndNormalizeConnectionString(connectionString, ignoredAttributes);
@@ -34,6 +37,12 @@ SQLRETURN TConnection::DriverConnect(std::string_view connectionString) {
     }
     OverlayConnectionParameters(parameters, explicitParameters);
     ApplyResolvedSettings(ResolveConnectionSettings(std::move(parameters)));
+
+    const SQLRETURN outputResult = Diag::WriteOptionalOdbcString(
+        *this, connectionString, outConnectionString, bufferLength, stringLength2Ptr);
+    if (outputResult == SQL_ERROR) {
+        return outputResult;
+    }
 
     if (!ignoredAttributes.empty()) {
         std::string message = ignoredAttributes.size() == 1
@@ -48,7 +57,7 @@ SQLRETURN TConnection::DriverConnect(std::string_view connectionString) {
         return AddError("01S00", 0, message, SQL_SUCCESS_WITH_INFO);
     }
 
-    return SQL_SUCCESS;
+    return outputResult;
 }
 
 SQLRETURN TConnection::Connect(std::string_view serverName,
@@ -321,25 +330,7 @@ TConnectionAttributes::TCatalogBinding TConnection::GetCatalogBinding() const {
 }
 
 SQLRETURN TConnection::NativeSql(const std::string& inSql, SQLCHAR* outSql, SQLINTEGER outMax, SQLINTEGER* outLen) {
-    const SQLINTEGER fullLen = static_cast<SQLINTEGER>(inSql.size());
-    if (outLen) {
-        *outLen = fullLen;
-    }
-    if (!outSql) {
-        return outMax == 0 ? SQL_SUCCESS : AddError("HY090", 0, "Invalid string or buffer length");
-    }
-    if (outMax <= 0) {
-        return fullLen == 0 ? SQL_SUCCESS : AddError("01004", 0, "String data, right truncated", SQL_SUCCESS_WITH_INFO);
-    }
-    const SQLINTEGER copyLen = std::min(fullLen, outMax - 1);
-    if (copyLen > 0) {
-        std::memcpy(outSql, inSql.data(), static_cast<size_t>(copyLen));
-    }
-    outSql[copyLen] = '\0';
-    if (copyLen < fullLen) {
-        return AddError("01004", 0, "String data, right truncated", SQL_SUCCESS_WITH_INFO);
-    }
-    return SQL_SUCCESS;
+    return Diag::WriteOptionalOdbcString(*this, inSql, outSql, outMax, outLen);
 }
 
 } // namespace NYdb::NOdbc

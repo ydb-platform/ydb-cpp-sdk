@@ -71,7 +71,8 @@ public:
                       std::string_view userName,
                       std::string_view auth);
 
-    SQLRETURN DriverConnect(std::string_view connectionString);
+    SQLRETURN DriverConnect(std::string_view connectionString, SQLCHAR* outConnectionString,
+                            SQLSMALLINT bufferLength, SQLSMALLINT* stringLength2Ptr);
     SQLRETURN Disconnect();
 
     std::unique_ptr<TStatement> CreateStatement();

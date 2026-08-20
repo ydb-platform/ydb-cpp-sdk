@@ -118,30 +118,28 @@ TConnectionStringEntries ParseConnectionStringEntries(std::string_view connectio
         size_t valueEnd = connectionString.size();
         if (valueStart < connectionString.size() && connectionString[valueStart] == '{') {
             ++valueStart;
-            size_t braceDepth = 1;
+            std::string value;
             size_t i = valueStart;
-            while (i < connectionString.size() && braceDepth > 0) {
-                if (connectionString[i] == '{') {
-                    ++braceDepth;
-                } else if (connectionString[i] == '}') {
-                    --braceDepth;
-                    if (braceDepth == 0) {
-                        valueEnd = i;
-                        pos = i + 1;
-                        if (pos < connectionString.size() && connectionString[pos] == ';') {
-                            ++pos;
-                        }
-                        break;
-                    }
+            while (i < connectionString.size()) {
+                if (connectionString[i] != '}') {
+                    value.push_back(connectionString[i++]);
+                    continue;
                 }
-                ++i;
+                if (i + 1 < connectionString.size() && connectionString[i + 1] == '}') {
+                    value.push_back('}');
+                    i += 2;
+                    continue;
+                }
+                pos = i + 1;
+                if (pos < connectionString.size() && connectionString[pos] == ';') {
+                    ++pos;
+                }
+                break;
             }
-            if (braceDepth != 0) {
-                valueEnd = connectionString.size();
+            if (i == connectionString.size()) {
                 pos = connectionString.size();
             }
-            entries.emplace_back(
-                std::move(key), std::string(connectionString.substr(valueStart, valueEnd - valueStart)));
+            entries.emplace_back(std::move(key), std::move(value));
             continue;
         }
 

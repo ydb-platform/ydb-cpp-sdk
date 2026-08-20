@@ -140,6 +140,26 @@ TEST(CoreApi, SQLNativeSqlPassthrough) {
     CHECK_ODBC_OK(SQLNativeSql(dbc, (SQLCHAR*)"SELECT 1", SQL_NTS, (SQLCHAR*)out, sizeof(out), &outLen),
                   dbc, SQL_HANDLE_DBC);
     EXPECT_STREQ(out, "SELECT 1");
+    EXPECT_EQ(outLen, 8);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(CoreApi, SQLNativeSqlPreservesLargeExplicitLength) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    AllocEnvAndConnect(&env, &dbc);
+    std::string input(40000, 'x');
+    std::string output(input.size() + 1, '\0');
+    SQLINTEGER outLen = -1;
+    CHECK_ODBC_OK(SQLNativeSql(
+        dbc, reinterpret_cast<SQLCHAR*>(input.data()), static_cast<SQLINTEGER>(input.size()),
+        reinterpret_cast<SQLCHAR*>(output.data()), static_cast<SQLINTEGER>(output.size()), &outLen),
+        dbc, SQL_HANDLE_DBC);
+    EXPECT_EQ(outLen, static_cast<SQLINTEGER>(input.size()));
+    output.resize(static_cast<size_t>(outLen));
+    EXPECT_EQ(output, input);
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);
     SQLFreeHandle(SQL_HANDLE_ENV, env);

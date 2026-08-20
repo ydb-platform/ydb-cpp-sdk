@@ -186,8 +186,10 @@ SQLRETURN SQL_API SQLGetEnvAttr(SQLHENV environmentHandle,
 
 ODBC_FORWARD(SQLDriverConnect, TConnection, TConnection::DriverConnect,
     (SQLHDBC connectionHandle, SQLHWND, SQLCHAR* inConnectionString,
-     SQLSMALLINT stringLength1, SQLCHAR*, SQLSMALLINT, SQLSMALLINT*, SQLUSMALLINT),
-    (connectionHandle, Text(inConnectionString, stringLength1)))
+     SQLSMALLINT stringLength1, SQLCHAR* outConnectionString, SQLSMALLINT bufferLength,
+     SQLSMALLINT* stringLength2Ptr, SQLUSMALLINT),
+    (connectionHandle, Text(inConnectionString, stringLength1), outConnectionString,
+     bufferLength, stringLength2Ptr))
 
 ODBC_FORWARD(SQLConnect, TConnection, TConnection::Connect,
     (SQLHDBC connectionHandle, SQLCHAR* serverName, SQLSMALLINT nameLength1,
@@ -413,8 +415,7 @@ ODBC_FORWARD(SQLCancel, TStatement, TStatement::Cancel,
 ODBC_FORWARD(SQLNativeSql, TConnection, TConnection::NativeSql,
     (SQLHDBC connectionHandle, SQLCHAR* inNativeSql, SQLINTEGER textLength1,
      SQLCHAR* outNativeSql, SQLINTEGER bufferLength, SQLINTEGER* outLengthPtr),
-    (connectionHandle,
-     Text(inNativeSql, textLength1 == SQL_NTS ? SQL_NTS : static_cast<SQLSMALLINT>(textLength1)),
+    (connectionHandle, Text(inNativeSql, textLength1),
      outNativeSql, bufferLength, outLengthPtr))
 
 ODBC_FORWARD(SQLSetCursorName, TStatement, TStatement::SetCursorName,
