@@ -52,7 +52,10 @@ Connection strings and DSNs must accept:
 authentication mode is inferred when exactly one credential type is present.
 `SQLConnect` user and password arguments override DSN values.
 
-The current implementation follows this model: `SQLAllocHandle(SQL_HANDLE_DBC)` creates a `TConnection`, and `TConnection::TYdbState` owns the SDK driver and clients. `SQLHENV` only tracks connection handles. Connections in the same environment therefore keep endpoint, database, session, transaction, and catalog state separate.
+`SQLAllocHandle(SQL_HANDLE_DBC)` creates a `TConnection`, and
+`TConnection::TYdbState` owns the SDK driver and clients. `SQLHENV` only tracks
+connection handles. Connections in the same environment therefore keep
+endpoint, database, session, transaction, and catalog state separate.
 
 `SQL_ATTR_CURRENT_CATALOG` uses a path below the connected database as `TablePathPrefix`. Setting it to another database path recreates only that connection's SDK state.
 
@@ -64,6 +67,26 @@ Required tests:
 - independent transactions and catalogs;
 - failure and disconnect of one connection while the other remains usable;
 - driver-manager pooling keyed by endpoint, database, credentials, and TLS settings.
+
+### Concurrency and thread safety
+
+The driver is [thread-safe as required by
+ODBC](https://learn.microsoft.com/en-us/sql/odbc/reference/develop-app/multithreading)
+and its connections have no thread affinity. It serializes conflicting
+operations on the same ODBC handle internally; callers do not have to provide
+external locking merely because handles are used from different threads.
+
+Statements allocated from the same connection retain independent cursor,
+descriptor, parameter, and diagnostic state. Distinct statement handles may
+execute concurrently in autocommit mode by using separate sessions from the
+SDK client pool. Statements participating in one explicit transaction share
+that transaction's session, so the driver serializes their query execution.
+Calls on unrelated connections remain independent.
+
+Required tests cover calls from different threads on the same and different
+handles, concurrent autocommit statements, serialized execution within an
+explicit transaction, race-free cross-thread cancellation, disconnect and
+handle-free coordination, and driver-manager connection pooling.
 
 ### Cursors
 
@@ -77,9 +100,27 @@ The cursor also owns:
 - row-wise and column-wise bindings;
 - row-array status and processed-row counters;
 - a separate chunk offset for each `SQLGetData` column;
-- bounded memory with a statement-local spill file for static cursors.
+- a statement-local spill file that bounds the retained static-cursor snapshot
+  after the SDK result has been materialized.
 
 Re-execution replaces the cursor. Close, cancel, commit, rollback, and disconnect release it according to the advertised cursor behavior.
+
+### Multiple results
+
+When a YDB query returns multiple result sets, execution positions the
+statement on the first set and retains the remaining sets in their original
+order. [`SQLMoreResults`](https://learn.microsoft.com/en-us/sql/odbc/reference/syntax/sqlmoreresults-function)
+discards unread rows in the current set and advances to the next one,
+refreshing the implementation row descriptor, row count, fetch state, and
+`SQLGetData` offsets. It returns `SQL_NO_DATA` and closes the result sequence
+after the last set.
+
+Application column bindings remain installed across `SQLMoreResults`, as
+required by ODBC. Applications must rebind or unbind them when the next result
+has a different shape. `SQLCloseCursor`, `SQLFreeStmt(SQL_CLOSE)`, cancellation,
+re-execution, and statement destruction discard the entire remaining result
+sequence. The driver advertises multiple-result support through
+`SQL_MULT_RESULT_SETS`.
 
 ### Binding contract
 
@@ -88,11 +129,13 @@ The driver must support the operations used by the Core bindings:
 - DSN and connection-string connection;
 - prepare, bind, execute, and data-at-execution parameters;
 - scalar and rowset fetch;
+- multiple result sets through `SQLMoreResults`;
 - `NULL`, integer, floating-point, decimal, text, binary, date, time, and timestamp conversion;
 - column, table, key, index, type, and result metadata;
 - autocommit and explicit transactions;
 - diagnostics through SQLSTATE and native YDB issues;
 - independent statements and connections;
+- thread-safe handle use and concurrent autocommit statements;
 - deterministic cleanup after errors.
 
 ### Row counts
@@ -120,27 +163,23 @@ installs it, checks `odbcinst -q -d`, connects through `isql` and Qt QODBC,
 tests an upgrade, removes the package, and verifies that unrelated drivers and
 user DSNs remain unchanged.
 
-## Current limitations
+## Resulting limitations
 
 | Area | Limitation |
 |---|---|
 | SQL dialect | Statements are YQL. The driver rewrites ODBC escapes and `?` parameters; it is not a general ANSI SQL translator. |
-| Authentication | Connection strings currently configure only endpoint, database, and DSN. Authentication and TLS settings are not wired into `TDriverConfig`. |
 | Retry classification | The driver cannot infer whether arbitrary SQL is idempotent. Autocommit statement retries use `TRetryOperationSettings::Idempotent(false)`. This enables only retries safe for a non-idempotent operation and may return an error with an unknown execution outcome. See [YDB retry settings](https://ydb.tech/docs/en/recipes/ydb-sdk/retry) and [error handling](https://ydb.tech/docs/en/reference/ydb-sdk/error_handling). |
 | Explicit transactions | An ODBC transaction is not retried by the driver. Conflicts, node failures, maintenance, and network failures can abort it, including at commit. The application must open a new transaction and replay the entire unit of work in a retry loop. Retrying only the failed statement is incorrect ([query execution](https://ydb.tech/docs/en/concepts/query_execution/), [transactions](https://ydb.tech/docs/en/concepts/transactions)). |
 | Transaction isolation | Read-write connections support serializable and snapshot read-write modes. ODBC read-committed and read-uncommitted requests are rejected. |
 | Transaction scope | `SQLEndTran(SQL_HANDLE_ENV, ...)` completes each connection independently. It is not an atomic transaction across databases or endpoints. |
-| Connection concurrency | An explicit transaction uses one SDK session. YDB sessions execute one query at a time, so concurrent statements on the same transaction connection require application serialization ([YDB errors FAQ](https://ydb.tech/docs/en/faq/errors)). |
-| Cursor support | The current implementation is forward-only. `SQLFetchScroll` accepts only `SQL_FETCH_NEXT`; static scrolling and spill are planned. |
-| Result sets | Only the first result set is exposed. `SQLMoreResults` returns `SQL_NO_DATA`. |
+| Explicit-transaction concurrency | An explicit transaction uses one YDB session, which executes one query at a time. The driver therefore serializes query execution by statements sharing that transaction; applications that need parallel in-flight queries must use autocommit or separate connections ([YDB session pool](https://ydb.tech/docs/en/recipes/ydb-sdk/session-pool-limit)). |
 | Result buffering | Query execution uses the non-streaming SDK result and keeps it for cursor fetches. Large results can consume memory proportional to the result size. |
 | Prepare | `SQLPrepare` stores the query and counts client-side parameter markers. It does not create a persistent server-side prepared statement. |
 | Batches | Parameter arrays are accepted only for data-modification statements and execute sequentially. Earlier parameter sets may already be committed when a later set fails. |
 | Cancellation | Execution is synchronous. `SQLCancel` clears local cursor and parameter state but does not interrupt an in-flight SDK request. |
 | Metadata namespace | YDB paths are exposed as catalogs. Schemas are empty. |
 | DDL | Autocommit DDL uses `NoTx`. DDL executed while autocommit is off is sent through the active transaction and may be rejected by YDB. |
-| Optional ODBC features | Multiple result sets, stored procedures, output parameters, positioned updates, bookmarks, asynchronous execution, and ODBC batch operations are not implemented. |
-| Thread safety | Handle state is mutable and has no internal locking. Applications must serialize access to the same ODBC handle. |
+| Optional ODBC features | Stored procedures, output parameters, positioned updates, bookmarks, asynchronous execution, and ODBC batch operations are not supported. |
 
 ## Test repository
 
@@ -174,19 +213,6 @@ Each job starts a pinned YDB version, installs the `ydb-odbc` package, creates a
 job-local DSN, verifies the upstream source, runs the upstream tests and
 example, and uploads native and Allure results.
 
-## Delivery order
-
-1. Stabilize the driver build and add the `ydb-odbc` package component.
-2. Add clean install, upgrade, removal, unixODBC registration, `isql`, and Qt
-   QODBC package tests.
-3. Complete connection settings, authentication, TLS, row counts, and
-   endpoint/database isolation.
-4. Add static cursor emulation and cursor integration tests.
-5. Add the registry, framework runner template, source verification, result
-   conversion, and report aggregation.
-6. Onboard Core bindings and enable the full-matrix gate.
-7. Onboard Expansion bindings after the initial release.
-
 ## Acceptance
 
 - `ydb-odbc` passes clean install, upgrade, removal, registration, `isql`, and
@@ -197,4 +223,6 @@ example, and uploads native and Allure results.
 - Every binding has a runnable example.
 - Unit and integration tests pass.
 - Endpoint/database isolation tests pass.
+- Multiple result sets pass native ODBC and Qt `QSqlQuery::nextResult()` tests.
+- Thread-safety and concurrent-statement tests pass without application-side locking.
 - Reports contain no missing or unexpected skipped tests.
