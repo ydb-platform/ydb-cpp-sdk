@@ -19,18 +19,9 @@ Each language has one binding, one pinned upstream revision, its upstream databa
 | Core | Lua | [LuaSQL ODBC](https://github.com/lunarmodules/luasql) | Common LuaSQL and ODBC parameter tests |
 | Core | Perl | [DBD::ODBC](https://github.com/perl5-dbi/DBD-ODBC) | Upstream TAP tests |
 | Core | R | [odbc](https://github.com/r-dbi/odbc) | `testthat` and DBItest |
-| Core | Julia | [ODBC.jl](https://github.com/JuliaDatabases/ODBC.jl) | ODBC.jl, DBInterface, and Tables tests |
-| Core | Tcl | [tdbc::odbc](https://core.tcl-lang.org/tdbcodbc/timeline) | ODBC backend `tcltest` suite |
-| Expansion | Raku | [DBDish::ODBC](https://github.com/salortiz/DBDish-ODBC) | Upstream and DBIish tests |
-| Expansion | Crystal | [crystal-odbc](https://github.com/naqvis/crystal-odbc) | `crystal spec` |
 | Expansion | Dart | [dart_odbc](https://pub.dev/packages/dart_odbc) | `dart test` |
 | Expansion | D | [odbc](https://github.com/singingbush/odbc) | Upstream unit and integration tests |
 | Expansion | OCaml | [ocaml-odbc](https://opam.ocaml.org/packages/odbc/) | Upstream tests |
-| Expansion | Common Lisp | [CLSQL ODBC](https://github.com/sharplispers/clsql) | ODBC ASDF tests |
-| Expansion | COBOL | [GixSQL ODBC](https://github.com/mridoni/gixsql) | ODBC regression tests |
-| Expansion | Pascal | [Free Pascal SQLDB ODBC](https://gitlab.com/freepascal.org/fpc/source/-/tree/main/packages/fcl-db) | SQLDB connector tests |
-| Expansion | Smalltalk | [Pharo-ODBC](https://github.com/pharo-rdbms/Pharo-ODBC) | SUnit tests |
-| Expansion | Fortran | [odbc.f](https://davidpfister.github.io/odbc.f/) | Upstream fpm tests |
 
 ## Required driver behavior
 
