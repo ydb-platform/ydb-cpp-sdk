@@ -1,6 +1,8 @@
 #include "connection.h"
 #include "statement.h"
 
+#include "utils/escape.h"
+
 #include <ydb-cpp-sdk/client/result/result.h>
 #include <ydb-cpp-sdk/client/types/status/status.h>
 
@@ -330,7 +332,8 @@ TConnectionAttributes::TCatalogBinding TConnection::GetCatalogBinding() const {
 }
 
 SQLRETURN TConnection::NativeSql(const std::string& inSql, SQLCHAR* outSql, SQLINTEGER outMax, SQLINTEGER* outLen) {
-    return Diag::WriteOptionalOdbcString(*this, inSql, outSql, outMax, outLen);
+    const std::string nativeSql = RewriteOdbcEscapes(inSql);
+    return Diag::WriteOptionalOdbcString(*this, nativeSql, outSql, outMax, outLen);
 }
 
 } // namespace NYdb::NOdbc
