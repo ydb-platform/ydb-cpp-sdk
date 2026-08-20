@@ -78,7 +78,10 @@ private:
 public:
     TImpl(std::size_t threadCount, std::size_t maxQueueSize)
         : Executor_(ToTbbConcurrency(threadCount))
-        , MaxQueueSize_(maxQueueSize)
+        // The SDK's default (threadCount == 0) used TAdaptiveThreadPool,
+        // which deliberately ignored the queue limit.  Keep that behavior so
+        // gRPC completion threads cannot block while posting responses.
+        , MaxQueueSize_(threadCount == 0 ? 0 : maxQueueSize)
     {
     }
 

@@ -4,7 +4,9 @@
 
 #include <atomic>
 #include <chrono>
+#include <condition_variable>
 #include <future>
+#include <mutex>
 
 namespace NYdb::inline V3 {
 namespace {
@@ -52,6 +54,37 @@ TEST(TTbbExecutorTest, PostedTaskRunsWithoutWaitingForExecutorShutdown) {
     });
 
     EXPECT_EQ(future.wait_for(std::chrono::seconds(5)), std::future_status::ready);
+    executor->Stop();
+}
+
+TEST(TTbbExecutorTest, AutomaticConcurrencyKeepsPostingUnbounded) {
+    auto executor = CreateThreadPoolExecutor(0, 1);
+    executor->Start();
+
+    std::mutex mutex;
+    std::condition_variable released;
+    bool canFinish = false;
+    constexpr std::size_t TaskCount = 1'000;
+    auto posting = std::async(std::launch::async, [&] {
+        for (std::size_t i = 0; i < TaskCount; ++i) {
+            executor->Post([&] {
+                std::unique_lock guard(mutex);
+                released.wait(guard, [&] {
+                    return canFinish;
+                });
+            });
+        }
+    });
+
+    const auto status = posting.wait_for(std::chrono::seconds(5));
+    {
+        std::lock_guard guard(mutex);
+        canFinish = true;
+    }
+    released.notify_all();
+
+    EXPECT_EQ(status, std::future_status::ready);
+    posting.wait();
     executor->Stop();
 }
 
