@@ -441,6 +441,9 @@ else()
       "TBBMALLOC_PROXY_BUILD OFF"
       "TBB_INSTALL ${YDB_SDK_INSTALL}"
   )
+  # oneTBB does not use C++ modules. Avoid requiring clang-scan-deps merely
+  # because the SDK is configured as C++20 with a recent CMake and Clang.
+  set_property(TARGET tbb PROPERTY CXX_SCAN_FOR_MODULES OFF)
 
   set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME "${_ydb_sdk_saved_install_component}")
 endif()
