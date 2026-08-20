@@ -3,6 +3,8 @@
 #include <gtest/gtest.h>
 
 #include <atomic>
+#include <chrono>
+#include <future>
 
 namespace NYdb::inline V3 {
 namespace {
@@ -37,6 +39,20 @@ TEST(TTbbExecutorTest, AutomaticConcurrencyDrainsPostedTasksOnDestruction) {
     }
 
     EXPECT_EQ(completed.load(std::memory_order_relaxed), TaskCount);
+}
+
+TEST(TTbbExecutorTest, PostedTaskRunsWithoutWaitingForExecutorShutdown) {
+    auto executor = CreateThreadPoolExecutor(1);
+    executor->Start();
+
+    std::promise<void> completed;
+    auto future = completed.get_future();
+    executor->Post([&completed] {
+        completed.set_value();
+    });
+
+    EXPECT_EQ(future.wait_for(std::chrono::seconds(5)), std::future_status::ready);
+    executor->Stop();
 }
 
 } // namespace

@@ -19,9 +19,13 @@ void TTbbLocalExecutor<RespectTls>::Wait() {
 template <bool RespectTls>
 void TTbbLocalExecutor<RespectTls>::SubmitAsyncTasks(TFunction exec, int firstId, int lastId) {
     for (int id = firstId; id < lastId; ++id) {
-        Group_.run([exec, id] {
+        // task_group::run may leave an asynchronously submitted task dormant
+        // until somebody waits on the group.  An executor has to wake a worker
+        // even when no more work arrives, so enqueue the task into the arena
+        // explicitly while still attaching it to the group for Wait().
+        TbbArena_.enqueue([exec, id] {
             exec(id);
-        });
+        }, Group_);
     }
 }
 
