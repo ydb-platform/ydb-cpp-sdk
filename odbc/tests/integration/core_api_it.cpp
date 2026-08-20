@@ -146,6 +146,29 @@ TEST(CoreApi, SQLNativeSqlPassthrough) {
     SQLFreeHandle(SQL_HANDLE_ENV, env);
 }
 
+TEST(CoreApi, SQLNativeSqlTranslatesOdbcSyntax) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    AllocEnvAndConnect(&env, &dbc);
+    std::string input =
+        "SELECT {fn CONVERT(?, SQL_SMALLINT)} AS \"value{fn ABS(1)}\", "
+        "'{fn ABS(2)}' /* {fn ABS(3)} */";
+    const std::string expected =
+        "SELECT CAST(? AS Int16) AS \"value{fn ABS(1)}\", "
+        "'{fn ABS(2)}' /* {fn ABS(3)} */";
+    char out[256] = {};
+    SQLINTEGER outLen = 0;
+    CHECK_ODBC_OK(SQLNativeSql(
+        dbc, reinterpret_cast<SQLCHAR*>(input.data()), SQL_NTS,
+        reinterpret_cast<SQLCHAR*>(out), sizeof(out), &outLen),
+        dbc, SQL_HANDLE_DBC);
+    EXPECT_STREQ(out, expected.c_str());
+    EXPECT_EQ(outLen, static_cast<SQLINTEGER>(expected.size()));
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
 TEST(CoreApi, SQLNativeSqlPreservesLargeExplicitLength) {
     SQLHENV env;
     SQLHDBC dbc;
