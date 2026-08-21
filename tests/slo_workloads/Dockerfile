@@ -3,7 +3,7 @@ FROM ubuntu:24.04
 
 ARG PRESET=release-test-clang
 ENV DEBIAN_FRONTEND=noninteractive \
-    CPM_SOURCE_CACHE=/root/.cache/cpm \
+    CPM_SOURCE_CACHE=/root/.cache/cpm/sources \
     CCACHE_DIR=/root/.ccache \
     CCACHE_MAXSIZE=2G \
     YDB_CPP_SDK_INSTALL_PREFIX=/opt/ydb-cpp-sdk
@@ -19,7 +19,8 @@ WORKDIR /ydb-cpp-sdk
 # CPM provides every non-platform library during this single SDK build.
 RUN --mount=type=cache,target=/root/.cache/cpm,sharing=locked \
     --mount=type=cache,target=/root/.ccache,sharing=locked \
-    cmake -S . -B build-sdk -G Ninja \
+    cmake -E remove_directory /root/.cache/cpm/build-sdk \
+    && cmake -S . -B /root/.cache/cpm/build-sdk -G Ninja \
       -DCMAKE_BUILD_TYPE=Release \
       -DCMAKE_C_COMPILER=clang \
       -DCMAKE_CXX_COMPILER=clang++ \
@@ -31,8 +32,8 @@ RUN --mount=type=cache,target=/root/.cache/cpm,sharing=locked \
       -DYDB_SDK_EXAMPLES=OFF \
       -DYDB_SDK_TESTS=OFF \
       -DYDB_SDK_ENABLE_OTEL_METRICS=ON \
-    && cmake --build build-sdk --parallel \
-    && cmake --install build-sdk
+    && cmake --build /root/.cache/cpm/build-sdk --parallel \
+    && cmake --install /root/.cache/cpm/build-sdk
 
 RUN --mount=type=cache,target=/root/.cache/cpm,sharing=locked \
     --mount=type=cache,target=/root/.ccache,sharing=locked \
