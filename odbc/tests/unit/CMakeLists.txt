@@ -63,3 +63,14 @@ add_ydb_test(NAME odbc-sql_like_ut GTEST
   LABELS
     unit
 )
+
+add_ydb_test(NAME odbc-cursor_ut GTEST
+  SOURCES
+    cursor_ut.cpp
+  INCLUDE_DIRS
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../src
+  LINK_LIBRARIES
+    ydb-odbc
+  LABELS
+    unit
+)

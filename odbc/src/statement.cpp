@@ -366,24 +366,22 @@ SQLRETURN TStatement::FetchScroll(SQLSMALLINT orientation, SQLLEN offset) {
     SQLRETURN result = SQL_SUCCESS;
     for (SQLULEN row = 0; row < fetch.Rows; ++row) {
         const SQLULEN rows = row + 1;
-        BindingRow_ = row;
-        FillBoundColumns();
+        const SQLRETURN rowResult = FillBoundColumns(row);
         if (fetched) {
             *fetched = rows;
         }
         if (statuses) {
-            statuses[row] = LastFetchRc_ == SQL_SUCCESS_WITH_INFO
+            statuses[row] = rowResult == SQL_SUCCESS_WITH_INFO
                 ? SQL_ROW_SUCCESS_WITH_INFO
-                : LastFetchRc_ == SQL_SUCCESS ? SQL_ROW_SUCCESS : SQL_ROW_ERROR;
+                : rowResult == SQL_SUCCESS ? SQL_ROW_SUCCESS : SQL_ROW_ERROR;
         }
-        if (LastFetchRc_ == SQL_ERROR) {
+        if (rowResult == SQL_ERROR) {
             result = SQL_ERROR;
-        } else if (LastFetchRc_ == SQL_SUCCESS_WITH_INFO && result == SQL_SUCCESS) {
+        } else if (rowResult == SQL_SUCCESS_WITH_INFO && result == SQL_SUCCESS) {
             result = SQL_SUCCESS_WITH_INFO;
         }
     }
     GetDataOffsets_.assign(Cursor_->GetColumnMeta().size(), 0);
-    BindingRow_ = 0;
     if (fetch.OverlappedStart) {
         AddError("01S06", 0, "Attempt to fetch before the result set returned the first rowset",
                  SQL_SUCCESS_WITH_INFO);
@@ -411,22 +409,22 @@ SQLRETURN TStatement::GetData(SQLUSMALLINT columnNumber, SQLSMALLINT targetType,
     return rc;
 }
 
-void TStatement::FillBoundColumns() {
+SQLRETURN TStatement::FillBoundColumns(SQLULEN row) {
     if (!Cursor_) {
-        return;
+        return SQL_NO_DATA;
     }
-    LastFetchRc_ = SQL_SUCCESS;
+    SQLRETURN result = SQL_SUCCESS;
     for (SQLSMALLINT number = 1; number <= CurrentAppRowDesc_->GetRecordCount(); ++number) {
         const TDescRecord* col = CurrentAppRowDesc_->FindRecord(number);
         if (!col || !col->DataPtr) {
             continue;
         }
-        const TResolvedBinding binding = CurrentAppRowDesc_->ResolveBinding(*col, BindingRow_);
+        const TResolvedBinding binding = CurrentAppRowDesc_->ResolveBinding(*col, row);
         SQLLEN* indicator = binding.Indicator;
         SQLLEN* length = binding.OctetLength;
         SQLLEN convertedLength = 0;
         SQLRETURN rc = Cursor_->GetData(
-            BindingRow_, static_cast<SQLUSMALLINT>(number), col->Type,
+            row, static_cast<SQLUSMALLINT>(number), col->Type,
             binding.Data, col->OctetLength,
             &convertedLength);
         if (convertedLength == SQL_NULL_DATA) {
@@ -449,16 +447,17 @@ void TStatement::FillBoundColumns() {
         }
         if (rc == SQL_SUCCESS_WITH_INFO) {
             AddError("01004", 0, "String data, right truncated", SQL_SUCCESS_WITH_INFO);
-            if (LastFetchRc_ == SQL_SUCCESS) {
-                LastFetchRc_ = SQL_SUCCESS_WITH_INFO;
+            if (result == SQL_SUCCESS) {
+                result = SQL_SUCCESS_WITH_INFO;
             }
-        } else if (rc != SQL_SUCCESS && LastFetchRc_ == SQL_SUCCESS) {
+        } else if (rc != SQL_SUCCESS) {
             if (const char* sqlState = ConsumeLastConvertSqlState()) {
                 AddError(sqlState, 0, std::strcmp(sqlState, "22003") == 0 ? "Numeric value out of range" : "Conversion error");
             }
-            LastFetchRc_ = rc;
+            result = rc;
         }
     }
+    return result;
 }
 
 SQLRETURN TStatement::BindCol(SQLUSMALLINT columnNumber, SQLSMALLINT targetType, SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd) {

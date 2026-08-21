@@ -534,13 +534,19 @@ std::optional<TOdbcScalar> PrimitiveScalar(TValueParser& parser, EPrimitiveType 
     }
     switch (type) {
         case EPrimitiveType::Bool: return TOdbcScalar{int64_t(parser.GetBool())};
-        case EPrimitiveType::Utf8: return TOdbcScalar{parser.GetUtf8()};
-        case EPrimitiveType::String: return TOdbcScalar{parser.GetString()};
-        case EPrimitiveType::Yson: return TOdbcScalar{parser.GetYson()};
-        case EPrimitiveType::Json: return TOdbcScalar{parser.GetJson()};
-        case EPrimitiveType::JsonDocument: return TOdbcScalar{parser.GetJsonDocument()};
-        case EPrimitiveType::DyNumber: return TOdbcScalar{parser.GetDyNumber()};
         case EPrimitiveType::Uuid: return TOdbcScalar{parser.GetUuid().ToString()};
+        default: return std::nullopt;
+    }
+}
+
+std::optional<std::string_view> PrimitiveText(TValueParser& parser, EPrimitiveType type) {
+    switch (type) {
+        case EPrimitiveType::Utf8: return parser.GetUtf8();
+        case EPrimitiveType::String: return parser.GetString();
+        case EPrimitiveType::Yson: return parser.GetYson();
+        case EPrimitiveType::Json: return parser.GetJson();
+        case EPrimitiveType::JsonDocument: return parser.GetJsonDocument();
+        case EPrimitiveType::DyNumber: return parser.GetDyNumber();
         default: return std::nullopt;
     }
 }
@@ -771,6 +777,9 @@ SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER
         const std::string& bytes = parser.GetString();
         return CopyVariable(bytes.data(), bytes.size(), 0, 1, targetValue, bufferLength,
                             strLenOrInd, offset);
+    }
+    if (const auto text = PrimitiveText(parser, type)) {
+        return WriteText(*text, targetType, targetValue, bufferLength, strLenOrInd, offset);
     }
     if (const auto scalar = PrimitiveScalar(parser, type)) {
         return ConvertColumn(*scalar, targetType, targetValue, bufferLength, strLenOrInd, offset);
