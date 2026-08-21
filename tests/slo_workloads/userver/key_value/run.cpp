@@ -236,14 +236,14 @@ SELECT * FROM `%s` WHERE `object_id_key` = $object_id_key AND `object_id` = $obj
                     std::uint32_t idToSelect = RandomNumber<std::uint32_t>() % objectIdRange;
                     const std::uint32_t objectIdKey = GetHash(idToSelect);
 
+                    rpsProvider.Use();
+
                     if (inflight.fetch_add(1) >= maxInfly) {
                         inflight.fetch_sub(1);
                         readStats->ReportMaxInfly();
                         userver::engine::Yield();
                         continue;
                     }
-
-                    rpsProvider.Use();
 
                     tasks.push_back(userver::engine::AsyncNoSpan(
                         [&ydbClient, &readStats, &readSucceeded, &readFailed, &inflight,
@@ -312,6 +312,8 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
                     PollSignals();
                     PruneFinishedTasks(tasks);
 
+                    rpsProvider.Use();
+
                     if (inflight.fetch_add(1) >= maxInfly) {
                         inflight.fetch_sub(1);
                         writeStats->ReportMaxInfly();
@@ -319,7 +321,6 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
                         continue;
                     }
 
-                    rpsProvider.Use();
                     const auto value = BuildValueFromRecord(generator.Get());
                     writeGenerated.fetch_add(1);
 

@@ -42,7 +42,8 @@ void InitTableClient(
         driver_settings.oauth_token = oauth_token;
     }
 
-    const userver::ydb::impl::TableSettings table_settings;
+    userver::ydb::impl::TableSettings table_settings;
+    table_settings.max_pool_size = 1000;
     const userver::ydb::OperationSettings operation_settings{
         3,
         std::chrono::minutes{3},

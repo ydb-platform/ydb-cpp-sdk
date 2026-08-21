@@ -104,7 +104,7 @@ void TStat::ReportStats(std::uint64_t sessions, std::uint64_t readPromises, std:
 void TStat::PrintStatistics(TStringBuilder& out) {
     std::lock_guard lock(Mutex);
 
-    std::uint64_t total = CountMaxInfly;
+    std::uint64_t total = 0;
     for (const auto& [status, counter] : Statuses) {
         total += counter;
     }
@@ -127,7 +127,7 @@ void TStat::PrintStatistics(TStringBuilder& out) {
     for (const auto&[status, counter] : Statuses) {
         out << Endl << counter << " replies with status " << YdbStatusToString(status) << Endl;
     }
-    out << Endl << CountMaxInfly << " failed due to max infly" << Endl
+    out << Endl << CountMaxInfly << " dropped at max infly" << Endl
         << ApplicationTimeout << " application timeouts" << Endl
         << "Time passed: " << timePassed.ToString() << Endl
         << "Real rps: " << rps << Endl;

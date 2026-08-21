@@ -1,49 +1,24 @@
 # syntax=docker/dockerfile:1.7
-FROM ghcr.io/userver-framework/ubuntu-22.04-userver-base:latest
+FROM ghcr.io/userver-framework/ubuntu-22.04-userver:v2.12@sha256:51577d3ebad13de47e5922ddb12ad4c6eb68137a8bbbc93347633a187ba1d42d
 
 ARG PRESET=release-test-clang
-ARG USERVER_VERSION=v2.12
 ENV DEBIAN_FRONTEND=noninteractive \
     CPM_SOURCE_CACHE=/root/.cache/cpm \
     CCACHE_DIR=/root/.ccache \
     CCACHE_MAXSIZE=2G \
     YDB_CPP_SDK_INSTALL_PREFIX=/opt/ydb-cpp-sdk
 
-RUN apt-get -o Dir::Etc::sourcelist=/etc/apt/sources.list \
-      -o Dir::Etc::sourceparts=- update \
-    && apt-get install -y --no-install-recommends \
-      ca-certificates ccache cmake git jq libidn11-dev libssl-dev ninja-build pkg-config \
-      python3 ragel wget yasm \
-    && apt-get -o Dir::Etc::sourcelist=/etc/apt/sources.list.d/ubuntu-toolchain-r.list \
+RUN apt-get -o Dir::Etc::sourcelist=/etc/apt/sources.list.d/ubuntu-toolchain-r.list \
       -o Dir::Etc::sourceparts=- update \
     && apt-get install -y --no-install-recommends gcc-13 g++-13 \
     && rm -rf /var/lib/apt/lists/*
 
 ENV CC=gcc-13 CXX=g++-13
 
-# Install the userver development package and retain its source tree only for
-# chaotic code generation used by the workload.
-RUN set -eux; \
-    wget -qO /tmp/release.json \
-      "https://api.github.com/repos/userver-framework/userver/releases/tags/${USERVER_VERSION}" || true; \
-    deb_url="$(jq -r '.assets[]?.browser_download_url // empty' /tmp/release.json | \
-      grep -E 'libuserver-all-dev.*ubuntu.*22\.04.*amd64.*\.deb' | head -n1 || true)"; \
-    if [ -n "$deb_url" ]; then \
-      wget -qO /tmp/libuserver-all-dev.deb "$deb_url"; \
-    else \
-      git clone --depth 1 --branch ${USERVER_VERSION} \
-        https://github.com/userver-framework/userver.git /tmp/userver-build; \
-      cd /tmp/userver-build; \
-      BUILD_OPTIONS="-DUSERVER_FEATURE_YDB=OFF" ./scripts/build_and_install.sh; \
-      cp libuserver-all-dev*.deb /tmp/libuserver-all-dev.deb; \
-    fi; \
-    apt-get -o Dir::Etc::sourcelist=/etc/apt/sources.list \
-      -o Dir::Etc::sourceparts=- update; \
-    apt-get install -y --no-install-recommends /tmp/libuserver-all-dev.deb; \
-    git clone --depth 1 --branch ${USERVER_VERSION} \
-      https://github.com/userver-framework/userver.git /userver-src; \
-    rm -rf /tmp/libuserver-all-dev.deb /tmp/release.json /tmp/userver-build \
-      /var/lib/apt/lists/*
+# The release image ships the v2.12 development package. Its YDB component is
+# intentionally excluded, so retain matching sources for that one component.
+RUN git clone --depth 1 --branch v2.12 \
+      https://github.com/userver-framework/userver.git /userver-src
 ENV USERVER_SOURCE_DIR=/userver-src
 
 COPY . /ydb-cpp-sdk
