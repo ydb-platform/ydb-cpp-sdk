@@ -83,7 +83,6 @@ void TStatement::DetachDescriptor(TDescriptor* desc) {
 }
 
 SQLRETURN TStatement::Prepare(const std::string& statementText) {
-    RowsFetched_ = 0;
     RowCount_ = -1;
     SetCursor(nullptr);
     PreparedQuery_ = statementText;
@@ -198,7 +197,6 @@ SQLRETURN TStatement::ExecuteParamSet(
     SQLULEN paramSet,
     std::optional<SQLLEN>& affectedRows)
 {
-    RowsFetched_ = 0;
     SetCursor(nullptr);
     auto client = Conn_->GetClient();
     if (!client) {
@@ -222,7 +220,11 @@ SQLRETURN TStatement::ExecuteParamSet(
                     return StatusFrom(result);
                 }
                 affectedRows = ExtractAffectedRows(result);
-                SetCursor(CreateExecCursor(result));
+                SetCursor(result.GetResultSets().empty()
+                    ? nullptr
+                    : CreateExecCursor(
+                        result.GetResultSet(0),
+                        Attributes_.CursorType == SQL_CURSOR_STATIC));
                 return NYdb::TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
             },
             retrySettings);
@@ -233,7 +235,11 @@ SQLRETURN TStatement::ExecuteParamSet(
         NQuery::TExecuteQueryResult result = ExecuteQuery(session, params);
         NStatusHelpers::ThrowOnError(result);
         affectedRows = ExtractAffectedRows(result);
-        SetCursor(CreateExecCursor(result));
+        SetCursor(result.GetResultSets().empty()
+            ? nullptr
+            : CreateExecCursor(
+                result.GetResultSet(0),
+                Attributes_.CursorType == SQL_CURSOR_STATIC));
     }
     InAtExec_ = false;
     NeedDataParam_ = 0;
@@ -317,13 +323,29 @@ NQuery::TExecuteQueryResult TStatement::ExecuteQuery(
 
 
 SQLRETURN TStatement::Fetch() {
+    return FetchScroll(SQL_FETCH_NEXT, 0);
+}
+
+SQLRETURN TStatement::FetchScroll(SQLSMALLINT orientation, SQLLEN offset) {
     if (!Cursor_) {
         return SQL_NO_DATA;
     }
-    const SQLULEN maxRows = Attributes_.GetMaxRows();
-    if (maxRows > 0 && RowsFetched_ >= maxRows) {
-        return SQL_NO_DATA;
+    switch (orientation) {
+        case SQL_FETCH_NEXT:
+        case SQL_FETCH_PRIOR:
+        case SQL_FETCH_FIRST:
+        case SQL_FETCH_LAST:
+        case SQL_FETCH_ABSOLUTE:
+        case SQL_FETCH_RELATIVE:
+            break;
+        default:
+            return AddError("HY106", 0, "Fetch type out of range");
     }
+    if (Attributes_.CursorType == SQL_CURSOR_FORWARD_ONLY
+        && orientation != SQL_FETCH_NEXT) {
+        return AddError("HY106", 0, "Fetch type out of range for a forward-only cursor");
+    }
+
     const SQLULEN rowArraySize = CurrentAppRowDesc_->GetArraySize();
     SQLUSMALLINT* const statuses = ImpRowDesc_.GetArrayStatusPtr();
     SQLULEN* const fetched = ImpRowDesc_.GetRowsProcessedPtr();
@@ -334,24 +356,23 @@ SQLRETURN TStatement::Fetch() {
         std::fill_n(statuses, rowArraySize, SQL_ROW_NOROW);
     }
 
-    SQLULEN rows = 0;
+    const TFetchResult fetch = Cursor_->Fetch(
+        orientation, offset, rowArraySize, Attributes_.GetMaxRows());
+    if (fetch.Rows == 0) {
+        GetDataOffsets_.clear();
+        return SQL_NO_DATA;
+    }
+
     SQLRETURN result = SQL_SUCCESS;
-    for (; rows < rowArraySize; ++rows) {
-        if (maxRows > 0 && RowsFetched_ >= maxRows) {
-            break;
-        }
-        BindingRow_ = rows;
-        if (!Cursor_->Fetch()) {
-            break;
-        }
+    for (SQLULEN row = 0; row < fetch.Rows; ++row) {
+        const SQLULEN rows = row + 1;
+        BindingRow_ = row;
         FillBoundColumns();
-        ++RowsFetched_;
-        GetDataOffsets_.assign(Cursor_->GetColumnMeta().size(), 0);
         if (fetched) {
-            *fetched = rows + 1;
+            *fetched = rows;
         }
         if (statuses) {
-            statuses[rows] = LastFetchRc_ == SQL_SUCCESS_WITH_INFO
+            statuses[row] = LastFetchRc_ == SQL_SUCCESS_WITH_INFO
                 ? SQL_ROW_SUCCESS_WITH_INFO
                 : LastFetchRc_ == SQL_SUCCESS ? SQL_ROW_SUCCESS : SQL_ROW_ERROR;
         }
@@ -361,8 +382,16 @@ SQLRETURN TStatement::Fetch() {
             result = SQL_SUCCESS_WITH_INFO;
         }
     }
+    GetDataOffsets_.assign(Cursor_->GetColumnMeta().size(), 0);
     BindingRow_ = 0;
-    return rows == 0 && result != SQL_ERROR ? SQL_NO_DATA : result;
+    if (fetch.OverlappedStart) {
+        AddError("01S06", 0, "Attempt to fetch before the result set returned the first rowset",
+                 SQL_SUCCESS_WITH_INFO);
+        if (result == SQL_SUCCESS) {
+            result = SQL_SUCCESS_WITH_INFO;
+        }
+    }
+    return result;
 }
 
 SQLRETURN TStatement::GetData(SQLUSMALLINT columnNumber, SQLSMALLINT targetType, 
@@ -374,7 +403,7 @@ SQLRETURN TStatement::GetData(SQLUSMALLINT columnNumber, SQLSMALLINT targetType,
         return AddError("07009", 0, "Invalid descriptor index");
     }
     const SQLRETURN rc = Cursor_->GetData(
-        columnNumber, targetType, targetValue, bufferLength, strLenOrInd,
+        0, columnNumber, targetType, targetValue, bufferLength, strLenOrInd,
         &GetDataOffsets_[columnNumber - 1]);
     if (const char* sqlState = ConsumeLastConvertSqlState()) {
         AddError(sqlState, 0, std::strcmp(sqlState, "22003") == 0 ? "Numeric value out of range" : "Conversion error");
@@ -397,7 +426,8 @@ void TStatement::FillBoundColumns() {
         SQLLEN* length = binding.OctetLength;
         SQLLEN convertedLength = 0;
         SQLRETURN rc = Cursor_->GetData(
-            static_cast<SQLUSMALLINT>(number), col->Type, binding.Data, col->OctetLength,
+            BindingRow_, static_cast<SQLUSMALLINT>(number), col->Type,
+            binding.Data, col->OctetLength,
             &convertedLength);
         if (convertedLength == SQL_NULL_DATA) {
             if (!indicator) {
@@ -587,7 +617,6 @@ SQLRETURN TStatement::NumParams(SQLSMALLINT* paramCount) {
 
 void TStatement::ResetForMetadata() {
     ClearErrors();
-    RowsFetched_ = 0;
     RowCount_ = -1;
     SetCursor(nullptr);
 }
@@ -695,7 +724,6 @@ SQLRETURN TStatement::Cancel() {
     NeedDataParam_ = 0;
     NeedDataTokenDelivered_ = false;
     AtExecValues_.clear();
-    RowsFetched_ = 0;
     return SQL_SUCCESS;
 }
 
@@ -715,7 +743,6 @@ SQLRETURN TStatement::Close(bool force) {
     }
 
     SetCursor(nullptr);
-    RowsFetched_ = 0;
     ClearErrors();
     return SQL_SUCCESS;
 }
@@ -845,12 +872,20 @@ SQLRETURN TStatement::SetStmtAttr(
     if (auto descriptorAttr = ResolveDescriptorAttribute(attr)) {
         return descriptorAttr->Descriptor->SetDescField(0, descriptorAttr->Field, value, 0);
     }
-    const auto setForwardOnly = [&](bool forwardOnly, std::string_view name) -> SQLRETURN {
-        if (forwardOnly) {
+    const auto setCursorType = [&](SQLULEN cursorType, std::string_view name) -> SQLRETURN {
+        if (Cursor_) {
+            return AddError("HY011", 0, std::string(name) + " cannot be changed while a cursor is open");
+        }
+        if (cursorType == SQL_CURSOR_FORWARD_ONLY || cursorType == SQL_CURSOR_STATIC) {
+            Attributes_.CursorType = cursorType;
             return SQL_SUCCESS;
         }
-        return AddError("01S02", 0, std::string(name) + " was changed to forward-only",
-                        SQL_SUCCESS_WITH_INFO);
+        if (cursorType == SQL_CURSOR_KEYSET_DRIVEN || cursorType == SQL_CURSOR_DYNAMIC) {
+            Attributes_.CursorType = SQL_CURSOR_STATIC;
+            return AddError("01S02", 0, std::string(name) + " was changed to static",
+                            SQL_SUCCESS_WITH_INFO);
+        }
+        return Diag::AddInvalidAttrValue(*this, name);
     };
     switch (attr) {
         case SQL_ATTR_QUERY_TIMEOUT:
@@ -872,16 +907,18 @@ SQLRETURN TStatement::SetStmtAttr(
                 value, Attributes_.MetadataId, *this, "SQL_ATTR_METADATA_ID",
                 [](SQLULEN input) { return input == SQL_FALSE || input == SQL_TRUE; });
         case SQL_ATTR_CURSOR_TYPE:
-            return setForwardOnly(
-                ReadIntegerAttr<SQLULEN>(value) == SQL_CURSOR_FORWARD_ONLY,
-                "SQL_ATTR_CURSOR_TYPE");
+            return setCursorType(
+                ReadIntegerAttr<SQLULEN>(value), "SQL_ATTR_CURSOR_TYPE");
         case SQL_ATTR_CURSOR_SCROLLABLE: {
             const SQLULEN scrollable = ReadIntegerAttr<SQLULEN>(value);
             if (scrollable != SQL_NONSCROLLABLE && scrollable != SQL_SCROLLABLE) {
                 return Diag::AddInvalidAttrValue(*this, "SQL_ATTR_CURSOR_SCROLLABLE");
             }
-            return setForwardOnly(
-                scrollable == SQL_NONSCROLLABLE, "SQL_ATTR_CURSOR_SCROLLABLE");
+            return setCursorType(
+                scrollable == SQL_NONSCROLLABLE
+                    ? SQL_CURSOR_FORWARD_ONLY
+                    : SQL_CURSOR_STATIC,
+                "SQL_ATTR_CURSOR_SCROLLABLE");
         }
         default:
             return Diag::AddNotImplemented(*this);
