@@ -1,9 +1,8 @@
-#include "utils/cursor.h"
+#include "utils/cursor_window.h"
 
 #include <gtest/gtest.h>
 
 #include <limits>
-#include <utility>
 
 namespace NYdb::NOdbc {
 namespace {
@@ -77,18 +76,6 @@ TEST(CursorWindow, HandlesEmptyAndExtremeOffsets) {
     TCursorWindow window(3);
     EXPECT_EQ(window.Fetch(SQL_FETCH_NEXT, 0, 0, 0).Rows, 0);
     EXPECT_FALSE(window.Resolve(0));
-}
-
-TEST(VirtualCursor, SharesIndexedPositioning) {
-    const TColumnMeta column{"value", SQL_BIGINT, 19, SQL_NO_NULLS};
-    TTable rows{{int64_t{1}}, {int64_t{2}}, {int64_t{3}}};
-    auto cursor = CreateVirtualCursor(std::span(&column, 1), std::move(rows));
-    ASSERT_EQ(cursor->Fetch(SQL_FETCH_LAST, 0, 1, 2).Rows, 1);
-    SQLBIGINT value = 0;
-    SQLLEN indicator = 0;
-    ASSERT_EQ(cursor->GetData(0, 1, SQL_C_SBIGINT, &value, sizeof(value), &indicator),
-              SQL_SUCCESS);
-    EXPECT_EQ(value, 2);
 }
 
 } // namespace

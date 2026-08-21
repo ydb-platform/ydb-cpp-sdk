@@ -26,24 +26,55 @@ class HarnessError(ValueError):
 def require(condition, message):
     if not condition:
         raise HarnessError(message)
-def glob_ids(names, pattern):
+def expand_pattern(pattern):
     match = re.search(r"\{([^{}]+)\}", pattern)
-    patterns = [pattern] if not match else [pattern[:match.start()] + value + pattern[match.end():]
-                                            for value in match.group(1).split(",")]
-    return {name for name in names if any(fnmatch.fnmatch(name, item) for item in patterns)}
+    if not match:
+        return [pattern]
+    return [expanded for value in match.group(1).split(",")
+            for expanded in expand_pattern(pattern[:match.start()] + value + pattern[match.end():])]
+def glob_ids(names, pattern):
+    return {name for name in names if any(fnmatch.fnmatch(name, item) for item in expand_pattern(pattern))}
 def read_yaml(path):
     try:
         return yaml.safe_load(path.read_text(encoding="utf-8"))
     except (OSError, yaml.YAMLError) as error:
         raise HarnessError(f"cannot read {path}: {error}") from error
+def load_classifications(data, consumers):
+    consumer_ids = {item.get("id") for item in consumers if isinstance(item, dict)}
+    grouped = {consumer: {"unsupported": {}, "skipped": {}} for consumer in consumer_ids}
+    classifications = data.get("classifications", [])
+    require(isinstance(classifications, list), "classifications must be a list")
+    for index, group in enumerate(classifications):
+        require(isinstance(group, dict), f"classification {index}: must be a mapping")
+        outcome, reason, tests = group.get("outcome"), group.get("reason"), group.get("tests")
+        require(outcome in {"unsupported", "skipped"},
+                f"classification {index}: invalid outcome")
+        require(isinstance(reason, str) and reason.strip(),
+                f"classification {index}: reason must be a non-empty string")
+        require(isinstance(tests, dict) and tests,
+                f"classification {index}: tests must be a non-empty consumer mapping")
+        for consumer, patterns in tests.items():
+            require(consumer in consumer_ids, f"classification {index}: unknown consumer: {consumer}")
+            require(isinstance(patterns, list) and patterns
+                    and all(isinstance(pattern, str) and pattern for pattern in patterns),
+                    f"classification {index}: {consumer} patterns must be non-empty strings")
+            for pattern in patterns:
+                reasons = grouped[consumer][outcome].setdefault(pattern, [])
+                if reason not in reasons:
+                    reasons.append(reason)
+    return {consumer: {outcome: {pattern: "; ".join(reasons)
+                                 for pattern, reasons in patterns.items()}
+                       for outcome, patterns in outcomes.items()}
+            for consumer, outcomes in grouped.items()}
 def load_registry(path=REGISTRY):
-    data = read_yaml(path); require(isinstance(data, dict) and data.get("schema_version") == 1,
+    data = read_yaml(path); require(isinstance(data, dict) and data.get("schema_version") == 2,
                                     "unsupported registry schema")
     ydb = data.get("ydb", {}); consumers = data.get("consumers")
     require(IMAGE_RE.match(str(ydb.get("image", ""))), "YDB image must be digest-pinned")
     require(ydb.get("endpoint") and str(ydb.get("database", "")).startswith("/"),
             "YDB endpoint and absolute database are required")
     require(isinstance(consumers, list) and consumers, "registry has no consumers")
+    classifications = load_classifications(data, consumers)
     seen = set()
     for item in consumers:
         consumer = item.get("id") if isinstance(item, dict) else None; adapter = path.parent / str(consumer)
@@ -69,17 +100,31 @@ def load_registry(path=REGISTRY):
                     f"{consumer}: invalid declarative test")
             if test.get("output_regex"): re.compile(test["output_regex"])
         expected = item.get("expected", {})
+        require(isinstance(expected, dict), f"{consumer}: expected results must be a mapping")
+        require(not ({"unsupported", "skipped"} & set(expected)),
+                f"{consumer}: classifications must be declared in the top-level classification list")
+        expected.update(classifications[consumer])
+        discovered = expected.get("discovered", False)
         required = expected.get("required", [])
         unsupported = expected.get("unsupported", {})
         skipped = expected.get("skipped", {})
-        require(isinstance(required, list) and (required or expected.get("discovered")),
+        require(isinstance(discovered, bool), f"{consumer}: discovered must be boolean")
+        require(isinstance(required, list) and (required or discovered),
                 f"{consumer}: required tests are empty")
+        require(all(isinstance(pattern, str) and pattern for pattern in required)
+                and len(required) == len(set(required)),
+                f"{consumer}: required tests contain invalid or duplicate patterns")
         require(isinstance(unsupported, dict), f"{consumer}: unsupported tests must be a mapping")
         require(isinstance(skipped, dict), f"{consumer}: skipped tests must be a mapping")
-        require(not (set(unsupported) & set(skipped)) and all(unsupported.values()) and all(skipped.values()),
+        require(all(isinstance(pattern, str) and pattern and isinstance(reason, str) and reason.strip()
+                    for patterns in (unsupported, skipped) for pattern, reason in patterns.items()),
+                f"{consumer}: expected-result patterns and reasons must be non-empty strings")
+        require(not (set(unsupported) & set(skipped)),
                 f"{consumer}: duplicate or unexplained expectations")
-        require(not any(re.fullmatch(r"qt\.\*\.[^.]+\.\*", pattern) for pattern in unsupported),
-                f"{consumer}: suite-wide Qt exclusions are forbidden")
+        broad = [pattern for patterns in (unsupported, skipped) for pattern in patterns
+                 if pattern.endswith(".*")]
+        require(not discovered or not broad,
+                f"{consumer}: suite-wide expected-result patterns are forbidden: {', '.join(broad)}")
         require(not tests or {test["id"] for test in tests} == set(required),
                 f"{consumer}: declarative tests differ from required tests")
         modes = item.get("modes", [])
@@ -302,7 +347,73 @@ def convert_allure(native, output, metadata):
                   ("consumer", "connection_mode", "run_id", "runtime_version", "driver_commit", "package_sha256",
                    "ydb_image", "endpoint", "database", "upstream_revision", "upstream_sha256")}
     (output / "environment.properties").write_text("".join(f"{key}={value}\n" for key, value in sorted(properties.items())))
-def validate_results(consumer, native, allure):
+def validate_classified_results(actual, expectations):
+    errors = []
+    patterns = {
+        "required": expectations.get("required", []),
+        "unsupported": expectations.get("unsupported", {}),
+        "skipped": expectations.get("skipped", {}),
+    }
+    matches = {classification: {pattern: glob_ids(actual, pattern) for pattern in values}
+               for classification, values in patterns.items()}
+    for classification, classified in matches.items():
+        for pattern, test_ids in classified.items():
+            if not test_ids and (expectations.get("discovered") or classification != "required"):
+                errors.append(f"{classification} expectation pattern matched no tests: {pattern}")
+    for test_id, test in actual.items():
+        exceptions = [(classification, pattern)
+                      for classification in ("unsupported", "skipped")
+                      for pattern, test_ids in matches[classification].items() if test_id in test_ids]
+        outcomes = {classification for classification, _ in exceptions}
+        if len(outcomes) > 1:
+            labels = ", ".join(f"{classification}:{pattern}" for classification, pattern in exceptions)
+            errors.append(f"{test_id}: ambiguous expected result: {labels}")
+            continue
+        if exceptions:
+            classification = exceptions[0][0]
+        elif any(test_id in test_ids for test_ids in matches["required"].values()):
+            classification = "required"
+        else:
+            errors.append(f"{test_id}: missing result expectation")
+            continue
+        allowed = ({"passed"} if classification == "required" else {"skipped"}
+                   if classification == "skipped" else {"broken", "failed", "skipped"})
+        if test.get("status") not in allowed:
+            errors.append(f"{test_id}: unexpected status {test.get('status')} for {classification}")
+        if classification != "required" and not test.get("message"):
+            errors.append(f"{test_id}: expected {classification} result has no reason")
+    return errors
+def annotate_expected_results(consumer, native):
+    document = json.loads(native.read_text())
+    expectations = consumer["expected"]
+    for test in document.get("tests", []):
+        if not isinstance(test, dict) or not test.get("id"):
+            continue
+        matches = [(classification, reason)
+                   for classification in ("unsupported", "skipped")
+                   for pattern, reason in expectations.get(classification, {}).items()
+                   if glob_ids({test["id"]}, pattern)]
+        outcomes = {classification for classification, _ in matches}
+        if len(outcomes) != 1:
+            continue
+        classification = matches[0][0]
+        reasons = list(dict.fromkeys(reason for _, reason in matches))
+        status = test.get("status")
+        allowed = {"skipped"} if classification == "skipped" else {"broken", "failed", "skipped"}
+        if status not in allowed:
+            continue
+        details = []
+        if test.get("message"):
+            details.append(f"Reported {status.upper()}: {test['message']}")
+        if test.get("trace"):
+            details.append(test["trace"])
+        if details:
+            test["trace"] = "\n\n".join(details)
+        test["original_status"] = status
+        prefix = "Expected upstream skip" if classification == "skipped" else "Expected unsupported"
+        test["message"] = f"{prefix}: {'; '.join(reasons)}"
+    native.write_text(json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+def validate_results(consumer, native, allure, test_rc=0):
     errors, tests = [], []
     try:
         tests = json.loads(native.read_text())["tests"]
@@ -315,37 +426,18 @@ def validate_results(consumer, native, allure):
         if not test_id or test_id in actual: errors.append(f"missing or duplicate test id: {test_id}")
         else: actual[test_id] = test
     expectations = consumer["expected"]; required = set(expectations["required"])
-    unsupported = set(expectations.get("unsupported", {}))
-    skipped = set(expectations.get("skipped", {})); expected = required | unsupported | skipped
     infrastructure = [test for test_id, test in actual.items() if test_id.endswith(".infrastructure")]
     if expectations.get("discovered") and infrastructure:
         for test in infrastructure:
             errors.append(f"{test['id']}: {test.get('message', 'infrastructure failure')}")
-        expected = set(actual)
-    elif expectations.get("discovered"):
-        required_matches = {pattern: glob_ids(actual, pattern) for pattern in required}
-        matched = {pattern: glob_ids(actual, pattern) for pattern in unsupported}
-        skipped_matches = {pattern: glob_ids(actual, pattern) for pattern in skipped}
-        for pattern, ids in list(required_matches.items()) + list(matched.items()) + list(skipped_matches.items()):
-            if not ids: errors.append(f"expectation pattern matched no tests: {pattern}")
-        for test_id, test in actual.items():
-            is_required = any(test_id in ids for ids in required_matches.values())
-            is_unsupported = any(test_id in ids for ids in matched.values())
-            is_skipped = any(test_id in ids for ids in skipped_matches.values())
-            wanted = {"skipped"} if is_skipped else {"broken", "failed", "skipped"} if is_unsupported else {"passed"} if is_required else None
-            if wanted is None:
-                errors.append(f"{test_id}: missing discovered expectation"); continue
-            if test.get("status") not in wanted: errors.append(f"{test_id}: unexpected status {test.get('status')}")
-            if wanted != {"passed"} and not test.get("message"): errors.append(f"{test_id}: no unsupported reason")
-        expected = set(actual)
-    for test_id in sorted(expected - set(actual)): errors.append(f"missing test: {test_id}")
-    for test_id in sorted(set(actual) - expected): errors.append(f"unexpected test: {test_id}")
-    for test_id in sorted(expected & set(actual)):
-        status = actual[test_id].get("status")
-        if ((test_id in required and status != "passed")
-                or (test_id in unsupported and status not in {"broken", "failed", "skipped"})
-                or (test_id in skipped and status != "skipped")):
-            errors.append(f"{test_id}: unexpected status {status}")
+    else:
+        errors += validate_classified_results(actual, expectations)
+    if not expectations.get("discovered"):
+        for test_id in sorted(required - set(actual)): errors.append(f"missing test: {test_id}")
+        for test_id in sorted(set(actual) - required): errors.append(f"unexpected test: {test_id}")
+    if test_rc and tests and all(test.get("status") == "passed" for test in tests
+                                 if isinstance(test, dict)):
+        errors.append(f"test command exited {test_rc} although every reported test passed")
     if len(list(allure.glob("*-result.json"))) != len(tests): errors.append("Allure/native result count differs")
     validation = {"consumer": consumer["id"], "connection_mode": os.environ.get("ODBC_TEST_MODE", "all"),
                   "ok": not errors, "test_count": len(tests), "errors": errors}
@@ -409,11 +501,12 @@ def run_consumer(consumer_id, mode):
         append_result(results_file, infrastructure_test_id(consumer_id, mode), f"{consumer_id} test infrastructure",
                       "broken", now, now, error or f"test command exited {test_rc} without results")
     try:
+        annotate_expected_results(consumer, results_file)
         convert_allure(results_file, allure, metadata)
-        validation_errors = validate_results(consumer, results_file, allure)
+        validation_errors = validate_results(consumer, results_file, allure, test_rc)
     except Exception as exception:
         print(f"result finalization failed: {exception}", file=sys.stderr); return 1
-    return int(bool(error or test_rc or validation_errors))
+    return int(bool(error or validation_errors))
 def aggregate(source, output):
     expected = {item["run_id"] for item in consumer_runs(load_registry())}; output.mkdir(parents=True, exist_ok=True)
     native_out, allure_out = output / "native", output / "allure-results"
