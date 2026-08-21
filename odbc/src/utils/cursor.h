@@ -35,6 +35,7 @@ public:
         SQLLEN offset,
         SQLULEN rowsetSize,
         SQLULEN maxRows);
+    virtual SQLULEN GetRowNumber() const;
     virtual SQLRETURN GetData(SQLULEN row, SQLUSMALLINT columnNumber, SQLSMALLINT targetType,
                               SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd,
                               SQLLEN* offset = nullptr) = 0;
