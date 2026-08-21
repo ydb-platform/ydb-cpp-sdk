@@ -322,14 +322,8 @@ SQLRETURN SQL_API SQLFreeStmt(SQLHSTMT statementHandle, SQLUSMALLINT option) {
 }
 
 SQLRETURN SQL_API SQLFetchScroll(SQLHSTMT statementHandle, SQLSMALLINT fetchOrientation, SQLLEN fetchOffset) {
-    return Call<Odbc::ECallMode::Ordinary, TStatement>(statementHandle, [&](auto* stmt) {
-        if (fetchOrientation == SQL_FETCH_NEXT) {
-            return stmt->Fetch();
-        } else {
-            throw NYdb::NOdbc::TOdbcException("HYC00", 0, "Only SQL_FETCH_NEXT is supported");
-        }
-        //TODO other fetch-orientation
-    });
+    return Forward<TStatement, &TStatement::FetchScroll>(
+        statementHandle, fetchOrientation, fetchOffset);
 }
 
 ODBC_FORWARD(SQLRowCount, TStatement, TStatement::RowCount,

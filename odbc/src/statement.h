@@ -29,6 +29,7 @@ public:
     SQLRETURN ExecuteInternal();
 
     SQLRETURN Fetch();
+    SQLRETURN FetchScroll(SQLSMALLINT orientation, SQLLEN offset);
     SQLRETURN GetData(SQLUSMALLINT columnNumber, SQLSMALLINT targetType, 
                      SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd);
 
@@ -122,7 +123,6 @@ private:
     bool IsPrepared_ = false;
     SQLSMALLINT ParamCount_ = 0;
 
-    SQLULEN RowsFetched_ = 0;
     SQLLEN RowCount_ = -1;
     TAttributes Attributes_;
     std::string CursorName_;
