@@ -955,6 +955,10 @@ SQLRETURN TStatement::GetStmtAttr(
     if (stringLengthPtr) {
         *stringLengthPtr = 0;
     }
+    if (attr == SQL_ATTR_ROW_NUMBER) {
+        *static_cast<SQLULEN*>(value) = Cursor_ ? Cursor_->GetRowNumber() : 0;
+        return SQL_SUCCESS;
+    }
     if (attr == SQL_ATTR_CURSOR_SCROLLABLE) {
         *static_cast<SQLULEN*>(value) = Attributes_.CursorType == SQL_CURSOR_FORWARD_ONLY
             ? SQL_NONSCROLLABLE

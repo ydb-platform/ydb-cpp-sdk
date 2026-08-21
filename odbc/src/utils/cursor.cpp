@@ -76,6 +76,12 @@ public:
         return {static_cast<SQLULEN>(CurrentRows_.size()), false};
     }
 
+    SQLULEN GetRowNumber() const override {
+        return CurrentRows_.empty()
+            ? 0
+            : static_cast<SQLULEN>(RowsRead_ - CurrentRows_.size() + 1);
+    }
+
     SQLRETURN GetData(SQLULEN row, SQLUSMALLINT columnNumber, SQLSMALLINT targetType,
                       SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd,
                       SQLLEN* offset) override {
@@ -327,6 +333,12 @@ std::optional<size_t> TCursorWindow::Resolve(SQLULEN row) const {
     return Start_ + static_cast<size_t>(row);
 }
 
+SQLULEN TCursorWindow::RowNumber() const {
+    return Position_ == EPosition::Rowset
+        ? static_cast<SQLULEN>(Start_) + 1
+        : 0;
+}
+
 void TCursorWindow::SetBoundary(EPosition position) {
     Position_ = position;
     Start_ = 0;
@@ -340,6 +352,10 @@ TFetchResult ICursor::Fetch(
     SQLULEN maxRows)
 {
     return Window_.Fetch(orientation, offset, rowsetSize, maxRows);
+}
+
+SQLULEN ICursor::GetRowNumber() const {
+    return Window_.RowNumber();
 }
 
 std::optional<size_t> ICursor::CurrentRow(SQLULEN row) const {
