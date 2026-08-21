@@ -22,6 +22,7 @@ public:
         SQLULEN rowsetSize,
         SQLULEN maxRows);
     std::optional<size_t> Resolve(SQLULEN row) const;
+    SQLULEN RowNumber() const;
 
 private:
     enum class EPosition {

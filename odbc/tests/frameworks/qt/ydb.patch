@@ -1105,23 +1105,29 @@ diff -ruN a/kernel/qsqlquery/tst_qsqlquery.cpp b/kernel/qsqlquery/tst_qsqlquery.
 +    QVERIFY_SQL(q, exec(QLatin1String("SELECT id, datefield FROM ") + tableName));
      while (q.next())
          QVERIFY(q.value(1).toDateTime().isValid());
-@@ -3558,11 +3571,11 @@
-     const QString planets = qTableName("Planet", __FILE__, db);
- 
-     q.exec("drop table " + planets);
+@@ -3561,5 +3574,5 @@
 -    QVERIFY_SQL(q, exec(QLatin1String("create table %1 (Name varchar(20))").arg(planets)));
 -    QVERIFY_SQL(q, exec(QLatin1String("insert into %1 VALUES ('Mercury')").arg(planets)));
 -    QVERIFY_SQL(q, exec(QLatin1String("insert into %1 VALUES ('Venus')").arg(planets)));
 -    QVERIFY_SQL(q, exec(QLatin1String("insert into %1 VALUES ('Earth')").arg(planets)));
 -    QVERIFY_SQL(q, exec(QLatin1String("insert into %1 VALUES ('Mars')").arg(planets)));
-+    QVERIFY_SQL(q, exec(QLatin1String("create table %1 (Name Utf8, primary key (Name))").arg(planets)));
-+    QVERIFY_SQL(q, exec(QLatin1String("insert into %1 (Name) VALUES ('Mercury')").arg(planets)));
-+    QVERIFY_SQL(q, exec(QLatin1String("insert into %1 (Name) VALUES ('Venus')").arg(planets)));
-+    QVERIFY_SQL(q, exec(QLatin1String("insert into %1 (Name) VALUES ('Earth')").arg(planets)));
-+    QVERIFY_SQL(q, exec(QLatin1String("insert into %1 (Name) VALUES ('Mars')").arg(planets)));
- 
-     QVERIFY_SQL(q, exec("SELECT Name FROM " + planets));
++    QVERIFY_SQL(q, exec(QLatin1String("create table %1 (Id integer, Name Utf8, primary key (Id))").arg(planets)));
++    QVERIFY_SQL(q, exec(QLatin1String("insert into %1 (Id, Name) VALUES (1, 'Mercury')").arg(planets)));
++    QVERIFY_SQL(q, exec(QLatin1String("insert into %1 (Id, Name) VALUES (2, 'Venus')").arg(planets)));
++    QVERIFY_SQL(q, exec(QLatin1String("insert into %1 (Id, Name) VALUES (3, 'Earth')").arg(planets)));
++    QVERIFY_SQL(q, exec(QLatin1String("insert into %1 (Id, Name) VALUES (4, 'Mars')").arg(planets)));
+@@ -3567,9 +3580,9 @@
+-    QVERIFY_SQL(q, exec("SELECT Name FROM " + planets));
++    QVERIFY_SQL(q, exec("SELECT Name FROM " + planets + " ORDER BY Id"));
      QVERIFY_SQL(q, seek(3));
+     QCOMPARE(q.value(0).toString(), u"Mars");
+     QVERIFY_SQL(q, seek(1));
+     QCOMPARE(q.value(0).toString(), u"Venus");
+-    QVERIFY_SQL(q, exec("SELECT Name FROM " + planets));
++    QVERIFY_SQL(q, exec("SELECT Name FROM " + planets + " ORDER BY Id"));
+     QVERIFY_SQL(q, seek(3));
+     QCOMPARE(q.value(0).toString(), u"Mars");
+     QVERIFY_SQL(q, seek(0));
 @@ -3587,7 +3600,7 @@
  
      const QString tableName(qTableName("task_250026", __FILE__, db));

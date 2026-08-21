@@ -1065,6 +1065,7 @@ TEST(StatementApi, StaticCursorScrollsRowsets) {
                   "($x) -> (AsStruct($x AS value)))) ORDER BY value",
         SQL_NTS), stmt, SQL_HANDLE_STMT);
 
+    SQLULEN rowNumber = 0;
     ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_NEXT, 0), SQL_SUCCESS);
     EXPECT_EQ(fetched, 3);
     EXPECT_EQ(values[0], 1);
@@ -1073,6 +1074,8 @@ TEST(StatementApi, StaticCursorScrollsRowsets) {
     EXPECT_EQ(statuses[0], SQL_ROW_SUCCESS);
     EXPECT_EQ(statuses[1], SQL_ROW_SUCCESS);
     EXPECT_EQ(statuses[2], SQL_ROW_SUCCESS);
+    ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_ROW_NUMBER, &rowNumber, 0, nullptr), SQL_SUCCESS);
+    EXPECT_EQ(rowNumber, 1);
     SQLINTEGER current = 0;
     SQLLEN currentIndicator = 0;
     ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_LONG, &current, 0, &currentIndicator), SQL_SUCCESS);
@@ -1085,6 +1088,8 @@ TEST(StatementApi, StaticCursorScrollsRowsets) {
     EXPECT_EQ(fetched, 2);
     EXPECT_EQ(values[0], 4);
     EXPECT_EQ(values[1], 5);
+    ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_ROW_NUMBER, &rowNumber, 0, nullptr), SQL_SUCCESS);
+    EXPECT_EQ(rowNumber, 4);
 
     ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_PRIOR, 0), SQL_SUCCESS);
     EXPECT_EQ(values[0], 2);
@@ -1100,6 +1105,8 @@ TEST(StatementApi, StaticCursorScrollsRowsets) {
     ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_LAST, 0), SQL_SUCCESS);
     EXPECT_EQ(values[0], 6);
     EXPECT_EQ(values[1], 7);
+    ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_ROW_NUMBER, &rowNumber, 0, nullptr), SQL_SUCCESS);
+    EXPECT_EQ(rowNumber, 6);
     ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_ABSOLUTE, -3), SQL_SUCCESS);
     EXPECT_EQ(values[0], 5);
     EXPECT_EQ(values[1], 6);
@@ -1126,6 +1133,8 @@ TEST(StatementApi, StaticCursorScrollsRowsets) {
     EXPECT_EQ(values[0], 7);
     EXPECT_EQ(statuses[0], SQL_ROW_SUCCESS);
     EXPECT_EQ(statuses[1], SQL_ROW_NOROW);
+    ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_ROW_NUMBER, &rowNumber, 0, nullptr), SQL_SUCCESS);
+    EXPECT_EQ(rowNumber, 7);
     ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_LONG, &current, 0, &currentIndicator), SQL_SUCCESS);
     EXPECT_EQ(current, 7);
 
