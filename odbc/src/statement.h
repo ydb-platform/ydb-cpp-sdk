@@ -29,6 +29,7 @@ public:
     SQLRETURN ExecuteInternal();
 
     SQLRETURN Fetch();
+    SQLRETURN FetchScroll(SQLSMALLINT orientation, SQLLEN offset);
     SQLRETURN GetData(SQLUSMALLINT columnNumber, SQLSMALLINT targetType, 
                      SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd);
 
@@ -122,7 +123,6 @@ private:
     bool IsPrepared_ = false;
     SQLSMALLINT ParamCount_ = 0;
 
-    SQLULEN RowsFetched_ = 0;
     SQLLEN RowCount_ = -1;
     TAttributes Attributes_;
     std::string CursorName_;
@@ -136,13 +136,11 @@ private:
     bool InAtExec_ = false;
     bool NeedDataTokenDelivered_ = false;
     std::vector<TAtExecValue> AtExecValues_; // indexed by parameter number
-    SQLRETURN LastFetchRc_ = SQL_SUCCESS;
-    SQLULEN BindingRow_ = 0;
     std::vector<SQLLEN> GetDataOffsets_;
 
     SQLRETURN BuildParams(NYdb::TParams& out, SQLULEN paramSet);
     SQLRETURN ExecuteParamSet(SQLULEN paramSet, std::optional<SQLLEN>& affectedRows);
-    void FillBoundColumns();
+    SQLRETURN FillBoundColumns(SQLULEN row);
     std::vector<TBoundParam> GetBoundParams(SQLULEN paramSet) const;
     void SetCursor(std::unique_ptr<ICursor> cursor);
 

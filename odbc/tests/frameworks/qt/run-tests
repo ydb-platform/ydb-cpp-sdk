@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Build and execute Qt's upstream database-backed QtSql tests against QODBC."""
-import fnmatch, json, os, re, shutil, subprocess, time
+import json, os, shutil, subprocess, time
 import xml.etree.ElementTree as ET
 from pathlib import Path
-import yaml
 ADAPTER = Path(os.environ["ODBC_ADAPTER_DIR"])
 UPSTREAM = Path(os.environ["ODBC_UPSTREAM_DIR"])
 NATIVE = Path(os.environ["ODBC_NATIVE_RESULTS_DIR"])
@@ -38,18 +37,10 @@ def prepare_source():
     (NATIVE / "fixture-patch.log").write_text(applied.stdout or "")
     if applied.returncode:
         raise RuntimeError(f"fixture patch exited {applied.returncode}:\n{(applied.stdout or '').strip()}")
-def matches(name, pattern):
-    match = re.search(r"\{([^{}]+)\}", pattern)
-    patterns = [pattern] if not match else [pattern[:match.start()] + value + pattern[match.end():] for value in match.group(1).split(",")]
-    return any(fnmatch.fnmatch(name, item) for item in patterns)
-def expectations():
-    registry = yaml.safe_load((Path(os.environ["ODBC_HARNESS_DIR"]) / "registry.yaml").read_text()); qt = next(item for item in registry["consumers"] if item["id"] == "qt")
-    return (qt["expected"].get("required", []), qt["expected"].get("unsupported", {}),
-            qt["expected"].get("skipped", {}))
 def main():
     if MODE not in DATABASES: raise RuntimeError(f"unsupported ODBC test mode: {MODE}")
     prepare_source(); run(["cmake", "-G", "Ninja", "-S", ADAPTER, "-B", BUILD, f"-DQT_SQL_SOURCE={SOURCE}"], check=True)
-    run(["cmake", "--build", BUILD, "--parallel"], check=True); required, unsupported, skipped = expectations(); results, bad = [], False
+    run(["cmake", "--build", BUILD, "--parallel"], check=True); results, bad = [], False
     for mode, database in ((MODE, DATABASES[MODE]),):
         config = Path(f"/work/qt-databases-{mode}.json"); config.write_text(json.dumps({"entries": [{"driver": "QODBC", "name": database}]}) + "\n")
         env = os.environ | {"QT_TEST_DATABASES_FILE": str(config), "QT_QPA_PLATFORM": "offscreen"}
@@ -90,26 +81,12 @@ def main():
                         problem = (errors or failures or problems)[0]
                         status = "broken" if errors else "failed" if failures else "skipped"
                         message, trace = problem_details(problem)
-                required_match = any(matches(test_id, pattern) for pattern in required)
-                matched = [pattern for pattern in unsupported if matches(test_id, pattern)]
-                skipped_match = [pattern for pattern in skipped if matches(test_id, pattern)]
-                original_status = ""
-                if skipped_match and status == "skipped":
-                    original_status, reason = status, skipped[skipped_match[0]]
-                    trace = f"Qt reported SKIPPED: {message}" + (f"\n\n{trace}" if trace else "")
-                    message = f"Expected upstream skip: {reason}"
-                elif matched and status in {"broken", "failed", "skipped"}:
-                    original_status, reason = status, unsupported[matched[0]]
-                    trace = f"Qt reported {status.upper()}: {message}" + (f"\n\n{trace}" if trace else "")
-                    message = f"Expected unsupported: {reason}"
-                elif status != "passed" or not required_match or matched or skipped_match:
-                    bad = True
+                if status != "passed": bad = True
                 results.append({"id": test_id, "name": f"Qt {target}: {function} ({mode})",
                                 "status": status, "message": message, "start": started, "stop": stopped,
                                 "attachments": [{"name": log.name, "path": log.name, "type": "text/plain"},
                                                 {"name": xml.name, "path": xml.name, "type": "application/xml"}],
-                                **({"trace": trace} if trace else {}),
-                                **({"original_status": original_status} if original_status else {})})
+                                **({"trace": trace} if trace else {})})
     (NATIVE / "results.json").write_text(json.dumps({"schema_version": 1, "tests": results}, indent=2, sort_keys=True) + "\n")
     return int(bad)
 if __name__ == "__main__": raise SystemExit(main())

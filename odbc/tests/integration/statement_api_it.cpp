@@ -861,6 +861,9 @@ TEST(StatementApi, CoreBoundTypeConversions) {
     SQLHSTMT stmt;
     AllocEnvAndConnect(&env, &dbc);
     ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_CURSOR_TYPE,
+                                (SQLPOINTER)SQL_CURSOR_STATIC, 0),
+                  stmt, SQL_HANDLE_STMT);
     SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE IF EXISTS test_bound_types", SQL_NTS);
     SQLFreeStmt(stmt, SQL_CLOSE);
     // Keep this server-backed test on YDB's default decimal shape, which does
@@ -959,13 +962,21 @@ TEST(StatementApi, CoreBoundTypeConversions) {
     EXPECT_NEAR(fetchedDecimal, decimal, 1e-9);
     EXPECT_STREQ(fetchedDecimalText, "123.456000000");
 
+    ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_FIRST, 0), SQL_SUCCESS);
+    std::memset(fetchedBytes, 0, sizeof(fetchedBytes));
+    fetchedDecimal = 0;
+    ASSERT_EQ(SQLGetData(stmt, 3, SQL_C_BINARY, fetchedBytes, sizeof(fetchedBytes), &indicator), SQL_SUCCESS);
+    ASSERT_EQ(SQLGetData(stmt, 7, SQL_C_DOUBLE, &fetchedDecimal, sizeof(fetchedDecimal), &indicator), SQL_SUCCESS);
+    EXPECT_EQ(std::memcmp(fetchedBytes, bytes, sizeof(bytes)), 0);
+    EXPECT_NEAR(fetchedDecimal, decimal, 1e-9);
+
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);
     SQLFreeHandle(SQL_HANDLE_ENV, env);
 }
 
-TEST(StatementApi, ForwardOnlyCursorAttributes) {
+TEST(StatementApi, CursorAttributesAndCapabilities) {
     SQLHENV env;
     SQLHDBC dbc;
     SQLHSTMT stmt;
@@ -978,19 +989,201 @@ TEST(StatementApi, ForwardOnlyCursorAttributes) {
     ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_CURSOR_SCROLLABLE, &value, 0, nullptr), SQL_SUCCESS);
     EXPECT_EQ(value, SQL_NONSCROLLABLE);
 
-    EXPECT_EQ(SQLSetStmtAttr(stmt, SQL_ATTR_CURSOR_SCROLLABLE,
-                             (SQLPOINTER)SQL_SCROLLABLE, 0),
-              SQL_SUCCESS_WITH_INFO);
-    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "01S02"));
-    ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_CURSOR_SCROLLABLE, &value, 0, nullptr), SQL_SUCCESS);
-    EXPECT_EQ(value, SQL_NONSCROLLABLE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT 1", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(SQLFetchScroll(stmt, SQL_FETCH_PRIOR, 0), SQL_ERROR);
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "HY106"));
+    CHECK_ODBC_OK(SQLFreeStmt(stmt, SQL_CLOSE), stmt, SQL_HANDLE_STMT);
 
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_CURSOR_SCROLLABLE,
+                                (SQLPOINTER)SQL_SCROLLABLE, 0),
+                  stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_CURSOR_SCROLLABLE, &value, 0, nullptr), SQL_SUCCESS);
+    EXPECT_EQ(value, SQL_SCROLLABLE);
+    ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_CURSOR_TYPE, &value, 0, nullptr), SQL_SUCCESS);
+    EXPECT_EQ(value, SQL_CURSOR_STATIC);
+
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_CURSOR_TYPE,
+                                (SQLPOINTER)SQL_CURSOR_FORWARD_ONLY, 0),
+                  stmt, SQL_HANDLE_STMT);
     EXPECT_EQ(SQLSetStmtAttr(stmt, SQL_ATTR_CURSOR_TYPE,
-                             (SQLPOINTER)SQL_CURSOR_STATIC, 0),
+                             (SQLPOINTER)SQL_CURSOR_KEYSET_DRIVEN, 0),
               SQL_SUCCESS_WITH_INFO);
     EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "01S02"));
     ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_CURSOR_TYPE, &value, 0, nullptr), SQL_SUCCESS);
-    EXPECT_EQ(value, SQL_CURSOR_FORWARD_ONLY);
+    EXPECT_EQ(value, SQL_CURSOR_STATIC);
+
+    SQLUINTEGER info = 0;
+    CHECK_ODBC_OK(SQLGetInfo(dbc, SQL_STATIC_CURSOR_ATTRIBUTES1, &info, 0, nullptr),
+                  dbc, SQL_HANDLE_DBC);
+    EXPECT_EQ(info & (SQL_CA1_NEXT | SQL_CA1_ABSOLUTE | SQL_CA1_RELATIVE),
+              SQL_CA1_NEXT | SQL_CA1_ABSOLUTE | SQL_CA1_RELATIVE);
+    CHECK_ODBC_OK(SQLGetInfo(dbc, SQL_SCROLL_OPTIONS, &info, 0, nullptr),
+                  dbc, SQL_HANDLE_DBC);
+    EXPECT_EQ(info & (SQL_SO_FORWARD_ONLY | SQL_SO_STATIC),
+              SQL_SO_FORWARD_ONLY | SQL_SO_STATIC);
+
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT 1", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(SQLSetStmtAttr(stmt, SQL_ATTR_CURSOR_TYPE,
+                             (SQLPOINTER)SQL_CURSOR_FORWARD_ONLY, 0),
+              SQL_ERROR);
+    CHECK_ODBC_OK(SQLFreeStmt(stmt, SQL_CLOSE), stmt, SQL_HANDLE_STMT);
+
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(StatementApi, StaticCursorScrollsRowsets) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_CURSOR_TYPE,
+                                (SQLPOINTER)SQL_CURSOR_STATIC, 0),
+                  stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_ROW_ARRAY_SIZE,
+                                (SQLPOINTER)(uintptr_t)3, 0),
+                  stmt, SQL_HANDLE_STMT);
+
+    SQLINTEGER values[3] = {};
+    SQLLEN indicators[3] = {};
+    SQLUSMALLINT statuses[3] = {};
+    SQLULEN fetched = 0;
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_ROW_STATUS_PTR, statuses, 0),
+                  stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_ROWS_FETCHED_PTR, &fetched, 0),
+                  stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLBindCol(stmt, 1, SQL_C_LONG, values, 0, indicators),
+                  stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"SELECT * FROM AS_TABLE(ListMap(ListFromRange(1, 8), "
+                  "($x) -> (AsStruct($x AS value)))) ORDER BY value",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+
+    SQLULEN rowNumber = 0;
+    ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_NEXT, 0), SQL_SUCCESS);
+    EXPECT_EQ(fetched, 3);
+    EXPECT_EQ(values[0], 1);
+    EXPECT_EQ(values[1], 2);
+    EXPECT_EQ(values[2], 3);
+    EXPECT_EQ(statuses[0], SQL_ROW_SUCCESS);
+    EXPECT_EQ(statuses[1], SQL_ROW_SUCCESS);
+    EXPECT_EQ(statuses[2], SQL_ROW_SUCCESS);
+    ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_ROW_NUMBER, &rowNumber, 0, nullptr), SQL_SUCCESS);
+    EXPECT_EQ(rowNumber, 1);
+    SQLINTEGER current = 0;
+    SQLLEN currentIndicator = 0;
+    ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_LONG, &current, 0, &currentIndicator), SQL_SUCCESS);
+    EXPECT_EQ(current, 1);
+
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_ROW_ARRAY_SIZE,
+                                (SQLPOINTER)(uintptr_t)2, 0),
+                  stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_NEXT, 0), SQL_SUCCESS);
+    EXPECT_EQ(fetched, 2);
+    EXPECT_EQ(values[0], 4);
+    EXPECT_EQ(values[1], 5);
+    ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_ROW_NUMBER, &rowNumber, 0, nullptr), SQL_SUCCESS);
+    EXPECT_EQ(rowNumber, 4);
+
+    ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_PRIOR, 0), SQL_SUCCESS);
+    EXPECT_EQ(values[0], 2);
+    EXPECT_EQ(values[1], 3);
+
+    ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_FIRST, 0), SQL_SUCCESS);
+    EXPECT_EQ(values[0], 1);
+    EXPECT_EQ(values[1], 2);
+    ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_RELATIVE, 3), SQL_SUCCESS);
+    EXPECT_EQ(values[0], 4);
+    EXPECT_EQ(values[1], 5);
+
+    ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_LAST, 0), SQL_SUCCESS);
+    EXPECT_EQ(values[0], 6);
+    EXPECT_EQ(values[1], 7);
+    ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_ROW_NUMBER, &rowNumber, 0, nullptr), SQL_SUCCESS);
+    EXPECT_EQ(rowNumber, 6);
+    ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_ABSOLUTE, -3), SQL_SUCCESS);
+    EXPECT_EQ(values[0], 5);
+    EXPECT_EQ(values[1], 6);
+
+    ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_ABSOLUTE, 0), SQL_NO_DATA);
+    EXPECT_EQ(fetched, 0);
+    ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_NEXT, 0), SQL_SUCCESS);
+    EXPECT_EQ(values[0], 1);
+    EXPECT_EQ(values[1], 2);
+
+    ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_ABSOLUTE, 100), SQL_NO_DATA);
+    ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_PRIOR, 0), SQL_SUCCESS);
+    EXPECT_EQ(values[0], 6);
+    EXPECT_EQ(values[1], 7);
+
+    ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_ABSOLUTE, 2), SQL_SUCCESS);
+    ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_PRIOR, 0), SQL_SUCCESS_WITH_INFO);
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "01S06"));
+    EXPECT_EQ(values[0], 1);
+    EXPECT_EQ(values[1], 2);
+
+    ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_ABSOLUTE, -1), SQL_SUCCESS);
+    EXPECT_EQ(fetched, 1);
+    EXPECT_EQ(values[0], 7);
+    EXPECT_EQ(statuses[0], SQL_ROW_SUCCESS);
+    EXPECT_EQ(statuses[1], SQL_ROW_NOROW);
+    ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_ROW_NUMBER, &rowNumber, 0, nullptr), SQL_SUCCESS);
+    EXPECT_EQ(rowNumber, 7);
+    ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_LONG, &current, 0, &currentIndicator), SQL_SUCCESS);
+    EXPECT_EQ(current, 7);
+
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(StatementApi, StaticCursorHonorsMaxRows) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_CURSOR_TYPE,
+                                (SQLPOINTER)SQL_CURSOR_STATIC, 0),
+                  stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_MAX_ROWS,
+                                (SQLPOINTER)(uintptr_t)5, 0),
+                  stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_ROW_ARRAY_SIZE,
+                                (SQLPOINTER)(uintptr_t)3, 0),
+                  stmt, SQL_HANDLE_STMT);
+
+    SQLINTEGER values[3] = {};
+    SQLLEN indicators[3] = {};
+    SQLULEN fetched = 0;
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_ROWS_FETCHED_PTR, &fetched, 0),
+                  stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLBindCol(stmt, 1, SQL_C_LONG, values, 0, indicators),
+                  stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"SELECT * FROM AS_TABLE(ListMap(ListFromRange(1, 9), "
+                  "($x) -> (AsStruct($x AS value)))) ORDER BY value",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+
+    ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_LAST, 0), SQL_SUCCESS);
+    EXPECT_EQ(fetched, 3);
+    EXPECT_EQ(values[0], 3);
+    EXPECT_EQ(values[1], 4);
+    EXPECT_EQ(values[2], 5);
+    ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_ABSOLUTE, 6), SQL_NO_DATA);
+    ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_FIRST, 0), SQL_SUCCESS);
+    ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_NEXT, 0), SQL_SUCCESS);
+    EXPECT_EQ(fetched, 2);
+    EXPECT_EQ(values[0], 4);
+    EXPECT_EQ(values[1], 5);
 
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
