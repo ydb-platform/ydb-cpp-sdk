@@ -222,7 +222,7 @@ function(_ydb_sdk_add_library Tgt)
     set(libraryMode "INTERFACE")
     set(includeMode "INTERFACE")
   endif()
-  
+
   add_library(${Tgt} ${libraryMode})
   target_include_directories(${Tgt} ${includeMode}
     $<BUILD_INTERFACE:${YDB_SDK_SOURCE_DIR}>

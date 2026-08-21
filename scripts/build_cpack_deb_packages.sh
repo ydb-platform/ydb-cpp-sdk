@@ -6,6 +6,12 @@ OUTPUT_DIR="${1:-${SOURCE_DIR}/build-deb/packages}"
 BUILD_ROOT="${YDB_DEB_BUILD_ROOT:-${SOURCE_DIR}/build-deb}"
 CPM_SOURCE_CACHE="${CPM_SOURCE_CACHE:-${SOURCE_DIR}/.cache/cpm}"
 CCACHE_DIR="${CCACHE_DIR:-${SOURCE_DIR}/.cache/ccache}"
+YDB_DEB_COMPONENTS="${YDB_DEB_COMPONENTS:-}"
+
+if [ -n "$YDB_DEB_COMPONENTS" ] && [ "$YDB_DEB_COMPONENTS" != "ydb-odbc" ]; then
+    echo "Only the ydb-odbc component build is supported" >&2
+    exit 2
+fi
 
 mkdir -p "$OUTPUT_DIR" "$BUILD_ROOT" "$CPM_SOURCE_CACHE" "$CCACHE_DIR"
 OUTPUT_DIR="$(realpath "$OUTPUT_DIR")"
@@ -26,7 +32,7 @@ if [ "${YDB_DEB_INSTALL_DEPS:-1}" = "1" ]; then
         libprotobuf-dev protobuf-compiler libgrpc++-dev protobuf-compiler-grpc \
         libbrotli-dev liblz4-dev libzstd-dev libbz2-dev libxxhash-dev \
         libsnappy-dev libdouble-conversion-dev libre2-dev \
-        libc-ares-dev rapidjson-dev python3 ragel yasm
+        libc-ares-dev rapidjson-dev odbcinst unixodbc-dev python3 ragel yasm
 fi
 
 export CPM_SOURCE_CACHE CCACHE_DIR
@@ -40,6 +46,10 @@ fi
 
 google_build="${BUILD_ROOT}/googleapis"
 sdk_build="${BUILD_ROOT}/sdk"
+otel=ON
+if [ "$YDB_DEB_COMPONENTS" = "ydb-odbc" ]; then
+    otel=OFF
+fi
 
 cmake -S "${SOURCE_DIR}/scripts/googleapis_deb" -B "$google_build" -G Ninja \
     -DCMAKE_BUILD_TYPE=Release \
@@ -60,12 +70,17 @@ cmake -S "$SOURCE_DIR" -B "$sdk_build" -G Ninja \
     -DYDB_SDK_INSTALL=ON \
     -DYDB_SDK_EXAMPLES=OFF \
     -DYDB_SDK_TESTS=OFF \
-    -DYDB_SDK_ENABLE_OTEL_METRICS=ON \
-    -DYDB_SDK_ENABLE_OTEL_TRACE=ON \
+    -DYDB_SDK_ENABLE_OTEL_METRICS="$otel" \
+    -DYDB_SDK_ENABLE_OTEL_TRACE="$otel" \
+    -DYDB_SDK_ODBC=ON \
     "${compiler_cache_args[@]}"
-cmake --build "$sdk_build" --target package --parallel
-
-cp -f "$google_build"/*.deb "$sdk_build"/*.deb "$OUTPUT_DIR"/
+if [ "$YDB_DEB_COMPONENTS" = "ydb-odbc" ]; then
+    cmake --build "$sdk_build" --target ydb-odbc --parallel
+    (cd "$sdk_build" && cpack -G DEB -B "$OUTPUT_DIR" -D CPACK_COMPONENTS_ALL=ydb-odbc)
+else
+    cmake --build "$sdk_build" --target package --parallel
+    cp -f "$google_build"/*.deb "$sdk_build"/*.deb "$OUTPUT_DIR"/
+fi
 
 if command -v ccache >/dev/null 2>&1; then
     ccache --show-stats || true

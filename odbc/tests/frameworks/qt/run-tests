@@ -1,0 +1,115 @@
+#!/usr/bin/env python3
+"""Build and execute Qt's upstream database-backed QtSql tests against QODBC."""
+import fnmatch, json, os, re, shutil, subprocess, time
+import xml.etree.ElementTree as ET
+from pathlib import Path
+import yaml
+ADAPTER = Path(os.environ["ODBC_ADAPTER_DIR"])
+UPSTREAM = Path(os.environ["ODBC_UPSTREAM_DIR"])
+NATIVE = Path(os.environ["ODBC_NATIVE_RESULTS_DIR"])
+PRISTINE = next(UPSTREAM.glob("*/tests/auto/sql"))
+SOURCE, BUILD = Path("/work/qt-sql"), Path("/work/qt-build")
+TARGETS = ("qsql", "qsqldatabase", "qsqldriver", "qsqlquery", "qsqlthread",
+           "qsqlquerymodel", "qsqlrelationaldelegate", "qsqlrelationaltablemodel",
+           "qsqltablemodel")
+RUN_LAST = {"qsqldatabase": {"transaction"},
+            "qsqlthread": {"readWriteThreading"},
+            "qsqltablemodel": {"modelInAnotherThread"}}
+MODE = os.environ["ODBC_TEST_MODE"]
+DATABASES = {"dsn": os.environ["YDB_ODBC_DSN"],
+             "connection_string": os.environ["YDB_ODBC_CONNECTION_STRING"]}
+def run(args, **options):
+    return subprocess.run([str(arg) for arg in args], text=True, **options)
+def xml_cases(path):
+    try: return ET.parse(path).getroot().findall("testcase")
+    except (ET.ParseError, OSError): return []
+def problem_details(problem):
+    message = (problem.get("message") or "").strip()
+    trace = "".join(problem.itertext()).strip()
+    if not message: return trace or problem.tag, ""
+    return message, "" if trace == message else trace
+def prepare_source():
+    shutil.copytree(PRISTINE, SOURCE, copy_function=shutil.copyfile)
+    for root, _, _ in os.walk(SOURCE):
+        Path(root).chmod(0o755)
+    patch = ADAPTER / "ydb.patch"
+    applied = run(["patch", "--batch", "--forward", "-p1", "-i", patch], cwd=SOURCE,
+                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    (NATIVE / "fixture-patch.log").write_text(applied.stdout or "")
+    if applied.returncode:
+        raise RuntimeError(f"fixture patch exited {applied.returncode}:\n{(applied.stdout or '').strip()}")
+def matches(name, pattern):
+    match = re.search(r"\{([^{}]+)\}", pattern)
+    patterns = [pattern] if not match else [pattern[:match.start()] + value + pattern[match.end():] for value in match.group(1).split(",")]
+    return any(fnmatch.fnmatch(name, item) for item in patterns)
+def expectations():
+    registry = yaml.safe_load((Path(os.environ["ODBC_HARNESS_DIR"]) / "registry.yaml").read_text()); qt = next(item for item in registry["consumers"] if item["id"] == "qt")
+    return (qt["expected"].get("required", []), qt["expected"].get("unsupported", {}),
+            qt["expected"].get("skipped", {}))
+def main():
+    if MODE not in DATABASES: raise RuntimeError(f"unsupported ODBC test mode: {MODE}")
+    prepare_source(); run(["cmake", "-G", "Ninja", "-S", ADAPTER, "-B", BUILD, f"-DQT_SQL_SOURCE={SOURCE}"], check=True)
+    run(["cmake", "--build", BUILD, "--parallel"], check=True); required, unsupported, skipped = expectations(); results, bad = [], False
+    for mode, database in ((MODE, DATABASES[MODE]),):
+        config = Path(f"/work/qt-databases-{mode}.json"); config.write_text(json.dumps({"entries": [{"driver": "QODBC", "name": database}]}) + "\n")
+        env = os.environ | {"QT_TEST_DATABASES_FILE": str(config), "QT_QPA_PLATFORM": "offscreen"}
+        for target in TARGETS:
+            binary, xml = BUILD / f"tst_{target}", NATIVE / f"{mode}-{target}.xml"
+            functions = [line.removesuffix("()") for line in run([binary, "-functions"], env=env, check=True,
+                         stdout=subprocess.PIPE).stdout.splitlines() if line.endswith("()")]
+            delayed = RUN_LAST.get(target, set())
+            ordered = [function for function in functions if function not in delayed]
+            ordered += [function for function in functions if function in delayed]
+            started = int(time.time() * 1000)
+            completed = run([binary, *ordered, "-o", f"{xml},junitxml"], env=env,
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            stopped = int(time.time() * 1000); log = NATIVE / f"{mode}-{target}.log"; log.write_text(completed.stdout or ""); cases = xml_cases(xml)
+            suite_failures = [(case, item) for case in cases for item in case
+                              if item.tag in {"failure", "error"}]
+            for function in functions:
+                test_id = f"qt.{mode}.{target}.{function}"
+                selected = [case for case in cases if case.get("name") == function or
+                            case.get("name", "").startswith(function + "(")]
+                status, message, trace = "passed", "", ""
+                if not selected:
+                    status = "broken"
+                    if suite_failures:
+                        case, problem = suite_failures[-1]
+                        detail, trace = problem_details(problem)
+                        message = f"Qt suite stopped in {case.get('name', 'unknown test')}: {detail}"
+                    elif completed.returncode:
+                        message = f"Qt suite exited {completed.returncode} before reporting this function"
+                    else:
+                        message = "Upstream function is missing from Qt JUnit output"
+                else:
+                    problems = [item for case in selected for item in case
+                                if item.tag in {"failure", "error", "skipped"}]
+                    errors = [item for item in problems if item.tag == "error"]
+                    failures = [item for item in problems if item.tag == "failure"]
+                    if errors or failures or (problems and len(problems) == len(selected)):
+                        problem = (errors or failures or problems)[0]
+                        status = "broken" if errors else "failed" if failures else "skipped"
+                        message, trace = problem_details(problem)
+                required_match = any(matches(test_id, pattern) for pattern in required)
+                matched = [pattern for pattern in unsupported if matches(test_id, pattern)]
+                skipped_match = [pattern for pattern in skipped if matches(test_id, pattern)]
+                original_status = ""
+                if skipped_match and status == "skipped":
+                    original_status, reason = status, skipped[skipped_match[0]]
+                    trace = f"Qt reported SKIPPED: {message}" + (f"\n\n{trace}" if trace else "")
+                    message = f"Expected upstream skip: {reason}"
+                elif matched and status in {"broken", "failed", "skipped"}:
+                    original_status, reason = status, unsupported[matched[0]]
+                    trace = f"Qt reported {status.upper()}: {message}" + (f"\n\n{trace}" if trace else "")
+                    message = f"Expected unsupported: {reason}"
+                elif status != "passed" or not required_match or matched or skipped_match:
+                    bad = True
+                results.append({"id": test_id, "name": f"Qt {target}: {function} ({mode})",
+                                "status": status, "message": message, "start": started, "stop": stopped,
+                                "attachments": [{"name": log.name, "path": log.name, "type": "text/plain"},
+                                                {"name": xml.name, "path": xml.name, "type": "application/xml"}],
+                                **({"trace": trace} if trace else {}),
+                                **({"original_status": original_status} if original_status else {})})
+    (NATIVE / "results.json").write_text(json.dumps({"schema_version": 1, "tests": results}, indent=2, sort_keys=True) + "\n")
+    return int(bad)
+if __name__ == "__main__": raise SystemExit(main())
