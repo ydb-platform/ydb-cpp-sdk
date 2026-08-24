@@ -1,5 +1,6 @@
 add_subdirectory(common)
 add_subdirectory(db_driver_state)
+add_subdirectory(sdk_runtime)
 add_subdirectory(grpc_connections)
 add_subdirectory(logger)
 add_subdirectory(make_request)
