@@ -3,22 +3,63 @@
 # Applies to qtbase revision e3e40c44d3f998a433a6a1080297c5f28e9a768f.
 #
 # YDB requires table schemas and writes that are explicit enough for its
-# distributed SQL model. The Qt test implementations and assertions remain
-# upstream; this patch only adapts portable fixtures where QODBC exercises YDB:
+# distributed SQL model. This patch keeps Qt's test intent intact while making
+# the fixture SQL and backend-specific expectations valid for QODBC over YDB.
+# Every edit below is covered by the following rationale map.
 #
-# - SQL fixture types use YQL-compatible scalar names.
-# - Every QODBC fixture table has an explicit primary key.
-# - INSERT statements name their destination columns.
-# - Nullable fixture columns do not use unsupported NOT NULL combinations.
-# - Statements that mutate rows update non-key columns.
-# - Strict YQL assignments use explicit casts and textual Decimal fixtures.
-# - Explicit SELECT lists preserve the fixture's declared column order.
-# - Aggregate metadata expectations use YDB's native result types.
-# - Fixture cleanup does not depend on catalog metadata that the suite tests.
-# - Whitespace identifiers remain an explicit unsupported capability.
+# Cross-cutting fixture adaptations:
 #
-# Keep changes here limited to fixture SQL required by YDB semantics. Do not
-# change Qt assertions or convert product limitations into passing tests.
+# - Replace vendor or loosely typed SQL names with the corresponding YQL types:
+#   Utf8/String, signed and unsigned integer widths, Float/Double, Bool,
+#   Date/Datetime/Timestamp, and explicit Decimal precision and scale.
+# - Give every YDB table a physical primary key. Where a test inserts several
+#   rows, provide distinct key values; where it updates data, update a non-key
+#   column because YDB primary-key columns are immutable.
+# - Name INSERT destinations explicitly so values do not depend on physical
+#   schema order, and use explicit SELECT lists where result order matters.
+# - Use typed values or explicit CAST expressions where YQL deliberately does
+#   not apply the fixture's implicit cross-type assignment.
+# - Preserve upstream column-name assertions when a YQL type spelling would
+#   otherwise change the generated fixture field name.
+# - Use YDB spellings for built-in functions and backend-native aggregate
+#   result metadata where the upstream test already branches by database.
+# - Normalize unquoted QODBC identifiers to YDB's lowercase catalog form.
+# - Keep deliberately invalid or multi-statement fixtures invalid using syntax
+#   YDB can parse far enough to exercise the intended error path.
+#
+# Per-file rationale:
+#
+# - kernel/qsqldatabase/tst_databases.h: disable whitespace-name fixtures for
+#   QODBC, which cannot represent YDB table paths with that test convention;
+#   clean tables with DROP TABLE IF EXISTS so cleanup does not depend on the
+#   catalog metadata being tested.
+# - kernel/qsqldatabase/tst_qsqldatabase.cpp: adapt the field/type matrix,
+#   primary keys, explicit DML columns, decimal casts, unsigned and boolean
+#   fixtures, temporal types, and identifier casing; field-name overrides keep
+#   the original metadata assertions meaningful after type substitution.
+# - kernel/qsqldriver/tst_qsqldriver.cpp: make relational driver fixtures use
+#   YQL types, keys, and explicit columns, and normalize unquoted table names.
+# - kernel/qsqlquery/tst_qsqlquery.cpp: adapt query fixtures for YQL types,
+#   keys, nullable columns, explicit columns, non-key updates, Decimal and array
+#   bindings, built-ins, deterministic SELECT order, native aggregate metadata,
+#   and the intended malformed-statement paths.
+# - kernel/qsqlthread/tst_qsqlthread.cpp: give threaded fixtures keys and YQL
+#   types and make their inserts explicit; the threading assertions are
+#   unchanged.
+# - models/qsqlquerymodel/tst_qsqlquerymodel.cpp: give model fixtures keys and
+#   YQL types and make seed inserts explicit; model behavior is unchanged.
+# - models/qsqlrelationaldelegate/tst_qsqlrelationaldelegate.cpp and
+#   models/qsqlrelationaltablemodel/tst_qsqlrelationaltablemodel.cpp: give all
+#   relation tables YQL types and stable keys and make seed data explicit.
+# - models/qsqltablemodel/tst_qsqltablemodel.cpp: adapt table-model schemas and
+#   seed data, normalize backend-specific key syntax, and represent the NULL in
+#   an Int32 field as a typed null. An invalid QVariant has no Qt type, so QODBC
+#   otherwise exposes it as SQL_VARBINARY even though this fixture knows the
+#   destination field is Int32.
+#
+# Keep changes limited to fixture compatibility and explicit backend branches.
+# Do not weaken assertions or turn an unimplemented driver capability into a
+# passing result.
 
 diff -ruN a/kernel/qsqldatabase/tst_databases.h b/kernel/qsqldatabase/tst_databases.h
 --- a/kernel/qsqldatabase/tst_databases.h	2022-12-12 13:23:31.000000000 +0300
@@ -1665,6 +1706,10 @@ diff -ruN a/models/qsqltablemodel/tst_qsqltablemodel.cpp b/models/qsqltablemodel
  
      QSqlTableModel model(0, db);
      model.setTable(tbl);
+@@ -1228 +1228,2 @@
+-    model.setData(model.index(1,2), QVariant());
++    // Preserve the Int32 field type; an invalid QVariant is bound by QODBC as SQL_VARBINARY.
++    model.setData(model.index(1,2), QVariant(QMetaType(QMetaType::Int)));
 @@ -1393,8 +1393,8 @@
      q.exec("PRAGMA foreign_keys = ON;");
      q.exec("DROP TABLE " + tblB);
