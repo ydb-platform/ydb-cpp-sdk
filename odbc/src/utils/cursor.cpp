@@ -67,7 +67,8 @@ public:
         const size_t limit = maxRows == 0
             ? Parser_.RowsCount()
             : std::min(Parser_.RowsCount(), ToSize(maxRows));
-        CurrentRows_.reserve(wanted);
+        const size_t remaining = limit - std::min(RowsRead_, limit);
+        CurrentRows_.reserve(std::min(wanted, remaining));
         while (CurrentRows_.size() < wanted && RowsRead_ < limit
                && Parser_.TryNextRow()) {
             CurrentRows_.push_back(MaterializeRow(Parser_));
