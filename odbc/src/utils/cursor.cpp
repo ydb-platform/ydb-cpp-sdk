@@ -1,11 +1,11 @@
 #include "cursor.h"
+#include "error_manager.h"
 #include "types.h"
 
 #include <algorithm>
 #include <cstdint>
 #include <limits>
 #include <optional>
-#include <stdexcept>
 #include <utility>
 
 namespace NYdb::NOdbc {
@@ -130,7 +130,9 @@ private:
     void EnsureRow(size_t rowIndex) {
         while (Rows_.size() <= rowIndex) {
             if (!Parser_.TryNextRow()) {
-                throw std::runtime_error("ODBC cursor result ended before its declared row count");
+                throw TOdbcException(
+                    "HY000", 0,
+                    "ODBC cursor result ended before its declared row count");
             }
             Rows_.push_back(MaterializeRow(Parser_));
         }
