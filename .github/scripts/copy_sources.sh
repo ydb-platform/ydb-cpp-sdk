@@ -150,6 +150,26 @@ sync_upstream_tree() {
     fi
 }
 
+copy_upstream_component() {
+    local upstream_repo=$1
+    local destination_root=$2
+    local tree=$3
+    local source_dir="$upstream_repo/$tree"
+    local destination_dir="$destination_root/$tree"
+
+    if [ ! -d "$source_dir" ]; then
+        echo "Cannot import missing upstream component: $tree" >&2
+        return 1
+    fi
+
+    mkdir -p "$destination_dir"
+    rsync -a --delete \
+        --exclude 'CMakeLists.txt' \
+        --exclude 'ya.make' \
+        --exclude 'unittests/' \
+        "$source_dir/" "$destination_dir/"
+}
+
 echo "Copying sources..."
 
 cp -r "$1"/ydb/public/sdk/cpp/* "$tmp_dir"
@@ -199,6 +219,7 @@ cp $2/AGENTS.md $tmp_dir
 
 sync_upstream_tree "$1" "$2" "$tmp_dir" util
 sync_upstream_tree "$1" "$2" "$tmp_dir" library/cpp managed
+copy_upstream_component "$1" "$tmp_dir" library/cpp/yt/threading
 sync_upstream_tree "$1" "$2" "$tmp_dir" contrib/libs/libc_compat managed
 sync_upstream_tree "$1" "$2" "$tmp_dir" contrib/libs/lzmasdk managed
 sync_upstream_tree "$1" "$2" "$tmp_dir" tools/enum_parser managed

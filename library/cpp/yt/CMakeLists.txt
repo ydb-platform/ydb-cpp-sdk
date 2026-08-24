@@ -15,6 +15,20 @@ target_sources(yt-assert PRIVATE
 _ydb_sdk_install_targets(TARGETS yt-assert)
 
 
+_ydb_sdk_add_library(yt-threading)
+target_link_libraries(yt-threading
+  PUBLIC
+    yutil
+    yt-assert
+)
+target_sources(yt-threading
+  PRIVATE
+    threading/event_count.cpp
+    threading/futex.cpp
+)
+_ydb_sdk_install_targets(TARGETS yt-threading)
+
+
 _ydb_sdk_add_library(yt-coding INTERFACE)
 target_link_libraries(yt-coding
   INTERFACE
