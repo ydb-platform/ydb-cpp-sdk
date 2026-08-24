@@ -171,6 +171,117 @@ TCursorWindow::TCursorWindow(size_t totalRows)
     : TotalRows_(totalRows)
 {}
 
+class TCursorWindow::TPositionResolver {
+public:
+    struct TTarget {
+        EPosition Position;
+        size_t Start = 0;
+        bool OverlappedStart = false;
+    };
+
+    TPositionResolver(
+        const TCursorWindow& window,
+        size_t rowsetSize,
+        SQLULEN requestedRowsetSize,
+        size_t visibleRows)
+        : Window_(window)
+        , RowsetSize_(rowsetSize)
+        , RequestedRowsetSize_(static_cast<uintmax_t>(requestedRowsetSize))
+        , VisibleRows_(visibleRows)
+    {}
+
+    TTarget Resolve(SQLSMALLINT orientation, SQLLEN offset) const {
+        switch (orientation) {
+            case SQL_FETCH_NEXT: {
+                if (Window_.Position_ == EPosition::Before) {
+                    return Rowset(0);
+                }
+                return Window_.Position_ == EPosition::After
+                    ? Boundary(EPosition::After)
+                    : Positive(static_cast<uintmax_t>(Window_.Start_)
+                               + Window_.PreviousRowsetSize_);
+            }
+            case SQL_FETCH_PRIOR: {
+                if (Window_.Position_ == EPosition::Before) {
+                    return Boundary(EPosition::Before);
+                }
+                const size_t origin = Window_.Position_ == EPosition::After
+                    ? VisibleRows_
+                    : Window_.Start_;
+                return Backward(origin, RowsetSize_, origin > 0);
+            }
+            case SQL_FETCH_FIRST:
+                return Rowset(0);
+            case SQL_FETCH_LAST:
+                return VisibleRows_ == 0
+                    ? Boundary(EPosition::After)
+                    : Rowset(VisibleRows_ > RowsetSize_
+                        ? VisibleRows_ - RowsetSize_
+                        : 0);
+            case SQL_FETCH_ABSOLUTE:
+                return Absolute(offset);
+            case SQL_FETCH_RELATIVE: {
+                if (Window_.Position_ == EPosition::Before) {
+                    return offset > 0 ? Absolute(offset) : Boundary(EPosition::Before);
+                }
+                if (Window_.Position_ == EPosition::After) {
+                    return offset < 0 ? Absolute(offset) : Boundary(EPosition::After);
+                }
+                if (offset >= 0) {
+                    return Positive(static_cast<uintmax_t>(Window_.Start_)
+                                    + static_cast<uintmax_t>(offset));
+                }
+                return Backward(
+                    Window_.Start_, NegativeMagnitude(offset), Window_.Start_ > 0);
+            }
+            default:
+                return Boundary(Window_.Position_ == EPosition::After
+                    ? EPosition::After
+                    : EPosition::Before);
+        }
+    }
+
+private:
+    static TTarget Boundary(EPosition position) {
+        return {position};
+    }
+
+    static TTarget Rowset(size_t start, bool overlappedStart = false) {
+        return {EPosition::Rowset, start, overlappedStart};
+    }
+
+    TTarget Positive(uintmax_t start) const {
+        return start > std::numeric_limits<size_t>::max()
+            ? Boundary(EPosition::After)
+            : Rowset(static_cast<size_t>(start));
+    }
+
+    TTarget Backward(size_t origin, uintmax_t distance, bool allowOverlap) const {
+        if (distance <= origin) {
+            return Rowset(origin - static_cast<size_t>(distance));
+        }
+        return allowOverlap && distance <= RequestedRowsetSize_
+            ? Rowset(0, true)
+            : Boundary(EPosition::Before);
+    }
+
+    TTarget Absolute(SQLLEN offset) const {
+        if (offset > 0) {
+            return Positive(static_cast<uintmax_t>(offset) - 1);
+        }
+        if (offset == 0) {
+            return Boundary(EPosition::Before);
+        }
+        return Backward(
+            VisibleRows_, NegativeMagnitude(offset), VisibleRows_ > 0);
+    }
+
+    const TCursorWindow& Window_;
+    size_t RowsetSize_;
+    uintmax_t RequestedRowsetSize_;
+    size_t VisibleRows_;
+};
+
 TFetchResult TCursorWindow::Fetch(
     SQLSMALLINT orientation,
     SQLLEN offset,
@@ -186,143 +297,24 @@ TFetchResult TCursorWindow::Fetch(
     const size_t visibleRows = maxRows == 0
         ? TotalRows_
         : std::min(TotalRows_, ToSize(maxRows));
-    std::optional<size_t> target;
-    std::optional<EPosition> boundary;
-    bool overlappedStart = false;
+    const auto target = TPositionResolver(*this, rowset, rowsetSize, visibleRows)
+        .Resolve(orientation, offset);
 
-    const auto setPositiveTarget = [&](uintmax_t index) {
-        if (index > std::numeric_limits<size_t>::max()) {
-            boundary = EPosition::After;
-        } else {
-            target = static_cast<size_t>(index);
-        }
-    };
-    const auto setAbsoluteTarget = [&](SQLLEN absoluteOffset) {
-        if (absoluteOffset > 0) {
-            setPositiveTarget(static_cast<uintmax_t>(absoluteOffset) - 1);
-            return;
-        }
-        if (absoluteOffset == 0) {
-            boundary = EPosition::Before;
-            return;
-        }
-
-        const uintmax_t magnitude = NegativeMagnitude(absoluteOffset);
-        if (magnitude <= visibleRows) {
-            target = visibleRows - static_cast<size_t>(magnitude);
-        } else if (visibleRows > 0 && magnitude <= static_cast<uintmax_t>(rowsetSize)) {
-            target = 0;
-            overlappedStart = true;
-        } else {
-            boundary = EPosition::Before;
-        }
-    };
-
-    switch (orientation) {
-        case SQL_FETCH_NEXT:
-            if (Position_ == EPosition::Before) {
-                target = 0;
-            } else if (Position_ == EPosition::After) {
-                boundary = EPosition::After;
-            } else {
-                setPositiveTarget(
-                    static_cast<uintmax_t>(Start_) + PreviousRowsetSize_);
-            }
-            break;
-
-        case SQL_FETCH_PRIOR:
-            if (Position_ == EPosition::Before) {
-                boundary = EPosition::Before;
-            } else if (Position_ == EPosition::After) {
-                if (visibleRows == 0) {
-                    boundary = EPosition::Before;
-                } else if (visibleRows < rowset) {
-                    target = 0;
-                    overlappedStart = true;
-                } else {
-                    target = visibleRows - rowset;
-                }
-            } else if (Start_ == 0) {
-                boundary = EPosition::Before;
-            } else if (Start_ < rowset) {
-                target = 0;
-                overlappedStart = true;
-            } else {
-                target = Start_ - rowset;
-            }
-            break;
-
-        case SQL_FETCH_FIRST:
-            target = 0;
-            break;
-
-        case SQL_FETCH_LAST:
-            if (visibleRows == 0) {
-                boundary = EPosition::After;
-            } else if (rowset >= visibleRows) {
-                target = 0;
-            } else {
-                target = visibleRows - rowset;
-            }
-            break;
-
-        case SQL_FETCH_ABSOLUTE:
-            setAbsoluteTarget(offset);
-            break;
-
-        case SQL_FETCH_RELATIVE:
-            if (Position_ == EPosition::Before) {
-                if (offset > 0) {
-                    setAbsoluteTarget(offset);
-                } else {
-                    boundary = EPosition::Before;
-                }
-            } else if (Position_ == EPosition::After) {
-                if (offset < 0) {
-                    setAbsoluteTarget(offset);
-                } else {
-                    boundary = EPosition::After;
-                }
-            } else if (offset >= 0) {
-                setPositiveTarget(static_cast<uintmax_t>(Start_)
-                                  + static_cast<uintmax_t>(offset));
-            } else if (Start_ == 0) {
-                boundary = EPosition::Before;
-            } else {
-                const uintmax_t magnitude = NegativeMagnitude(offset);
-                if (magnitude <= Start_) {
-                    target = Start_ - static_cast<size_t>(magnitude);
-                } else if (magnitude <= static_cast<uintmax_t>(rowsetSize)) {
-                    target = 0;
-                    overlappedStart = true;
-                } else {
-                    boundary = EPosition::Before;
-                }
-            }
-            break;
-
-        default:
-            boundary = Position_ == EPosition::After
-                ? EPosition::After
-                : EPosition::Before;
-            break;
-    }
-
-    if (boundary) {
-        SetBoundary(*boundary);
+    if (target.Position != EPosition::Rowset) {
+        SetBoundary(target.Position);
         return {};
     }
-    if (!target || *target >= visibleRows
-        || *target > static_cast<size_t>(std::numeric_limits<SQLLEN>::max())) {
+    if (target.Start >= visibleRows
+        || target.Start > static_cast<size_t>(std::numeric_limits<SQLLEN>::max())) {
         SetBoundary(EPosition::After);
         return {};
     }
 
     Position_ = EPosition::Rowset;
-    Start_ = *target;
-    Size_ = std::min(rowset, visibleRows - *target);
+    Start_ = target.Start;
+    Size_ = std::min(rowset, visibleRows - target.Start);
     PreviousRowsetSize_ = rowset;
-    return {static_cast<SQLULEN>(Size_), overlappedStart};
+    return {static_cast<SQLULEN>(Size_), target.OverlappedStart};
 }
 
 std::optional<size_t> TCursorWindow::Resolve(SQLULEN row) const {
