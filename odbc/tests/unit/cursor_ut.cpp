@@ -92,6 +92,23 @@ TEST(CursorWindow, ResolvesRelativePositionsAtBoundaries) {
     EXPECT_EQ(window.Resolve(0), 5);
 }
 
+TEST(CursorWindow, DetectsRelativeRowsetsOverlappingTheBeginning) {
+    TCursorWindow window(10);
+
+    ASSERT_EQ(window.Fetch(SQL_FETCH_ABSOLUTE, 6, 2, 0).Rows, 2);
+    auto fetch = window.Fetch(SQL_FETCH_RELATIVE, -6, 2, 0);
+    EXPECT_EQ(fetch.Rows, 2);
+    EXPECT_TRUE(fetch.OverlappedStart);
+    EXPECT_EQ(window.Resolve(0), 0);
+    EXPECT_EQ(window.Resolve(1), 1);
+
+    ASSERT_EQ(window.Fetch(SQL_FETCH_ABSOLUTE, 6, 2, 0).Rows, 2);
+    fetch = window.Fetch(SQL_FETCH_RELATIVE, -7, 2, 0);
+    EXPECT_EQ(fetch.Rows, 0);
+    EXPECT_FALSE(fetch.OverlappedStart);
+    EXPECT_FALSE(window.Resolve(0));
+}
+
 TEST(CursorWindow, HandlesEmptyAndExtremeOffsets) {
     TCursorWindow empty(0);
     EXPECT_EQ(empty.Fetch(SQL_FETCH_FIRST, 0, 1, 0).Rows, 0);
