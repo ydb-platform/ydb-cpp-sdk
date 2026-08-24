@@ -1061,6 +1061,39 @@ TEST(StatementApi, CursorAttributesAndCapabilities) {
     SQLFreeHandle(SQL_HANDLE_ENV, env);
 }
 
+TEST(StatementApi, ForwardCursorCapsRowsetReservationToAvailableRows) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+
+    const SQLULEN rowArraySize = std::numeric_limits<SQLULEN>::max() / 2;
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_ROW_ARRAY_SIZE,
+                                (SQLPOINTER)(uintptr_t)rowArraySize, 0),
+                  stmt, SQL_HANDLE_STMT);
+
+    SQLINTEGER value = 0;
+    SQLLEN indicator = 0;
+    SQLULEN fetched = 0;
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_ROWS_FETCHED_PTR, &fetched, 0),
+                  stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLBindCol(stmt, 1, SQL_C_LONG, &value, 0, &indicator),
+                  stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT 1", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    EXPECT_EQ(fetched, 1);
+    EXPECT_EQ(value, 1);
+    EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
+
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
 TEST(StatementApi, StaticCursorScrollsRowsets) {
     SQLHENV env;
     SQLHDBC dbc;
