@@ -7,6 +7,7 @@ target_link_libraries(impl-internal-grpc_connections PUBLIC
   impl-internal-db_driver_state
   impl-internal-plain_status
   impl-internal-rpc_request_settings
+  impl-internal-sdk_runtime
   client-impl-ydb_stats
   client-resources
   client-types-exceptions
