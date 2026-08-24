@@ -905,6 +905,28 @@ SQLRETURN TStatement::SetStmtAttr(
             return SetCheckedAttribute<SQLULEN>(
                 value, Attributes_.MetadataId, *this, "SQL_ATTR_METADATA_ID",
                 [](SQLULEN input) { return input == SQL_FALSE || input == SQL_TRUE; });
+        case SQL_ATTR_CONCURRENCY: {
+            if (Cursor_) {
+                return AddError(
+                    "24000", 0,
+                    "SQL_ATTR_CONCURRENCY cannot be changed while a cursor is open");
+            }
+            const SQLULEN concurrency = ReadIntegerAttr<SQLULEN>(value);
+            if (concurrency == SQL_CONCUR_READ_ONLY) {
+                Attributes_.Concurrency = concurrency;
+                return SQL_SUCCESS;
+            }
+            if (concurrency == SQL_CONCUR_LOCK
+                || concurrency == SQL_CONCUR_ROWVER
+                || concurrency == SQL_CONCUR_VALUES) {
+                Attributes_.Concurrency = SQL_CONCUR_READ_ONLY;
+                return AddError(
+                    "01S02", 0,
+                    "SQL_ATTR_CONCURRENCY was changed to read-only",
+                    SQL_SUCCESS_WITH_INFO);
+            }
+            return Diag::AddInvalidAttrValue(*this, "SQL_ATTR_CONCURRENCY");
+        }
         case SQL_ATTR_CURSOR_TYPE:
             return setCursorType(
                 ReadIntegerAttr<SQLULEN>(value), "SQL_ATTR_CURSOR_TYPE");
