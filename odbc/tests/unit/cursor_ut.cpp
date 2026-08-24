@@ -72,6 +72,26 @@ TEST(CursorWindow, AppliesLimitBeforePositioning) {
     EXPECT_EQ(window.Resolve(0), 2);
 }
 
+TEST(CursorWindow, ResolvesRelativePositionsAtBoundaries) {
+    TCursorWindow window(7);
+
+    EXPECT_EQ(window.Fetch(SQL_FETCH_RELATIVE, -1, 2, 0).Rows, 0);
+    EXPECT_EQ(window.Fetch(SQL_FETCH_RELATIVE, 2, 2, 0).Rows, 2);
+    EXPECT_EQ(window.Resolve(0), 1);
+
+    auto fetch = window.Fetch(SQL_FETCH_RELATIVE, -2, 2, 0);
+    EXPECT_EQ(fetch.Rows, 2);
+    EXPECT_TRUE(fetch.OverlappedStart);
+    EXPECT_EQ(window.Resolve(0), 0);
+
+    EXPECT_EQ(window.Fetch(SQL_FETCH_RELATIVE, 4, 2, 0).Rows, 2);
+    EXPECT_EQ(window.Resolve(0), 4);
+
+    EXPECT_EQ(window.Fetch(SQL_FETCH_ABSOLUTE, 100, 2, 0).Rows, 0);
+    EXPECT_EQ(window.Fetch(SQL_FETCH_RELATIVE, -2, 2, 0).Rows, 2);
+    EXPECT_EQ(window.Resolve(0), 5);
+}
+
 TEST(CursorWindow, HandlesEmptyAndExtremeOffsets) {
     TCursorWindow empty(0);
     EXPECT_EQ(empty.Fetch(SQL_FETCH_FIRST, 0, 1, 0).Rows, 0);
