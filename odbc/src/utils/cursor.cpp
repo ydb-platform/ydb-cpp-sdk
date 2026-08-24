@@ -260,7 +260,8 @@ private:
         if (distance <= origin) {
             return Rowset(origin - static_cast<size_t>(distance));
         }
-        return allowOverlap && distance <= RequestedRowsetSize_
+        const uintmax_t rowsBeforeStart = distance - origin;
+        return allowOverlap && rowsBeforeStart < RequestedRowsetSize_
             ? Rowset(0, true)
             : Boundary(EPosition::Before);
     }
