@@ -145,11 +145,6 @@ classifications:
       qt:
         - qt.*.qsqltablemodel.setData
   - outcome: unsupported
-    reason: Qt binds a typeless NULL as text for an Int32 column, and YDB does not coerce Optional<String> to Optional<Int32>.
-    tests:
-      qt:
-        - qt.*.qsqltablemodel.removeInsertedRow
-  - outcome: unsupported
     reason: Qt's fixture inserts the same id ten times into a table that must have a primary key, and YDB rejects duplicate keys.
     tests:
       qt:
