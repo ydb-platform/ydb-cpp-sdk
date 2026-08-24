@@ -33,6 +33,7 @@ mkdir -p "$MONOREPO/ydb/public/api/grpc"
 mkdir -p "$MONOREPO/ydb/public/api/protos/out"
 mkdir -p "$MONOREPO/util"
 mkdir -p "$MONOREPO/library/cpp/example"
+mkdir -p "$MONOREPO/library/cpp/yt/threading/unittests"
 mkdir -p "$MONOREPO/contrib/libs/libc_compat"
 mkdir -p "$MONOREPO/tools/enum_parser"
 
@@ -48,6 +49,10 @@ printf 'upstream=old\nseparator=unchanged\nstandalone=old\n' > "$MONOREPO/util/m
 printf 'upstream=old\nseparator=unchanged\nstandalone=old\n' > "$MONOREPO/util/renamed-old.txt"
 echo "remove upstream" > "$MONOREPO/util/deleted.txt"
 printf 'upstream=old\nseparator=unchanged\nstandalone=old\n' > "$MONOREPO/library/cpp/example/merged.txt"
+echo "UPSTREAM_EVENT_COUNT" > "$MONOREPO/library/cpp/yt/threading/event_count.h"
+echo "UPSTREAM_FUTEX" > "$MONOREPO/library/cpp/yt/threading/futex.cpp"
+echo "UPSTREAM_YA_MAKE" > "$MONOREPO/library/cpp/yt/threading/ya.make"
+echo "UPSTREAM_UNITTEST" > "$MONOREPO/library/cpp/yt/threading/unittests/event_count_ut.cpp"
 printf 'upstream=old\nseparator=unchanged\nstandalone=old\n' > "$MONOREPO/contrib/libs/libc_compat/merged.txt"
 printf 'upstream=old\nseparator=unchanged\nstandalone=old\n' > "$MONOREPO/tools/enum_parser/merged.txt"
 
@@ -152,6 +157,8 @@ assert_contains "$OSS/util/renamed-new.txt" "upstream=new" ""
 assert_contains "$OSS/util/renamed-new.txt" "standalone=custom" ""
 assert_contains "$OSS/library/cpp/example/merged.txt" "upstream=new" ""
 assert_contains "$OSS/library/cpp/example/merged.txt" "standalone=custom" ""
+assert_contains "$OSS/library/cpp/yt/threading/event_count.h" "UPSTREAM_EVENT_COUNT" ""
+assert_contains "$OSS/library/cpp/yt/threading/futex.cpp" "UPSTREAM_FUTEX" ""
 assert_contains "$OSS/contrib/libs/libc_compat/merged.txt" "upstream=new" ""
 assert_contains "$OSS/contrib/libs/libc_compat/merged.txt" "standalone=custom" ""
 assert_contains "$OSS/tools/enum_parser/merged.txt" "upstream=new" ""
@@ -166,6 +173,14 @@ if [ -e "$OSS/util/renamed-old.txt" ]; then
 fi
 if [ -e "$OSS/library/cpp/not_vendored/file.txt" ]; then
     echo "FAIL: unvendored library component was imported" >&2
+    failures=$((failures + 1))
+fi
+if [ -e "$OSS/library/cpp/yt/threading/ya.make" ]; then
+    echo "FAIL: Arcadia build metadata was imported with the library component" >&2
+    failures=$((failures + 1))
+fi
+if [ -e "$OSS/library/cpp/yt/threading/unittests/event_count_ut.cpp" ]; then
+    echo "FAIL: unregistered upstream library tests were imported" >&2
     failures=$((failures + 1))
 fi
 
