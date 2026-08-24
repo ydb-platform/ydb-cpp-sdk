@@ -128,6 +128,37 @@ classifications:
     tests:
       qt:
         - qt.*.qsqlquery.numRowsAffected
+  - outcome: unsupported
+    reason: The driver exposes one result set per executed statement, so Qt's SQLMoreResults scenarios are unavailable.
+    tests:
+      qt:
+        - qt.*.qsqlquery.{nextResult,forwardOnlyMultipleResultSet}
+  - outcome: unsupported
+    reason: Qt's relational models generate implicit comma joins, which YDB rejects unless implicit Cartesian products are enabled.
+    tests:
+      qt:
+        - qt.*.qsqlrelationaldelegate.comboBoxEditor
+        - qt.*.qsqlrelationaltablemodel.{data,setData,multipleRelation,insertRecord,setRecord,insertWithStrategies,removeColumn,filter,sort,revert,clearDisplayValuesCache,insertRecordDuplicateFieldNames,invalidData,relationModel,casing,escapedRelations,escapedTableName,selectAfterUpdate,relationOnFirstColumn,setRelation}
+  - outcome: unsupported
+    reason: Qt's fixture updates the id column in place, but YDB primary-key columns are immutable.
+    tests:
+      qt:
+        - qt.*.qsqltablemodel.setData
+  - outcome: unsupported
+    reason: Qt binds a typeless NULL as text for an Int32 column, and YDB does not coerce Optional<String> to Optional<Int32>.
+    tests:
+      qt:
+        - qt.*.qsqltablemodel.removeInsertedRow
+  - outcome: unsupported
+    reason: Qt's fixture inserts the same id ten times into a table that must have a primary key, and YDB rejects duplicate keys.
+    tests:
+      qt:
+        - qt.*.qsqltablemodel.insertRecordsInLoop
+  - outcome: unsupported
+    reason: Qt removes the model's sole primary-key column before deleting a row, while YDB requires that key to identify the row.
+    tests:
+      qt:
+        - qt.*.qsqltablemodel.removeColumnAndRow
 consumers:
   - id: package-contract
     display_name: Debian package contract
