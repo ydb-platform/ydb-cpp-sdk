@@ -873,7 +873,7 @@ SQLRETURN TStatement::SetStmtAttr(
     }
     const auto setCursorType = [&](SQLULEN cursorType, std::string_view name) -> SQLRETURN {
         if (Cursor_) {
-            return AddError("HY011", 0, std::string(name) + " cannot be changed while a cursor is open");
+            return AddError("24000", 0, std::string(name) + " cannot be changed while a cursor is open");
         }
         if (cursorType == SQL_CURSOR_FORWARD_ONLY || cursorType == SQL_CURSOR_STATIC) {
             Attributes_.CursorType = cursorType;
