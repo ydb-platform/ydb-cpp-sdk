@@ -988,6 +988,11 @@ TEST(StatementApi, CursorAttributesAndCapabilities) {
     EXPECT_EQ(value, SQL_CURSOR_FORWARD_ONLY);
     ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_CURSOR_SCROLLABLE, &value, 0, nullptr), SQL_SUCCESS);
     EXPECT_EQ(value, SQL_NONSCROLLABLE);
+    ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_CONCURRENCY, &value, 0, nullptr), SQL_SUCCESS);
+    EXPECT_EQ(value, SQL_CONCUR_READ_ONLY);
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_CONCURRENCY,
+                                (SQLPOINTER)SQL_CONCUR_READ_ONLY, 0),
+                  stmt, SQL_HANDLE_STMT);
 
     CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT 1", SQL_NTS),
                   stmt, SQL_HANDLE_STMT);
@@ -1002,6 +1007,13 @@ TEST(StatementApi, CursorAttributesAndCapabilities) {
     EXPECT_EQ(value, SQL_SCROLLABLE);
     ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_CURSOR_TYPE, &value, 0, nullptr), SQL_SUCCESS);
     EXPECT_EQ(value, SQL_CURSOR_STATIC);
+
+    EXPECT_EQ(SQLSetStmtAttr(stmt, SQL_ATTR_CONCURRENCY,
+                             (SQLPOINTER)SQL_CONCUR_VALUES, 0),
+              SQL_SUCCESS_WITH_INFO);
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "01S02"));
+    ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_CONCURRENCY, &value, 0, nullptr), SQL_SUCCESS);
+    EXPECT_EQ(value, SQL_CONCUR_READ_ONLY);
 
     CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_CURSOR_TYPE,
                                 (SQLPOINTER)SQL_CURSOR_FORWARD_ONLY, 0),
@@ -1022,12 +1034,25 @@ TEST(StatementApi, CursorAttributesAndCapabilities) {
                   dbc, SQL_HANDLE_DBC);
     EXPECT_EQ(info & (SQL_SO_FORWARD_ONLY | SQL_SO_STATIC),
               SQL_SO_FORWARD_ONLY | SQL_SO_STATIC);
+    CHECK_ODBC_OK(SQLGetInfo(dbc, SQL_SCROLL_CONCURRENCY, &info, 0, nullptr),
+                  dbc, SQL_HANDLE_DBC);
+    EXPECT_EQ(info & SQL_SCCO_READ_ONLY, SQL_SCCO_READ_ONLY);
+    CHECK_ODBC_OK(SQLGetInfo(dbc, SQL_STATIC_CURSOR_ATTRIBUTES2, &info, 0, nullptr),
+                  dbc, SQL_HANDLE_DBC);
+    EXPECT_EQ(info & SQL_CA2_READ_ONLY_CONCURRENCY, SQL_CA2_READ_ONLY_CONCURRENCY);
 
     CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT 1", SQL_NTS),
                   stmt, SQL_HANDLE_STMT);
     EXPECT_EQ(SQLSetStmtAttr(stmt, SQL_ATTR_CURSOR_TYPE,
                              (SQLPOINTER)SQL_CURSOR_FORWARD_ONLY, 0),
               SQL_ERROR);
+    const std::string cursorTypeError = GetOdbcError(stmt, SQL_HANDLE_STMT);
+    EXPECT_TRUE(SqlStatePrefix(cursorTypeError, "24000")) << cursorTypeError;
+    EXPECT_EQ(SQLSetStmtAttr(stmt, SQL_ATTR_CONCURRENCY,
+                             (SQLPOINTER)SQL_CONCUR_READ_ONLY, 0),
+              SQL_ERROR);
+    const std::string concurrencyError = GetOdbcError(stmt, SQL_HANDLE_STMT);
+    EXPECT_TRUE(SqlStatePrefix(concurrencyError, "24000")) << concurrencyError;
     CHECK_ODBC_OK(SQLFreeStmt(stmt, SQL_CLOSE), stmt, SQL_HANDLE_STMT);
 
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
@@ -1124,6 +1149,12 @@ TEST(StatementApi, StaticCursorScrollsRowsets) {
 
     ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_ABSOLUTE, 2), SQL_SUCCESS);
     ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_PRIOR, 0), SQL_SUCCESS_WITH_INFO);
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "01S06"));
+    EXPECT_EQ(values[0], 1);
+    EXPECT_EQ(values[1], 2);
+
+    ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_ABSOLUTE, 6), SQL_SUCCESS);
+    ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_RELATIVE, -6), SQL_SUCCESS_WITH_INFO);
     EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "01S06"));
     EXPECT_EQ(values[0], 1);
     EXPECT_EQ(values[1], 2);
