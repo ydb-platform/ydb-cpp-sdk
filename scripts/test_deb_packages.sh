@@ -61,6 +61,9 @@ test ! -e /usr/share/yandex/lib/cmake/ydb-cpp-sdk/release/ydb-cpp-sdk-otel-metri
 test ! -e /usr/share/yandex/lib/cmake/ydb-cpp-sdk/release/ydb-cpp-sdk-otel-tracing-targets.cmake
 configure_components default
 configure_components core "Driver;Table;Topic"
+cmake -S /component_test -B /component_test/build-predefined-rpc \
+  -DCMAKE_PREFIX_PATH=/usr/share/yandex \
+  -DYDB_TEST_PREDEFINED_RPC_TARGETS=ON
 
 apt-get install -y /deb_packages/libydb-cpp-iam-dev_*.deb
 test -f /usr/share/yandex/lib/cmake/ydb-cpp-sdk/release/ydb-cpp-sdk-iam-targets.cmake
@@ -79,6 +82,12 @@ cd /test_project/build
 cmake -DCMAKE_PREFIX_PATH=/usr/share/yandex ..
 make -j"$(nproc)"
 ./test_app
+
+cmake -S /test_project -B /test_project/build-pkgconfig-grpc \
+  -DCMAKE_PREFIX_PATH=/usr/share/yandex \
+  -DYDB_TEST_GRPC_PKGCONFIG_FALLBACK=ON
+cmake --build /test_project/build-pkgconfig-grpc --parallel "$(nproc)"
+/test_project/build-pkgconfig-grpc/test_app
 '
 
 echo "Test successful!"

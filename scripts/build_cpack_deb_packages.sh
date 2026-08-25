@@ -24,7 +24,7 @@ if [ "${YDB_DEB_INSTALL_DEPS:-1}" = "1" ]; then
         build-essential ca-certificates ccache cmake ninja-build pkg-config git \
         libidn11-dev libssl-dev zlib1g-dev \
         libprotobuf-dev protobuf-compiler libgrpc++-dev protobuf-compiler-grpc \
-        libbrotli-dev liblz4-dev libzstd-dev libbz2-dev libxxhash-dev \
+        libabsl-dev libbrotli-dev liblz4-dev libzstd-dev libbz2-dev libxxhash-dev \
         libsnappy-dev libdouble-conversion-dev libre2-dev \
         libc-ares-dev rapidjson-dev python3 ragel yasm
 fi
