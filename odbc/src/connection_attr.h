@@ -67,9 +67,11 @@ private:
     std::string CurrentCatalog_;
     std::optional<SQLPOINTER> QuietMode_;
     std::optional<SQLUINTEGER> TranslateOption_;
+    SQLUINTEGER LoginTimeout_ = 0;
     SQLUINTEGER AccessMode_ = SQL_MODE_READ_WRITE;
     SQLUINTEGER TxnIsolation_ = SQL_TXN_SERIALIZABLE;
     using TStoredProperties = TScalarProperties<
+        TScalarProperty<SQL_ATTR_LOGIN_TIMEOUT, &TConnectionAttributes::LoginTimeout_>,
         TScalarProperty<SQL_ATTR_QUIET_MODE, &TConnectionAttributes::QuietMode_>,
         TScalarProperty<SQL_ATTR_TRANSLATE_OPTION, &TConnectionAttributes::TranslateOption_>>;
     using TReadOnlyProperties = TScalarProperties<

@@ -18,6 +18,24 @@ add_library(ydb-odbc SHARED
   src/descriptor.cpp
 )
 
+get_filename_component(_ydb_odbc_library_dir "${ODBC_LIBRARY}" DIRECTORY)
+get_filename_component(_ydb_odbc_library_name "${ODBC_LIBRARY}" NAME)
+if (WIN32)
+  set(_ydb_odbcinst_names odbccp32)
+elseif (_ydb_odbc_library_name MATCHES "[iI][oO][dD][bB][cC]")
+  set(_ydb_odbcinst_names iodbcinst)
+else()
+  set(_ydb_odbcinst_names odbcinst)
+endif()
+find_library(YDB_ODBCINST_LIBRARY
+  NAMES ${_ydb_odbcinst_names}
+  HINTS "${_ydb_odbc_library_dir}"
+  REQUIRED
+)
+unset(_ydb_odbc_library_dir)
+unset(_ydb_odbc_library_name)
+unset(_ydb_odbcinst_names)
+
 target_include_directories(ydb-odbc
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -34,8 +52,7 @@ target_link_libraries(ydb-odbc
     YDB-CPP-SDK::Credentials
     YDB-CPP-SDK::Helpers
     YDB-CPP-SDK::Iam
-    ODBC::ODBC
-    odbcinst
+    ${YDB_ODBCINST_LIBRARY}
 )
 
 set_target_properties(ydb-odbc PROPERTIES

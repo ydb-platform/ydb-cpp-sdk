@@ -67,9 +67,9 @@ const TColumnMeta kTypeInfoSchema[] = {
     N("NULLABLE", SQL_SMALLINT, SQL_NO_NULLS),
     N("CASE_SENSITIVE", SQL_SMALLINT, SQL_NO_NULLS),
     N("SEARCHABLE", SQL_SMALLINT, SQL_NO_NULLS),
-    C("UNSIGNED_ATTRIBUTE", SQL_CHAR, 1),
+    N("UNSIGNED_ATTRIBUTE", SQL_SMALLINT),
     N("FIXED_PREC_SCALE", SQL_SMALLINT, SQL_NO_NULLS),
-    N("AUTO_UNIQUE_VALUE", SQL_SMALLINT, SQL_NO_NULLS),
+    N("AUTO_UNIQUE_VALUE", SQL_SMALLINT),
     V("LOCAL_TYPE_NAME"),
     N("MINIMUM_SCALE", SQL_SMALLINT),
     N("MAXIMUM_SCALE", SQL_SMALLINT),
@@ -83,7 +83,7 @@ const TColumnMeta kStatisticsSchema[] = {
     V("TABLE_CAT"),
     V("TABLE_SCHEM"),
     V("TABLE_NAME", 128, SQL_NO_NULLS),
-    C("NON_UNIQUE", SQL_CHAR, 1, SQL_NO_NULLS),
+    N("NON_UNIQUE", SQL_SMALLINT, SQL_NO_NULLS),
     V("INDEX_QUALIFIER"),
     V("INDEX_NAME"),
     N("TYPE", SQL_SMALLINT, SQL_NO_NULLS),
@@ -132,6 +132,17 @@ const TColumnMeta kForeignKeysSchema[] = {
     N("DEFERRABILITY", SQL_SMALLINT),
 };
 
+const TColumnMeta kColumnPrivilegesSchema[] = {
+    V("TABLE_CAT"),
+    V("TABLE_SCHEM"),
+    V("TABLE_NAME", 128, SQL_NO_NULLS),
+    V("COLUMN_NAME", 128, SQL_NO_NULLS),
+    V("GRANTOR"),
+    V("GRANTEE", 128, SQL_NO_NULLS),
+    V("PRIVILEGE", 128, SQL_NO_NULLS),
+    V("IS_GRANTABLE"),
+};
+
 TOdbcScalar Null() {
     return std::monostate{};
 }
@@ -144,6 +155,16 @@ TOdbcScalar I(T value) {
 template <class T>
 TOdbcScalar Maybe(const std::optional<T>& value) {
     return value ? I(*value) : Null();
+}
+
+std::string GetMetadataCatalogName(TConnection* connection) {
+    std::string catalog = connection->GetCatalogBinding().Catalog;
+    // TABLE_CAT is an identifier. The leading slash belongs to YDB's absolute
+    // path syntax and is supplied separately as SQL_CATALOG_NAME_SEPARATOR.
+    if (catalog.starts_with('/')) {
+        catalog.erase(0, 1);
+    }
+    return catalog;
 }
 
 template <class Visitor>
@@ -204,10 +225,7 @@ TTable BuildTypeInfoRows(SQLSMALLINT dataType) {
             || (dataType != SQL_ALL_TYPES && spec.Type != dataType)) {
             continue;
         }
-        std::string typeName(spec.Name);
-        std::ranges::transform(typeName, typeName.begin(), [](unsigned char c) {
-            return static_cast<char>(std::tolower(c));
-        });
+        const std::string typeName(spec.YqlType);
         table.push_back({
             typeName, I(spec.Type), I(static_cast<SQLINTEGER>(spec.ColumnSize)), Null(), Null(),
             Null(), I(SQL_NULLABLE),
@@ -228,7 +246,7 @@ SQLRETURN TStatement::Columns(const std::string& catalogName, const std::string&
         return SQL_SUCCESS;
     }
 
-    const std::string catalog = Conn_->GetCatalogBinding().Catalog;
+    const std::string catalog = GetMetadataCatalogName(Conn_);
     TTable table;
     for (const auto& entry : GetPatternEntries(tableName)) {
         if (entry.Type != NScheme::ESchemeEntryType::Table
@@ -237,6 +255,7 @@ SQLRETURN TStatement::Columns(const std::string& catalogName, const std::string&
         }
         DescribeTable(Conn_, entry.Name, [&](const auto& description) {
             const auto& columns = description.GetTableColumns();
+            const auto& primaryKeyColumns = description.GetPrimaryKeyColumns();
             for (size_t index = 0; index < columns.size(); ++index) {
                 const auto& column = columns[index];
                 const bool matches = columnName.empty()
@@ -248,10 +267,12 @@ SQLRETURN TStatement::Columns(const std::string& catalogName, const std::string&
                 const TYdbTypeInfo type = DescribeYdbType(column.Type);
                 const TOdbcScalar size = type.ColumnSize
                     ? I(static_cast<SQLINTEGER>(type.ColumnSize)) : Null();
-                const bool notNull = column.NotNull && *column.NotNull;
+                const bool notNull = type.Nullable == SQL_NO_NULLS
+                    || (column.NotNull && *column.NotNull)
+                    || std::ranges::find(primaryKeyColumns, column.Name) != primaryKeyColumns.end();
                 table.push_back({
                     catalog, Null(), GetMetadataTableName(entry.Name), column.Name, I(type.SqlType),
-                    column.Type.ToString(), size, size, Maybe(type.DecimalDigits), Maybe(type.Radix),
+                    type.TypeName, size, size, Maybe(type.DecimalDigits), Maybe(type.Radix),
                     I(notNull ? SQL_NO_NULLS : SQL_NULLABLE), Null(), Null(), I(type.SqlType), Null(),
                     size, I(static_cast<SQLINTEGER>(index + 1)), std::string(notNull ? "NO" : "YES"),
                 });
@@ -270,7 +291,7 @@ SQLRETURN TStatement::Tables(const std::string& catalogName, const std::string& 
         return SQL_SUCCESS;
     }
 
-    const std::string catalog = Conn_->GetCatalogBinding().Catalog;
+    const std::string catalog = GetMetadataCatalogName(Conn_);
     TTable table;
     for (const auto& entry : GetPatternEntries(tableName)) {
         const auto type = GetTableType(entry.Type);
@@ -324,7 +345,7 @@ SQLRETURN TStatement::SpecialColumns(const std::string& catalogName, const std::
                 const TYdbTypeInfo type = DescribeYdbType(column->Type);
                 const TOdbcScalar size = type.ColumnSize
                     ? I(static_cast<SQLINTEGER>(type.ColumnSize)) : Null();
-                table.push_back({I(SQL_SCOPE_SESSION), pkName, I(type.SqlType), column->Type.ToString(),
+                table.push_back({I(SQL_SCOPE_SESSION), pkName, I(type.SqlType), type.TypeName,
                                  size, size, Maybe(type.DecimalDigits), I(SQL_PC_NOT_PSEUDO)});
             }
         });
@@ -347,7 +368,7 @@ SQLRETURN TStatement::PrimaryKeys(const std::string& catalogName, const std::str
     }
     TTable table;
     if (!entries.empty()) {
-        const std::string catalog = Conn_->GetCatalogBinding().Catalog;
+        const std::string catalog = GetMetadataCatalogName(Conn_);
         DescribeTable(Conn_, entries.front().Name, [&](const auto& description) {
             SQLSMALLINT sequence = 1;
             for (const auto& name : description.GetPrimaryKeyColumns()) {
@@ -364,6 +385,13 @@ SQLRETURN TStatement::ForeignKeys(const std::string&, const std::string&, const 
                                   const std::string&, const std::string&, const std::string&) {
     ResetForMetadata();
     SetCursor(CreateVirtualCursor(kForeignKeysSchema));
+    return SQL_SUCCESS;
+}
+
+SQLRETURN TStatement::ColumnPrivileges(const std::string&, const std::string&,
+                                       const std::string&, const std::string&) {
+    ResetForMetadata();
+    SetCursor(CreateVirtualCursor(kColumnPrivilegesSchema));
     return SQL_SUCCESS;
 }
 
@@ -397,7 +425,11 @@ bool TStatement::MetadataNamespaceMatches(const std::string& catalog, const std:
         return pattern.empty() || (Attributes_.GetMetadataId() == SQL_TRUE
             ? value == pattern : SqlLikeMatch(value, pattern));
     };
-    return matches(Conn_->GetCatalogBinding().Catalog, catalog) && matches("", schema);
+    std::string normalizedCatalog = catalog;
+    if (!normalizedCatalog.empty() && normalizedCatalog.front() != '/') {
+        normalizedCatalog.insert(normalizedCatalog.begin(), '/');
+    }
+    return matches(Conn_->GetCatalogBinding().Catalog, normalizedCatalog) && matches("", schema);
 }
 
 SQLRETURN TStatement::VisitEntry(const std::string& path, const std::string& pattern,

@@ -7,8 +7,7 @@
 #include "utils/util.h"
 #include "utils/error_manager.h"
 
-#include <sql.h>
-#include <sqlext.h>
+#include "odbc_compat.h"
 
 namespace {
     namespace Odbc = NYdb::NOdbc;
@@ -438,6 +437,14 @@ ODBC_FORWARD(SQLForeignKeys, TStatement, TStatement::ForeignKeys,
     (statementHandle, Text(pkCatalogName, nameLength1), Text(pkSchemaName, nameLength2),
      Text(pkTableName, nameLength3), Text(fkCatalogName, nameLength4),
      Text(fkSchemaName, nameLength5), Text(fkTableName, nameLength6)))
+
+ODBC_FORWARD(SQLColumnPrivileges, TStatement, TStatement::ColumnPrivileges,
+    (SQLHSTMT statementHandle, SQLCHAR* catalogName, SQLSMALLINT nameLength1,
+     SQLCHAR* schemaName, SQLSMALLINT nameLength2,
+     SQLCHAR* tableName, SQLSMALLINT nameLength3,
+     SQLCHAR* columnName, SQLSMALLINT nameLength4),
+    (statementHandle, Text(catalogName, nameLength1), Text(schemaName, nameLength2),
+     Text(tableName, nameLength3), Text(columnName, nameLength4)))
 
 ODBC_FORWARD(SQLGetDescField, TDescriptor, TDescriptor::GetDescField,
     (SQLHDESC descriptorHandle, SQLSMALLINT recNumber, SQLSMALLINT fieldIdentifier,

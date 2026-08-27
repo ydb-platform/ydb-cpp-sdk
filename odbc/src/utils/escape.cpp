@@ -320,7 +320,7 @@ TParamRewriteResult RewriteSql(
         }
         const auto index = static_cast<SQLUSMALLINT>(rawIndex);
         const std::string prefix = "DECLARE $p" + std::to_string(index) + " AS";
-        if (sql.find(prefix) != std::string_view::npos) {
+        if (GetDeclaredParamOptionality(sql, index).has_value()) {
             continue;
         }
         const auto bound = std::ranges::find(boundParams, index, &TBoundParam::ParamNumber);
@@ -331,7 +331,8 @@ TParamRewriteResult RewriteSql(
         if (!type) {
             return {.Success = false, .SqlState = "07006", .Message = "Restricted data type attribute violation"};
         }
-        declarations += prefix + " " + type->YqlType + "?;\n";
+        declarations += prefix + " " + type->YqlType
+            + (BoundParamIsNull(*bound) ? "?;\n" : ";\n");
     }
     return {.Sql = declarations.empty() ? std::move(body) : declarations + body};
 }
@@ -351,6 +352,28 @@ TParamRewriteResult RewriteOdbcSql(
     const std::vector<TBoundParam>& boundParams,
     bool rewriteEscapes) {
     return RewriteSql(sql, boundParams, rewriteEscapes);
+}
+
+std::optional<bool> GetDeclaredParamOptionality(
+    std::string_view sql,
+    SQLUSMALLINT paramNumber)
+{
+    const std::string prefix = "DECLARE $p" + std::to_string(paramNumber) + " AS";
+    const size_t declaration = sql.find(prefix);
+    if (declaration == std::string_view::npos) {
+        return std::nullopt;
+    }
+    const size_t typeBegin = declaration + prefix.size();
+    const size_t semicolon = sql.find(';', typeBegin);
+    if (semicolon == std::string_view::npos) {
+        return std::nullopt;
+    }
+    size_t typeEnd = semicolon;
+    while (typeEnd > typeBegin
+           && std::isspace(static_cast<unsigned char>(sql[typeEnd - 1]))) {
+        --typeEnd;
+    }
+    return typeEnd > typeBegin && sql[typeEnd - 1] == '?';
 }
 
 SQLSMALLINT CountOdbcParams(std::string_view sql) {

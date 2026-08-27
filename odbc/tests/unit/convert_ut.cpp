@@ -36,7 +36,7 @@ TEST(OdbcConvert, Int64ToYdb) {
     auto params = paramsBuilder.Build();
     auto value = params.GetValue("$p1");
     ASSERT_TRUE(value);
-    CheckProto(value->GetType().GetProto(), "optional_type {\n  item {\n    type_id: INT64\n  }\n}\n");
+    CheckProto(value->GetType().GetProto(), "type_id: INT64\n");
     CheckProto(value->GetProto(), "int64_value: 42\n");
 }
 
@@ -50,7 +50,7 @@ TEST(OdbcConvert, UnsignedCSelectsYdbUnsignedType) {
     auto params = paramsBuilder.Build();
     auto value = params.GetValue("$p1");
     ASSERT_TRUE(value);
-    CheckProto(value->GetType().GetProto(), "optional_type {\n  item {\n    type_id: UINT64\n  }\n}\n");
+    CheckProto(value->GetType().GetProto(), "type_id: UINT64\n");
     CheckProto(value->GetProto(), "uint64_value: 123\n");
 }
 
@@ -65,7 +65,7 @@ TEST(OdbcConvert, WideStringToYdbUtf8) {
     ASSERT_EQ(ConvertParam(param, paramsBuilder.AddParam("$p1")), SQL_SUCCESS);
     const auto value = paramsBuilder.Build().GetValue("$p1");
     ASSERT_TRUE(value);
-    CheckProto(value->GetType().GetProto(), "optional_type {\n  item {\n    type_id: UTF8\n  }\n}\n");
+    CheckProto(value->GetType().GetProto(), "type_id: UTF8\n");
     CheckProto(value->GetProto(), "text_value: \"hello\"\n");
 }
 
@@ -79,7 +79,7 @@ TEST(OdbcConvert, TimestampStructToYdbTimestamp) {
     ASSERT_EQ(ConvertParam(param, paramsBuilder.AddParam("$p1")), SQL_SUCCESS);
     const auto value = paramsBuilder.Build().GetValue("$p1");
     ASSERT_TRUE(value);
-    CheckProto(value->GetType().GetProto(), "optional_type {\n  item {\n    type_id: TIMESTAMP\n  }\n}\n");
+    CheckProto(value->GetType().GetProto(), "type_id: TIMESTAMP\n");
 }
 
 TEST(OdbcConvert, DoubleToYdb) {
@@ -92,7 +92,7 @@ TEST(OdbcConvert, DoubleToYdb) {
     auto params = paramsBuilder.Build();
     auto value = params.GetValue("$p1");
     ASSERT_TRUE(value);
-    CheckProto(value->GetType().GetProto(), "optional_type {\n  item {\n    type_id: DOUBLE\n  }\n}\n");
+    CheckProto(value->GetType().GetProto(), "type_id: DOUBLE\n");
     CheckProto(value->GetProto(), "double_value: 3.14\n");
 }
 
@@ -107,11 +107,10 @@ TEST(OdbcConvert, DoubleToYdbDecimalPreservesPrecisionAndScale) {
     ASSERT_TRUE(value);
 
     TValueParser parser(*value);
-    const auto decimal = parser.GetOptionalDecimal();
-    ASSERT_TRUE(decimal);
-    EXPECT_EQ(decimal->DecimalType_.Precision, 18);
-    EXPECT_EQ(decimal->DecimalType_.Scale, 5);
-    EXPECT_EQ(decimal->ToString(), "123.456");
+    const auto decimal = parser.GetDecimal();
+    EXPECT_EQ(decimal.DecimalType_.Precision, 18);
+    EXPECT_EQ(decimal.DecimalType_.Scale, 5);
+    EXPECT_EQ(decimal.ToString(), "123.456");
 
     char text[16] = {};
     SQLLEN textLength = 0;
@@ -131,7 +130,7 @@ TEST(OdbcConvert, StringToYdbUtf8) {
     auto params = paramsBuilder.Build();
     auto value = params.GetValue("$p1");
     ASSERT_TRUE(value);
-    CheckProto(value->GetType().GetProto(), "optional_type {\n  item {\n    type_id: UTF8\n  }\n}\n");
+    CheckProto(value->GetType().GetProto(), "type_id: UTF8\n");
     CheckProto(value->GetProto(), "text_value: \"hello\"\n");
 }
 
@@ -146,7 +145,7 @@ TEST(OdbcConvert, StringToYdbBinary) {
     auto params = paramsBuilder.Build();
     auto value = params.GetValue("$p1");
     ASSERT_TRUE(value);
-    CheckProto(value->GetType().GetProto(), "optional_type {\n  item {\n    type_id: STRING\n  }\n}\n");
+    CheckProto(value->GetType().GetProto(), "type_id: STRING\n");
     CheckProto(value->GetProto(), "bytes_value: \"bin\\001\\002\"\n");
 }
 
@@ -190,7 +189,21 @@ TEST(OdbcConvert, Int32ToYdb) {
     auto params = paramsBuilder.Build();
     auto value = params.GetValue("$p1");
     ASSERT_TRUE(value);
-    CheckProto(value->GetType().GetProto(), "optional_type {\n  item {\n    type_id: INT32\n  }\n}\n");
+    CheckProto(value->GetType().GetProto(), "type_id: INT32\n");
+    CheckProto(value->GetProto(), "int32_value: 42\n");
+}
+
+TEST(OdbcConvert, NonNullValueCanUseOptionalDeclaredType) {
+    SQLINTEGER v = 42;
+    TBoundParam param{
+        1, SQL_C_LONG, SQL_INTEGER, 0, 0, &v, sizeof(v), nullptr
+    };
+    TParamsBuilder paramsBuilder;
+    ASSERT_EQ(ConvertParam(param, paramsBuilder.AddParam("$p1"), true), SQL_SUCCESS);
+    const auto value = paramsBuilder.Build().GetValue("$p1");
+    ASSERT_TRUE(value);
+    CheckProto(value->GetType().GetProto(),
+        "optional_type {\n  item {\n    type_id: INT32\n  }\n}\n");
     CheckProto(value->GetProto(), "int32_value: 42\n");
 }
 

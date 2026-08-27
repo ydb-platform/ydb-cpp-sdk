@@ -131,9 +131,12 @@ if (YDB_SDK_ODBC)
     target_compile_definitions(${ODBC_TEST_NAME} 
       PRIVATE 
         ODBC_DRIVER_PATH="$<TARGET_FILE:ydb-odbc>"
-        ODBC_TEST_ODBCINI="${CMAKE_BINARY_DIR}/odbc/odbc.ini"
+        ODBC_TEST_ODBCINI="${YDB_ODBC_TEST_INI}"
         ODBC_TEST_ODBCSYSINI="${CMAKE_BINARY_DIR}/odbc"
     )
+    if (ODBC_LIBRARY MATCHES "[iI][oO][dD][bB][cC]")
+      target_compile_definitions(${ODBC_TEST_NAME} PRIVATE ODBC_TEST_IODBC=1)
+    endif()
 
     add_dependencies(${ODBC_TEST_NAME} ydb-odbc)
   endfunction()

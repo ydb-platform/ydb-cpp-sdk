@@ -2,13 +2,14 @@
 
 #include <ydb-cpp-sdk/client/value/value.h>
 
-#include <sql.h>
-#include <sqlext.h>
+#include "odbc_compat.h"
 #include <optional>
+#include <string>
 
 namespace NYdb::NOdbc {
 
 struct TYdbTypeInfo {
+    std::string TypeName;
     SQLSMALLINT SqlType = SQL_UNKNOWN_TYPE;
     SQLULEN ColumnSize = 4096;
     SQLSMALLINT Nullable = SQL_NO_NULLS;

@@ -81,6 +81,17 @@ TEST(MetadataApi, SQLTablesExactMatch) {
 }
 
 TEST(MetadataApi, RelativeTableMetadataUsesCurrentCatalog) {
+    struct TExpectedColumn {
+        const char* Name;
+        const char* TypeName;
+        SQLSMALLINT Nullable;
+        const char* IsNullable;
+    };
+    const TExpectedColumn expectedColumns[] = {
+        {"id", "Int32", SQL_NO_NULLS, "NO"},
+        {"value", "Utf8", SQL_NULLABLE, "YES"},
+    };
+
     SQLHENV env;
     SQLHDBC dbc;
     SQLHSTMT stmt;
@@ -103,7 +114,7 @@ TEST(MetadataApi, RelativeTableMetadataUsesCurrentCatalog) {
     SQLLEN indicator = 0;
     ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_CHAR, catalog, sizeof(catalog), &indicator), SQL_SUCCESS);
     ASSERT_EQ(SQLGetData(stmt, 3, SQL_C_CHAR, tableName, sizeof(tableName), &indicator), SQL_SUCCESS);
-    EXPECT_STREQ(catalog, "/local");
+    EXPECT_STREQ(catalog, "local");
     EXPECT_STREQ(tableName, table);
     ASSERT_EQ(SQLFetch(stmt), SQL_NO_DATA);
     SQLFreeStmt(stmt, SQL_CLOSE);
@@ -111,11 +122,33 @@ TEST(MetadataApi, RelativeTableMetadataUsesCurrentCatalog) {
     CHECK_ODBC_OK(SQLColumns(stmt, nullptr, 0, nullptr, 0,
                             (SQLCHAR*)table, SQL_NTS, nullptr, 0),
                   stmt, SQL_HANDLE_STMT);
-    int columnCount = 0;
-    while (SQLFetch(stmt) == SQL_SUCCESS) {
-        ++columnCount;
+    for (const auto& column : expectedColumns) {
+        ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+        char columnName[64] = {};
+        char typeName[64] = {};
+        char isNullable[8] = {};
+        SQLSMALLINT nullable = -1;
+        CHECK_ODBC_OK(SQLGetData(stmt, 4, SQL_C_CHAR, columnName,
+                                sizeof(columnName), &indicator),
+                      stmt, SQL_HANDLE_STMT);
+        CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_CHAR, catalog,
+                                sizeof(catalog), &indicator),
+                      stmt, SQL_HANDLE_STMT);
+        CHECK_ODBC_OK(SQLGetData(stmt, 6, SQL_C_CHAR, typeName,
+                                sizeof(typeName), &indicator),
+                      stmt, SQL_HANDLE_STMT);
+        CHECK_ODBC_OK(SQLGetData(stmt, 11, SQL_C_SSHORT, &nullable, 0, &indicator),
+                      stmt, SQL_HANDLE_STMT);
+        CHECK_ODBC_OK(SQLGetData(stmt, 18, SQL_C_CHAR, isNullable,
+                                sizeof(isNullable), &indicator),
+                      stmt, SQL_HANDLE_STMT);
+        EXPECT_STREQ(columnName, column.Name);
+        EXPECT_STREQ(catalog, "local");
+        EXPECT_STREQ(typeName, column.TypeName);
+        EXPECT_EQ(nullable, column.Nullable);
+        EXPECT_STREQ(isNullable, column.IsNullable);
     }
-    EXPECT_EQ(columnCount, 2);
+    EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
     SQLFreeStmt(stmt, SQL_CLOSE);
 
     CHECK_ODBC_OK(SQLPrimaryKeys(stmt, nullptr, 0, nullptr, 0,
@@ -124,8 +157,35 @@ TEST(MetadataApi, RelativeTableMetadataUsesCurrentCatalog) {
     ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
     char columnName[64] = {};
     ASSERT_EQ(SQLGetData(stmt, 4, SQL_C_CHAR, columnName, sizeof(columnName), &indicator), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_CHAR, catalog, sizeof(catalog), &indicator),
+                  stmt, SQL_HANDLE_STMT);
     EXPECT_STREQ(columnName, "id");
+    EXPECT_STREQ(catalog, "local");
     ASSERT_EQ(SQLFetch(stmt), SQL_NO_DATA);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    SQLCHAR catalogWithoutSlash[] = "local";
+    CHECK_ODBC_OK(SQLTables(stmt, catalogWithoutSlash, SQL_NTS, nullptr, 0,
+                           (SQLCHAR*)table, SQL_NTS,
+                           (SQLCHAR*)"TABLE", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_CHAR, catalog, sizeof(catalog), &indicator),
+                  stmt, SQL_HANDLE_STMT);
+    EXPECT_STREQ(catalog, "local");
+    EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    CHECK_ODBC_OK(SQLPrimaryKeys(stmt, catalogWithoutSlash, SQL_NTS, nullptr, 0,
+                                (SQLCHAR*)table, SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLGetData(stmt, 4, SQL_C_CHAR, columnName,
+                            sizeof(columnName), &indicator),
+                  stmt, SQL_HANDLE_STMT);
+    EXPECT_STREQ(columnName, "id");
+    EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
+    SQLFreeStmt(stmt, SQL_CLOSE);
 
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
