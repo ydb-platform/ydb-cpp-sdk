@@ -111,7 +111,23 @@ TEST(ConnectionApi, SQLDriverConnectIgnoresUnrecognizedAttributes) {
     const SQLRETURN rc = SQLDriverConnect(
         dbc, nullptr, connectionString, SQL_NTS, nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT);
     ASSERT_EQ(rc, SQL_SUCCESS_WITH_INFO) << GetOdbcError(dbc, SQL_HANDLE_DBC);
-    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(dbc, SQL_HANDLE_DBC), "01S00"));
+    SQLCHAR sqlState[6] = {};
+    SQLCHAR message[256] = {};
+    SQLINTEGER nativeError = 0;
+    SQLSMALLINT textLength = 0;
+    const SQLRETURN diagRc = SQLGetDiagRec(
+        SQL_HANDLE_DBC, dbc, 1, sqlState, &nativeError,
+        message, sizeof(message), &textLength);
+    if (diagRc == SQL_SUCCESS || diagRc == SQL_SUCCESS_WITH_INFO) {
+        EXPECT_STREQ(reinterpret_cast<char*>(sqlState), "01S00");
+    } else {
+#ifdef ODBC_TEST_IODBC
+        // iODBC preserves SQL_SUCCESS_WITH_INFO but drops the driver's diagnostic record.
+        EXPECT_EQ(diagRc, SQL_NO_DATA);
+#else
+        FAIL() << "SQLGetDiagRec failed with return code " << diagRc;
+#endif
+    }
 
     SQLHSTMT stmt;
     ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
@@ -134,7 +150,9 @@ TEST(ConnectionApi, SQLDriverConnectValidatesAuthenticationSettings) {
         const char* SqlState;
     } cases[] = {
         {"Driver=" ODBC_DRIVER_PATH ";Endpoint=localhost:2136;Database=/local;AuthMode=None;", "28000"},
+        {"Driver=" ODBC_DRIVER_PATH ";Endpoint=localhost:2136;Database=/local;Token=;", "28000"},
         {"Driver=" ODBC_DRIVER_PATH ";Endpoint=localhost:2136;Database=/local;Token=a;UID=b;PWD=c;", "28000"},
+        {"Driver=" ODBC_DRIVER_PATH ";Endpoint=localhost:2136;Database=/local;AuthMode=Static;UID=;PWD=;", "28000"},
         {"Driver=" ODBC_DRIVER_PATH ";Endpoint=localhost:2136;Database=/local;AuthMode=Static;UID=b;", "28000"},
         {"Driver=" ODBC_DRIVER_PATH ";Endpoint=localhost:2136;Database=/local;AuthMode=Metadata;MetadataPort=70000;", "HY024"},
         {"Driver=" ODBC_DRIVER_PATH ";Endpoint=localhost:2136;Database=/local;AuthMode=ServiceAccount;SaFile=/missing/sa.json;", "08001"},
@@ -169,6 +187,29 @@ TEST(ConnectionApi, SQLDriverConnectSupportsAliasesAndDsnOverlay) {
         "DSN=YDB;Endpoint=grpc://127.0.0.1:2136;AuthMode=Token;AccessToken=ignored-by-anonymous-server;";
     CHECK_ODBC_OK(SQLDriverConnect(
         dbc, nullptr, connectionString, SQL_NTS, nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT),
+        dbc, SQL_HANDLE_DBC);
+
+    SQLHSTMT stmt;
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT 1", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(ConnectionApi, SQLDriverConnectKeepsAnonymousDsnWithBlankCredentials) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    AllocEnv(&env);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_DBC, env, &dbc), SQL_SUCCESS);
+
+    SQLCHAR connectionString[] = "DSN=YDB;UID=;PWD=;";
+    CHECK_ODBC_OK(SQLDriverConnect(
+        dbc, nullptr, connectionString, SQL_NTS,
+        nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT),
         dbc, SQL_HANDLE_DBC);
 
     SQLHSTMT stmt;
@@ -244,6 +285,32 @@ TEST(ConnectionApi, ConnAttrCurrentCatalog) {
                   dbc, SQL_HANDLE_DBC);
     ASSERT_EQ(SQLGetConnectAttr(dbc, SQL_ATTR_CURRENT_CATALOG, catalog, sizeof(catalog), &len), SQL_SUCCESS);
     ASSERT_STREQ(catalog, "/local/test");
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(ConnectionApi, LegacyLoginTimeoutBeforeConnect) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    AllocEnv(&env);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_DBC, env, &dbc), SQL_SUCCESS);
+
+    constexpr SQLULEN timeout = 15;
+    ASSERT_EQ(SQLSetConnectOption(dbc, SQL_LOGIN_TIMEOUT, timeout), SQL_SUCCESS);
+
+    SQLCHAR outStr[1024] = {};
+    SQLSMALLINT outLen = 0;
+    const SQLRETURN connectRc = SQLDriverConnect(
+        dbc, nullptr, (SQLCHAR*)kConnStr, SQL_NTS,
+        outStr, sizeof(outStr), &outLen, SQL_DRIVER_NOPROMPT);
+    ASSERT_EQ(connectRc, SQL_SUCCESS) << GetOdbcError(dbc, SQL_HANDLE_DBC);
+
+    SQLUINTEGER actualTimeout = 0;
+    ASSERT_EQ(SQLGetConnectOption(dbc, SQL_LOGIN_TIMEOUT, &actualTimeout), SQL_SUCCESS)
+        << GetOdbcError(dbc, SQL_HANDLE_DBC);
+    EXPECT_EQ(actualTimeout, timeout);
+
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);
     SQLFreeHandle(SQL_HANDLE_ENV, env);

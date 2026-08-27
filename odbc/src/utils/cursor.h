@@ -4,7 +4,7 @@
 #include "cursor_window.h"
 
 #include <ydb-cpp-sdk/client/result/result.h>
-#include <sql.h>
+#include "odbc_compat.h"
 
 #include <memory>
 #include <optional>

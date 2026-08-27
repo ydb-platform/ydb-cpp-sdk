@@ -2,8 +2,7 @@
 
 #include "utils/attr.h"
 
-#include <sql.h>
-#include <sqlext.h>
+#include "odbc_compat.h"
 
 #include <string>
 #include <vector>

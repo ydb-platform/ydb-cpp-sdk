@@ -35,6 +35,9 @@ constexpr TInfo U32(SQLUSMALLINT id, SQLUINTEGER value) {
     return {id, value};
 }
 
+constexpr SQLUSMALLINT kMaxTableColumns = 200;
+constexpr SQLUSMALLINT kMaxIndexColumns = 20;
+
 constexpr TInfo kInfo[] = {
     S(SQL_DRIVER_NAME, "ydb-odbc"),
     S(SQL_DRIVER_VER, "unknown"),
@@ -50,16 +53,17 @@ constexpr TInfo kInfo[] = {
     U16(SQL_MAX_SCHEMA_NAME_LEN, 0),
     U16(SQL_MAX_PROCEDURE_NAME_LEN, 0),
     U16(SQL_MAX_USER_NAME_LEN, 128),
-    U32(SQL_MAX_DRIVER_CONNECTIONS, 0),
-    U32(SQL_MAX_CONCURRENT_ACTIVITIES, 0),
+    U16(SQL_MAX_DRIVER_CONNECTIONS, 0),
+    U16(SQL_MAX_CONCURRENT_ACTIVITIES, 0),
     U32(SQL_MAX_STATEMENT_LEN, 0),
     U32(SQL_MAX_BINARY_LITERAL_LEN, 0),
     U32(SQL_MAX_CHAR_LITERAL_LEN, 0),
-    U32(SQL_MAX_COLUMNS_IN_GROUP_BY, 0),
-    U32(SQL_MAX_COLUMNS_IN_ORDER_BY, 0),
-    U32(SQL_MAX_COLUMNS_IN_INDEX, 0),
-    U32(SQL_MAX_COLUMNS_IN_SELECT, 0),
-    U32(SQL_MAX_COLUMNS_IN_TABLE, 0),
+    U16(SQL_MAX_COLUMNS_IN_GROUP_BY, 0),
+    U16(SQL_MAX_COLUMNS_IN_ORDER_BY, 0),
+    U16(SQL_MAX_COLUMNS_IN_INDEX, kMaxIndexColumns),
+    U16(SQL_MAX_COLUMNS_IN_SELECT, 0),
+    U16(SQL_MAX_COLUMNS_IN_TABLE, kMaxTableColumns),
+    U16(SQL_MAX_TABLES_IN_SELECT, 0),
     S(SQL_SEARCH_PATTERN_ESCAPE, "\\"),
     S(SQL_KEYWORDS, ""),
     S(SQL_SPECIAL_CHARACTERS, ""),
@@ -67,17 +71,25 @@ constexpr TInfo kInfo[] = {
     U16(SQL_NULL_COLLATION, SQL_NC_HIGH),
     U16(SQL_MAX_CURSOR_NAME_LEN, 128),
     S(SQL_DBMS_NAME, "YDB"),
+    S(SQL_USER_NAME, ""),
     S(SQL_IDENTIFIER_QUOTE_CHAR, "`"),
     U16(SQL_IDENTIFIER_CASE, SQL_IC_SENSITIVE),
     S(SQL_CATALOG_NAME, "Y"),
     S(SQL_CATALOG_NAME_SEPARATOR, "/"),
     S(SQL_CATALOG_TERM, "path"),
-    U32(SQL_CATALOG_USAGE, SQL_CU_DML_STATEMENTS),
+    U16(SQL_CATALOG_LOCATION, SQL_CL_START),
+    // YDB's database path scopes metadata and relative table names, but it is
+    // not a catalog qualifier in YQL data-manipulation statements.
+    U32(SQL_CATALOG_USAGE, 0),
     U32(SQL_SCHEMA_USAGE, 0),
     S(SQL_SCHEMA_TERM, ""),
+    U32(SQL_ALTER_TABLE, 0),
+    U16(SQL_GROUP_BY, SQL_GB_GROUP_BY_CONTAINS_SELECT),
+    U16(SQL_NON_NULLABLE_COLUMNS, SQL_NNC_NON_NULL),
     S(SQL_MULT_RESULT_SETS, "N"),
-    U32(SQL_DYNAMIC_CURSOR_ATTRIBUTES1, SQL_CA1_NEXT),
+    U32(SQL_DYNAMIC_CURSOR_ATTRIBUTES1, 0),
     U32(SQL_FORWARD_ONLY_CURSOR_ATTRIBUTES1, SQL_CA1_NEXT),
+    U32(SQL_FORWARD_ONLY_CURSOR_ATTRIBUTES2, SQL_CA2_READ_ONLY_CONCURRENCY),
     U32(SQL_STATIC_CURSOR_ATTRIBUTES1,
         SQL_CA1_NEXT | SQL_CA1_ABSOLUTE | SQL_CA1_RELATIVE),
     U32(SQL_STATIC_CURSOR_ATTRIBUTES2,
@@ -94,6 +106,7 @@ constexpr TInfo kInfo[] = {
     U32(SQL_DEFAULT_TXN_ISOLATION, SQL_TXN_SERIALIZABLE),
     S(SQL_PROCEDURES, "N"),
     S(SQL_OUTER_JOINS, "Y"),
+    S(SQL_ORDER_BY_COLUMNS_IN_SELECT, "N"),
     U32(SQL_POSITIONED_STATEMENTS, 0),
     U32(SQL_BATCH_SUPPORT, 0),
     U32(SQL_BATCH_ROW_COUNT, 0),
@@ -128,6 +141,7 @@ constexpr TFunctionRange kSupportedFunctions[] = {
     {SQL_API_SQLDESCRIBEPARAM, SQL_API_SQLDESCRIBEPARAM},
     {SQL_API_SQLFOREIGNKEYS, SQL_API_SQLNUMPARAMS},
     {SQL_API_SQLPRIMARYKEYS, SQL_API_SQLPRIMARYKEYS},
+    {SQL_API_SQLCOLUMNPRIVILEGES, SQL_API_SQLCOLUMNPRIVILEGES},
     {SQL_API_SQLBINDPARAMETER, SQL_API_SQLBINDPARAMETER},
     {SQL_API_SQLALLOCHANDLE, SQL_API_SQLALLOCHANDLE},
     {SQL_API_SQLCLOSECURSOR, SQL_API_SQLGETENVATTR},
@@ -270,10 +284,15 @@ SQLRETURN NMetadata::ColAttribute(TStatement* statement, SQLUSMALLINT columnNumb
     switch (fieldIdentifier) {
         case SQL_DESC_NAME:
         case SQL_COLUMN_NAME:
+        case SQL_DESC_LABEL:
             return Diag::WriteString<Diag::EStringWriteMode::ColumnAttribute>(
                 statement, column.Name, characterAttributePtr, bufferLength,
                 stringLengthAttributePtr);
+        case SQL_DESC_BASE_COLUMN_NAME:
         case SQL_DESC_BASE_TABLE_NAME:
+        case SQL_DESC_CATALOG_NAME:
+        case SQL_DESC_SCHEMA_NAME:
+        case SQL_DESC_TABLE_NAME:
             return Diag::WriteString<Diag::EStringWriteMode::ColumnAttribute>(
                 statement, "", characterAttributePtr, bufferLength,
                 stringLengthAttributePtr);
@@ -304,6 +323,20 @@ SQLRETURN NMetadata::ColAttribute(TStatement* statement, SQLUSMALLINT columnNumb
                                         numericAttributePtr);
         case SQL_DESC_AUTO_UNIQUE_VALUE:
             return WriteAttributeNumber(statement, SQL_FALSE, numericAttributePtr);
+        case SQL_DESC_CASE_SENSITIVE:
+            return WriteAttributeNumber(statement,
+                column.SqlType == SQL_CHAR || column.SqlType == SQL_VARCHAR
+                    || column.SqlType == SQL_LONGVARCHAR || column.SqlType == SQL_WCHAR
+                    || column.SqlType == SQL_WVARCHAR || column.SqlType == SQL_WLONGVARCHAR,
+                numericAttributePtr);
+        case SQL_DESC_FIXED_PREC_SCALE:
+            return WriteAttributeNumber(statement,
+                column.SqlType == SQL_DECIMAL || column.SqlType == SQL_NUMERIC,
+                numericAttributePtr);
+        case SQL_DESC_SEARCHABLE:
+            return WriteAttributeNumber(statement, SQL_PRED_SEARCHABLE, numericAttributePtr);
+        case SQL_DESC_UPDATABLE:
+            return WriteAttributeNumber(statement, SQL_ATTR_READONLY, numericAttributePtr);
         default:
             return statement->AddError("HYC00", 0, "Optional feature not implemented");
     }

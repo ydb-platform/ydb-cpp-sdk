@@ -13,6 +13,9 @@ TEST(EnvironmentApi, AllocEnvInvalidType) {
 }
 
 TEST(EnvironmentApi, FreeInvalidEnvHandle) {
+#ifdef ODBC_TEST_IODBC
+    GTEST_SKIP() << "iODBC traps instead of rejecting a dangling environment handle";
+#endif
     SQLHENV env;
     ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &env), SQL_SUCCESS);
     ASSERT_EQ(SQLFreeHandle(SQL_HANDLE_ENV, env), SQL_SUCCESS);
@@ -21,6 +24,9 @@ TEST(EnvironmentApi, FreeInvalidEnvHandle) {
 }
 
 TEST(EnvironmentApi, DoubleFreeEnv) {
+#ifdef ODBC_TEST_IODBC
+    GTEST_SKIP() << "iODBC traps when an environment handle is freed twice";
+#endif
     SQLHENV env;
     ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &env), SQL_SUCCESS);
     ASSERT_EQ(SQLFreeHandle(SQL_HANDLE_ENV, env), SQL_SUCCESS);
@@ -116,6 +122,12 @@ TEST(EnvironmentApi, MultipleConnectionsSequential) {
         char query[32];
         snprintf(query, sizeof(query), "SELECT %d", i + 1);
         CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)query, SQL_NTS), stmt, SQL_HANDLE_STMT);
+        ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+        SQLINTEGER value = 0;
+        CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_LONG, &value, sizeof(value), nullptr),
+                      stmt, SQL_HANDLE_STMT);
+        EXPECT_EQ(value, i + 1);
+        EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
         SQLFreeHandle(SQL_HANDLE_STMT, stmt);
         SQLDisconnect(dbc);
         SQLFreeHandle(SQL_HANDLE_DBC, dbc);

@@ -10,8 +10,7 @@
 #include <ydb-cpp-sdk/client/scheme/scheme.h>
 #include <ydb-cpp-sdk/client/table/table.h>
 
-#include <sql.h>
-#include <sqlext.h>
+#include "odbc_compat.h"
 
 #include <memory>
 #include <optional>
