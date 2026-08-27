@@ -2,8 +2,7 @@
 
 #include "bindings.h"
 
-#include <sql.h>
-#include <sqlext.h>
+#include "odbc_compat.h"
 
 #include <cstdint>
 #include <optional>

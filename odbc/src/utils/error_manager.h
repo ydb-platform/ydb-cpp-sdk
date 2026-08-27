@@ -1,7 +1,6 @@
 #pragma once
 
-#include <sql.h>
-#include <sqlext.h>
+#include "odbc_compat.h"
 #include <functional>
 #include <vector>
 #include <string>

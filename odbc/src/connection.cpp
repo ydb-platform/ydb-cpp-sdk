@@ -7,11 +7,9 @@
 #include <ydb-cpp-sdk/client/types/status/status.h>
 
 #include <string>
-#include <algorithm>
 #include <cstring>
 
-#include <sql.h>
-#include <sqlext.h>
+#include "odbc_compat.h"
 
 namespace NYdb::NOdbc {
 

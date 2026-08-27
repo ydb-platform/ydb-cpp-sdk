@@ -8,8 +8,7 @@
 
 #include <ydb-cpp-sdk/client/query/client.h>
 
-#include <sql.h>
-#include <sqlext.h>
+#include "odbc_compat.h"
 
 #include <memory>
 #include <optional>
@@ -70,6 +69,10 @@ public:
                           const std::string& fkCatalogName,
                           const std::string& fkSchemaName,
                           const std::string& fkTableName);
+    SQLRETURN ColumnPrivileges(const std::string& catalogName,
+                               const std::string& schemaName,
+                               const std::string& tableName,
+                               const std::string& columnName);
     SQLRETURN NumParams(SQLSMALLINT* paramCount);
     SQLRETURN DescribeParam(SQLUSMALLINT paramNumber, SQLSMALLINT* dataTypePtr, SQLULEN* paramSizePtr,
                             SQLSMALLINT* decimalDigitsPtr, SQLSMALLINT* nullablePtr);
@@ -83,7 +86,7 @@ public:
 
     SQLRETURN RowCount(SQLLEN* rowCount);
     SQLRETURN NumResultCols(SQLSMALLINT* colCount);
-    const std::vector<TColumnMeta>& GetColumnMeta() const;
+    const std::vector<TColumnMeta>& GetColumnMeta();
     SQLRETURN SetStmtAttr(SQLINTEGER attr, SQLPOINTER value, SQLINTEGER stringLength);
     SQLRETURN GetStmtAttr(SQLINTEGER attr, SQLPOINTER value, SQLINTEGER bufferLength, SQLINTEGER* stringLengthPtr);
 
@@ -121,6 +124,7 @@ private:
 
     TConnection* Conn_;
     std::unique_ptr<ICursor> Cursor_;
+    std::optional<std::vector<TColumnMeta>> PreparedColumnMeta_;
     std::string PreparedQuery_;
     bool IsPrepared_ = false;
     SQLSMALLINT ParamCount_ = 0;
@@ -144,6 +148,9 @@ private:
     SQLRETURN ExecuteParamSet(SQLULEN paramSet, std::optional<SQLLEN>& affectedRows);
     SQLRETURN FillBoundColumns(SQLULEN row);
     std::vector<TBoundParam> GetBoundParams(SQLULEN paramSet) const;
+    void EnsurePreparedColumnMeta();
+    void InvalidatePreparedColumnMeta();
+    void SetImpRowDesc(const std::vector<TColumnMeta>& columns);
     void SetCursor(std::unique_ptr<ICursor> cursor);
 
     void ResetForMetadata();
@@ -158,7 +165,10 @@ private:
     std::string GetMetadataTableName(const std::string& path) const;
     bool MetadataNamespaceMatches(const std::string& catalog, const std::string& schema) const;
 
-    NQuery::TExecuteQueryResult ExecuteQuery(NQuery::TSession& session, const NYdb::TParams& params);
+    NQuery::TExecuteQueryResult ExecuteQuery(
+        NQuery::TSession& session,
+        const NYdb::TParams& params,
+        SQLULEN paramSet);
 
     NYdb::NRetry::TRetryOperationSettings MakeAutocommitRetrySettings();
     std::vector<NScheme::TSchemeEntry> GetPatternEntries(const std::string& pattern);

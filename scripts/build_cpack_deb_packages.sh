@@ -27,7 +27,7 @@ if [ "${YDB_DEB_INSTALL_DEPS:-1}" = "1" ]; then
     export DEBIAN_FRONTEND=noninteractive
     "${SUDO[@]}" apt-get update
     "${SUDO[@]}" apt-get install -y --no-install-recommends \
-        build-essential ca-certificates ccache cmake ninja-build pkg-config git \
+        build-essential ca-certificates ccache cmake file ninja-build pkg-config git \
         libidn11-dev libssl-dev zlib1g-dev \
         libprotobuf-dev protobuf-compiler libgrpc++-dev protobuf-compiler-grpc \
         libabsl-dev libbrotli-dev liblz4-dev libzstd-dev libbz2-dev libxxhash-dev \

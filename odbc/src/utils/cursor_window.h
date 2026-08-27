@@ -1,6 +1,6 @@
 #pragma once
 
-#include <sql.h>
+#include "odbc_compat.h"
 
 #include <cstddef>
 #include <optional>

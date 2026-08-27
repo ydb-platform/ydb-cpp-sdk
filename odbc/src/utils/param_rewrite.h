@@ -5,6 +5,7 @@
 #include <string>
 #include <string_view>
 #include <initializer_list>
+#include <optional>
 #include <vector>
 
 namespace NYdb::NOdbc {
@@ -22,6 +23,10 @@ TParamRewriteResult RewriteOdbcSql(
     std::string_view sql,
     const std::vector<TBoundParam>& boundParams,
     bool rewriteEscapes);
+
+std::optional<bool> GetDeclaredParamOptionality(
+    std::string_view sql,
+    SQLUSMALLINT paramNumber);
 
 SQLSMALLINT CountOdbcParams(std::string_view sql);
 

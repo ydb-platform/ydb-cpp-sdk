@@ -96,8 +96,12 @@ std::string_view Get(const TConnectionParameters& parameters, std::string_view k
 uint8_t CredentialMask(const TConnectionParameters& parameters) {
     uint8_t mask = 0;
     for (const auto& key : ConnectionKeys) {
-        if ((key.Authentication & SelectsAuth) && Has(parameters, key.Canonical)) {
-            mask |= key.Authentication & AuthenticationFamilies;
+        const uint8_t family = key.Authentication & AuthenticationFamilies;
+        if ((key.Authentication & SelectsAuth)
+            && Has(parameters, key.Canonical)
+            && (family != uint8_t(EAuthenticationMode::Static)
+                || !Get(parameters, key.Canonical).empty())) {
+            mask |= family;
         }
     }
     return mask;

@@ -2,8 +2,7 @@
 
 #include "utils/error_manager.h"
 
-#include <sql.h>
-#include <sqlext.h>
+#include "odbc_compat.h"
 #include <unordered_set>
 #include <vector>
 

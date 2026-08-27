@@ -38,6 +38,37 @@ TEST(StatementApi, ExecDirectSimple) {
     SQLFreeHandle(SQL_HANDLE_ENV, env);
 }
 
+TEST(StatementApi, ExecDirectNestedQueryRepeated) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+
+    const SQLULEN noScanModes[] = {SQL_NOSCAN_OFF, SQL_NOSCAN_ON};
+    for (SQLULEN noScan : noScanModes) {
+        CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_NOSCAN,
+                                    reinterpret_cast<SQLPOINTER>(noScan), 0),
+                      stmt, SQL_HANDLE_STMT);
+        for (int pass = 0; pass < 3; ++pass) {
+            CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"select * from (select 1);", SQL_NTS),
+                          stmt, SQL_HANDLE_STMT);
+            ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_NEXT, 1), SQL_SUCCESS);
+            SQLINTEGER value = 0;
+            CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_LONG, &value, sizeof(value), nullptr),
+                          stmt, SQL_HANDLE_STMT);
+            EXPECT_EQ(value, 1);
+            EXPECT_EQ(SQLFetchScroll(stmt, SQL_FETCH_NEXT, 1), SQL_NO_DATA);
+            CHECK_ODBC_OK(SQLCloseCursor(stmt), stmt, SQL_HANDLE_STMT);
+        }
+    }
+
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
 TEST(StatementApi, ExecDirectMultipleColumns) {
     SQLHENV env;
     SQLHDBC dbc;
@@ -375,6 +406,165 @@ TEST(StatementApi, NumResultCols) {
     SQLFreeHandle(SQL_HANDLE_ENV, env);
 }
 
+TEST(StatementApi, PreparedResultMetadataBeforeExecute) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+
+    SQLExecDirect(stmt,
+        (SQLCHAR*)"DROP TABLE IF EXISTS result_metadata_before_execute_test", SQL_NTS);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"CREATE TABLE result_metadata_before_execute_test ("
+                  "id Int64 NOT NULL, name Utf8, PRIMARY KEY (id))",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"INSERT INTO result_metadata_before_execute_test (id, name) "
+                  "VALUES (7, 'expected')",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    // Inspecting a prepared data-modification statement must not execute it.
+    CHECK_ODBC_OK(SQLPrepare(stmt,
+        (SQLCHAR*)"UPSERT INTO result_metadata_before_execute_test (id, name) "
+                  "VALUES (1, 'unexpected')",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    SQLSMALLINT columnCount = -1;
+    CHECK_ODBC_OK(SQLNumResultCols(stmt, &columnCount), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(columnCount, 0);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"SELECT COUNT(*) FROM result_metadata_before_execute_test WHERE id = 1",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    SQLBIGINT rowCount = -1;
+    CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_SBIGINT, &rowCount, sizeof(rowCount), nullptr),
+        stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(rowCount, 0);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    // Applications commonly inspect a prepared zero-row query before execution.
+    CHECK_ODBC_OK(SQLPrepare(stmt,
+        (SQLCHAR*)"SELECT * FROM `result_metadata_before_execute_test` "
+                  "WHERE ( 0 = 1 )",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLNumResultCols(stmt, &columnCount), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(columnCount, 2);
+
+    char columnName[32] = {};
+    SQLSMALLINT nameLength = 0;
+    SQLSMALLINT dataType = SQL_UNKNOWN_TYPE;
+    SQLULEN columnSize = 0;
+    SQLSMALLINT decimalDigits = 0;
+    SQLSMALLINT nullable = SQL_NULLABLE_UNKNOWN;
+    CHECK_ODBC_OK(SQLDescribeCol(
+        stmt, 1, reinterpret_cast<SQLCHAR*>(columnName), sizeof(columnName), &nameLength,
+        &dataType, &columnSize, &decimalDigits, &nullable), stmt, SQL_HANDLE_STMT);
+    EXPECT_STREQ(columnName, "id");
+    EXPECT_EQ(dataType, SQL_BIGINT);
+    EXPECT_EQ(nullable, SQL_NO_NULLS);
+    CHECK_ODBC_OK(SQLDescribeCol(
+        stmt, 2, reinterpret_cast<SQLCHAR*>(columnName), sizeof(columnName), &nameLength,
+        &dataType, &columnSize, &decimalDigits, &nullable), stmt, SQL_HANDLE_STMT);
+    EXPECT_STREQ(columnName, "name");
+    EXPECT_EQ(dataType, SQL_VARCHAR);
+    EXPECT_EQ(nullable, SQL_NULLABLE);
+
+    CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    // The same pre-execution metadata path must lead to real rows when the
+    // prepared physical-table query is executed.
+    CHECK_ODBC_OK(SQLPrepare(stmt,
+        (SQLCHAR*)"SELECT * FROM result_metadata_before_execute_test", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLNumResultCols(stmt, &columnCount), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(columnCount, 2);
+    CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    SQLBIGINT id = 0;
+    char name[32] = {};
+    SQLLEN indicator = 0;
+    CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_SBIGINT, &id, sizeof(id), &indicator),
+        stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLGetData(stmt, 2, SQL_C_CHAR, name, sizeof(name), &indicator),
+        stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(id, 7);
+    EXPECT_STREQ(name, "expected");
+    EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    // A terminal semicolon must be removed only from the metadata wrapper;
+    // the original nested SELECT is still executed unchanged afterwards.
+    CHECK_ODBC_OK(SQLPrepare(stmt,
+        (SQLCHAR*)"select * from (select 1 as value);", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
+    // iODBC caches the implicit descriptor handle at statement allocation and
+    // answers SQLGetStmtAttr from that proxy without calling the driver again.
+    // Discover the lazy schema through SQLNumResultCols before inspecting the
+    // same driver's implementation descriptor through the proxy.
+    CHECK_ODBC_OK(SQLNumResultCols(stmt, &columnCount), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(columnCount, 1);
+    SQLHDESC ird = SQL_NULL_HDESC;
+    CHECK_ODBC_OK(SQLGetStmtAttr(stmt, SQL_ATTR_IMP_ROW_DESC, &ird, 0, nullptr),
+        stmt, SQL_HANDLE_STMT);
+    SQLSMALLINT descriptorCount = 0;
+    CHECK_ODBC_OK(SQLGetDescField(
+        ird, 0, SQL_DESC_COUNT, &descriptorCount, 0, nullptr), ird, SQL_HANDLE_DESC);
+    EXPECT_EQ(descriptorCount, 1);
+    std::memset(columnName, 0, sizeof(columnName));
+    CHECK_ODBC_OK(SQLDescribeCol(
+        stmt, 1, reinterpret_cast<SQLCHAR*>(columnName), sizeof(columnName), &nameLength,
+        &dataType, &columnSize, &decimalDigits, &nullable), stmt, SQL_HANDLE_STMT);
+    EXPECT_STREQ(columnName, "value");
+    CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    SQLINTEGER value = 0;
+    CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_LONG, &value, sizeof(value), nullptr),
+        stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(value, 1);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    // Metadata fallback must not consume application parameter values before
+    // execution. Parameterized SELECTs remain unsupported until YDB provides
+    // a compile-only result-schema API.
+    CHECK_ODBC_OK(SQLPrepare(stmt, (SQLCHAR*)"SELECT ? AS value", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(SQLNumResultCols(stmt, &columnCount), SQL_ERROR);
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "HYC00"));
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    // Executing a catalog function cancels an older prepared statement and
+    // its cached schema instead of allowing stale SQLExecute state to survive.
+    CHECK_ODBC_OK(SQLPrepare(stmt,
+        (SQLCHAR*)"SELECT * FROM result_metadata_before_execute_test", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLNumResultCols(stmt, &columnCount), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(columnCount, 2);
+    CHECK_ODBC_OK(SQLTables(stmt, nullptr, 0, nullptr, 0,
+        (SQLCHAR*)"result_metadata_before_execute_test", SQL_NTS,
+        (SQLCHAR*)"TABLE", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    EXPECT_EQ(SQLExecute(stmt), SQL_ERROR);
+    const std::string executeError = GetOdbcError(stmt, SQL_HANDLE_STMT);
+    EXPECT_TRUE(SqlStatePrefix(executeError, "HY007") || SqlStatePrefix(executeError, "HY010"))
+        << executeError;
+
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"DROP TABLE result_metadata_before_execute_test", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
 TEST(StatementApi, RowCount) {
     SQLHENV env;
     SQLHDBC dbc;
@@ -389,6 +579,9 @@ TEST(StatementApi, RowCount) {
         SQL_NTS), stmt, SQL_HANDLE_STMT);
 
     SQLLEN rowCount = -2;
+    SQLSMALLINT resultColumns = -1;
+    CHECK_ODBC_OK(SQLNumResultCols(stmt, &resultColumns), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(resultColumns, 0);
     CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
     EXPECT_EQ(rowCount, -1);
     SQLFreeStmt(stmt, SQL_CLOSE);
@@ -399,6 +592,8 @@ TEST(StatementApi, RowCount) {
     SQLLEN diagRowCount = -2;
     CHECK_ODBC_OK(SQLGetDiagField(SQL_HANDLE_STMT, stmt, 0, SQL_DIAG_ROW_COUNT,
         &diagRowCount, 0, nullptr), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLNumResultCols(stmt, &resultColumns), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(resultColumns, 0);
     CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
     EXPECT_EQ(rowCount, 3);
     EXPECT_EQ(diagRowCount, rowCount);
@@ -510,6 +705,84 @@ TEST(StatementApi, RowCountAggregatesParameterArrays) {
 
     SQLFreeStmt(stmt, SQL_CLOSE);
     SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE row_count_param_test", SQL_NTS);
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(StatementApi, PreparedInsertUsesPerSetParameterNullability) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+
+    SQLExecDirect(stmt,
+        (SQLCHAR*)"DROP TABLE IF EXISTS prepared_insert_nullability_test", SQL_NTS);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"CREATE TABLE prepared_insert_nullability_test ("
+                  "id Int64 NOT NULL, name Utf8, PRIMARY KEY (id))",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    CHECK_ODBC_OK(SQLPrepare(stmt,
+        (SQLCHAR*)"INSERT INTO prepared_insert_nullability_test (id, name) VALUES (?, ?)",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    SQLBIGINT ids[] = {1, 2};
+    char names[][16] = {"alpha", "ignored"};
+    SQLLEN idLengths[] = {sizeof(SQLBIGINT), sizeof(SQLBIGINT)};
+    SQLLEN nameLengths[] = {5, SQL_NULL_DATA};
+    SQLUSMALLINT statuses[] = {SQL_PARAM_UNUSED, SQL_PARAM_UNUSED};
+    SQLULEN processed = 0;
+
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_PARAMSET_SIZE,
+        reinterpret_cast<SQLPOINTER>(2), 0), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_PARAM_STATUS_PTR,
+        statuses, 0), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_PARAMS_PROCESSED_PTR,
+        &processed, 0), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 1, SQL_PARAM_INPUT,
+        SQL_C_SBIGINT, SQL_BIGINT, 19, 0, ids, sizeof(SQLBIGINT), idLengths),
+        stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 2, SQL_PARAM_INPUT,
+        SQL_C_CHAR, SQL_VARCHAR, 16, 0, names, sizeof(names[0]), nameLengths),
+        stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(processed, 2);
+    EXPECT_EQ(statuses[0], SQL_PARAM_SUCCESS);
+    EXPECT_EQ(statuses[1], SQL_PARAM_SUCCESS);
+    SQLFreeStmt(stmt, SQL_RESET_PARAMS);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"SELECT id, name FROM prepared_insert_nullability_test ORDER BY id",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    SQLBIGINT id = 0;
+    char name[16] = {};
+    SQLLEN indicator = 0;
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_SBIGINT, &id, sizeof(id), &indicator),
+        stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(id, 1);
+    CHECK_ODBC_OK(SQLGetData(stmt, 2, SQL_C_CHAR, name, sizeof(name), &indicator),
+        stmt, SQL_HANDLE_STMT);
+    EXPECT_STREQ(name, "alpha");
+
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_SBIGINT, &id, sizeof(id), &indicator),
+        stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(id, 2);
+    CHECK_ODBC_OK(SQLGetData(stmt, 2, SQL_C_CHAR, name, sizeof(name), &indicator),
+        stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(indicator, SQL_NULL_DATA);
+    EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"DROP TABLE prepared_insert_nullability_test", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);
@@ -859,7 +1132,17 @@ TEST(StatementApi, CoreBoundTypeConversions) {
     SQLHENV env;
     SQLHDBC dbc;
     SQLHSTMT stmt;
+#ifdef ODBC_TEST_IODBC
+    AllocEnv(&env);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_DBC, env, &dbc), SQL_SUCCESS);
+    const SQLRETURN connectRc = SQLDriverConnect(
+        dbc, nullptr,
+        reinterpret_cast<SQLCHAR*>(const_cast<char*>(kIodbcWideInteropConnStr)), SQL_NTS,
+        nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT);
+    CHECK_ODBC_OK(connectRc, dbc, SQL_HANDLE_DBC);
+#else
     AllocEnvAndConnect(&env, &dbc);
+#endif
     ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
     CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_CURSOR_TYPE,
                                 (SQLPOINTER)SQL_CURSOR_STATIC, 0),

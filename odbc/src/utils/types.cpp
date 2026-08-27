@@ -49,6 +49,7 @@ SQLULEN GetColumnSize(SQLSMALLINT sqlType) {
 
 TYdbTypeInfo DescribeYdbType(const TType& type) {
     TYdbTypeInfo info;
+    info.TypeName = type.ToString();
     TTypeParser parser(type);
     info.Nullable = parser.GetKind() == TTypeParser::ETypeKind::Optional
             || parser.GetKind() == TTypeParser::ETypeKind::Null
@@ -58,6 +59,9 @@ TYdbTypeInfo DescribeYdbType(const TType& type) {
     while (parser.GetKind() == TTypeParser::ETypeKind::Optional) {
         parser.OpenOptional();
         ++optionals;
+    }
+    for (size_t optional = 0; optional < optionals && info.TypeName.ends_with('?'); ++optional) {
+        info.TypeName.pop_back();
     }
     if (parser.GetKind() == TTypeParser::ETypeKind::Decimal) {
         const TDecimalType decimal = parser.GetDecimal();
