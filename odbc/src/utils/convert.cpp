@@ -407,9 +407,32 @@ SQLRETURN WriteText(std::string_view text, SQLSMALLINT type, SQLPOINTER target,
     }
     try {
         const TUtf16String wide = UTF8ToWide(text);
-        static_assert(sizeof(TUtf16String::value_type) == sizeof(SQLWCHAR));
-        return CopyVariable(wide.data(), wide.size() * sizeof(SQLWCHAR), sizeof(SQLWCHAR),
-                            sizeof(SQLWCHAR), target, bufferLength, indicator, offset);
+        static_assert(sizeof(SQLWCHAR) == 2 || sizeof(SQLWCHAR) == 4);
+        if constexpr (sizeof(TUtf16String::value_type) == sizeof(SQLWCHAR)) {
+            return CopyVariable(wide.data(), wide.size() * sizeof(SQLWCHAR), sizeof(SQLWCHAR),
+                                sizeof(SQLWCHAR), target, bufferLength, indicator, offset);
+        } else {
+            std::basic_string<SQLWCHAR> odbcWide;
+            odbcWide.reserve(wide.size());
+            for (size_t i = 0; i < wide.size(); ++i) {
+                uint32_t codePoint = wide[i];
+                if (codePoint >= 0xd800 && codePoint <= 0xdbff) {
+                    if (i + 1 >= wide.size()
+                        || wide[i + 1] < 0xdc00 || wide[i + 1] > 0xdfff) {
+                        return Error("22018");
+                    }
+                    codePoint = 0x10000
+                        + ((codePoint - 0xd800) << 10)
+                        + (wide[++i] - 0xdc00);
+                } else if (codePoint >= 0xdc00 && codePoint <= 0xdfff) {
+                    return Error("22018");
+                }
+                odbcWide.push_back(static_cast<SQLWCHAR>(codePoint));
+            }
+            return CopyVariable(odbcWide.data(), odbcWide.size() * sizeof(SQLWCHAR),
+                                sizeof(SQLWCHAR), sizeof(SQLWCHAR), target, bufferLength,
+                                indicator, offset);
+        }
     } catch (...) {
         return Error("22018");
     }
@@ -484,14 +507,26 @@ std::optional<Value> ReadScalar(const TBoundParam& param) {
     }
 }
 
+template <typename Put>
+void PutParamValue(TParamValueBuilder& builder, bool optional, Put&& put) {
+    if (optional) {
+        builder.BeginOptional();
+    }
+    put(builder);
+    if (optional) {
+        builder.EndOptional();
+    }
+}
+
 template <typename Result, typename ScalarType, typename Fn>
 std::optional<Result> VisitScalar(ScalarType type, Fn&& fn) {
 #define ODBC_VISIT_SCALAR(name, cppType, sqlType, isUnsigned)                      \
     case ScalarType::name:                                                        \
         return fn.template operator()<cppType>(                                   \
             [](TValueParser& parser) { return parser.Get##name(); },              \
-            [](TParamValueBuilder& builder, cppType value) {                      \
-                builder.Optional##name(value);                                    \
+            [](TParamValueBuilder& builder, cppType value, bool optional) {       \
+                PutParamValue(builder, optional,                                  \
+                    [&](TParamValueBuilder& item) { item.name(value); });          \
             });
     switch (type) {
         YDB_ODBC_SCALAR_TYPES(ODBC_VISIT_SCALAR)
@@ -604,10 +639,15 @@ bool PutValue(std::optional<Value> value, Put put) {
     return true;
 }
 
-bool ConvertParamValue(const TBoundParam& param, EParamType type, TParamValueBuilder& builder) {
+bool ConvertParamValue(
+    const TBoundParam& param,
+    EParamType type,
+    TParamValueBuilder& builder,
+    bool optional)
+{
     if (auto converted = VisitScalar<bool>(type, [&]<typename T>(auto, auto put) {
             return PutValue(ReadScalar<T>(param), [&](T value) {
-                put(builder, value);
+                put(builder, value, optional);
             });
         })) {
         return *converted;
@@ -615,20 +655,25 @@ bool ConvertParamValue(const TBoundParam& param, EParamType type, TParamValueBui
     switch (type) {
         case EParamType::Bool:
             if (const auto value = ReadInteger<int64_t>(param); value && *value >= 0 && *value <= 1) {
-                builder.OptionalBool(*value != 0);
+                PutParamValue(builder, optional,
+                    [&](TParamValueBuilder& item) { item.Bool(*value != 0); });
                 return true;
             }
             Error("22003");
             return false;
         case EParamType::Utf8:
-            return PutValue(ReadText(param), [&](const auto& v) { builder.OptionalUtf8(v); });
+            return PutValue(ReadText(param), [&](const auto& v) {
+                PutParamValue(builder, optional,
+                    [&](TParamValueBuilder& item) { item.Utf8(v); });
+            });
         case EParamType::String: {
             if (param.ValueType != SQL_C_BINARY) {
                 return false;
             }
             const auto value = ReadBytes(param);
             if (value) {
-                builder.OptionalString(*value);
+                PutParamValue(builder, optional,
+                    [&](TParamValueBuilder& item) { item.String(*value); });
             }
             return value.has_value();
         }
@@ -639,13 +684,15 @@ bool ConvertParamValue(const TBoundParam& param, EParamType type, TParamValueBui
             if (!value) {
                 return false;
             }
-            if (type == EParamType::Date) {
-                builder.OptionalDate(*value);
-            } else if (type == EParamType::Datetime) {
-                builder.OptionalDatetime(*value);
-            } else {
-                builder.OptionalTimestamp(*value);
-            }
+            PutParamValue(builder, optional, [&](TParamValueBuilder& item) {
+                if (type == EParamType::Date) {
+                    item.Date(*value);
+                } else if (type == EParamType::Datetime) {
+                    item.Datetime(*value);
+                } else {
+                    item.Timestamp(*value);
+                }
+            });
             return true;
         }
         default: return false;
@@ -654,13 +701,17 @@ bool ConvertParamValue(const TBoundParam& param, EParamType type, TParamValueBui
 
 } // namespace
 
-SQLRETURN ConvertParam(const TBoundParam& param, TParamValueBuilder& builder) {
+SQLRETURN ConvertParam(
+    const TBoundParam& param,
+    TParamValueBuilder& builder,
+    bool optional)
+{
     LastConvertSqlState = nullptr;
     const auto type = ResolveParamType(param);
     if (!type) {
         return SQL_ERROR;
     }
-    if (param.StrLenOrIndPtr && *param.StrLenOrIndPtr == SQL_NULL_DATA) {
+    if (BoundParamIsNull(param)) {
         TTypeBuilder itemType;
         if (type->Type == EParamType::Decimal) {
             itemType.Decimal(TDecimalType(static_cast<uint8_t>(type->Precision),
@@ -681,17 +732,17 @@ SQLRETURN ConvertParam(const TBoundParam& param, TParamValueBuilder& builder) {
             return SQL_ERROR;
         }
         try {
-            builder.BeginOptional()
-                .Decimal(TDecimalValue(*text, static_cast<uint8_t>(type->Precision),
-                                       static_cast<uint8_t>(type->Scale)))
-                .EndOptional();
+            const TDecimalValue value(*text, static_cast<uint8_t>(type->Precision),
+                                      static_cast<uint8_t>(type->Scale));
+            PutParamValue(builder, optional,
+                [&](TParamValueBuilder& item) { item.Decimal(value); });
         } catch (...) {
             return Error("22018");
         }
         builder.Build();
         return SQL_SUCCESS;
     }
-    if (!ConvertParamValue(param, type->Type, builder)) {
+    if (!ConvertParamValue(param, type->Type, builder, optional)) {
         return SQL_ERROR;
     }
     builder.Build();

@@ -4,6 +4,9 @@
 
 #include <sql.h>
 #include <sqlext.h>
+#ifdef ODBC_TEST_IODBC
+#include <iodbcext.h>
+#endif
 
 #include <cstdlib>
 #include <cstring>
@@ -27,6 +30,16 @@ inline std::string GetOdbcError(SQLHANDLE handle, SQLSMALLINT type) {
 
 inline const char* kConnStr = "Driver=" ODBC_DRIVER_PATH ";Server=localhost:2136;Database=/local;";
 
+#ifdef ODBC_TEST_IODBC
+// Test-harness workaround for iODBC 3.52, not the driver's SQLWCHAR ABI.
+// iODBC classifies this driver as ANSI because it does not export SQLConnectW.
+// It then binds SQL_C_WCHAR as SQL_C_CHAR, but skips the required UCS-4-to-ANSI
+// rebind when both code-page hints are UCS-4. A distinct driver hint forces
+// that conversion; the driver receives SQL_C_CHAR, never UTF-16 code units.
+inline const char* kIodbcWideInteropConnStr = "Driver=" ODBC_DRIVER_PATH
+    ";DriverUnicodeType=utf16;Server=localhost:2136;Database=/local;";
+#endif
+
 inline bool SqlStatePrefix(std::string_view diag, std::string_view state) {
     return diag.starts_with(state);
 }
@@ -40,6 +53,13 @@ inline void AllocEnv(SQLHENV* env) {
     }
     ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, env), SQL_SUCCESS);
     ASSERT_EQ(SQLSetEnvAttr(*env, SQL_ATTR_ODBC_VERSION, (void*)SQL_OV_ODBC3, 0), SQL_SUCCESS);
+#ifdef ODBC_TEST_IODBC
+    // iODBC permits the application Unicode code page to come from external
+    // configuration. Declare the integration binary's wchar_t (UCS-4) ABI
+    // explicitly before allocating a DBC, as iODBC's Unicode sample does.
+    ASSERT_EQ(SQLSetEnvAttr(*env, SQL_ATTR_APP_UNICODE_TYPE,
+                            (SQLPOINTER)SQL_DM_CP_DEF, 0), SQL_SUCCESS);
+#endif
 }
 
 inline void AllocEnvAndConnect(SQLHENV* env, SQLHDBC* dbc) {

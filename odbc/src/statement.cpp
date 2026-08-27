@@ -15,8 +15,10 @@
 
 #include <optional>
 #include <algorithm>
+#include <cctype>
 #include <cstring>
 #include <limits>
+#include <string_view>
 
 namespace NYdb::NOdbc {
 
@@ -52,6 +54,22 @@ namespace {
         return static_cast<SQLLEN>(affectedRows);
     }
 
+    std::string BuildResultMetadataQuery(std::string_view query) {
+        while (!query.empty()
+               && std::isspace(static_cast<unsigned char>(query.back()))) {
+            query.remove_suffix(1);
+        }
+        if (!query.empty() && query.back() == ';') {
+            query.remove_suffix(1);
+            while (!query.empty()
+                   && std::isspace(static_cast<unsigned char>(query.back()))) {
+                query.remove_suffix(1);
+            }
+        }
+        return "SELECT * FROM (\n" + std::string(query)
+            + "\n) AS __ydb_odbc_result_metadata LIMIT 0";
+    }
+
 }
 
 TStatement::TStatement(TConnection* conn)
@@ -84,6 +102,7 @@ void TStatement::DetachDescriptor(TDescriptor* desc) {
 
 SQLRETURN TStatement::Prepare(const std::string& statementText) {
     RowCount_ = -1;
+    PreparedColumnMeta_.reset();
     SetCursor(nullptr);
     PreparedQuery_ = statementText;
     IsPrepared_ = true;
@@ -214,8 +233,8 @@ SQLRETURN TStatement::ExecuteParamSet(
         const NYdb::NRetry::TRetryOperationSettings retrySettings = MakeAutocommitRetrySettings();
 
         const NYdb::TStatus execStatus = client->RetryQuerySync(
-            [this, &params, &affectedRows](NQuery::TSession session) -> NYdb::TStatus {
-                NQuery::TExecuteQueryResult result = ExecuteQuery(session, params);
+            [this, &params, &affectedRows, paramSet](NQuery::TSession session) -> NYdb::TStatus {
+                NQuery::TExecuteQueryResult result = ExecuteQuery(session, params, paramSet);
                 if (!result.IsSuccess()) {
                     return StatusFrom(result);
                 }
@@ -232,7 +251,7 @@ SQLRETURN TStatement::ExecuteParamSet(
         NStatusHelpers::ThrowOnError(execStatus);
     } else {
         NQuery::TSession& session = Conn_->GetOrCreateQuerySession();
-        NQuery::TExecuteQueryResult result = ExecuteQuery(session, params);
+        NQuery::TExecuteQueryResult result = ExecuteQuery(session, params, paramSet);
         NStatusHelpers::ThrowOnError(result);
         affectedRows = ExtractAffectedRows(result);
         SetCursor(result.GetResultSets().empty()
@@ -272,9 +291,10 @@ NYdb::NRetry::TRetryOperationSettings TStatement::MakeAutocommitRetrySettings() 
 
 NQuery::TExecuteQueryResult TStatement::ExecuteQuery(
     NQuery::TSession& session,
-    const NYdb::TParams& params)
+    const NYdb::TParams& params,
+    SQLULEN paramSet)
 {
-    const std::vector<TBoundParam> activeParams = GetBoundParams(0);
+    const std::vector<TBoundParam> activeParams = GetBoundParams(paramSet);
     const TParamRewriteResult rewritten = RewriteOdbcSql(
         PreparedQuery_, activeParams, Attributes_.GetNoScanMode() != SQL_NOSCAN_ON);
     if (!rewritten.Success) {
@@ -495,6 +515,8 @@ SQLRETURN TStatement::BindParameter(SQLUSMALLINT paramNumber,
                                     SQLLEN bufferLength,
                                     SQLLEN* strLenOrIndPtr) {
 
+    InvalidatePreparedColumnMeta();
+
     if (inputOutputType != SQL_PARAM_INPUT) {
         throw TOdbcException("HYC00", 0, "Only input parameters are supported");
     }
@@ -548,10 +570,16 @@ std::vector<TBoundParam> TStatement::GetBoundParams(SQLULEN paramSet) const {
         SQLLEN* lengthOrIndicator = app->IndicatorPtr == app->OctetLengthPtr
             ? binding.Indicator
             : binding.OctetLength;
+        const bool isNullData = binding.Indicator
+            && *binding.Indicator == SQL_NULL_DATA;
+        const bool atExecNullData = app->AtExec
+            && AtExecValues_.size() > static_cast<size_t>(number)
+            && AtExecValues_[number].Complete
+            && AtExecValues_[number].Indicator == SQL_NULL_DATA;
         TBoundParam param{
             static_cast<SQLUSMALLINT>(number), app->Type, imp->Type,
             static_cast<SQLULEN>(imp->Length), imp->Scale, binding.Data, app->OctetLength,
-            lengthOrIndicator, app->AtExec};
+            lengthOrIndicator, app->AtExec, isNullData || atExecNullData};
         if (binding.Indicator && *binding.Indicator == SQL_NULL_DATA) {
             param.StrLenOrIndPtr = binding.Indicator;
         }
@@ -587,13 +615,19 @@ SQLRETURN TStatement::BuildParams(NYdb::TParams& out, SQLULEN paramSet) {
             TBoundParam tmp = param;
             tmp.ParameterValuePtr = value.Data.data();
             tmp.StrLenOrIndPtr = &indicator;
-            const SQLRETURN convRc = ConvertParam(tmp, paramsBuilder.AddParam(paramName));
+            const bool optional = BoundParamIsNull(tmp)
+                || GetDeclaredParamOptionality(PreparedQuery_, param.ParamNumber).value_or(false);
+            const SQLRETURN convRc = ConvertParam(
+                tmp, paramsBuilder.AddParam(paramName), optional);
             if (convRc != SQL_SUCCESS) {
                 return conversionError(param);
             }
             continue;
         }
-        const SQLRETURN convRc = ConvertParam(param, paramsBuilder.AddParam(paramName));
+        const bool optional = BoundParamIsNull(param)
+            || GetDeclaredParamOptionality(PreparedQuery_, param.ParamNumber).value_or(false);
+        const SQLRETURN convRc = ConvertParam(
+            param, paramsBuilder.AddParam(paramName), optional);
         if (convRc != SQL_SUCCESS) {
             return conversionError(param);
         }
@@ -617,6 +651,10 @@ SQLRETURN TStatement::NumParams(SQLSMALLINT* paramCount) {
 void TStatement::ResetForMetadata() {
     ClearErrors();
     RowCount_ = -1;
+    PreparedQuery_.clear();
+    IsPrepared_ = false;
+    ParamCount_ = 0;
+    PreparedColumnMeta_.reset();
     SetCursor(nullptr);
 }
 
@@ -754,6 +792,7 @@ void TStatement::ResetParams() {
     CurrentAppParamDesc_->ClearRecords();
     ImpParamDesc_.ClearRecords();
     AtExecValues_.clear();
+    InvalidatePreparedColumnMeta();
 }
 
 SQLRETURN TStatement::RowCount(SQLLEN* rowCount) {
@@ -769,28 +808,121 @@ SQLRETURN TStatement::NumResultCols(SQLSMALLINT* colCount) {
     if (!colCount) {
         throw TOdbcException("HY000", 0, "Invalid parameter");
     }
-    if (!Cursor_) {
-        *colCount = 0;
-        return SQL_SUCCESS;
-    }
-    *colCount = static_cast<SQLSMALLINT>(Cursor_->GetColumnMeta().size());
+    const auto& columns = GetColumnMeta();
+    *colCount = static_cast<SQLSMALLINT>(columns.size());
     return SQL_SUCCESS;
 }
 
-const std::vector<TColumnMeta>& TStatement::GetColumnMeta() const {
-    static const std::vector<TColumnMeta> EmptyColumns;
-    return Cursor_ ? Cursor_->GetColumnMeta() : EmptyColumns;
+const std::vector<TColumnMeta>& TStatement::GetColumnMeta() {
+    if (Cursor_) {
+        return Cursor_->GetColumnMeta();
+    }
+    EnsurePreparedColumnMeta();
+    return *PreparedColumnMeta_;
 }
 
-void TStatement::SetCursor(std::unique_ptr<ICursor> cursor) {
-    Cursor_ = std::move(cursor);
-    GetDataOffsets_.clear();
-    ImpRowDesc_.ClearRecords();
-    if (!Cursor_) {
+void TStatement::EnsurePreparedColumnMeta() {
+    if (PreparedColumnMeta_) {
         return;
     }
+    if (!IsPrepared_) {
+        throw TOdbcException("HY010", 0, "Function sequence error");
+    }
+
+    if (!StartsWithSqlStatement(PreparedQuery_, {"SELECT"})) {
+        if (StartsWithSqlStatement(
+                PreparedQuery_,
+                {"INSERT", "UPDATE", "DELETE", "UPSERT", "REPLACE", "MERGE",
+                 "CREATE", "DROP", "ALTER", "GRANT", "REVOKE", "COMMIT", "ROLLBACK"})) {
+            PreparedColumnMeta_.emplace();
+            SetImpRowDesc(*PreparedColumnMeta_);
+            return;
+        }
+        throw TOdbcException(
+            "HYC00", 0,
+            "Result metadata before execution is supported only for SELECT statements");
+    }
+
+    // Inferring parameter result types from application buffers would make
+    // metadata value-dependent and could read data-at-execution values before
+    // SQLExecute. Keep this fallback deliberately limited to parameterless
+    // SELECT statements until YDB exposes a compile-only result-schema API.
+    if (ParamCount_ != 0) {
+        throw TOdbcException(
+            "HYC00", 0,
+            "Result metadata before execution is unavailable for parameterized statements");
+    }
+
+    auto client = Conn_->GetClient();
+    if (!client) {
+        throw TOdbcException("HY000", 0, "No client connection");
+    }
+
+    const NYdb::TParams params = NYdb::TParamsBuilder().Build();
+    const std::vector<TBoundParam> activeParams;
+    const TParamRewriteResult rewritten = RewriteOdbcSql(
+        BuildResultMetadataQuery(PreparedQuery_), activeParams,
+        Attributes_.GetNoScanMode() != SQL_NOSCAN_ON);
+    if (!rewritten.Success) {
+        throw TOdbcException(rewritten.SqlState, 0, rewritten.Message);
+    }
+    const std::string queryText = Conn_->WrapQueryForCurrentCatalog(rewritten.Sql);
+
+    NYdb::NRetry::TRetryOperationSettings retrySettings;
+    retrySettings.Idempotent(true);
+    const SQLUINTEGER queryTimeoutSec = Attributes_.GetQueryTimeoutSec();
+    if (queryTimeoutSec > 0) {
+        const TDuration deadline = TDuration::Seconds(queryTimeoutSec);
+        retrySettings.MaxTimeout(deadline).GetSessionClientTimeout(deadline);
+    }
+
+    std::optional<std::vector<TColumnMeta>> columns;
+    const NYdb::TStatus execStatus = client->RetryQuerySync(
+        [&queryText, &params, &columns, queryTimeoutSec](
+            NQuery::TSession session) -> NYdb::TStatus {
+            NQuery::TExecuteQuerySettings execSettings;
+            execSettings.SchemaInclusionMode(NQuery::ESchemaInclusionMode::Always);
+            if (queryTimeoutSec > 0) {
+                execSettings.ClientTimeout(TDuration::Seconds(queryTimeoutSec));
+            }
+            NQuery::TExecuteQueryResult result = session.ExecuteQuery(
+                queryText,
+                NQuery::TTxControl::NoTx(),
+                params,
+                execSettings).ExtractValueSync();
+            if (!result.IsSuccess()) {
+                return StatusFrom(result);
+            }
+            if (result.GetResultSets().size() != 1) {
+                return NYdb::TStatus(
+                    EStatus::BAD_REQUEST,
+                    NYdb::NIssue::TIssues{NYdb::NIssue::TIssue(
+                        "Result metadata query did not return exactly one result set")});
+            }
+            const auto metadataCursor = CreateExecCursor(result.GetResultSet(0), false);
+            columns = metadataCursor->GetColumnMeta();
+            return NYdb::TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
+        },
+        retrySettings);
+    NStatusHelpers::ThrowOnError(execStatus);
+    if (!columns) {
+        throw TOdbcException("HY000", 0, "Result metadata is unavailable");
+    }
+    PreparedColumnMeta_ = std::move(*columns);
+    SetImpRowDesc(*PreparedColumnMeta_);
+}
+
+void TStatement::InvalidatePreparedColumnMeta() {
+    PreparedColumnMeta_.reset();
+    if (!Cursor_) {
+        ImpRowDesc_.ClearRecords();
+    }
+}
+
+void TStatement::SetImpRowDesc(const std::vector<TColumnMeta>& columns) {
+    ImpRowDesc_.ClearRecords();
     SQLSMALLINT number = 0;
-    for (const TColumnMeta& column : Cursor_->GetColumnMeta()) {
+    for (const TColumnMeta& column : columns) {
         TDescRecord& record = ImpRowDesc_.Record(++number);
         record.Name = column.Name;
         record.Type = column.SqlType;
@@ -800,6 +932,14 @@ void TStatement::SetCursor(std::unique_ptr<ICursor> cursor) {
         record.Scale = column.DecimalDigits;
         record.Nullable = column.Nullable;
     }
+}
+
+void TStatement::SetCursor(std::unique_ptr<ICursor> cursor) {
+    Cursor_ = std::move(cursor);
+    GetDataOffsets_.clear();
+    static const std::vector<TColumnMeta> EmptyColumns;
+    SetImpRowDesc(Cursor_ ? Cursor_->GetColumnMeta()
+                          : PreparedColumnMeta_.value_or(EmptyColumns));
 }
 
 std::optional<TStatement::TDescriptorAttribute> TStatement::ResolveDescriptorAttribute(
@@ -941,6 +1081,36 @@ SQLRETURN TStatement::SetStmtAttr(
                     : SQL_CURSOR_STATIC,
                 "SQL_ATTR_CURSOR_SCROLLABLE");
         }
+        case SQL_ATTR_CURSOR_SENSITIVITY: {
+            const SQLULEN sensitivity = ReadIntegerAttr<SQLULEN>(value);
+            if (sensitivity == SQL_UNSPECIFIED) {
+                return SQL_SUCCESS;
+            }
+            if (sensitivity == SQL_INSENSITIVE) {
+                return setCursorType(SQL_CURSOR_STATIC, "SQL_ATTR_CURSOR_SENSITIVITY");
+            }
+            if (sensitivity == SQL_SENSITIVE) {
+                const SQLRETURN result = setCursorType(
+                    SQL_CURSOR_STATIC, "SQL_ATTR_CURSOR_SENSITIVITY");
+                return result == SQL_SUCCESS
+                    ? AddError("01S02", 0,
+                               "SQL_ATTR_CURSOR_SENSITIVITY was changed to insensitive",
+                               SQL_SUCCESS_WITH_INFO)
+                    : result;
+            }
+            return Diag::AddInvalidAttrValue(*this, "SQL_ATTR_CURSOR_SENSITIVITY");
+        }
+        case SQL_ATTR_USE_BOOKMARKS: {
+            const SQLULEN bookmarks = ReadIntegerAttr<SQLULEN>(value);
+            if (bookmarks == SQL_UB_OFF) {
+                return SQL_SUCCESS;
+            }
+            if (bookmarks == SQL_UB_ON || bookmarks == SQL_UB_VARIABLE) {
+                return AddError("01S02", 0, "SQL_ATTR_USE_BOOKMARKS was changed to off",
+                                SQL_SUCCESS_WITH_INFO);
+            }
+            return Diag::AddInvalidAttrValue(*this, "SQL_ATTR_USE_BOOKMARKS");
+        }
         default:
             return Diag::AddNotImplemented(*this);
     }
@@ -985,6 +1155,16 @@ SQLRETURN TStatement::GetStmtAttr(
         *static_cast<SQLULEN*>(value) = Attributes_.CursorType == SQL_CURSOR_FORWARD_ONLY
             ? SQL_NONSCROLLABLE
             : SQL_SCROLLABLE;
+        return SQL_SUCCESS;
+    }
+    if (attr == SQL_ATTR_CURSOR_SENSITIVITY) {
+        *static_cast<SQLULEN*>(value) = Attributes_.CursorType == SQL_CURSOR_FORWARD_ONLY
+            ? SQL_UNSPECIFIED
+            : SQL_INSENSITIVE;
+        return SQL_SUCCESS;
+    }
+    if (attr == SQL_ATTR_USE_BOOKMARKS) {
+        *static_cast<SQLULEN*>(value) = SQL_UB_OFF;
         return SQL_SUCCESS;
     }
     if (auto result = TDirectAttributes::Get(attr, Attributes_, value)) {

@@ -2,8 +2,7 @@
 
 #include <ydb-cpp-sdk/client/types/status/status.h>
 
-#include <sql.h>
-#include <sqlext.h>
+#include "odbc_compat.h"
 
 #include <map>
 #include <string>

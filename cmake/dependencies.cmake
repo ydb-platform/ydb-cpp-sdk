@@ -404,13 +404,11 @@ else()
       NAME RapidJSON
       GITHUB_REPOSITORY Tencent/rapidjson
       GIT_TAG v${YDB_SDK_RAPIDJSON_VERSION}
-      EXCLUDE_FROM_ALL YES
-      OPTIONS
-        "RAPIDJSON_BUILD_DOC OFF"
-        "RAPIDJSON_BUILD_EXAMPLES OFF"
-        "RAPIDJSON_BUILD_TESTS OFF"
-        "RAPIDJSON_BUILD_THIRDPARTY_GTEST OFF"
+      DOWNLOAD_ONLY YES
     )
+    # RapidJSON is header-only. Adding its CMake project would globally set
+    # RULE_LAUNCH_COMPILE and RULE_LAUNCH_LINK when ccache is installed,
+    # duplicating our compiler launcher and wrapping non-compiler commands.
     if(NOT TARGET RapidJSON::RapidJSON)
       add_library(RapidJSON::RapidJSON INTERFACE IMPORTED GLOBAL)
       target_include_directories(RapidJSON::RapidJSON INTERFACE

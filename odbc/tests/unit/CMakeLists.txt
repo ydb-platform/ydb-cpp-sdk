@@ -1,3 +1,8 @@
+set(YDB_ODBC_UNIT_INCLUDE_DIRS
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../src
+  ${ODBC_INCLUDE_DIRS}
+)
+
 add_ydb_test(NAME odbc-convert_ut GTEST
   SOURCES
     convert_ut.cpp
@@ -5,7 +10,7 @@ add_ydb_test(NAME odbc-convert_ut GTEST
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/utils/sql_type_map.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/utils/util.cpp
   INCLUDE_DIRS
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../src
+    ${YDB_ODBC_UNIT_INCLUDE_DIRS}
   LINK_LIBRARIES
     yutil
     YDB-CPP-SDK::Params
@@ -20,7 +25,7 @@ add_ydb_test(NAME odbc-escape_ut GTEST
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/utils/escape.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/utils/sql_type_map.cpp
   INCLUDE_DIRS
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../src
+    ${YDB_ODBC_UNIT_INCLUDE_DIRS}
   LINK_LIBRARIES
     yutil
   LABELS
@@ -33,7 +38,7 @@ add_ydb_test(NAME odbc-param_rewrite_ut GTEST
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/utils/escape.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/utils/sql_type_map.cpp
   INCLUDE_DIRS
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../src
+    ${YDB_ODBC_UNIT_INCLUDE_DIRS}
   LINK_LIBRARIES
     yutil
   LABELS
@@ -45,7 +50,7 @@ add_ydb_test(NAME odbc-conn_string_ut GTEST
     conn_string_ut.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/utils/util.cpp
   INCLUDE_DIRS
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../src
+    ${YDB_ODBC_UNIT_INCLUDE_DIRS}
   LINK_LIBRARIES
     yutil
     YDB-CPP-SDK::Params
@@ -57,7 +62,7 @@ add_ydb_test(NAME odbc-sql_like_ut GTEST
   SOURCES
     sql_like_ut.cpp
   INCLUDE_DIRS
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../src
+    ${YDB_ODBC_UNIT_INCLUDE_DIRS}
   LINK_LIBRARIES
     yutil
   LABELS
@@ -68,7 +73,7 @@ add_ydb_test(NAME odbc-cursor_ut GTEST
   SOURCES
     cursor_ut.cpp
   INCLUDE_DIRS
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../src
+    ${YDB_ODBC_UNIT_INCLUDE_DIRS}
   LINK_LIBRARIES
     ydb-odbc
   LABELS

@@ -9,8 +9,7 @@
 #include <string_view>
 #include <type_traits>
 
-#include <sql.h>
-#include <sqlext.h>
+#include "odbc_compat.h"
 
 namespace NYdb::NOdbc {
 
