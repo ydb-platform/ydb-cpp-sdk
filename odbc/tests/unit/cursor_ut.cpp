@@ -120,6 +120,12 @@ TEST(CursorWindow, HandlesEmptyAndExtremeOffsets) {
     TCursorWindow window(3);
     EXPECT_EQ(window.Fetch(SQL_FETCH_NEXT, 0, 0, 0).Rows, 0);
     EXPECT_FALSE(window.Resolve(0));
+
+    ASSERT_EQ(window.Fetch(SQL_FETCH_ABSOLUTE, 2,
+                          std::numeric_limits<SQLULEN>::max(), 0).Rows,
+              2);
+    EXPECT_EQ(window.Fetch(SQL_FETCH_NEXT, 0, 1, 0).Rows, 0);
+    EXPECT_FALSE(window.Resolve(0));
 }
 
 } // namespace

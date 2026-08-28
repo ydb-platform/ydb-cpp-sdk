@@ -15,6 +15,19 @@ bool EqualNoCase(std::string_view lhs, std::string_view rhs) {
     });
 }
 
+bool StartsWithKeyword(std::string_view sql, size_t pos, std::string_view keyword) {
+    if (pos > sql.size()
+        || (pos > 0 && (std::isalnum(static_cast<unsigned char>(sql[pos - 1]))
+            || sql[pos - 1] == '_'))
+        || sql.size() - pos < keyword.size()
+        || !EqualNoCase(sql.substr(pos, keyword.size()), keyword)) {
+        return false;
+    }
+    const size_t end = pos + keyword.size();
+    return end == sql.size()
+        || (!std::isalnum(static_cast<unsigned char>(sql[end])) && sql[end] != '_');
+}
+
 struct TSqlScanner {
     std::string_view Sql_;
     std::string* Output_;
@@ -46,7 +59,12 @@ struct TSqlScanner {
     size_t SkipQuoted(size_t pos, size_t end) const {
         const char quote = Sql_[pos++];
         while (pos < end) {
-            if (Sql_[pos++] != quote) {
+            const char ch = Sql_[pos++];
+            if (ch == '\\' && pos < end) {
+                ++pos;
+                continue;
+            }
+            if (ch != quote) {
                 continue;
             }
             if (pos < end && Sql_[pos] == quote) {
@@ -71,6 +89,83 @@ struct TSqlScanner {
             return close == std::string_view::npos || close + 2 > end ? end : close + 2;
         }
         return pos;
+    }
+
+    size_t SkipSqlTrivia(size_t pos, size_t end) const {
+        while (pos < end) {
+            pos = SkipTrivia(pos, end);
+            const size_t commentEnd = SkipComment(pos, end);
+            if (commentEnd == pos) {
+                break;
+            }
+            pos = commentEnd;
+        }
+        return pos;
+    }
+
+    size_t FindStatementEnd(size_t pos, size_t end) const {
+        while (pos < end) {
+            const size_t commentEnd = SkipComment(pos, end);
+            if (commentEnd != pos) {
+                pos = commentEnd;
+            } else if (Sql_[pos] == '\'' || Sql_[pos] == '"' || Sql_[pos] == '`') {
+                pos = std::min(SkipQuoted(pos, end), end);
+            } else if (Sql_[pos] == ';') {
+                return pos;
+            } else {
+                ++pos;
+            }
+        }
+        return std::string_view::npos;
+    }
+
+    size_t FindDefineEnd(size_t pos, size_t end) const {
+        while (pos < end) {
+            const size_t commentEnd = SkipComment(pos, end);
+            if (commentEnd != pos) {
+                pos = commentEnd;
+                continue;
+            }
+            if (Sql_[pos] == '\'' || Sql_[pos] == '"' || Sql_[pos] == '`') {
+                pos = std::min(SkipQuoted(pos, end), end);
+                continue;
+            }
+            if (StartsWithKeyword(Sql_, pos, "END")) {
+                const size_t define = SkipSqlTrivia(pos + 3, end);
+                if (StartsWithKeyword(Sql_, define, "DEFINE")) {
+                    const size_t semicolon = SkipSqlTrivia(define + 6, end);
+                    if (semicolon < end && Sql_[semicolon] == ';') {
+                        return semicolon;
+                    }
+                }
+            }
+            ++pos;
+        }
+        return std::string_view::npos;
+    }
+
+    bool IsNamedExpressionAssignment(size_t pos, size_t end) const {
+        if (pos >= end || Sql_[pos++] != '$' || pos >= end
+            || (!std::isalpha(static_cast<unsigned char>(Sql_[pos])) && Sql_[pos] != '_')) {
+            return false;
+        }
+        while (++pos < end
+            && (std::isalnum(static_cast<unsigned char>(Sql_[pos])) || Sql_[pos] == '_')) {
+        }
+        pos = SkipSqlTrivia(pos, end);
+        return pos < end && Sql_[pos] == '=';
+    }
+
+    size_t FindPrologueEnd(size_t pos, size_t end) const {
+        if (StartsWithKeyword(Sql_, pos, "DEFINE")) {
+            return FindDefineEnd(pos + 6, end);
+        }
+        if (StartsWithKeyword(Sql_, pos, "DECLARE")
+            || StartsWithKeyword(Sql_, pos, "PRAGMA")
+            || IsNamedExpressionAssignment(pos, end)) {
+            return FindStatementEnd(pos, end);
+        }
+        return std::string_view::npos;
     }
 
     size_t FindClose(size_t open, size_t end, char left, char right) const {
@@ -358,22 +453,81 @@ std::optional<bool> GetDeclaredParamOptionality(
     std::string_view sql,
     SQLUSMALLINT paramNumber)
 {
-    const std::string prefix = "DECLARE $p" + std::to_string(paramNumber) + " AS";
-    const size_t declaration = sql.find(prefix);
-    if (declaration == std::string_view::npos) {
-        return std::nullopt;
+    const std::string param = "$p" + std::to_string(paramNumber);
+    const TSqlScanner scanner{sql, nullptr, false};
+    for (size_t pos = scanner.SkipSqlTrivia(0, sql.size()); pos < sql.size();) {
+        const bool isDeclare = StartsWithKeyword(sql, pos, "DECLARE");
+        if (!isDeclare && !StartsWithKeyword(sql, pos, "PRAGMA")) {
+            break;
+        }
+        const size_t semicolon = scanner.FindStatementEnd(pos, sql.size());
+        if (semicolon == std::string_view::npos) {
+            break;
+        }
+        size_t token = scanner.SkipSqlTrivia(pos + (isDeclare ? 7 : 6), semicolon);
+        if (isDeclare && semicolon - token >= param.size()
+            && sql.substr(token, param.size()) == param
+            && (token + param.size() == semicolon
+                || (!std::isalnum(static_cast<unsigned char>(sql[token + param.size()]))
+                    && sql[token + param.size()] != '_'))) {
+            token = scanner.SkipSqlTrivia(token + param.size(), semicolon);
+            if (StartsWithKeyword(sql, token, "AS")) {
+                const std::string_view type = TrimTrailingSqlTrivia(
+                    sql.substr(token + 2, semicolon - token - 2));
+                return !type.empty() && type.back() == '?';
+            }
+        }
+        pos = scanner.SkipSqlTrivia(semicolon + 1, sql.size());
     }
-    const size_t typeBegin = declaration + prefix.size();
-    const size_t semicolon = sql.find(';', typeBegin);
-    if (semicolon == std::string_view::npos) {
-        return std::nullopt;
+    return std::nullopt;
+}
+
+std::string_view TrimTrailingSqlTrivia(std::string_view sql) {
+    const TSqlScanner scanner{sql, nullptr, false};
+    size_t codeEnd = 0;
+    for (size_t pos = 0; pos < sql.size();) {
+        const size_t commentEnd = scanner.SkipComment(pos, sql.size());
+        if (commentEnd != pos) {
+            if (sql[pos] == '/' && sql.find("*/", pos + 2) == std::string_view::npos) {
+                return sql;
+            }
+            pos = commentEnd;
+        } else if (std::isspace(static_cast<unsigned char>(sql[pos]))) {
+            ++pos;
+        } else if (sql[pos] == '\'' || sql[pos] == '"' || sql[pos] == '`') {
+            pos = std::min(scanner.SkipQuoted(pos, sql.size()), sql.size());
+            codeEnd = pos;
+        } else {
+            codeEnd = ++pos;
+        }
     }
-    size_t typeEnd = semicolon;
-    while (typeEnd > typeBegin
-           && std::isspace(static_cast<unsigned char>(sql[typeEnd - 1]))) {
-        --typeEnd;
+    return sql.substr(0, codeEnd);
+}
+
+std::string_view GetSqlStatement(std::string_view sql) {
+    const TSqlScanner scanner{sql, nullptr, false};
+    size_t statement = scanner.SkipSqlTrivia(0, sql.size());
+    while (statement < sql.size()) {
+        const size_t prologueEnd = scanner.FindPrologueEnd(statement, sql.size());
+        if (prologueEnd == std::string_view::npos) {
+            break;
+        }
+        const size_t next = scanner.SkipSqlTrivia(prologueEnd + 1, sql.size());
+        if (next == sql.size()) {
+            break;
+        }
+        statement = next;
     }
-    return typeEnd > typeBegin && sql[typeEnd - 1] == '?';
+    return sql.substr(statement);
+}
+
+bool HasMultipleSqlStatements(std::string_view sql) {
+    const TSqlScanner scanner{sql, nullptr, false};
+    const std::string_view statement = GetSqlStatement(sql);
+    const size_t statementBegin = sql.size() - statement.size();
+    const size_t statementEnd = scanner.FindStatementEnd(statementBegin, sql.size());
+    return statementEnd != std::string_view::npos
+        && scanner.SkipSqlTrivia(statementEnd + 1, sql.size()) < sql.size();
 }
 
 SQLSMALLINT CountOdbcParams(std::string_view sql) {
@@ -387,23 +541,9 @@ SQLSMALLINT CountOdbcParams(std::string_view sql) {
 bool StartsWithSqlStatement(
     std::string_view sql,
     std::initializer_list<std::string_view> keywords) {
-    size_t pos = 0;
-    while (pos < sql.size()) {
-        if (std::isspace(static_cast<unsigned char>(sql[pos]))) {
-            ++pos;
-        } else if (pos + 1 < sql.size() && sql[pos] == '-' && sql[pos + 1] == '-') {
-            const size_t newline = sql.find('\n', pos + 2);
-            pos = newline == std::string_view::npos ? sql.size() : newline + 1;
-        } else if (pos + 1 < sql.size() && sql[pos] == '/' && sql[pos + 1] == '*') {
-            const size_t close = sql.find("*/", pos + 2);
-            pos = close == std::string_view::npos ? sql.size() : close + 2;
-        } else {
-            break;
-        }
-    }
+    sql = GetSqlStatement(sql);
     return std::ranges::any_of(keywords, [&](std::string_view keyword) {
-        return sql.size() - pos >= keyword.size()
-            && EqualNoCase(sql.substr(pos, keyword.size()), keyword);
+        return StartsWithKeyword(sql, 0, keyword);
     });
 }
 

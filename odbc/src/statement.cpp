@@ -15,7 +15,6 @@
 
 #include <optional>
 #include <algorithm>
-#include <cctype>
 #include <cstring>
 #include <limits>
 #include <string_view>
@@ -55,18 +54,14 @@ namespace {
     }
 
     std::string BuildResultMetadataQuery(std::string_view query) {
-        while (!query.empty()
-               && std::isspace(static_cast<unsigned char>(query.back()))) {
-            query.remove_suffix(1);
+        query = TrimTrailingSqlTrivia(query);
+        std::string_view statement = GetSqlStatement(query);
+        const std::string_view prologue = query.substr(0, query.size() - statement.size());
+        if (!statement.empty() && statement.back() == ';') {
+            statement.remove_suffix(1);
+            statement = TrimTrailingSqlTrivia(statement);
         }
-        if (!query.empty() && query.back() == ';') {
-            query.remove_suffix(1);
-            while (!query.empty()
-                   && std::isspace(static_cast<unsigned char>(query.back()))) {
-                query.remove_suffix(1);
-            }
-        }
-        return "SELECT * FROM (\n" + std::string(query)
+        return std::string(prologue) + "SELECT * FROM (\n" + std::string(statement)
             + "\n) AS __ydb_odbc_result_metadata LIMIT 0";
     }
 
@@ -80,12 +75,16 @@ TStatement::TStatement(TConnection* conn)
     , ImpParamDesc_(EDescType::ImpParam, conn)
     , CurrentAppRowDesc_(&AppRowDesc_)
     , CurrentAppParamDesc_(&AppParamDesc_) {
+    AppParamDesc_.Attach(this);
+    ImpParamDesc_.Attach(this);
     Conn_->RegisterStatement(this);
 }
 
 TStatement::~TStatement() {
     CurrentAppRowDesc_->Detach(this);
     CurrentAppParamDesc_->Detach(this);
+    AppParamDesc_.Detach(this);
+    ImpParamDesc_.Detach(this);
     Conn_->UnregisterStatement(this);
 }
 
@@ -95,7 +94,9 @@ void TStatement::DetachDescriptor(TDescriptor* desc) {
     }
     if (CurrentAppParamDesc_ == desc) {
         CurrentAppParamDesc_ = &AppParamDesc_;
+        CurrentAppParamDesc_->Attach(this);
         AtExecValues_.clear();
+        InvalidatePreparedColumnMeta();
     }
     desc->Detach(this);
 }
@@ -515,10 +516,11 @@ SQLRETURN TStatement::BindParameter(SQLUSMALLINT paramNumber,
                                     SQLLEN bufferLength,
                                     SQLLEN* strLenOrIndPtr) {
 
-    InvalidatePreparedColumnMeta();
-
     if (inputOutputType != SQL_PARAM_INPUT) {
         throw TOdbcException("HYC00", 0, "Only input parameters are supported");
+    }
+    if (paramNumber < 1) {
+        throw TOdbcException("07009", 0, "Invalid descriptor index");
     }
 
     const bool atExec = strLenOrIndPtr
@@ -531,6 +533,7 @@ SQLRETURN TStatement::BindParameter(SQLUSMALLINT paramNumber,
         if (AtExecValues_.size() > paramNumber) {
             AtExecValues_[paramNumber] = {};
         }
+        InvalidatePreparedColumnMeta();
         return SQL_SUCCESS;
     }
     TDescRecord& app = CurrentAppParamDesc_->Record(static_cast<SQLSMALLINT>(paramNumber));
@@ -555,6 +558,7 @@ SQLRETURN TStatement::BindParameter(SQLUSMALLINT paramNumber,
     imp.Scale = decimalDigits;
     imp.Nullable = SQL_NULLABLE;
     imp.ParameterType = inputOutputType;
+    InvalidatePreparedColumnMeta();
     return SQL_SUCCESS;
 }
 
@@ -792,7 +796,6 @@ void TStatement::ResetParams() {
     CurrentAppParamDesc_->ClearRecords();
     ImpParamDesc_.ClearRecords();
     AtExecValues_.clear();
-    InvalidatePreparedColumnMeta();
 }
 
 SQLRETURN TStatement::RowCount(SQLLEN* rowCount) {
@@ -827,6 +830,11 @@ void TStatement::EnsurePreparedColumnMeta() {
     }
     if (!IsPrepared_) {
         throw TOdbcException("HY010", 0, "Function sequence error");
+    }
+    if (HasMultipleSqlStatements(PreparedQuery_)) {
+        throw TOdbcException(
+            "HYC00", 0,
+            "Result metadata before execution is unavailable for multiple statements");
     }
 
     if (!StartsWithSqlStatement(PreparedQuery_, {"SELECT"})) {
@@ -919,6 +927,12 @@ void TStatement::InvalidatePreparedColumnMeta() {
     }
 }
 
+void TStatement::DescriptorChanged(const TDescriptor* descriptor) {
+    if (descriptor == CurrentAppParamDesc_ || descriptor == &ImpParamDesc_) {
+        InvalidatePreparedColumnMeta();
+    }
+}
+
 void TStatement::SetImpRowDesc(const std::vector<TColumnMeta>& columns) {
     ImpRowDesc_.ClearRecords();
     SQLSMALLINT number = 0;
@@ -935,6 +949,9 @@ void TStatement::SetImpRowDesc(const std::vector<TColumnMeta>& columns) {
 }
 
 void TStatement::SetCursor(std::unique_ptr<ICursor> cursor) {
+    if (cursor && IsPrepared_) {
+        PreparedColumnMeta_ = cursor->GetColumnMeta();
+    }
     Cursor_ = std::move(cursor);
     GetDataOffsets_.clear();
     static const std::vector<TColumnMeta> EmptyColumns;
@@ -995,6 +1012,7 @@ SQLRETURN TStatement::SetStmtAttr(
             current->Attach(this);
             if (attr == SQL_ATTR_APP_PARAM_DESC) {
                 AtExecValues_.clear();
+                InvalidatePreparedColumnMeta();
             }
             if (CurrentAppRowDesc_ != previous && CurrentAppParamDesc_ != previous) {
                 previous->Detach(this);
@@ -1035,12 +1053,18 @@ SQLRETURN TStatement::SetStmtAttr(
             return SetCheckedAttribute<SQLLEN>(
                 value, Attributes_.MaxRows, *this, "SQL_ATTR_MAX_ROWS",
                 [](SQLLEN input) { return input >= 0; });
-        case SQL_ATTR_NOSCAN:
-            return SetCheckedAttribute<SQLULEN>(
+        case SQL_ATTR_NOSCAN: {
+            const SQLULEN previous = Attributes_.NoScan;
+            const SQLRETURN result = SetCheckedAttribute<SQLULEN>(
                 value, Attributes_.NoScan, *this, "SQL_ATTR_NOSCAN",
                 [](SQLULEN input) {
                     return input == SQL_NOSCAN_OFF || input == SQL_NOSCAN_ON;
                 });
+            if (result == SQL_SUCCESS && Attributes_.NoScan != previous) {
+                InvalidatePreparedColumnMeta();
+            }
+            return result;
+        }
         case SQL_ATTR_METADATA_ID:
             return SetCheckedAttribute<SQLULEN>(
                 value, Attributes_.MetadataId, *this, "SQL_ATTR_METADATA_ID",

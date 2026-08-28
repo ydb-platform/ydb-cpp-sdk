@@ -139,14 +139,19 @@ TResolvedBinding TDescriptor::ResolveBinding(
 }
 
 void TDescriptor::Attach(TStatement* stmt) {
-    if (Type_ == EDescType::Explicit
-        && std::find(Statements_.begin(), Statements_.end(), stmt) == Statements_.end()) {
+    if (std::find(Statements_.begin(), Statements_.end(), stmt) == Statements_.end()) {
         Statements_.push_back(stmt);
     }
 }
 
 void TDescriptor::Detach(TStatement* stmt) {
     std::erase(Statements_, stmt);
+}
+
+void TDescriptor::NotifyStatements() {
+    for (TStatement* stmt : Statements_) {
+        stmt->DescriptorChanged(this);
+    }
 }
 
 SQLRETURN TDescriptor::GetDescField(SQLSMALLINT recNumber, SQLSMALLINT field, SQLPOINTER value,
@@ -254,6 +259,7 @@ SQLRETURN TDescriptor::SetDescField(SQLSMALLINT recNumber, SQLSMALLINT field, SQ
             for (auto& record : Records_) {
                 record.Active = true;
             }
+            NotifyStatements();
             return SQL_SUCCESS;
         }
         case SQL_DESC_ARRAY_SIZE: {
@@ -276,6 +282,7 @@ SQLRETURN TDescriptor::SetDescField(SQLSMALLINT recNumber, SQLSMALLINT field, SQ
 
     TDescRecord& record = Record(recNumber);
     if (TRecordProperties::Set(field, record, value)) {
+        NotifyStatements();
         return SQL_SUCCESS;
     }
     if (field == SQL_DESC_NAME) {
@@ -307,6 +314,7 @@ SQLRETURN TDescriptor::SetDescRec(SQLSMALLINT recNumber, SQLSMALLINT type, SQLSM
     record.DataPtr = dataPtr;
     record.OctetLengthPtr = stringLengthPtr;
     record.IndicatorPtr = indicatorPtr;
+    NotifyStatements();
     return SQL_SUCCESS;
 }
 
@@ -319,6 +327,7 @@ SQLRETURN TDescriptor::CopyDesc(TDescriptor* target) {
     }
     target->Header_ = Header_;
     target->Records_ = Records_;
+    target->NotifyStatements();
     return SQL_SUCCESS;
 }
 
