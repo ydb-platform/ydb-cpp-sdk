@@ -97,6 +97,8 @@ public:
     static TDescriptor* FromHandle(SQLHDESC handle);
 
 private:
+    void NotifyStatements();
+
     EDescType Type_;
     TConnection* Conn_;
     THeader Header_;
