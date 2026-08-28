@@ -87,6 +87,11 @@ void TStat::FinishRequest(const std::shared_ptr<TStatUnit>& unit, const TFinalSt
     });
 }
 
+void TStat::CancelRequest([[maybe_unused]] const std::shared_ptr<TStatUnit>& unit) {
+    std::lock_guard lock(Mutex);
+    --Infly;
+}
+
 void TStat::ReportMaxInfly() {
     std::lock_guard lock(Mutex);
 

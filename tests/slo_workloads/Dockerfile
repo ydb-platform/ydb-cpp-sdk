@@ -2,6 +2,8 @@
 FROM ubuntu:24.04
 
 ARG PRESET=release-test-clang
+ARG SLO_TARGET=slo-key-value
+ARG SLO_BINARY=tests/slo_workloads/key_value/slo-key-value
 ENV DEBIAN_FRONTEND=noninteractive \
     CPM_SOURCE_CACHE=/root/.cache/cpm/sources \
     CCACHE_DIR=/root/.ccache \
@@ -45,6 +47,7 @@ RUN --mount=type=cache,target=/root/.cache/cpm,sharing=locked \
       -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
       -DCMAKE_PREFIX_PATH=${YDB_CPP_SDK_INSTALL_PREFIX} \
       -DYDB_CPP_SDK_SLO_USE_INSTALLED_SDK=ON \
-    && cmake --build build --target slo-key-value --parallel
+    && cmake --build build --target ${SLO_TARGET} --parallel \
+    && cmake -E create_symlink "/ydb-cpp-sdk/build/${SLO_BINARY}" /usr/local/bin/slo-workload
 
-ENTRYPOINT ["./build/tests/slo_workloads/key_value/slo-key-value"]
+ENTRYPOINT ["/usr/local/bin/slo-workload"]

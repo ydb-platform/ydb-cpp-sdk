@@ -2,6 +2,7 @@
 
 #include <userver/ydb/builder.hpp>
 #include <userver/ydb/table.hpp>
+#include <userver/ydb/topic.hpp>
 
 #include <ydb-cpp-sdk/client/types/credentials/credentials.h>
 #include <ydb-cpp-sdk/client/value/value.h>
@@ -21,6 +22,7 @@ void InitTableClient(
 );
 
 userver::ydb::TableClient& GetTableClient();
+userver::ydb::TopicClient& GetTopicClient();
 
 void ShutdownTableClient();
 
