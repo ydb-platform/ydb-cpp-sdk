@@ -5,6 +5,8 @@
 
 using NYdb::NOdbc::RewriteOdbcSql;
 using NYdb::NOdbc::CountOdbcParams;
+using NYdb::NOdbc::GetDeclaredParamOptionality;
+using NYdb::NOdbc::HasMultipleSqlStatements;
 using NYdb::NOdbc::StartsWithSqlStatement;
 using NYdb::NOdbc::TBoundParam;
 
@@ -81,6 +83,20 @@ TEST(OdbcParamRewrite, SkipsLiteralAndYqlOptionalSyntax) {
         "DECLARE $p1 AS Int32;\nSELECT $p1 + 10");
 }
 
+TEST(OdbcParamRewrite, DetectsOptionalDeclarationsBeforeComments) {
+    EXPECT_EQ(GetDeclaredParamOptionality(
+        "DECLARE $p1 AS Int32? /* nullable */;\nSELECT $p1", 1), true);
+    EXPECT_EQ(GetDeclaredParamOptionality(
+        "DECLARE $p1 AS Int32? -- nullable\n;\nSELECT $p1", 1), true);
+    EXPECT_EQ(GetDeclaredParamOptionality(
+        "DECLARE $p1 AS Int32 /* not optional?; */;\nSELECT $p1", 1), false);
+    EXPECT_EQ(GetDeclaredParamOptionality(
+        "/* DECLARE $p1 AS Int32?; */\nSELECT $p1", 1), std::nullopt);
+    EXPECT_EQ(GetDeclaredParamOptionality(
+        "pragma TablePathPrefix = \"/local\"; declare /* p */ $p1 as Int32?; SELECT $p1", 1),
+        true);
+}
+
 TEST(OdbcParamRewrite, SkipsParameterMarkersInComments) {
     const std::string sql = "SELECT ? -- optional ? $p8\n/* disabled $p9 ? */";
     const auto result = RewriteParams(sql, {IntParam(1)});
@@ -128,5 +144,21 @@ TEST(OdbcParamRewrite, CountOdbcParams) {
 
 TEST(OdbcParamRewrite, ClassifiesAfterTrivia) {
     EXPECT_TRUE(StartsWithSqlStatement(" -- lead\n /* block */ INSERT INTO t VALUES (1)", {"INSERT"}));
+    EXPECT_TRUE(StartsWithSqlStatement(
+        "PRAGMA TablePathPrefix = \"/local\"; DECLARE $p1 AS Int32; UPSERT INTO t VALUES ($p1)",
+        {"UPSERT"}));
+    EXPECT_TRUE(StartsWithSqlStatement(
+        "$rows = (SELECT 1); SELECT * FROM $rows; -- trailing", {"SELECT"}));
+    EXPECT_TRUE(StartsWithSqlStatement(
+        "DEFINE ACTION $read() AS SELECT 1; END DEFINE; SELECT 2", {"SELECT"}));
+    EXPECT_TRUE(StartsWithSqlStatement(
+        "PRAGMA config = \"quoted\\\";value\"; CREATE TABLE t (id Int32)", {"CREATE"}));
+    EXPECT_TRUE(StartsWithSqlStatement("DELETE FROM t; SELECT * FROM t", {"DELETE"}));
+    EXPECT_FALSE(StartsWithSqlStatement("DELETE FROM t; SELECT * FROM t", {"SELECT"}));
+    EXPECT_TRUE(HasMultipleSqlStatements("DELETE FROM t; SELECT * FROM t"));
+    EXPECT_TRUE(HasMultipleSqlStatements("PRAGMA x; DELETE FROM t; SELECT * FROM t"));
+    EXPECT_FALSE(HasMultipleSqlStatements("PRAGMA x; SELECT 1; -- trailing"));
+    EXPECT_FALSE(HasMultipleSqlStatements(
+        "DEFINE ACTION $read() AS SELECT 1; END DEFINE; SELECT 2"));
     EXPECT_FALSE(StartsWithSqlStatement(" -- lead\n SELECT 1", {"INSERT", "UPDATE"}));
 }

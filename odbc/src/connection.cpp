@@ -18,6 +18,7 @@ TConnection::~TConnection() {
 }
 
 void TConnection::DestroyYdbState() {
+    InvalidatePreparedStatementMetadata();
     QuerySession_.reset();
     Tx_.reset();
     Ydb_.reset();
@@ -132,6 +133,12 @@ void TConnection::CloseStatementCursors() {
     }
 }
 
+void TConnection::InvalidatePreparedStatementMetadata() {
+    for (TStatement* stmt : Statements_) {
+        stmt->InvalidatePreparedColumnMeta();
+    }
+}
+
 SQLRETURN TConnection::SetAutocommit(bool value) {
     if (value && Tx_) {
         auto status = Tx_->Commit().ExtractValueSync();
@@ -159,6 +166,7 @@ SQLRETURN TConnection::SetConnectAttr(SQLINTEGER attr, SQLPOINTER value, SQLINTE
         if (rc != SQL_SUCCESS) {
             return rc;
         }
+        InvalidatePreparedStatementMetadata();
         if (rebindDatabase) {
             RebindToDatabase(*rebindDatabase);
         }

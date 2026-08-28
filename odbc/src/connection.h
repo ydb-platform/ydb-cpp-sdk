@@ -63,6 +63,7 @@ private:
     void ApplyResolvedSettings(TResolvedConnectionSettings&& settings);
     void RecreateYdbClients();
     void RebindToDatabase(std::string_view newDatabase);
+    void InvalidatePreparedStatementMetadata();
 public:
     ~TConnection();
 

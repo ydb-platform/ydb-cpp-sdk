@@ -417,7 +417,8 @@ TEST(StatementApi, PreparedResultMetadataBeforeExecute) {
         (SQLCHAR*)"DROP TABLE IF EXISTS result_metadata_before_execute_test", SQL_NTS);
     SQLFreeStmt(stmt, SQL_CLOSE);
     CHECK_ODBC_OK(SQLExecDirect(stmt,
-        (SQLCHAR*)"CREATE TABLE result_metadata_before_execute_test ("
+        (SQLCHAR*)"PRAGMA TablePathPrefix = \"/local\";\n"
+                  "CREATE TABLE result_metadata_before_execute_test ("
                   "id Int64 NOT NULL, name Utf8, PRIMARY KEY (id))",
         SQL_NTS), stmt, SQL_HANDLE_STMT);
     SQLFreeStmt(stmt, SQL_CLOSE);
@@ -445,6 +446,24 @@ TEST(StatementApi, PreparedResultMetadataBeforeExecute) {
     CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_SBIGINT, &rowCount, sizeof(rowCount), nullptr),
         stmt, SQL_HANDLE_STMT);
     EXPECT_EQ(rowCount, 0);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    // Metadata inspection must not run an earlier executable statement in a batch.
+    CHECK_ODBC_OK(SQLPrepare(stmt,
+        (SQLCHAR*)"DELETE FROM result_metadata_before_execute_test WHERE id = 7; "
+                  "SELECT * FROM result_metadata_before_execute_test",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(SQLNumResultCols(stmt, &columnCount), SQL_ERROR);
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "HYC00"));
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"SELECT COUNT(*) FROM result_metadata_before_execute_test WHERE id = 7",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_SBIGINT, &rowCount, sizeof(rowCount), nullptr),
+        stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(rowCount, 1);
     SQLFreeStmt(stmt, SQL_CLOSE);
 
     // Applications commonly inspect a prepared zero-row query before execution.
@@ -530,6 +549,21 @@ TEST(StatementApi, PreparedResultMetadataBeforeExecute) {
     EXPECT_EQ(value, 1);
     SQLFreeStmt(stmt, SQL_CLOSE);
 
+    for (const char* query : {
+            "SELECT 1 AS value; -- trailing line comment",
+            "SELECT 1 AS value; /* trailing block comment */",
+            "PRAGMA TablePathPrefix = \"/local\"; SELECT 1 AS value; -- prologue",
+            "$rows = (SELECT 1 AS value); SELECT * FROM $rows;",
+            "SELECT 'can\\'t; stop' AS value; -- escaped quote"}) {
+        CHECK_ODBC_OK(SQLPrepare(stmt, (SQLCHAR*)query, SQL_NTS),
+            stmt, SQL_HANDLE_STMT);
+        CHECK_ODBC_OK(SQLNumResultCols(stmt, &columnCount), stmt, SQL_HANDLE_STMT);
+        EXPECT_EQ(columnCount, 1);
+        CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
+        EXPECT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+        SQLFreeStmt(stmt, SQL_CLOSE);
+    }
+
     // Metadata fallback must not consume application parameter values before
     // execution. Parameterized SELECTs remain unsupported until YDB provides
     // a compile-only result-schema API.
@@ -537,7 +571,53 @@ TEST(StatementApi, PreparedResultMetadataBeforeExecute) {
         stmt, SQL_HANDLE_STMT);
     EXPECT_EQ(SQLNumResultCols(stmt, &columnCount), SQL_ERROR);
     EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "HYC00"));
-    SQLFreeStmt(stmt, SQL_CLOSE);
+    SQLINTEGER parameter = 1;
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER,
+        0, 0, &parameter, 0, nullptr), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLCloseCursor(stmt), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLNumResultCols(stmt, &columnCount), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(columnCount, 1);
+    CHECK_ODBC_OK(SQLFreeStmt(stmt, SQL_RESET_PARAMS), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLNumResultCols(stmt, &columnCount), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(columnCount, 1);
+    EXPECT_EQ(SQLBindParameter(stmt, 1, SQL_PARAM_OUTPUT, SQL_C_LONG, SQL_INTEGER,
+        0, 0, &parameter, 0, nullptr), SQL_ERROR);
+    CHECK_ODBC_OK(SQLNumResultCols(stmt, &columnCount), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(columnCount, 1);
+    SQLUSMALLINT paramStatus = SQL_PARAM_UNUSED;
+    SQLULEN paramsProcessed = 0;
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_PARAM_STATUS_PTR, &paramStatus, 0),
+        stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_PARAMS_PROCESSED_PTR, &paramsProcessed, 0),
+        stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLNumResultCols(stmt, &columnCount), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(columnCount, 1);
+    SQLHDESC apd = SQL_NULL_HDESC;
+    CHECK_ODBC_OK(SQLGetStmtAttr(stmt, SQL_ATTR_APP_PARAM_DESC, &apd, 0, nullptr),
+        stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLSetDescField(apd, 1, SQL_DESC_CONCISE_TYPE,
+        (SQLPOINTER)SQL_C_ULONG, 0), apd, SQL_HANDLE_DESC);
+    EXPECT_EQ(SQLNumResultCols(stmt, &columnCount), SQL_ERROR);
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "HYC00"));
+
+    SQLUINTEGER unsignedParameter = 1;
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_ULONG, SQL_INTEGER,
+        0, 0, &unsignedParameter, 0, nullptr), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLCloseCursor(stmt), stmt, SQL_HANDLE_STMT);
+    SQLHDESC explicitApd = SQL_NULL_HDESC;
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_DESC, dbc, &explicitApd), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLCopyDesc(apd, explicitApd), apd, SQL_HANDLE_DESC);
+    CHECK_ODBC_OK(SQLSetDescField(explicitApd, 1, SQL_DESC_CONCISE_TYPE,
+        (SQLPOINTER)SQL_C_LONG, 0), explicitApd, SQL_HANDLE_DESC);
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_APP_PARAM_DESC, explicitApd, 0),
+        stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLCloseCursor(stmt), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFreeHandle(SQL_HANDLE_DESC, explicitApd), SQL_SUCCESS);
+    EXPECT_EQ(SQLNumResultCols(stmt, &columnCount), SQL_ERROR);
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "HYC00"));
 
     // Executing a catalog function cancels an older prepared statement and
     // its cached schema instead of allowing stale SQLExecute state to survive.
@@ -558,6 +638,96 @@ TEST(StatementApi, PreparedResultMetadataBeforeExecute) {
 
     CHECK_ODBC_OK(SQLExecDirect(stmt,
         (SQLCHAR*)"DROP TABLE result_metadata_before_execute_test", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(StatementApi, PreparedResultMetadataTracksCurrentCatalog) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+
+    SQLExecDirect(stmt,
+        (SQLCHAR*)"DROP TABLE IF EXISTS `/local/cat_a/prepared_catalog_metadata`", SQL_NTS);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    SQLExecDirect(stmt,
+        (SQLCHAR*)"DROP TABLE IF EXISTS `/local/cat_b/prepared_catalog_metadata`", SQL_NTS);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"CREATE TABLE `/local/cat_a/prepared_catalog_metadata` ("
+                  "id Int32 NOT NULL, a_value Utf8, PRIMARY KEY (id))",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"CREATE TABLE `/local/cat_b/prepared_catalog_metadata` ("
+                  "id Int32 NOT NULL, b_value Int64, extra Bool, PRIMARY KEY (id))",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    CHECK_ODBC_OK(SQLSetConnectAttr(
+        dbc, SQL_ATTR_CURRENT_CATALOG, (SQLPOINTER)"/local/cat_a", SQL_NTS),
+        dbc, SQL_HANDLE_DBC);
+    CHECK_ODBC_OK(SQLPrepare(stmt,
+        (SQLCHAR*)"SELECT * FROM prepared_catalog_metadata", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
+
+    SQLSMALLINT columnCount = 0;
+    CHECK_ODBC_OK(SQLNumResultCols(stmt, &columnCount), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(columnCount, 2);
+    char columnName[32] = {};
+    SQLSMALLINT nameLength = 0;
+    SQLSMALLINT dataType = SQL_UNKNOWN_TYPE;
+    SQLULEN columnSize = 0;
+    SQLSMALLINT decimalDigits = 0;
+    SQLSMALLINT nullable = SQL_NULLABLE_UNKNOWN;
+    bool sawAValue = false;
+    for (SQLUSMALLINT column = 1; column <= columnCount; ++column) {
+        std::memset(columnName, 0, sizeof(columnName));
+        CHECK_ODBC_OK(SQLDescribeCol(
+            stmt, column, reinterpret_cast<SQLCHAR*>(columnName), sizeof(columnName), &nameLength,
+            &dataType, &columnSize, &decimalDigits, &nullable), stmt, SQL_HANDLE_STMT);
+        if (std::strcmp(columnName, "a_value") == 0) {
+            sawAValue = true;
+            EXPECT_EQ(dataType, SQL_VARCHAR);
+        }
+    }
+    EXPECT_TRUE(sawAValue);
+
+    CHECK_ODBC_OK(SQLSetConnectAttr(
+        dbc, SQL_ATTR_CURRENT_CATALOG, (SQLPOINTER)"/local/cat_b", SQL_NTS),
+        dbc, SQL_HANDLE_DBC);
+    CHECK_ODBC_OK(SQLNumResultCols(stmt, &columnCount), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(columnCount, 3);
+    bool sawBValue = false;
+    for (SQLUSMALLINT column = 1; column <= columnCount; ++column) {
+        std::memset(columnName, 0, sizeof(columnName));
+        CHECK_ODBC_OK(SQLDescribeCol(
+            stmt, column, reinterpret_cast<SQLCHAR*>(columnName), sizeof(columnName), &nameLength,
+            &dataType, &columnSize, &decimalDigits, &nullable), stmt, SQL_HANDLE_STMT);
+        if (std::strcmp(columnName, "b_value") == 0) {
+            sawBValue = true;
+            EXPECT_EQ(dataType, SQL_BIGINT);
+        }
+    }
+    EXPECT_TRUE(sawBValue);
+    CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    CHECK_ODBC_OK(SQLSetConnectAttr(
+        dbc, SQL_ATTR_CURRENT_CATALOG, (SQLPOINTER)"/local", SQL_NTS),
+        dbc, SQL_HANDLE_DBC);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"DROP TABLE `/local/cat_a/prepared_catalog_metadata`", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"DROP TABLE `/local/cat_b/prepared_catalog_metadata`", SQL_NTS),
         stmt, SQL_HANDLE_STMT);
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
@@ -629,7 +799,7 @@ TEST(StatementApi, RowCount) {
     SQLFreeStmt(stmt, SQL_CLOSE);
 
     CHECK_ODBC_OK(SQLPrepare(stmt,
-        (SQLCHAR*)"DECLARE $p1 AS Int32?;\n"
+        (SQLCHAR*)"DECLARE $p1 AS Int32? /* nullable */;\n"
                   "UPDATE row_count_test SET value = value + 1 WHERE id = $p1",
         SQL_NTS), stmt, SQL_HANDLE_STMT);
     SQLINTEGER nativeId = 2;
@@ -671,7 +841,9 @@ TEST(StatementApi, RowCountAggregatesParameterArrays) {
     SQLFreeStmt(stmt, SQL_CLOSE);
 
     CHECK_ODBC_OK(SQLPrepare(stmt,
-        (SQLCHAR*)"UPSERT INTO row_count_param_test (id, value) VALUES (?, ?)",
+        (SQLCHAR*)"declare /* key */ $p1 as Int32;\n"
+                  "DECLARE  $p2 AS Int32;\n"
+                  "UPSERT INTO row_count_param_test (id, value) VALUES ($p1, $p2)",
         SQL_NTS), stmt, SQL_HANDLE_STMT);
     SQLINTEGER ids[] = {1, 2, 3};
     SQLINTEGER values[] = {10, 20, 30};
@@ -850,6 +1022,17 @@ TEST(StatementApi, AttrNoScan) {
     SQLCHAR selectEscapeFnQuery[] = "SELECT {fn ABS(-12)} AS value";
     CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_NOSCAN, (SQLPOINTER)SQL_NOSCAN_OFF, 0),
                   stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLPrepare(stmt, selectEscapeFnQuery, SQL_NTS), stmt, SQL_HANDLE_STMT);
+    SQLSMALLINT columnCount = 0;
+    CHECK_ODBC_OK(SQLNumResultCols(stmt, &columnCount), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(columnCount, 1);
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_NOSCAN, (SQLPOINTER)SQL_NOSCAN_ON, 0),
+                  stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(SQLNumResultCols(stmt, &columnCount), SQL_ERROR);
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_NOSCAN, (SQLPOINTER)SQL_NOSCAN_OFF, 0),
+                  stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLNumResultCols(stmt, &columnCount), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(columnCount, 1);
     CHECK_ODBC_OK(SQLExecDirect(stmt, selectEscapeFnQuery, SQL_NTS), stmt, SQL_HANDLE_STMT);
     ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
     SQLINTEGER valueInt = 0;
