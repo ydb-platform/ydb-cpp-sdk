@@ -201,8 +201,7 @@ public:
                 }
                 return Window_.Position_ == EPosition::After
                     ? Boundary(EPosition::After)
-                    : Positive(static_cast<uintmax_t>(Window_.Start_)
-                               + Window_.PreviousRowsetSize_);
+                    : Forward(Window_.Start_, Window_.PreviousRowsetSize_);
             }
             case SQL_FETCH_PRIOR: {
                 if (Window_.Position_ == EPosition::Before) {
@@ -231,8 +230,7 @@ public:
                     return offset < 0 ? Absolute(offset) : Boundary(EPosition::After);
                 }
                 if (offset >= 0) {
-                    return Positive(static_cast<uintmax_t>(Window_.Start_)
-                                    + static_cast<uintmax_t>(offset));
+                    return Forward(Window_.Start_, static_cast<uintmax_t>(offset));
                 }
                 return Backward(
                     Window_.Start_, NegativeMagnitude(offset), Window_.Start_ > 0);
@@ -257,6 +255,12 @@ private:
         return start > std::numeric_limits<size_t>::max()
             ? Boundary(EPosition::After)
             : Rowset(static_cast<size_t>(start));
+    }
+
+    TTarget Forward(size_t origin, uintmax_t distance) const {
+        return distance > std::numeric_limits<uintmax_t>::max() - origin
+            ? Boundary(EPosition::After)
+            : Positive(static_cast<uintmax_t>(origin) + distance);
     }
 
     TTarget Backward(size_t origin, uintmax_t distance, bool allowOverlap) const {

@@ -94,6 +94,9 @@ public:
         SQLSMALLINT* stringLengthPtr) override;
 
 private:
+    friend class TConnection;
+    friend class TDescriptor;
+
     struct TAttributes {
         SQLUINTEGER QueryTimeoutSec = 0;
         SQLULEN MaxRows = 0;
@@ -150,6 +153,7 @@ private:
     std::vector<TBoundParam> GetBoundParams(SQLULEN paramSet) const;
     void EnsurePreparedColumnMeta();
     void InvalidatePreparedColumnMeta();
+    void DescriptorChanged(const TDescriptor* descriptor);
     void SetImpRowDesc(const std::vector<TColumnMeta>& columns);
     void SetCursor(std::unique_ptr<ICursor> cursor);
 

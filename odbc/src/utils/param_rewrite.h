@@ -28,6 +28,10 @@ std::optional<bool> GetDeclaredParamOptionality(
     std::string_view sql,
     SQLUSMALLINT paramNumber);
 
+std::string_view TrimTrailingSqlTrivia(std::string_view sql);
+std::string_view GetSqlStatement(std::string_view sql);
+bool HasMultipleSqlStatements(std::string_view sql);
+
 SQLSMALLINT CountOdbcParams(std::string_view sql);
 
 bool StartsWithSqlStatement(
