@@ -56,11 +56,11 @@ struct TSqlScanner {
         return pos;
     }
 
-    size_t SkipQuoted(size_t pos, size_t end) const {
+    size_t SkipQuoted(size_t pos, size_t end, bool backslashEscapes = true) const {
         const char quote = Sql_[pos++];
         while (pos < end) {
             const char ch = Sql_[pos++];
-            if (ch == '\\' && pos < end) {
+            if (backslashEscapes && ch == '\\' && pos < end) {
                 ++pos;
                 continue;
             }
@@ -168,7 +168,12 @@ struct TSqlScanner {
         return std::string_view::npos;
     }
 
-    size_t FindClose(size_t open, size_t end, char left, char right) const {
+    size_t FindClose(
+        size_t open,
+        size_t end,
+        char left,
+        char right,
+        bool backslashEscapes = true) const {
         size_t depth = 1;
         for (size_t pos = open + 1; pos < end;) {
             const size_t commentEnd = SkipComment(pos, end);
@@ -177,7 +182,7 @@ struct TSqlScanner {
                 continue;
             }
             if (Sql_[pos] == '\'' || Sql_[pos] == '"' || Sql_[pos] == '`') {
-                pos = SkipQuoted(pos, end);
+                pos = SkipQuoted(pos, end, backslashEscapes);
                 continue;
             }
             if (Sql_[pos] == left) {
@@ -199,13 +204,18 @@ struct TSqlScanner {
         return Sql_.substr(start, pos - start);
     }
 
-    bool ReadQuoted(size_t& pos, size_t end, size_t& valueBegin, size_t& valueEnd) const {
+    bool ReadQuoted(
+        size_t& pos,
+        size_t end,
+        size_t& valueBegin,
+        size_t& valueEnd,
+        bool backslashEscapes = true) const {
         pos = SkipTrivia(pos, end);
         if (pos >= end || Sql_[pos] != '\'') {
             return false;
         }
         valueBegin = pos + 1;
-        pos = SkipQuoted(pos, end);
+        pos = SkipQuoted(pos, end, backslashEscapes);
         if (pos != std::string_view::npos) {
             valueEnd = pos - 1;
             return true;
@@ -234,16 +244,17 @@ struct TSqlScanner {
     }
 
     bool RewriteBrace(size_t& pos, size_t end, bool parameters) {
-        const size_t close = FindClose(pos, end, '{', '}');
-        if (close == std::string_view::npos) {
-            return false;
-        }
-        size_t inner = SkipTrivia(pos + 1, close);
-        const bool outputCall = inner + 1 < close && Sql_[inner] == '?' && Sql_[inner + 1] == '=';
+        size_t inner = SkipTrivia(pos + 1, end);
+        const bool outputCall = inner + 1 < end && Sql_[inner] == '?' && Sql_[inner + 1] == '=';
         if (outputCall) {
             inner += 2;
         }
-        const std::string_view keyword = ReadIdent(inner, close);
+        const std::string_view keyword = ReadIdent(inner, end);
+        const bool escapeClause = EqualNoCase(keyword, "escape");
+        const size_t close = FindClose(pos, end, '{', '}', !escapeClause);
+        if (close == std::string_view::npos || inner > close) {
+            return false;
+        }
         if (outputCall && !EqualNoCase(keyword, "call")) {
             return false;
         }
@@ -261,7 +272,8 @@ struct TSqlScanner {
         size_t valueBegin = 0, valueEnd = 0;
         if ((!EqualNoCase(keyword, "d") && !EqualNoCase(keyword, "t")
              && !EqualNoCase(keyword, "ts") && !EqualNoCase(keyword, "escape"))
-            || !ReadQuoted(inner, close, valueBegin, valueEnd) || SkipTrivia(inner, close) != close) {
+            || !ReadQuoted(inner, close, valueBegin, valueEnd, !escapeClause)
+            || SkipTrivia(inner, close) != close) {
             return false;
         }
         if (EqualNoCase(keyword, "escape")) {

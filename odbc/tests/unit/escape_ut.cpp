@@ -72,6 +72,12 @@ TEST(OdbcEscapeRewrite, LeavesQuotedEscapesAlone) {
     EXPECT_EQ(RewriteOdbcEscapes("SELECT '{fn ABS(1)}'"), "SELECT '{fn ABS(1)}'");
 }
 
+TEST(OdbcEscapeRewrite, LeavesBackslashEscapedQuoteAlone) {
+    EXPECT_EQ(
+        RewriteOdbcEscapes("SELECT 'can\\'{fn ABS(1)}'"),
+        "SELECT 'can\\'{fn ABS(1)}'");
+}
+
 TEST(OdbcEscapeRewrite, LeavesCommentedEscapesAlone) {
     EXPECT_EQ(
         RewriteOdbcEscapes("-- {fn ABS(-1)}\nSELECT {fn ABS(-1)} /* {fn ABS(-2)} */"),
