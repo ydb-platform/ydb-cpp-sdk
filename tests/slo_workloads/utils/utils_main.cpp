@@ -13,7 +13,14 @@
 using namespace NLastGetopt;
 using namespace NYdb;
 
-int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TCleanupCommand cleanup) {
+int DoMain(
+    int argc,
+    char** argv,
+    TCreateCommand create,
+    TRunCommand run,
+    TCleanupCommand cleanup,
+    bool forwardAllArgsToCreate)
+{
     TOpts opts = TOpts::Default();
 
     std::string connectionString;
@@ -147,7 +154,9 @@ int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TClean
                 char* fakeArgv[] = { programName, nullptr };
 
                 Cout << "[all] Launching create command..." << Endl;
-                result = create(dbOptions, fakeArgc, fakeArgv);
+                result = forwardAllArgsToCreate
+                    ? create(dbOptions, static_cast<int>(runArgv.size() - 1), runArgv.data())
+                    : create(dbOptions, fakeArgc, fakeArgv);
                 if (!result) {
                     Cout << "[all] Launching run command..." << Endl;
                     result = run(dbOptions, static_cast<int>(runArgv.size() - 1), runArgv.data());

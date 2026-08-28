@@ -4,3 +4,4 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmake/UserverYdbFromTree.cmake)
 userver_ydb_from_tree()
 
 add_subdirectory(key_value)
+add_subdirectory(topic)

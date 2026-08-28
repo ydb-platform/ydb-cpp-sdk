@@ -2,6 +2,8 @@
 FROM ghcr.io/userver-framework/ubuntu-22.04-userver:v2.12@sha256:51577d3ebad13de47e5922ddb12ad4c6eb68137a8bbbc93347633a187ba1d42d
 
 ARG PRESET=release-test-clang
+ARG SLO_TARGET=slo-userver-key-value
+ARG SLO_BINARY=tests/slo_workloads/userver/key_value/slo-userver-key-value
 ENV DEBIAN_FRONTEND=noninteractive \
     CPM_SOURCE_CACHE=/root/.cache/cpm/sources \
     CCACHE_DIR=/root/.ccache \
@@ -49,6 +51,7 @@ RUN --mount=type=cache,target=/root/.cache/cpm,sharing=locked \
       -DCMAKE_PREFIX_PATH=${YDB_CPP_SDK_INSTALL_PREFIX} \
       -DYDB_CPP_SDK_SLO_USE_INSTALLED_SDK=ON \
       -DYDB_CPP_SDK_BUILD_SLO_USERVER=ON \
-    && cmake --build build --target slo-userver-key-value --parallel
+    && cmake --build build --target ${SLO_TARGET} --parallel \
+    && cmake -E create_symlink "/ydb-cpp-sdk/build/${SLO_BINARY}" /usr/local/bin/slo-workload
 
-ENTRYPOINT ["./build/tests/slo_workloads/userver/key_value/slo-userver-key-value"]
+ENTRYPOINT ["/usr/local/bin/slo-workload"]

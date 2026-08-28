@@ -111,7 +111,13 @@ using TCreateCommand = std::function<int(TDatabaseOptions&, int, char**)>;
 using TRunCommand = std::function<int(TDatabaseOptions&, int, char**)>;
 using TCleanupCommand = std::function<int(TDatabaseOptions&, int)>;
 
-int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TCleanupCommand cleanup);
+int DoMain(
+    int argc,
+    char** argv,
+    TCreateCommand create,
+    TRunCommand run,
+    TCleanupCommand cleanup,
+    bool forwardAllArgsToCreate = false);
 
 std::string GetCmdList();
 ECommandType ParseCommand(const char* cmd);

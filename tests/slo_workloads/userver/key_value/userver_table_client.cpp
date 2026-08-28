@@ -12,6 +12,7 @@ namespace {
 struct Clients final {
     std::shared_ptr<userver::ydb::impl::Driver> driver;
     std::shared_ptr<userver::ydb::TableClient> table_client;
+    std::shared_ptr<userver::ydb::TopicClient> topic_client;
 };
 
 Clients& GetClients() {
@@ -70,8 +71,23 @@ userver::ydb::TableClient& GetTableClient() {
     return *clients.table_client;
 }
 
+userver::ydb::TopicClient& GetTopicClient() {
+    auto& clients = GetClients();
+    if (!clients.driver) {
+        throw std::runtime_error("userver YDB driver is not initialized");
+    }
+    if (!clients.topic_client) {
+        clients.topic_client = std::make_shared<userver::ydb::TopicClient>(
+            clients.driver,
+            userver::ydb::impl::TopicSettings{}
+        );
+    }
+    return *clients.topic_client;
+}
+
 void ShutdownTableClient() {
     auto& clients = GetClients();
+    clients.topic_client.reset();
     clients.table_client.reset();
     clients.driver.reset();
 }

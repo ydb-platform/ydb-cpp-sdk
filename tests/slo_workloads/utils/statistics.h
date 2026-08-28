@@ -54,6 +54,7 @@ public:
 
     std::shared_ptr<TStatUnit> StartRequest();
     void FinishRequest(const std::shared_ptr<TStatUnit>& unit, const TFinalStatus& status);
+    void CancelRequest(const std::shared_ptr<TStatUnit>& unit);
 
     void ReportMaxInfly();
     void ReportStats(std::uint64_t sessions, std::uint64_t readPromises, std::uint64_t executorPromises);

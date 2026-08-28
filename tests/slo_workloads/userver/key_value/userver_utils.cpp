@@ -25,7 +25,14 @@ using namespace NYdb;
 // The native DoMain (from slo-utils-base) runs commands directly in the calling
 // thread. The userver version needs the coroutine engine running for
 // ydb::TableClient, engine::Semaphore, AsyncNoSpan, SleepFor, WaitAny, etc.
-int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TCleanupCommand cleanup) {
+int DoMain(
+    int argc,
+    char** argv,
+    TCreateCommand create,
+    TRunCommand run,
+    TCleanupCommand cleanup,
+    bool forwardAllArgsToCreate)
+{
     SetEnv("SLO_STUB_RETRY", "1");
     TOpts opts = TOpts::Default();
 
@@ -182,7 +189,9 @@ int DoMain(int argc, char** argv, TCreateCommand create, TRunCommand run, TClean
                     char* fakeArgv[] = { programName, nullptr };
 
                     Cout << "[all] Launching create command..." << Endl;
-                    result = create(dbOptions, fakeArgc, fakeArgv);
+                    result = forwardAllArgsToCreate
+                        ? create(dbOptions, static_cast<int>(runArgv.size() - 1), runArgv.data())
+                        : create(dbOptions, fakeArgc, fakeArgv);
                     if (!result) {
                         Cout << "[all] Launching run command..." << Endl;
                         result = run(dbOptions, static_cast<int>(runArgv.size() - 1), runArgv.data());
