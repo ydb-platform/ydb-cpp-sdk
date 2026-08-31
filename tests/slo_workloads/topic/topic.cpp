@@ -269,7 +269,9 @@ void TTopicRunContext::RunReader(std::unique_ptr<ITopicReadSession> session) {
             retiredPartitionSessions.insert(PartitionSessionKey(stop->GetPartitionSession()));
             stop->Confirm();
         } else if (auto* end = std::get_if<TReadSessionEvent::TEndPartitionSessionEvent>(&event)) {
-            retiredPartitionSessions.insert(PartitionSessionKey(end->GetPartitionSession()));
+            // Rust closes an ended partition session for new input, but keeps
+            // its buffered messages available until they have been drained.
+            // A stop/closed event, in contrast, discards that buffered input.
             end->Confirm();
         } else if (auto* closed =
                        std::get_if<TReadSessionEvent::TPartitionSessionClosedEvent>(&event))
@@ -437,10 +439,46 @@ void TTopicRunContext::RunReader(std::unique_ptr<ITopicReadSession> session) {
                     auto* ack = std::get_if<
                         TReadSessionEvent::TCommitOffsetAcknowledgementEvent>(&nextEvent);
                     if (!ack) {
-                        // Keep data and partition lifecycle events in their original order.
-                        // In particular, confirming a stop event before older deferred data
-                        // lets another reader advance the partition's committed offset first.
-                        deferredEvents.push_back(std::move(nextEvent));
+                        if (std::holds_alternative<TReadSessionEvent::TDataReceivedEvent>(
+                                nextEvent))
+                        {
+                            deferredEvents.push_back(std::move(nextEvent));
+                            continue;
+                        }
+
+                        // Match Rust's reader runtime: lifecycle events are
+                        // consumed independently while commit_with_ack awaits
+                        // its result. In particular, Stop immediately retires
+                        // the partition session and discards its buffered data.
+                        bool pendingCommitLost = false;
+                        if (auto* stop =
+                                std::get_if<TReadSessionEvent::TStopPartitionSessionEvent>(
+                                    &nextEvent))
+                        {
+                            pendingCommitLost =
+                                PartitionSessionKey(stop->GetPartitionSession()) ==
+                                partitionSessionKey;
+                        } else if (auto* closed =
+                                       std::get_if<
+                                           TReadSessionEvent::TPartitionSessionClosedEvent>(
+                                           &nextEvent))
+                        {
+                            pendingCommitLost =
+                                PartitionSessionKey(closed->GetPartitionSession()) ==
+                                partitionSessionKey;
+                        }
+
+                        if (auto controlError = handleControlEvent(nextEvent)) {
+                            Impl_->ReadStats.FinishRequest(commit, ErrorStatus());
+                            Fail(*controlError);
+                            commitFinished = true;
+                            stopReader = true;
+                        } else if (pendingCommitLost) {
+                            // Rust resolves an outstanding commit_with_ack with
+                            // an error when its partition session is stopped.
+                            Impl_->ReadStats.FinishRequest(commit, ErrorStatus());
+                            commitFinished = true;
+                        }
                         continue;
                     }
 
