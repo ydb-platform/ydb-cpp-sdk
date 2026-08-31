@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-FROM ubuntu:24.04
+FROM ubuntu:24.04 AS sdk
 
 ENV DEBIAN_FRONTEND=noninteractive \
     CPM_SOURCE_CACHE=/root/.cache/cpm/sources \
@@ -46,6 +46,8 @@ RUN --mount=type=cache,target=/root/.cache/cpm,sharing=locked \
       -DYDB_SDK_ENABLE_OTEL_METRICS=ON \
     && cmake --build /root/.cache/cpm/build-sdk --parallel \
     && cmake --install /root/.cache/cpm/build-sdk
+
+FROM sdk AS workload
 
 COPY tests/slo_workloads/ tests/slo_workloads/
 
