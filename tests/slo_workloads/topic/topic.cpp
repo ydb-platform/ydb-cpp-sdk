@@ -410,17 +410,19 @@ void TTopicRunContext::RunReader(std::unique_ptr<ITopicReadSession> session) {
                 while (!queuedEvents.empty() && !commitFinished && !stopReader) {
                     auto nextEvent = std::move(queuedEvents.front());
                     queuedEvents.pop_front();
-                    if (std::holds_alternative<TReadSessionEvent::TDataReceivedEvent>(nextEvent)) {
+                    auto* ack = std::get_if<
+                        TReadSessionEvent::TCommitOffsetAcknowledgementEvent>(&nextEvent);
+                    if (!ack) {
+                        // Keep data and partition lifecycle events in their original order.
+                        // In particular, confirming a stop event before older deferred data
+                        // lets another reader advance the partition's committed offset first.
                         deferredEvents.push_back(std::move(nextEvent));
                         continue;
                     }
 
-                    bool isExpectedAck = false;
-                    if (auto* ack = std::get_if<TReadSessionEvent::TCommitOffsetAcknowledgementEvent>(&nextEvent)) {
-                        isExpectedAck =
-                            ack->GetPartitionSession()->GetPartitionId() == partitionId &&
-                            ack->GetCommittedOffset() >= endOffset;
-                    }
+                    const bool isExpectedAck =
+                        ack->GetPartitionSession()->GetPartitionId() == partitionId &&
+                        ack->GetCommittedOffset() >= endOffset;
 
                     if (auto controlError = handleControlEvent(nextEvent)) {
                         Impl_->ReadStats.FinishRequest(commit, ErrorStatus());
