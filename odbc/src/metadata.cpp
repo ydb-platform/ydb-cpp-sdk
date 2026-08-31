@@ -216,6 +216,9 @@ SQLRETURN NMetadata::GetInfo(TConnection* connection, SQLUSMALLINT infoType,
         case SQL_DATABASE_NAME:
             return Diag::WriteOdbcString(*connection, connection->GetDatabaseName(),
                                          infoValuePtr, bufferLength, stringLengthPtr);
+        case SQL_SERVER_NAME:
+            return Diag::WriteOdbcString(*connection, connection->GetServerName(),
+                                         infoValuePtr, bufferLength, stringLengthPtr);
         case SQL_TXN_ISOLATION_OPTION:
             return WriteInfoScalar(connection, connection->GetSupportedTxnIsolationOptions(),
                                    infoValuePtr, stringLengthPtr);

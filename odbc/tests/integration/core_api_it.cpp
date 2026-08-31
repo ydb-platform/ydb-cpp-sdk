@@ -386,6 +386,16 @@ TEST(CoreApi, SQLGetInfoInterfaceConformance) {
                   dbc, SQL_HANDLE_DBC);
     EXPECT_STREQ(databaseName, "/local");
     EXPECT_EQ(outLen, 6);
+    char serverName[64] = {};
+    CHECK_ODBC_OK(SQLGetInfo(dbc, SQL_SERVER_NAME, serverName, sizeof(serverName), &outLen),
+                  dbc, SQL_HANDLE_DBC);
+    EXPECT_STREQ(serverName, "localhost:2136");
+    EXPECT_EQ(outLen, 14);
+    char dbmsVersion[64] = {};
+    CHECK_ODBC_OK(SQLGetInfo(dbc, SQL_DBMS_VER, dbmsVersion, sizeof(dbmsVersion), &outLen),
+                  dbc, SQL_HANDLE_DBC);
+    EXPECT_GT(outLen, 0);
+    EXPECT_NE(dbmsVersion[0], '\0');
     char driverVersion[64] = {};
     CHECK_ODBC_OK(SQLGetInfo(dbc, SQL_DRIVER_VER, driverVersion, sizeof(driverVersion), &outLen),
                   dbc, SQL_HANDLE_DBC);

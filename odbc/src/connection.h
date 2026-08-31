@@ -51,6 +51,7 @@ private:
     std::optional<NQuery::TSession> QuerySession_;
 
     std::string Database_;
+    std::string ServerName_;
     std::string DataSourceName_;
     TEnvironment* ParentEnv_ = nullptr;
 
@@ -99,6 +100,7 @@ public:
     TConnectionAttributes::TCatalogBinding GetCatalogBinding() const;
     const std::string& GetDbmsVersion();
     const std::string& GetDatabaseName() const;
+    const std::string& GetServerName() const;
     const std::string& GetDataSourceName() const;
     SQLUINTEGER GetSupportedTxnIsolationOptions() const;
     bool IsDataSourceReadOnly() const;
