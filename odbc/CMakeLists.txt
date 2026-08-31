@@ -43,6 +43,11 @@ target_include_directories(ydb-odbc
     ${ODBC_INCLUDE_DIRS}
 )
 
+target_compile_definitions(ydb-odbc
+  PRIVATE
+    YDB_ODBC_DRIVER_VERSION="${YDB_SDK_VERSION}"
+)
+
 target_link_libraries(ydb-odbc
   PRIVATE
     YDB-CPP-SDK::Query
@@ -54,6 +59,21 @@ target_link_libraries(ydb-odbc
     YDB-CPP-SDK::Iam
     ${YDB_ODBCINST_LIBRARY}
 )
+
+if (APPLE)
+  add_executable(ydb-odbc-register-macos
+    packaging/register_macos.cpp
+  )
+  target_include_directories(ydb-odbc-register-macos
+    PRIVATE
+      ${ODBC_INCLUDE_DIRS}
+  )
+  target_link_libraries(ydb-odbc-register-macos
+    PRIVATE
+      ${YDB_ODBCINST_LIBRARY}
+  )
+  add_dependencies(ydb-odbc ydb-odbc-register-macos)
+endif()
 
 set_target_properties(ydb-odbc PROPERTIES
   POSITION_INDEPENDENT_CODE ON
@@ -134,6 +154,21 @@ install(TARGETS ydb-odbc
   LIBRARY DESTINATION "${YDB_ODBC_INSTALL_LIBDIR}"
   COMPONENT ydb-odbc
 )
+
+if (APPLE)
+  install(CODE "
+    if (\"\$ENV{DESTDIR}\" STREQUAL \"\")
+      execute_process(
+        COMMAND \"$<TARGET_FILE:ydb-odbc-register-macos>\"
+                \"${YDB_ODBC_DRIVER_PATH}\"
+        RESULT_VARIABLE _ydb_odbc_register_result
+      )
+      if (NOT _ydb_odbc_register_result EQUAL 0)
+        message(FATAL_ERROR \"Failed to register the YDB ODBC driver with iODBC\")
+      endif()
+    endif()
+  " COMPONENT ydb-odbc)
+endif()
 
 if (YDB_SDK_EXAMPLES)
   add_subdirectory(examples)

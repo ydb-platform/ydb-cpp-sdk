@@ -40,7 +40,7 @@ constexpr SQLUSMALLINT kMaxIndexColumns = 20;
 
 constexpr TInfo kInfo[] = {
     S(SQL_DRIVER_NAME, "ydb-odbc"),
-    S(SQL_DRIVER_VER, "unknown"),
+    S(SQL_DRIVER_VER, YDB_ODBC_DRIVER_VERSION),
     S(SQL_DRIVER_ODBC_VER, "03.00"),
     U32(SQL_ODBC_INTERFACE_CONFORMANCE, SQL_OIC_CORE),
     U16(SQL_ODBC_API_CONFORMANCE, SQL_OAC_LEVEL1),
@@ -212,6 +212,9 @@ SQLRETURN NMetadata::GetInfo(TConnection* connection, SQLUSMALLINT infoType,
                                          infoValuePtr, bufferLength, stringLengthPtr);
         case SQL_DATA_SOURCE_NAME:
             return Diag::WriteOdbcString(*connection, connection->GetDataSourceName(),
+                                         infoValuePtr, bufferLength, stringLengthPtr);
+        case SQL_DATABASE_NAME:
+            return Diag::WriteOdbcString(*connection, connection->GetDatabaseName(),
                                          infoValuePtr, bufferLength, stringLengthPtr);
         case SQL_TXN_ISOLATION_OPTION:
             return WriteInfoScalar(connection, connection->GetSupportedTxnIsolationOptions(),
