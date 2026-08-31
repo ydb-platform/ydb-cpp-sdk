@@ -56,7 +56,7 @@ int DoCreate(TDatabaseOptions& dbOptions, int argc, char** argv) {
 
     auto& ydbClient = userver_slo::GetTableClient();
 
-    userver::engine::AsyncNoSpan([&]() {
+    userver::engine::AsyncNoTracing([&]() {
         TStat stats(
             opts.DontPushMetrics ? std::nullopt : std::make_optional(opts.MetricsPushUrl),
             "generate"
@@ -102,7 +102,7 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
 
             auto params = userver_slo::PackValuesToPreparedArgs(pack);
 
-            tasks.push_back(userver::engine::AsyncNoSpan(
+            tasks.push_back(userver::engine::AsyncNoTracing(
                 [&ydbClient, &semaphore, &stats, &succeeded, &failed,
                  &opts, query, params = std::move(params)]() mutable {
                     auto stat = stats.StartRequest();

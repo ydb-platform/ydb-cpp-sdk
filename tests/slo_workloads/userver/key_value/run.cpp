@@ -217,7 +217,7 @@ SELECT * FROM `%s` WHERE `object_id_key` = $object_id_key AND `object_id` = $obj
 
 )", prefix.c_str(), TableName.c_str());
 
-        jobTasks.push_back(userver::engine::AsyncNoSpan(
+        jobTasks.push_back(userver::engine::AsyncNoTracing(
             [&ydbClient, &readStats, &readSucceeded, &readFailed,
              readRps, readTimeout, maxInfly,
              objectIdRange, readQuery, deadline]() {
@@ -245,7 +245,7 @@ SELECT * FROM `%s` WHERE `object_id_key` = $object_id_key AND `object_id` = $obj
                         continue;
                     }
 
-                    tasks.push_back(userver::engine::AsyncNoSpan(
+                    tasks.push_back(userver::engine::AsyncNoTracing(
                         [&ydbClient, &readStats, &readSucceeded, &readFailed, &inflight,
                          readTimeout, readQuery, objectIdKey, idToSelect]() {
                             uydb::OperationSettings settings;
@@ -294,7 +294,7 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
 
 )", prefix.c_str(), TableName.c_str());
 
-        jobTasks.push_back(userver::engine::AsyncNoSpan(
+        jobTasks.push_back(userver::engine::AsyncNoTracing(
             [&ydbClient, &writeStats, &writeSucceeded, &writeFailed, &writeGenerated,
              writeRps, writeTimeout, maxInfly,
              writeCommon, maxId, writeQuery, deadline]() {
@@ -324,7 +324,7 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
                     const auto value = BuildValueFromRecord(generator.Get());
                     writeGenerated.fetch_add(1);
 
-                    tasks.push_back(userver::engine::AsyncNoSpan(
+                    tasks.push_back(userver::engine::AsyncNoTracing(
                         [&ydbClient, &writeStats, &writeSucceeded, &writeFailed, &inflight,
                          writeTimeout, writeQuery, value]() {
                             uydb::OperationSettings settings;

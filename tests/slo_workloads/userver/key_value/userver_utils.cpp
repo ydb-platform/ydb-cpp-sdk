@@ -24,7 +24,7 @@ using namespace NYdb;
 // Override DoMain to wrap command dispatch in RunStandalone.
 // The native DoMain (from slo-utils-base) runs commands directly in the calling
 // thread. The userver version needs the coroutine engine running for
-// ydb::TableClient, engine::Semaphore, AsyncNoSpan, SleepFor, WaitAny, etc.
+// ydb::TableClient, engine::Semaphore, AsyncNoTracing, SleepFor, WaitAny, etc.
 int DoMain(
     int argc,
     char** argv,
