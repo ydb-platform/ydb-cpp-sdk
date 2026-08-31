@@ -5,8 +5,10 @@
 
 #include <ydb-cpp-sdk/client/topic/client.h>
 
+#include <chrono>
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <optional>
 #include <string>
 #include <vector>
@@ -72,13 +74,35 @@ private:
 
 using TTopicSleep = std::function<void(TDuration)>;
 
+class TTopicRateLimiter {
+public:
+    explicit TTopicRateLimiter(std::uint32_t rps);
+
+    void Wait(const TTopicSleep& sleep);
+
+private:
+    using TClock = std::chrono::steady_clock;
+
+    const std::chrono::microseconds Interval_;
+    TClock::time_point Next_;
+    std::mutex Mutex_;
+};
+
 bool ParseTopicOptions(int argc, char** argv, TTopicOptions& options);
 NYdb::NTopic::TReadSessionSettings MakeTopicReadSettings(const TTopicOptions& options);
+
+bool HandleTopicWriteEvent(
+    NYdb::NTopic::TWriteSessionEvent::TEvent& event,
+    std::optional<NYdb::NTopic::TContinuationToken>& token,
+    std::optional<std::uint64_t> expectedAck,
+    bool& acked,
+    TTopicRunContext& context);
 
 void RunTopicWriter(
     NYdb::NTopic::TTopicClient& client,
     std::uint32_t writerIndex,
     TTopicRunContext& context,
+    TTopicRateLimiter& limiter,
     const TTopicSleep& sleep);
 
 int DoCreate(TDatabaseOptions& dbOptions, int argc, char** argv);

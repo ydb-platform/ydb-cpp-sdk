@@ -76,6 +76,7 @@ if (YDB_CPP_SDK_SLO_USE_INSTALLED_SDK)
     Iam
     OpenTelemetryMetrics
     Operation
+    Query
     Result
     Scheme
     SolomonStats

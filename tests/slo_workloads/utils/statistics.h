@@ -7,7 +7,6 @@
 #include <util/datetime/base.h>
 #include <util/string/builder.h>
 #include <util/string/printf.h>
-#include <util/thread/pool.h>
 
 #include <mutex>
 
@@ -66,10 +65,7 @@ public:
     ~TStat();
 
 private:
-    void ScheduleMetricsPush(std::function<void()> func);
-
     std::recursive_mutex Mutex;
-    TThreadPool MetricsPushQueue;
 
     TInstant StartTime;
     TInstant FinishTime;

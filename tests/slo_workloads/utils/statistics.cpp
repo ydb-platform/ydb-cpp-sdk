@@ -32,14 +32,9 @@ namespace {
 TStat::TStat(const std::optional<std::string>& metricsPushUrl, const std::string& operationType)
     : StartTime(TInstant::Now())
     , MetricsPusher(metricsPushUrl ? CreateOtelMetricsPusher(*metricsPushUrl, operationType) : CreateNoopMetricsPusher())
-{
-    MetricsPushQueue.Start(20);
-}
+{}
 
-TStat::~TStat() {
-    MetricsPushQueue.Stop();
-    MetricsPusher.reset();
-}
+TStat::~TStat() = default;
 
 void TStat::Start() {
     StartTime = TInstant::Now();
@@ -50,40 +45,43 @@ void TStat::Finish() {
 }
 
 std::shared_ptr<TStatUnit> TStat::StartRequest() {
-    std::lock_guard lock(Mutex);
+    auto unit = std::make_shared<TStatUnit>(TInstant::Zero());
+    {
+        std::lock_guard lock(Mutex);
+        ++Infly;
+    }
 
-    ++Infly;
-    return std::make_shared<TStatUnit>(TInstant::Now());
+    unit->Start = TInstant::Now();
+    return unit;
 }
 
 void TStat::FinishRequest(const std::shared_ptr<TStatUnit>& unit, const TFinalStatus& status) {
-    std::lock_guard lock(Mutex);
-
     unit->End = TInstant::Now();
+    const auto delay = unit->End - unit->Start;
+    const auto retryAttempts = unit->RetryAttempts;
 
-    auto delay = unit->End - unit->Start;
+    {
+        std::lock_guard lock(Mutex);
+        --Infly;
 
-    --Infly;
+        if (status) {
+            ++Statuses[status->GetStatus()];
+        } else {
+            ++ApplicationTimeout;
+        }
 
-    if (status) {
-        ++Statuses[status->GetStatus()];
-    } else {
-        ++ApplicationTimeout;
+        if (status && status->GetStatus() == NYdb::EStatus::SUCCESS) {
+            OkDelays.push_back(delay);
+        }
     }
 
-    if (status && status->GetStatus() == NYdb::EStatus::SUCCESS) {
-        OkDelays.push_back(delay);
-    }
-
-    ScheduleMetricsPush([this, delay, status, unit]() {
-        NYdb::EStatus requestStatus = status
-            ? status->GetStatus()
-            : NYdb::EStatus::CLIENT_DEADLINE_EXCEEDED;
-        MetricsPusher->PushRequestData({
-            .Delay = delay,
-            .Status = requestStatus,
-            .RetryAttempts = unit->RetryAttempts
-        });
+    const NYdb::EStatus requestStatus = status
+        ? status->GetStatus()
+        : NYdb::EStatus::CLIENT_DEADLINE_EXCEEDED;
+    MetricsPusher->PushRequestData({
+        .Delay = delay,
+        .Status = requestStatus,
+        .RetryAttempts = retryAttempts
     });
 }
 
@@ -151,10 +149,4 @@ void TStat::PrintStatistics(TStringBuilder& out) {
 
 TInstant TStat::GetStartTime() const {
     return StartTime;
-}
-
-void TStat::ScheduleMetricsPush(std::function<void()> func) {
-    if (!MetricsPushQueue.AddFunc(func)) {
-        Cerr << TInstant::Now().ToRfc822StringLocal() << ": Failed to push metrics" << Endl;
-    }
 }

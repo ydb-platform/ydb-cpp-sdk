@@ -108,12 +108,6 @@ std::optional<std::string> MessageError(
 } // namespace
 
 struct TTopicRunContext::TImpl {
-    struct TPendingCommit {
-        std::uint64_t EndOffset;
-        TInstant Deadline;
-        std::shared_ptr<TStatUnit> Stat;
-    };
-
     explicit TImpl(const TTopicOptions& options)
         : Options(options)
         , Deadline(TInstant::Now() + TDuration::Seconds(options.SecondsToRun))
@@ -128,57 +122,10 @@ struct TTopicRunContext::TImpl {
             : CreateOtelMetricsPusher(options.MetricsPushUrl, "topic_e2e"))
     {}
 
-    void ExpireCommits() {
-        std::vector<std::shared_ptr<TStatUnit>> expired;
-        const TInstant now = TInstant::Now();
-        {
-            std::lock_guard lock(Mutex);
-            for (auto& [partition, commits] : PendingCommits) {
-                Y_UNUSED(partition);
-                while (!commits.empty() && commits.front().Deadline <= now) {
-                    expired.push_back(std::move(commits.front().Stat));
-                    commits.pop_front();
-                }
-            }
-        }
-        for (const auto& stat : expired) {
-            ReadStats.FinishRequest(stat, TFinalStatus{});
-        }
-    }
-
     void AckCommit(std::uint64_t partitionId, std::uint64_t committedOffset) {
-        std::vector<std::shared_ptr<TStatUnit>> completed;
-        {
-            std::lock_guard lock(Mutex);
-            auto& current = CommittedOffsets[partitionId];
-            current = std::max(current, committedOffset);
-
-            auto& commits = PendingCommits[partitionId];
-            while (!commits.empty() && commits.front().EndOffset <= committedOffset) {
-                completed.push_back(std::move(commits.front().Stat));
-                commits.pop_front();
-            }
-        }
-        for (const auto& stat : completed) {
-            ReadStats.FinishRequest(stat, SuccessStatus());
-        }
-    }
-
-    void CancelCommits() {
-        std::vector<std::shared_ptr<TStatUnit>> pending;
-        {
-            std::lock_guard lock(Mutex);
-            for (auto& [partition, commits] : PendingCommits) {
-                Y_UNUSED(partition);
-                while (!commits.empty()) {
-                    pending.push_back(std::move(commits.front().Stat));
-                    commits.pop_front();
-                }
-            }
-        }
-        for (const auto& stat : pending) {
-            ReadStats.CancelRequest(stat);
-        }
+        std::lock_guard lock(Mutex);
+        auto& current = CommittedOffsets[partitionId];
+        current = std::max(current, committedOffset);
     }
 
     TTopicOptions Options;
@@ -195,7 +142,6 @@ struct TTopicRunContext::TImpl {
     std::unordered_map<std::string, std::uint64_t> ProducerSeqNos;
     std::unordered_map<std::string, std::uint64_t> StreamSeqNos;
     std::unordered_map<std::uint64_t, std::uint64_t> CommittedOffsets;
-    std::unordered_map<std::uint64_t, std::deque<TPendingCommit>> PendingCommits;
 };
 
 TTopicRunContext::TTopicRunContext(const TTopicOptions& options)
@@ -230,7 +176,6 @@ void TTopicRunContext::Start() {
 }
 
 void TTopicRunContext::Finish() {
-    Impl_->CancelCommits();
     Impl_->ReadStats.Finish();
     Impl_->WriteStats.Finish();
 
@@ -257,15 +202,82 @@ void TTopicRunContext::CancelWrite(const std::shared_ptr<TStatUnit>& stat) {
     Impl_->WriteStats.CancelRequest(stat);
 }
 
-void TTopicRunContext::RunReader(std::unique_ptr<ITopicReadSession> session) {
-    while (ShouldContinue()) {
-        Impl_->ExpireCommits();
+TTopicRateLimiter::TTopicRateLimiter(std::uint32_t rps)
+    : Interval_(std::max<std::uint64_t>(1, 1'000'000 / std::max<std::uint32_t>(1, rps)))
+    , Next_(TClock::now())
+{}
 
+void TTopicRateLimiter::Wait(const TTopicSleep& sleep) {
+    TClock::time_point scheduled;
+    {
+        std::lock_guard lock(Mutex_);
+        const auto now = TClock::now();
+        scheduled = std::max(Next_, now);
+        Next_ = scheduled + Interval_;
+    }
+
+    const auto now = TClock::now();
+    if (now < scheduled) {
+        const auto delay = std::chrono::ceil<std::chrono::microseconds>(scheduled - now);
+        sleep(TDuration::MicroSeconds(delay.count()));
+    }
+}
+
+void TTopicRunContext::RunReader(std::unique_ptr<ITopicReadSession> session) {
+    using TReadEvent = TReadSessionEvent::TEvent;
+
+    std::deque<TReadEvent> queuedEvents;
+    auto waitEvents = [&](TDuration timeout) {
+        if (!queuedEvents.empty()) {
+            return ETopicWaitResult::Events;
+        }
+
+        std::vector<TReadEvent> events;
+        const auto result = session->WaitEvents(timeout, events);
+        if (result == ETopicWaitResult::Events) {
+            for (auto& event : events) {
+                queuedEvents.push_back(std::move(event));
+            }
+        }
+        return result;
+    };
+
+    auto restoreDeferredEvents = [&](std::deque<TReadEvent>& deferredEvents) {
+        while (!queuedEvents.empty()) {
+            deferredEvents.push_back(std::move(queuedEvents.front()));
+            queuedEvents.pop_front();
+        }
+        queuedEvents.swap(deferredEvents);
+    };
+
+    auto handleControlEvent = [&](TReadEvent& event) -> std::optional<std::string> {
+        if (auto* ack = std::get_if<TReadSessionEvent::TCommitOffsetAcknowledgementEvent>(&event)) {
+            Impl_->AckCommit(
+                ack->GetPartitionSession()->GetPartitionId(),
+                ack->GetCommittedOffset());
+        } else if (auto* start = std::get_if<TReadSessionEvent::TStartPartitionSessionEvent>(&event)) {
+            start->Confirm();
+        } else if (auto* stop = std::get_if<TReadSessionEvent::TStopPartitionSessionEvent>(&event)) {
+            stop->Confirm();
+        } else if (auto* end = std::get_if<TReadSessionEvent::TEndPartitionSessionEvent>(&event)) {
+            end->Confirm();
+        } else if (auto* closed = std::get_if<TSessionClosedEvent>(&event)) {
+            if (!closed->IsSuccess()) {
+                return TStringBuilder()
+                    << "read session closed: " << closed->GetIssues().ToString();
+            }
+            if (ShouldContinue()) {
+                return "read session closed unexpectedly";
+            }
+        }
+        return std::nullopt;
+    };
+
+    while (ShouldContinue()) {
         auto delivery = Impl_->ReadStats.StartRequest();
-        std::vector<TReadSessionEvent::TEvent> events;
         ETopicWaitResult waitResult;
         try {
-            waitResult = session->WaitEvents(Impl_->Options.DeliveryTimeout, events);
+            waitResult = waitEvents(Impl_->Options.DeliveryTimeout);
         } catch (const std::exception& e) {
             Impl_->ReadStats.FinishRequest(delivery, ErrorStatus());
             Fail(TStringBuilder() << "reader wait failed: " << e.what());
@@ -287,16 +299,20 @@ void TTopicRunContext::RunReader(std::unique_ptr<ITopicReadSession> session) {
             }
             break;
         }
-        Impl_->ReadStats.CancelRequest(delivery);
+        if (queuedEvents.empty()) {
+            Impl_->ReadStats.CancelRequest(delivery);
+            continue;
+        }
 
-        for (auto& event : events) {
-            if (auto* data = std::get_if<TReadSessionEvent::TDataReceivedEvent>(&event)) {
-                std::uint64_t endOffset = 0;
-                std::uint64_t partitionId = data->GetPartitionSession()->GetPartitionId();
-                std::optional<std::string> error;
+        auto event = std::move(queuedEvents.front());
+        queuedEvents.pop_front();
+        if (auto* data = std::get_if<TReadSessionEvent::TDataReceivedEvent>(&event)) {
+            std::uint64_t endOffset = 0;
+            const std::uint64_t partitionId = data->GetPartitionSession()->GetPartitionId();
+            std::optional<std::string> error;
 
+            try {
                 for (const auto& message : data->GetMessages()) {
-                    TDuration e2e;
                     {
                         std::lock_guard lock(Impl_->Mutex);
                         error = MessageError(
@@ -319,58 +335,118 @@ void TTopicRunContext::RunReader(std::unique_ptr<ITopicReadSession> session) {
                         error = TStringBuilder() << "message timestamp is in the future";
                         break;
                     }
-                    e2e = now - createdAt;
                     Impl_->E2eMetrics->PushRequestData({
-                        .Delay = e2e,
+                        .Delay = now - createdAt,
                         .Status = EStatus::SUCCESS,
                         .RetryAttempts = 0,
                     });
                     endOffset = std::max(endOffset, message.GetOffset() + 1);
                 }
+            } catch (const std::exception& e) {
+                error = TStringBuilder() << "message processing failed: " << e.what();
+            }
 
-                if (error) {
-                    auto stat = Impl_->ReadStats.StartRequest();
-                    Impl_->ReadStats.FinishRequest(stat, ErrorStatus());
-                    Fail(*error);
-                    break;
-                }
-
-                auto commit = Impl_->ReadStats.StartRequest();
-                try {
-                    data->Commit();
-                    std::lock_guard lock(Impl_->Mutex);
-                    Impl_->PendingCommits[partitionId].push_back({
-                        .EndOffset = endOffset,
-                        .Deadline = TInstant::Now() + Impl_->Options.CommitTimeout,
-                        .Stat = std::move(commit),
-                    });
-                } catch (const std::exception& e) {
-                    Impl_->ReadStats.FinishRequest(commit, ErrorStatus());
-                    Fail(TStringBuilder() << "commit failed: " << e.what());
-                    break;
-                }
-            } else if (auto* ack = std::get_if<TReadSessionEvent::TCommitOffsetAcknowledgementEvent>(&event)) {
-                Impl_->AckCommit(
-                    ack->GetPartitionSession()->GetPartitionId(),
-                    ack->GetCommittedOffset());
-            } else if (auto* start = std::get_if<TReadSessionEvent::TStartPartitionSessionEvent>(&event)) {
-                start->Confirm();
-            } else if (auto* stop = std::get_if<TReadSessionEvent::TStopPartitionSessionEvent>(&event)) {
-                stop->Confirm();
-            } else if (auto* end = std::get_if<TReadSessionEvent::TEndPartitionSessionEvent>(&event)) {
-                end->Confirm();
-            } else if (auto* closed = std::get_if<TSessionClosedEvent>(&event)) {
-                if (!closed->IsSuccess()) {
-                    auto stat = Impl_->ReadStats.StartRequest();
-                    Impl_->ReadStats.FinishRequest(stat, ErrorStatus());
-                    Fail(TStringBuilder() << "read session closed: " << closed->GetIssues().ToString());
-                } else if (ShouldContinue()) {
-                    auto stat = Impl_->ReadStats.StartRequest();
-                    Impl_->ReadStats.FinishRequest(stat, ErrorStatus());
-                    Fail("read session closed unexpectedly");
-                }
+            if (error) {
+                Impl_->ReadStats.FinishRequest(delivery, ErrorStatus());
+                Fail(*error);
                 break;
             }
+
+            // Rust's read_batch operation is cancelled after validation; the
+            // successful read metric is the following commit acknowledgement.
+            Impl_->ReadStats.CancelRequest(delivery);
+
+            auto commit = Impl_->ReadStats.StartRequest();
+            try {
+                data->Commit();
+            } catch (const std::exception& e) {
+                Impl_->ReadStats.FinishRequest(commit, ErrorStatus());
+                Cerr << "Commit failed: " << e.what() << Endl;
+                continue;
+            }
+
+            const TInstant commitDeadline = TInstant::Now() + Impl_->Options.CommitTimeout;
+            std::deque<TReadEvent> deferredEvents;
+            bool commitFinished = false;
+            bool stopReader = false;
+
+            while (!commitFinished && !stopReader && ShouldContinue()) {
+                const TInstant now = TInstant::Now();
+                if (now >= commitDeadline) {
+                    Impl_->ReadStats.FinishRequest(commit, TFinalStatus{});
+                    commitFinished = true;
+                    break;
+                }
+
+                try {
+                    waitResult = waitEvents(commitDeadline - now);
+                } catch (const std::exception& e) {
+                    Impl_->ReadStats.FinishRequest(commit, ErrorStatus());
+                    Fail(TStringBuilder() << "commit acknowledgement wait failed: " << e.what());
+                    commitFinished = true;
+                    stopReader = true;
+                    break;
+                }
+
+                if (waitResult == ETopicWaitResult::Timeout) {
+                    if (ShouldContinue()) {
+                        Impl_->ReadStats.FinishRequest(commit, TFinalStatus{});
+                    } else {
+                        Impl_->ReadStats.CancelRequest(commit);
+                    }
+                    commitFinished = true;
+                    break;
+                }
+                if (waitResult == ETopicWaitResult::Cancelled) {
+                    Impl_->ReadStats.CancelRequest(commit);
+                    if (ShouldContinue()) {
+                        Fail("commit acknowledgement wait was cancelled");
+                    }
+                    commitFinished = true;
+                    stopReader = true;
+                    break;
+                }
+
+                while (!queuedEvents.empty() && !commitFinished && !stopReader) {
+                    auto nextEvent = std::move(queuedEvents.front());
+                    queuedEvents.pop_front();
+                    if (std::holds_alternative<TReadSessionEvent::TDataReceivedEvent>(nextEvent)) {
+                        deferredEvents.push_back(std::move(nextEvent));
+                        continue;
+                    }
+
+                    bool isExpectedAck = false;
+                    if (auto* ack = std::get_if<TReadSessionEvent::TCommitOffsetAcknowledgementEvent>(&nextEvent)) {
+                        isExpectedAck =
+                            ack->GetPartitionSession()->GetPartitionId() == partitionId &&
+                            ack->GetCommittedOffset() >= endOffset;
+                    }
+
+                    if (auto controlError = handleControlEvent(nextEvent)) {
+                        Impl_->ReadStats.FinishRequest(commit, ErrorStatus());
+                        Fail(*controlError);
+                        commitFinished = true;
+                        stopReader = true;
+                    } else if (isExpectedAck) {
+                        Impl_->ReadStats.FinishRequest(commit, SuccessStatus());
+                        commitFinished = true;
+                    }
+                }
+            }
+
+            if (!commitFinished) {
+                Impl_->ReadStats.CancelRequest(commit);
+            }
+            restoreDeferredEvents(deferredEvents);
+            if (stopReader) {
+                break;
+            }
+        } else if (auto controlError = handleControlEvent(event)) {
+            Impl_->ReadStats.FinishRequest(delivery, ErrorStatus());
+            Fail(*controlError);
+            break;
+        } else {
+            Impl_->ReadStats.CancelRequest(delivery);
         }
     }
 
@@ -451,22 +527,63 @@ TReadSessionSettings MakeTopicReadSettings(const TTopicOptions& options) {
         .AppendTopics(options.TopicPath);
 }
 
+bool HandleTopicWriteEvent(
+    TWriteSessionEvent::TEvent& event,
+    std::optional<TContinuationToken>& token,
+    std::optional<std::uint64_t> expectedAck,
+    bool& acked,
+    TTopicRunContext& context)
+{
+    if (auto* ready = std::get_if<TWriteSessionEvent::TReadyToAcceptEvent>(&event)) {
+        if (token) {
+            context.Fail("write session returned an extra continuation token");
+            return false;
+        }
+        token.emplace(std::move(ready->ContinuationToken));
+        return true;
+    }
+
+    if (auto* acks = std::get_if<TWriteSessionEvent::TAcksEvent>(&event)) {
+        for (const auto& ack : acks->Acks) {
+            if (!expectedAck || ack.SeqNo < *expectedAck) {
+                continue;
+            }
+            if (ack.SeqNo > *expectedAck) {
+                context.Fail(TStringBuilder()
+                    << "unexpected write ack for seq_no " << ack.SeqNo
+                    << ", expected " << *expectedAck);
+                return false;
+            }
+            if (ack.State != TWriteSessionEvent::TWriteAck::EES_WRITTEN &&
+                ack.State != TWriteSessionEvent::TWriteAck::EES_ALREADY_WRITTEN)
+            {
+                context.Fail(TStringBuilder()
+                    << "write was not persisted at seq_no " << ack.SeqNo
+                    << ", ack state " << static_cast<int>(ack.State));
+                return false;
+            }
+            acked = true;
+        }
+        return true;
+    }
+
+    if (auto* closed = std::get_if<TSessionClosedEvent>(&event)) {
+        context.Fail(TStringBuilder()
+            << "write session closed: " << closed->GetIssues().ToString());
+    } else {
+        context.Fail("write session returned an unknown event");
+    }
+    return false;
+}
+
 void RunTopicWriter(
     TTopicClient& client,
     std::uint32_t writerIndex,
     TTopicRunContext& context,
+    TTopicRateLimiter& limiter,
     const TTopicSleep& sleep)
 {
     const auto& options = context.GetOptions();
-    const std::uint32_t workerRps = options.WriteRps / options.WriterCount +
-        (writerIndex < options.WriteRps % options.WriterCount ? 1 : 0);
-    if (!workerRps) {
-        while (context.ShouldContinue()) {
-            sleep(TDuration::MilliSeconds(100));
-        }
-        return;
-    }
-
     const std::string producerId = options.ProducerIdPrefix + "-" + ToString(writerIndex);
     TWriteSessionSettings settings;
     settings.Path(options.TopicPath)
@@ -474,74 +591,93 @@ void RunTopicWriter(
         .MessageGroupId(producerId)
         .Codec(ECodec::RAW);
     auto session = client.CreateWriteSession(settings);
-    const TDuration period = TDuration::MicroSeconds(1'000'000 / workerRps);
-    TInstant next = TInstant::Now();
     std::uint64_t seqNo = 1;
+    std::optional<TContinuationToken> token;
 
     while (context.ShouldContinue()) {
-        const TInstant now = TInstant::Now();
-        if (now < next) {
-            sleep(next - now);
-        }
-        next = std::max(next + period, TInstant::Now());
+        limiter.Wait(sleep);
         if (!context.ShouldContinue()) {
             break;
         }
 
+        const std::string payload = ToString(seqNo);
+        TWriteMessage message(payload);
+        message.SeqNo(seqNo).CreateTimestamp(TInstant::Now());
         auto stat = context.StartWrite();
-        std::optional<TContinuationToken> token;
-        const TInstant tokenDeadline = TInstant::Now() + options.WriteTimeout;
-        while (!token && context.ShouldContinue()) {
-            const TInstant now = TInstant::Now();
-            if (now >= tokenDeadline || !session->WaitEvent().Wait(tokenDeadline - now)) {
-                break;
-            }
-            for (auto& event : session->GetEvents(false)) {
-                if (auto* ready = std::get_if<TWriteSessionEvent::TReadyToAcceptEvent>(&event)) {
-                    token.emplace(std::move(ready->ContinuationToken));
-                } else if (auto* closed = std::get_if<TSessionClosedEvent>(&event)) {
-                    context.Fail(TStringBuilder()
-                        << "write session closed: " << closed->GetIssues().ToString());
+        const TInstant operationDeadline = TInstant::Now() + options.WriteTimeout;
+        try {
+            bool unusedAck = false;
+            while (!token && context.ShouldContinue()) {
+                const TInstant now = TInstant::Now();
+                if (now >= operationDeadline ||
+                    !session->WaitEvent().Wait(operationDeadline - now))
+                {
+                    break;
+                }
+                for (auto& event : session->GetEvents(false)) {
+                    if (!HandleTopicWriteEvent(
+                            event, token, std::nullopt, unusedAck, context))
+                    {
+                        break;
+                    }
                 }
             }
-        }
 
-        if (!token) {
-            if (context.Failed()) {
+            if (!token) {
+                if (context.Failed()) {
+                    context.FinishWrite(stat, ErrorStatus());
+                    break;
+                }
+                if (!context.ShouldContinue()) {
+                    context.CancelWrite(stat);
+                    break;
+                }
+                context.FinishWrite(stat, TFinalStatus{});
+                continue;
+            }
+
+            const std::uint64_t submittedSeqNo = seqNo++;
+            session->Write(std::move(*token), std::move(message));
+            token.reset();
+
+            bool acked = false;
+            while (!acked && context.ShouldContinue()) {
+                const TInstant now = TInstant::Now();
+                if (now >= operationDeadline ||
+                    !session->WaitEvent().Wait(operationDeadline - now))
+                {
+                    break;
+                }
+                for (auto& event : session->GetEvents(false)) {
+                    if (!HandleTopicWriteEvent(
+                            event, token, submittedSeqNo, acked, context))
+                    {
+                        break;
+                    }
+                }
+            }
+
+            if (acked) {
+                context.FinishWrite(stat, SuccessStatus());
+            } else if (context.Failed()) {
                 context.FinishWrite(stat, ErrorStatus());
                 break;
-            }
-            if (!context.ShouldContinue()) {
+            } else if (!context.ShouldContinue()) {
                 context.CancelWrite(stat);
                 break;
-            }
-            context.FinishWrite(stat, TFinalStatus{});
-            continue;
-        }
-
-        try {
-            const std::string payload = ToString(seqNo);
-            TWriteMessage message(payload);
-            message.SeqNo(seqNo);
-            session->Write(std::move(*token), std::move(message));
-
-            auto flush = session->Flush();
-            if (!flush.Wait(options.WriteTimeout)) {
-                context.FinishWrite(stat, TFinalStatus{});
-            } else if (flush.GetValueSync()) {
-                context.FinishWrite(stat, SuccessStatus());
             } else {
-                context.FinishWrite(stat, ErrorStatus());
-                context.Fail(TStringBuilder() << "write flush failed at seq_no " << seqNo);
+                context.FinishWrite(stat, TFinalStatus{});
             }
         } catch (const std::exception& e) {
             context.FinishWrite(stat, ErrorStatus());
             context.Fail(TStringBuilder() << "write failed: " << e.what());
+            break;
         }
-        ++seqNo;
     }
 
-    session->Close(options.WriteTimeout);
+    if (!session->Close(options.WriteTimeout) && !context.Failed()) {
+        context.Fail("topic write session close timed out");
+    }
 }
 
 int DoCreate(TDatabaseOptions& dbOptions, int argc, char** argv) {
