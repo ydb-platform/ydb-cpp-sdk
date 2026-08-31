@@ -1,9 +1,6 @@
 # syntax=docker/dockerfile:1.7
 FROM ghcr.io/userver-framework/ubuntu-22.04-userver:v3.1@sha256:c08af6bf58f07a472376ed0bb74165e3d96fb5c8f4e07a3f0b5e11d5d0183f5b
 
-ARG PRESET=release-test-clang
-ARG SLO_TARGET=slo-userver-key-value
-ARG SLO_BINARY=tests/slo_workloads/userver/key_value/slo-userver-key-value
 ENV DEBIAN_FRONTEND=noninteractive \
     CPM_SOURCE_CACHE=/root/.cache/cpm/sources \
     CCACHE_DIR=/root/.ccache \
@@ -23,8 +20,21 @@ RUN git clone --depth 1 --branch v3.1 \
       https://github.com/userver-framework/userver.git /userver-src
 ENV USERVER_SOURCE_DIR=/userver-src
 
-COPY . /ydb-cpp-sdk
 WORKDIR /ydb-cpp-sdk
+
+# Keep the expensive SDK install independent from the workload harness. Most
+# SLO changes touch tests/slo_workloads only and should reuse this whole layer.
+COPY CMakeLists.txt LICENSE ./
+COPY cmake/ cmake/
+COPY contrib/ contrib/
+COPY include/ include/
+COPY library/ library/
+COPY plugins/ plugins/
+COPY scripts/ scripts/
+COPY src/ src/
+COPY third_party/ third_party/
+COPY tools/ tools/
+COPY util/ util/
 
 RUN --mount=type=cache,target=/root/.cache/cpm,sharing=locked \
     --mount=type=cache,target=/root/.ccache,sharing=locked \
@@ -42,6 +52,10 @@ RUN --mount=type=cache,target=/root/.cache/cpm,sharing=locked \
     && cmake --build /root/.cache/cpm/build-sdk --parallel \
     && cmake --install /root/.cache/cpm/build-sdk
 
+COPY tests/slo_workloads/ tests/slo_workloads/
+
+ARG SLO_TARGET=slo-userver-key-value
+ARG SLO_BINARY=tests/slo_workloads/userver/key_value/slo-userver-key-value
 RUN --mount=type=cache,target=/root/.cache/cpm,sharing=locked \
     --mount=type=cache,target=/root/.ccache,sharing=locked \
     cmake -S . -B build -G Ninja \

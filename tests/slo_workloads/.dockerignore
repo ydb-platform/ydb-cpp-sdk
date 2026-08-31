@@ -18,6 +18,9 @@
 compile_commands.json
 
 # Build artifacts and cache
+build/
+build-*/
+cmake-build-*/
 *.o
 *.a
 *.so

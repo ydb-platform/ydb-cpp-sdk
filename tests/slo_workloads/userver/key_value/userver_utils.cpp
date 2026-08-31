@@ -31,9 +31,12 @@ int DoMain(
     TCreateCommand create,
     TRunCommand run,
     TCleanupCommand cleanup,
-    bool forwardAllArgsToCreate)
+    bool forwardAllArgsToCreate,
+    bool suppressRetryMetrics)
 {
-    SetEnv("SLO_STUB_RETRY", "1");
+    if (suppressRetryMetrics) {
+        SetEnv("SLO_STUB_RETRY", "1");
+    }
     TOpts opts = TOpts::Default();
 
     std::string connectionString;

@@ -22,21 +22,24 @@ jobs:
           - name: cpp-key-value
             preset: release-test-clang
             dockerfile: tests/slo_workloads/Dockerfile
-            cache_scope: slo
+            cache_scope: slo-key-value
+            ccache_scope: slo
             target: slo-key-value
             binary: tests/slo_workloads/key_value/slo-key-value
             command: "--read-rps 1000 --write-rps 100"
           - name: cpp-key-value-userver
             preset: release-test-clang
             dockerfile: tests/slo_workloads/Dockerfile.userver
-            cache_scope: slo-userver
+            cache_scope: slo-userver-key-value
+            ccache_scope: slo-userver
             target: slo-userver-key-value
             binary: tests/slo_workloads/userver/key_value/slo-userver-key-value
             command: "--read-rps 1000 --write-rps 100"
           - name: cpp-topic
             preset: release-test-clang
             dockerfile: tests/slo_workloads/Dockerfile
-            cache_scope: slo
+            cache_scope: slo-topic
+            ccache_scope: slo
             target: slo-topic
             binary: tests/slo_workloads/topic/slo-topic
             command: "--write-rps 1000"
@@ -44,7 +47,8 @@ jobs:
           - name: cpp-topic-userver
             preset: release-test-clang
             dockerfile: tests/slo_workloads/Dockerfile.userver
-            cache_scope: slo-userver
+            cache_scope: slo-userver-topic
+            ccache_scope: slo-userver
             target: slo-userver-topic
             binary: tests/slo_workloads/userver/topic/slo-userver-topic
             command: "--write-rps 1000"
@@ -145,6 +149,7 @@ jobs:
           key: ${{ matrix.sdk.cache_scope }}-ccache-${{ matrix.sdk.preset }}-${{ github.run_id }}
           restore-keys: |
             ${{ matrix.sdk.cache_scope }}-ccache-${{ matrix.sdk.preset }}-
+            ${{ matrix.sdk.ccache_scope }}-ccache-${{ matrix.sdk.preset }}-
 
       - name: Inject ccache into BuildKit
         uses: reproducible-containers/buildkit-cache-dance@v3.1.2
@@ -167,10 +172,11 @@ jobs:
           tags: ydb-app-current
           load: true
           build-args: |
-            PRESET=${{ matrix.sdk.preset }}
             SLO_TARGET=${{ matrix.sdk.target }}
             SLO_BINARY=${{ matrix.sdk.binary }}
-          cache-from: type=gha,scope=${{ matrix.sdk.cache_scope }}-${{ matrix.sdk.preset }}
+          cache-from: |
+            type=gha,scope=${{ matrix.sdk.cache_scope }}-${{ matrix.sdk.preset }}
+            type=gha,scope=${{ matrix.sdk.ccache_scope }}-${{ matrix.sdk.preset }}
           cache-to: type=gha,mode=max,scope=${{ matrix.sdk.cache_scope }}-${{ matrix.sdk.preset }}
 
       - name: Build baseline workload image
@@ -187,10 +193,11 @@ jobs:
           tags: ydb-app-baseline
           load: true
           build-args: |
-            PRESET=${{ matrix.sdk.preset }}
             SLO_TARGET=${{ matrix.sdk.target }}
             SLO_BINARY=${{ matrix.sdk.binary }}
-          cache-from: type=gha,scope=${{ matrix.sdk.cache_scope }}-${{ matrix.sdk.preset }}
+          cache-from: |
+            type=gha,scope=${{ matrix.sdk.cache_scope }}-${{ matrix.sdk.preset }}
+            type=gha,scope=${{ matrix.sdk.ccache_scope }}-${{ matrix.sdk.preset }}
 
       - name: Fall back to current image for baseline
         if: steps.baseline-build.outcome == 'failure'

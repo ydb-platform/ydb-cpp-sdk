@@ -22,7 +22,7 @@ public:
         if (!Session_->WaitEvent().Wait(timeout)) {
             return ETopicWaitResult::Timeout;
         }
-        events = Session_->GetEvents(false);
+        events = Session_->GetEvents(false, 1);
         return ETopicWaitResult::Events;
     }
 
@@ -46,6 +46,7 @@ int DoRun(TDatabaseOptions& dbOptions, int argc, char** argv) {
     TTopicRunContext context(options);
     std::vector<std::thread> threads;
     threads.reserve(options.ReaderCount + options.WriterCount);
+    TTopicRateLimiter limiter(options.WriteRps);
 
     context.Start();
     for (std::uint32_t i = 0; i < options.ReaderCount; ++i) {
@@ -56,8 +57,8 @@ int DoRun(TDatabaseOptions& dbOptions, int argc, char** argv) {
         });
     }
     for (std::uint32_t i = 0; i < options.WriterCount; ++i) {
-        threads.emplace_back([&client, &context, i] {
-            RunTopicWriter(client, i, context, [](TDuration duration) {
+        threads.emplace_back([&client, &context, &limiter, i] {
+            RunTopicWriter(client, i, context, limiter, [](TDuration duration) {
                 Sleep(duration);
             });
         });

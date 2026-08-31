@@ -117,7 +117,8 @@ int DoMain(
     TCreateCommand create,
     TRunCommand run,
     TCleanupCommand cleanup,
-    bool forwardAllArgsToCreate = false);
+    bool forwardAllArgsToCreate = false,
+    bool suppressRetryMetrics = false);
 
 std::string GetCmdList();
 ECommandType ParseCommand(const char* cmd);

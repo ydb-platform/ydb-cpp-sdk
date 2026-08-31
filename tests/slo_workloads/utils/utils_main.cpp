@@ -19,8 +19,10 @@ int DoMain(
     TCreateCommand create,
     TRunCommand run,
     TCleanupCommand cleanup,
-    bool forwardAllArgsToCreate)
+    bool forwardAllArgsToCreate,
+    bool suppressRetryMetrics)
 {
+    Y_UNUSED(suppressRetryMetrics);
     TOpts opts = TOpts::Default();
 
     std::string connectionString;
