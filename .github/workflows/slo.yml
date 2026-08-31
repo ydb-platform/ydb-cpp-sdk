@@ -196,8 +196,10 @@ jobs:
             SLO_TARGET=${{ matrix.sdk.target }}
             SLO_BINARY=${{ matrix.sdk.binary }}
           cache-from: |
+            type=gha,scope=${{ matrix.sdk.cache_scope }}-${{ matrix.sdk.preset }}-baseline
             type=gha,scope=${{ matrix.sdk.cache_scope }}-${{ matrix.sdk.preset }}
             type=gha,scope=${{ matrix.sdk.ccache_scope }}-${{ matrix.sdk.preset }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.sdk.cache_scope }}-${{ matrix.sdk.preset }}-baseline
 
       - name: Fall back to current image for baseline
         if: steps.baseline-build.outcome == 'failure'
