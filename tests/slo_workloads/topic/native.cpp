@@ -47,6 +47,7 @@ int DoRun(TDatabaseOptions& dbOptions, int argc, char** argv) {
     std::vector<std::thread> threads;
     threads.reserve(options.ReaderCount + options.WriterCount);
     TTopicRateLimiter limiter(options.WriteRps);
+    std::atomic<std::uint32_t> readyWriters{0};
 
     context.Start();
     for (std::uint32_t i = 0; i < options.ReaderCount; ++i) {
@@ -57,8 +58,8 @@ int DoRun(TDatabaseOptions& dbOptions, int argc, char** argv) {
         });
     }
     for (std::uint32_t i = 0; i < options.WriterCount; ++i) {
-        threads.emplace_back([&client, &context, &limiter, i] {
-            RunTopicWriter(client, i, context, limiter, [](TDuration duration) {
+        threads.emplace_back([&client, &context, &limiter, &readyWriters, i] {
+            RunTopicWriter(client, i, context, limiter, readyWriters, [](TDuration duration) {
                 Sleep(duration);
             });
         });

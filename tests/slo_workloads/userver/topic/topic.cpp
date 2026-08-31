@@ -85,7 +85,8 @@ void RunUserverTopicWriter(
     userver::ydb::TopicClient& client,
     std::uint32_t writerIndex,
     TTopicRunContext& context,
-    TTopicRateLimiter& limiter)
+    TTopicRateLimiter& limiter,
+    std::atomic<std::uint32_t>& readyWriters)
 {
     const auto& options = context.GetOptions();
     const std::string producerId = options.ProducerIdPrefix + "-" + ToString(writerIndex);
@@ -122,6 +123,40 @@ void RunUserverTopicWriter(
     const TTopicSleep sleep = [](TDuration duration) {
         userver::engine::SleepFor(std::chrono::microseconds(duration.MicroSeconds()));
     };
+
+    // Match Rust's async TopicWriter::new: establish the write session before
+    // starting operation spans, rather than charging initial readiness to the
+    // first write's timeout.
+    try {
+        while (!token && context.ShouldContinue()) {
+            TWriteEvent event;
+            const auto readyDeadline = userver::engine::Deadline::FromDuration(
+                std::chrono::microseconds(options.WriteTimeout.MicroSeconds()));
+            if (!eventConsumer.Pop(event, readyDeadline)) {
+                continue;
+            }
+            bool unusedAck = false;
+            if (!HandleTopicWriteEvent(event, token, std::nullopt, unusedAck, context)) {
+                break;
+            }
+        }
+    } catch (const userver::ydb::OperationCancelledError&) {
+        if (context.ShouldContinue()) {
+            context.Fail(TStringBuilder()
+                << "write session initialization was cancelled for writer " << writerIndex);
+        }
+    } catch (const std::exception& e) {
+        context.Fail(TStringBuilder()
+            << "write session initialization failed for writer " << writerIndex
+            << ": " << e.what());
+    }
+
+    if (token && context.ShouldContinue()) {
+        readyWriters.fetch_add(1);
+        while (readyWriters.load() < options.WriterCount && context.ShouldContinue()) {
+            userver::engine::SleepFor(std::chrono::milliseconds(1));
+        }
+    }
 
     while (context.ShouldContinue()) {
         limiter.Wait(sleep);
@@ -234,6 +269,7 @@ int DoRun(TDatabaseOptions& dbOptions, int argc, char** argv) {
     readers.reserve(options.ReaderCount);
     writers.reserve(options.WriterCount);
     TTopicRateLimiter limiter(options.WriteRps);
+    std::atomic<std::uint32_t> readyWriters{0};
 
     context.Start();
     for (std::uint32_t i = 0; i < options.ReaderCount; ++i) {
@@ -246,9 +282,9 @@ int DoRun(TDatabaseOptions& dbOptions, int argc, char** argv) {
     }
     for (std::uint32_t i = 0; i < options.WriterCount; ++i) {
         writers.push_back(userver::engine::AsyncNoTracing(
-            [&userverClient, &context, &limiter, i] {
+            [&userverClient, &context, &limiter, &readyWriters, i] {
                 try {
-                    RunUserverTopicWriter(userverClient, i, context, limiter);
+                    RunUserverTopicWriter(userverClient, i, context, limiter, readyWriters);
                 } catch (const std::exception& e) {
                     context.Fail(TStringBuilder()
                         << "topic writer " << i << " failed: " << e.what());

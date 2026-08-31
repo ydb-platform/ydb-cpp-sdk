@@ -5,6 +5,7 @@
 
 #include <ydb-cpp-sdk/client/topic/client.h>
 
+#include <atomic>
 #include <chrono>
 #include <functional>
 #include <memory>
@@ -103,6 +104,7 @@ void RunTopicWriter(
     std::uint32_t writerIndex,
     TTopicRunContext& context,
     TTopicRateLimiter& limiter,
+    std::atomic<std::uint32_t>& readyWriters,
     const TTopicSleep& sleep);
 
 int DoCreate(TDatabaseOptions& dbOptions, int argc, char** argv);

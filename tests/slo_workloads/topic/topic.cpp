@@ -583,6 +583,7 @@ void RunTopicWriter(
     std::uint32_t writerIndex,
     TTopicRunContext& context,
     TTopicRateLimiter& limiter,
+    std::atomic<std::uint32_t>& readyWriters,
     const TTopicSleep& sleep)
 {
     const auto& options = context.GetOptions();
@@ -595,6 +596,35 @@ void RunTopicWriter(
     auto session = client.CreateWriteSession(settings);
     std::uint64_t seqNo = 1;
     std::optional<TContinuationToken> token;
+
+    // Rust awaits TopicWriter::new before it starts write spans. Do the same
+    // here so initial session establishment is not reported as a timed-out
+    // write operation.
+    try {
+        while (!token && context.ShouldContinue()) {
+            if (!session->WaitEvent().Wait(options.WriteTimeout)) {
+                continue;
+            }
+            bool unusedAck = false;
+            for (auto& event : session->GetEvents(false)) {
+                if (!HandleTopicWriteEvent(
+                        event, token, std::nullopt, unusedAck, context))
+                {
+                    break;
+                }
+            }
+        }
+    } catch (const std::exception& e) {
+        context.Fail(TStringBuilder()
+            << "write session initialization failed: " << e.what());
+    }
+
+    if (token && context.ShouldContinue()) {
+        readyWriters.fetch_add(1);
+        while (readyWriters.load() < options.WriterCount && context.ShouldContinue()) {
+            sleep(TDuration::MilliSeconds(1));
+        }
+    }
 
     while (context.ShouldContinue()) {
         limiter.Wait(sleep);
