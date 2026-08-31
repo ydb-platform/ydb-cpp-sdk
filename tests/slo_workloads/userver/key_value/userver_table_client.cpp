@@ -45,14 +45,11 @@ void InitTableClient(
 
     userver::ydb::impl::TableSettings table_settings;
     table_settings.max_pool_size = 1000;
-    const userver::ydb::OperationSettings operation_settings{
-        3,
-        std::chrono::minutes{3},
-        std::chrono::minutes{3},
-        std::chrono::minutes{3},
-        userver::ydb::TransactionMode::kSerializableRW,
-        std::chrono::minutes{3},
-    };
+    userver::ydb::OperationSettings operation_settings;
+    operation_settings.retries = 3;
+    operation_settings.client_timeout_ms = std::chrono::minutes{3};
+    operation_settings.tx_mode = userver::ydb::TransactionMode::kSerializableRW;
+    operation_settings.get_session_timeout_ms = std::chrono::minutes{3};
 
     clients.driver = std::make_shared<userver::ydb::impl::Driver>("slo", std::move(driver_settings));
     clients.table_client = std::make_shared<userver::ydb::TableClient>(
