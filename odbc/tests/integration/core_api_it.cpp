@@ -381,6 +381,15 @@ TEST(CoreApi, SQLGetInfoInterfaceConformance) {
                   dbc, SQL_HANDLE_DBC);
     EXPECT_STREQ(userName, "");
     EXPECT_EQ(outLen, 0);
+    char databaseName[64] = {};
+    CHECK_ODBC_OK(SQLGetInfo(dbc, SQL_DATABASE_NAME, databaseName, sizeof(databaseName), &outLen),
+                  dbc, SQL_HANDLE_DBC);
+    EXPECT_STREQ(databaseName, "/local");
+    EXPECT_EQ(outLen, 6);
+    char driverVersion[64] = {};
+    CHECK_ODBC_OK(SQLGetInfo(dbc, SQL_DRIVER_VER, driverVersion, sizeof(driverVersion), &outLen),
+                  dbc, SQL_HANDLE_DBC);
+    EXPECT_STREQ(driverVersion, ODBC_DRIVER_VERSION);
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);
     SQLFreeHandle(SQL_HANDLE_ENV, env);

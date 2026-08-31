@@ -131,6 +131,7 @@ if (YDB_SDK_ODBC)
     target_compile_definitions(${ODBC_TEST_NAME} 
       PRIVATE 
         ODBC_DRIVER_PATH="$<TARGET_FILE:ydb-odbc>"
+        ODBC_DRIVER_VERSION="${YDB_SDK_VERSION}"
         ODBC_TEST_ODBCINI="${YDB_ODBC_TEST_INI}"
         ODBC_TEST_ODBCSYSINI="${CMAKE_BINARY_DIR}/odbc"
     )

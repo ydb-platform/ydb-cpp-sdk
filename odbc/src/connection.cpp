@@ -237,6 +237,10 @@ const std::string& TConnection::GetDataSourceName() const {
     return DataSourceName_;
 }
 
+const std::string& TConnection::GetDatabaseName() const {
+    return Attributes_.GetCurrentCatalog();
+}
+
 SQLUINTEGER TConnection::GetSupportedTxnIsolationOptions() const {
     return Attributes_.GetSupportedTxnIsolationOptions();
 }

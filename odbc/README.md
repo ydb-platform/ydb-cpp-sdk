@@ -79,7 +79,10 @@ sudo cmake --install build --component ydb-odbc
 otool -L /Library/ODBC/YDB/libydb-odbc.dylib
 ```
 
-The final `otool` output must not contain build-directory or Homebrew paths.
+The install command registers the driver and a local `YDB` system DSN in
+`/Library/ODBC/odbcinst.ini` and `/Library/ODBC/odbc.ini`. Existing sections
+for other drivers and data sources are preserved. The final `otool` output
+must not contain build-directory or Homebrew paths.
 
 ## Configuration
 
@@ -114,9 +117,10 @@ Database=/local
 AuthMode=Anonymous
 ```
 
-On macOS, merge the following sections into `/Library/ODBC/odbcinst.ini` and
-`/Library/ODBC/odbc.ini` for a system DSN visible to sandboxed applications.
-Do not overwrite existing sections for other drivers or data sources.
+On macOS, `sudo cmake --install build --component ydb-odbc` writes the
+following sections to `/Library/ODBC/odbcinst.ini` and
+`/Library/ODBC/odbc.ini`. They are shown here for reference and for manual
+registration of an already-built driver.
 
 ```ini
 ; /Library/ODBC/odbcinst.ini
