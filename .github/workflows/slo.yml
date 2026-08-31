@@ -8,8 +8,82 @@ permissions:
   contents: read
 
 jobs:
+  sdk-cache:
+    if: contains(github.event.pull_request.labels.*.name, 'SLO')
+
+    name: Cache SLO SDK (${{ matrix.sdk.name }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk:
+          - name: native
+            preset: release-test-clang
+            dockerfile: tests/slo_workloads/Dockerfile
+            cache_scope: slo-sdk
+            legacy_cache_scope: slo
+          - name: userver
+            preset: release-test-clang
+            dockerfile: tests/slo_workloads/Dockerfile.userver
+            cache_scope: slo-userver-sdk
+            legacy_cache_scope: slo-userver
+
+    steps:
+      - name: Checkout current SDK version
+        uses: actions/checkout@v5
+        with:
+          path: sdk-current
+          fetch-depth: 1
+
+      - name: Stage Docker ignore rules
+        run: cp sdk-current/tests/slo_workloads/.dockerignore sdk-current/.dockerignore
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          version: v0.30.1
+
+      - name: Restore SDK ccache
+        uses: actions/cache@v4
+        with:
+          path: ccache
+          key: ${{ matrix.sdk.legacy_cache_scope }}-ccache-${{ matrix.sdk.preset }}-sdk-${{ github.run_id }}
+          restore-keys: |
+            ${{ matrix.sdk.legacy_cache_scope }}-ccache-${{ matrix.sdk.preset }}-sdk-
+            ${{ matrix.sdk.legacy_cache_scope }}-ccache-${{ matrix.sdk.preset }}-
+
+      - name: Inject ccache into BuildKit
+        uses: reproducible-containers/buildkit-cache-dance@v3.1.2
+        with:
+          cache-map: |
+            {
+              "ccache": "/root/.ccache"
+            }
+          skip-extraction: false
+
+      # Export the installed SDK before compiling a workload. Topic and
+      # key-value then share this layer, and a harness compile failure cannot
+      # discard an hour of SDK build work.
+      - name: Build and cache installed SDK
+        uses: docker/build-push-action@v6
+        env:
+          DOCKER_BUILD_SUMMARY: "false"
+          DOCKER_BUILD_RECORD_UPLOAD: "false"
+        with:
+          context: sdk-current
+          file: sdk-current/${{ matrix.sdk.dockerfile }}
+          target: sdk
+          platforms: linux/amd64
+          cache-from: |
+            type=gha,scope=${{ matrix.sdk.cache_scope }}-${{ matrix.sdk.preset }}
+            type=gha,scope=${{ matrix.sdk.legacy_cache_scope }}-${{ matrix.sdk.preset }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.sdk.cache_scope }}-${{ matrix.sdk.preset }}
+
   ydb-slo-action:
     if: contains(github.event.pull_request.labels.*.name, 'SLO')
+    needs: sdk-cache
 
     name: Run YDB SLO Tests (${{ matrix.sdk.name }})
     runs-on: ubuntu-latest
@@ -23,6 +97,7 @@ jobs:
             preset: release-test-clang
             dockerfile: tests/slo_workloads/Dockerfile
             cache_scope: slo-key-value
+            sdk_cache_scope: slo-sdk
             ccache_scope: slo
             target: slo-key-value
             binary: tests/slo_workloads/key_value/slo-key-value
@@ -31,6 +106,7 @@ jobs:
             preset: release-test-clang
             dockerfile: tests/slo_workloads/Dockerfile.userver
             cache_scope: slo-userver-key-value
+            sdk_cache_scope: slo-userver-sdk
             ccache_scope: slo-userver
             target: slo-userver-key-value
             binary: tests/slo_workloads/userver/key_value/slo-userver-key-value
@@ -39,6 +115,7 @@ jobs:
             preset: release-test-clang
             dockerfile: tests/slo_workloads/Dockerfile
             cache_scope: slo-topic
+            sdk_cache_scope: slo-sdk
             ccache_scope: slo
             target: slo-topic
             binary: tests/slo_workloads/topic/slo-topic
@@ -48,6 +125,7 @@ jobs:
             preset: release-test-clang
             dockerfile: tests/slo_workloads/Dockerfile.userver
             cache_scope: slo-userver-topic
+            sdk_cache_scope: slo-userver-sdk
             ccache_scope: slo-userver
             target: slo-userver-topic
             binary: tests/slo_workloads/userver/topic/slo-userver-topic
@@ -176,6 +254,7 @@ jobs:
             SLO_BINARY=${{ matrix.sdk.binary }}
           cache-from: |
             type=gha,scope=${{ matrix.sdk.cache_scope }}-${{ matrix.sdk.preset }}
+            type=gha,scope=${{ matrix.sdk.sdk_cache_scope }}-${{ matrix.sdk.preset }}
             type=gha,scope=${{ matrix.sdk.ccache_scope }}-${{ matrix.sdk.preset }}
           cache-to: type=gha,mode=max,scope=${{ matrix.sdk.cache_scope }}-${{ matrix.sdk.preset }}
 
@@ -198,6 +277,7 @@ jobs:
           cache-from: |
             type=gha,scope=${{ matrix.sdk.cache_scope }}-${{ matrix.sdk.preset }}-baseline
             type=gha,scope=${{ matrix.sdk.cache_scope }}-${{ matrix.sdk.preset }}
+            type=gha,scope=${{ matrix.sdk.sdk_cache_scope }}-${{ matrix.sdk.preset }}
             type=gha,scope=${{ matrix.sdk.ccache_scope }}-${{ matrix.sdk.preset }}
           cache-to: type=gha,mode=max,scope=${{ matrix.sdk.cache_scope }}-${{ matrix.sdk.preset }}-baseline
 
