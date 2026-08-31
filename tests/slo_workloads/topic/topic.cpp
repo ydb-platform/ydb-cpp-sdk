@@ -15,6 +15,7 @@
 #include <deque>
 #include <mutex>
 #include <unordered_map>
+#include <unordered_set>
 
 using namespace NLastGetopt;
 using namespace NYdb;
@@ -53,6 +54,12 @@ std::string MakeTopicPath(const TDatabaseOptions& dbOptions) {
         SanitizePathPart(workload) + "-" + SanitizePathPart(ref) + "-topic");
 }
 
+std::string PartitionSessionKey(const TPartitionSession::TPtr& partitionSession) {
+    return TStringBuilder()
+        << partitionSession->GetReadSessionId() << ':'
+        << partitionSession->GetPartitionSessionId();
+}
+
 std::optional<std::string> MessageError(
     const TReadSessionEvent::TDataReceivedEvent::TMessage& message,
     std::unordered_map<std::string, std::uint64_t>& producerSeqNos,
@@ -82,8 +89,7 @@ std::optional<std::string> MessageError(
 
     const auto partition = message.GetPartitionSession();
     const std::string streamKey = TStringBuilder()
-        << producerId << ':' << partition->GetReadSessionId()
-        << ':' << partition->GetPartitionSessionId();
+        << producerId << ':' << PartitionSessionKey(partition);
     auto stream = streamSeqNos.find(streamKey);
     if (stream == streamSeqNos.end()) {
         streamSeqNos.emplace(streamKey, seqNo);
@@ -122,10 +128,10 @@ struct TTopicRunContext::TImpl {
             : CreateOtelMetricsPusher(options.MetricsPushUrl, "topic_e2e"))
     {}
 
-    void AckCommit(std::uint64_t partitionId, std::uint64_t committedOffset) {
+    void RecordCommittedEndOffset(std::uint64_t partitionId, std::uint64_t endOffset) {
         std::lock_guard lock(Mutex);
         auto& current = CommittedOffsets[partitionId];
-        current = std::max(current, committedOffset);
+        current = std::max(current, endOffset);
     }
 
     TTopicOptions Options;
@@ -227,6 +233,7 @@ void TTopicRunContext::RunReader(std::unique_ptr<ITopicReadSession> session) {
     using TReadEvent = TReadSessionEvent::TEvent;
 
     std::deque<TReadEvent> queuedEvents;
+    std::unordered_set<std::string> retiredPartitionSessions;
     auto waitEvents = [&](TDuration timeout) {
         if (!queuedEvents.empty()) {
             return ETopicWaitResult::Events;
@@ -251,16 +258,23 @@ void TTopicRunContext::RunReader(std::unique_ptr<ITopicReadSession> session) {
     };
 
     auto handleControlEvent = [&](TReadEvent& event) -> std::optional<std::string> {
-        if (auto* ack = std::get_if<TReadSessionEvent::TCommitOffsetAcknowledgementEvent>(&event)) {
-            Impl_->AckCommit(
-                ack->GetPartitionSession()->GetPartitionId(),
-                ack->GetCommittedOffset());
+        if (std::holds_alternative<TReadSessionEvent::TCommitOffsetAcknowledgementEvent>(event)) {
+            // Acknowledgements are correlated with the pending batch below.
+            // In particular, do not record the acknowledgement's potentially
+            // coalesced offset: Rust records the submitted batch end offset.
         } else if (auto* start = std::get_if<TReadSessionEvent::TStartPartitionSessionEvent>(&event)) {
+            retiredPartitionSessions.erase(PartitionSessionKey(start->GetPartitionSession()));
             start->Confirm();
         } else if (auto* stop = std::get_if<TReadSessionEvent::TStopPartitionSessionEvent>(&event)) {
+            retiredPartitionSessions.insert(PartitionSessionKey(stop->GetPartitionSession()));
             stop->Confirm();
         } else if (auto* end = std::get_if<TReadSessionEvent::TEndPartitionSessionEvent>(&event)) {
+            retiredPartitionSessions.insert(PartitionSessionKey(end->GetPartitionSession()));
             end->Confirm();
+        } else if (auto* closed =
+                       std::get_if<TReadSessionEvent::TPartitionSessionClosedEvent>(&event))
+        {
+            retiredPartitionSessions.insert(PartitionSessionKey(closed->GetPartitionSession()));
         } else if (auto* closed = std::get_if<TSessionClosedEvent>(&event)) {
             if (!closed->IsSuccess()) {
                 return TStringBuilder()
@@ -307,8 +321,18 @@ void TTopicRunContext::RunReader(std::unique_ptr<ITopicReadSession> session) {
         auto event = std::move(queuedEvents.front());
         queuedEvents.pop_front();
         if (auto* data = std::get_if<TReadSessionEvent::TDataReceivedEvent>(&event)) {
+            const auto partitionSession = data->GetPartitionSession();
+            const std::string partitionSessionKey = PartitionSessionKey(partitionSession);
+            if (retiredPartitionSessions.contains(partitionSessionKey)) {
+                // The Rust reader runtime drops buffered data from a retired
+                // partition-session epoch. Raw C++ events can surface such a
+                // batch after the stop/close event while decompression drains.
+                Impl_->ReadStats.CancelRequest(delivery);
+                continue;
+            }
+
             std::uint64_t endOffset = 0;
-            const std::uint64_t partitionId = data->GetPartitionSession()->GetPartitionId();
+            const std::uint64_t partitionId = partitionSession->GetPartitionId();
             std::optional<std::string> error;
 
             try {
@@ -422,6 +446,7 @@ void TTopicRunContext::RunReader(std::unique_ptr<ITopicReadSession> session) {
 
                     const bool isExpectedAck =
                         ack->GetPartitionSession()->GetPartitionId() == partitionId &&
+                        PartitionSessionKey(ack->GetPartitionSession()) == partitionSessionKey &&
                         ack->GetCommittedOffset() >= endOffset;
 
                     if (auto controlError = handleControlEvent(nextEvent)) {
@@ -430,6 +455,9 @@ void TTopicRunContext::RunReader(std::unique_ptr<ITopicReadSession> session) {
                         commitFinished = true;
                         stopReader = true;
                     } else if (isExpectedAck) {
+                        // Match Rust's OffsetOrder::insert(partition_id,
+                        // batch.end_offset), not the SDK's coalesced ACK value.
+                        Impl_->RecordCommittedEndOffset(partitionId, endOffset);
                         Impl_->ReadStats.FinishRequest(commit, SuccessStatus());
                         commitFinished = true;
                     }
