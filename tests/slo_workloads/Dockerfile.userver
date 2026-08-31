@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-FROM ghcr.io/userver-framework/ubuntu-22.04-userver:v2.12@sha256:51577d3ebad13de47e5922ddb12ad4c6eb68137a8bbbc93347633a187ba1d42d
+FROM ghcr.io/userver-framework/ubuntu-22.04-userver:v3.1@sha256:c08af6bf58f07a472376ed0bb74165e3d96fb5c8f4e07a3f0b5e11d5d0183f5b
 
 ARG PRESET=release-test-clang
 ARG SLO_TARGET=slo-userver-key-value
@@ -17,9 +17,9 @@ RUN apt-get -o Dir::Etc::sourcelist=/etc/apt/sources.list.d/ubuntu-toolchain-r.l
 
 ENV CC=gcc-13 CXX=g++-13
 
-# The release image ships the v2.12 development package. Its YDB component is
+# The release image ships the v3.1 development package. Its YDB component is
 # intentionally excluded, so retain matching sources for that one component.
-RUN git clone --depth 1 --branch v2.12 \
+RUN git clone --depth 1 --branch v3.1 \
       https://github.com/userver-framework/userver.git /userver-src
 ENV USERVER_SOURCE_DIR=/userver-src
 
