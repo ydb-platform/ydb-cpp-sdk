@@ -89,6 +89,7 @@ SQLRETURN TConnection::Disconnect() {
     DriverConfig_.reset();
     DbmsVersionCache_.reset();
     Database_.clear();
+    ServerName_.clear();
     DataSourceName_.clear();
     return SQL_SUCCESS;
 }
@@ -241,6 +242,10 @@ const std::string& TConnection::GetDatabaseName() const {
     return Attributes_.GetCurrentCatalog();
 }
 
+const std::string& TConnection::GetServerName() const {
+    return ServerName_;
+}
+
 SQLUINTEGER TConnection::GetSupportedTxnIsolationOptions() const {
     return Attributes_.GetSupportedTxnIsolationOptions();
 }
@@ -274,7 +279,7 @@ const std::string& TConnection::GetDbmsVersion() {
             }
             TResultSetParser parser(result.GetResultSetParser(0));
             if (parser.TryNextRow()) {
-                fetched = parser.ColumnParser(0).GetUtf8();
+                fetched = parser.ColumnParser(0).GetString();
             }
             return NYdb::TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
         });
@@ -302,6 +307,7 @@ void TConnection::ApplyResolvedSettings(TResolvedConnectionSettings&& settings) 
     settings.DriverConfig.SetDatabase(settings.Database);
 
     Database_ = std::move(settings.Database);
+    ServerName_ = std::move(settings.Endpoint);
     DataSourceName_ = std::move(settings.DataSourceName);
     DriverConfig_.emplace(std::move(settings.DriverConfig));
     RecreateYdbClients();
