@@ -188,7 +188,8 @@ class TTopicWriters {
 public:
   TTopicWriters(TTopicClient &client, TTopicRunContext &context,
                 TTopicRateLimiter &limiter)
-      : Client_(client), Context_(context), Limiter_(limiter) {}
+      : Client_(client), Context_(context), Limiter_(limiter),
+        Sessions_(context.GetOptions().WriterCount) {}
 
   NThreading::TFuture<void> Run(std::stop_token stopToken) {
     std::vector<NThreading::TFuture<void>> writers;
@@ -199,12 +200,24 @@ public:
     co_await NThreading::WaitAll(writers);
   }
 
+  void Close() {
+    for (auto &session : Sessions_) {
+      if (session) {
+        try {
+          session->Close(TDuration::Zero());
+        } catch (const std::exception &) {
+        }
+        session.reset();
+      }
+    }
+  }
+
 private:
   NThreading::TFuture<void> RunWriter(std::uint32_t writerIndex,
                                       std::stop_token stopToken) {
     TStopFuture stop(stopToken);
     const auto stopFuture = stop.GetFuture();
-    std::shared_ptr<IWriteSession> session;
+    auto &session = Sessions_[writerIndex];
     std::shared_ptr<TStatUnit> writeStat;
     std::optional<TContinuationToken> continuationToken;
     std::optional<std::uint64_t> pendingSeqNo;
@@ -270,23 +283,19 @@ private:
         Context_.CancelWrite(writeStat);
       }
     }
-    if (session) {
-      try {
-        session->Close(TDuration::Zero());
-      } catch (const std::exception &) {
-      }
-    }
   }
 
   TTopicClient &Client_;
   TTopicRunContext &Context_;
   TTopicRateLimiter &Limiter_;
+  std::vector<std::shared_ptr<IWriteSession>> Sessions_;
 };
 
 class TTopicReaders {
 public:
   TTopicReaders(TTopicClient &client, TTopicRunContext &context)
-      : Client_(client), Context_(context) {}
+      : Client_(client), Context_(context),
+        Sessions_(context.GetOptions().ReaderCount) {}
 
   NThreading::TFuture<void> Run(std::stop_token stopToken) {
     std::vector<NThreading::TFuture<void>> readers;
@@ -297,12 +306,24 @@ public:
     co_await NThreading::WaitAll(readers);
   }
 
+  void Close() {
+    for (auto &session : Sessions_) {
+      if (session) {
+        try {
+          session->Close(TDuration::Zero());
+        } catch (const std::exception &) {
+        }
+        session.reset();
+      }
+    }
+  }
+
 private:
   NThreading::TFuture<void> RunReader(std::uint32_t readerIndex,
                                       std::stop_token stopToken) {
     TStopFuture stop(stopToken);
     const auto stopFuture = stop.GetFuture();
-    std::shared_ptr<IReadSession> session;
+    auto &session = Sessions_[readerIndex];
 
     try {
       session = Client_.CreateReadSession(
@@ -327,17 +348,11 @@ private:
                                        << " failed: " << e.what());
       }
     }
-
-    if (session) {
-      try {
-        session->Close(TDuration::Zero());
-      } catch (const std::exception &) {
-      }
-    }
   }
 
   TTopicClient &Client_;
   TTopicRunContext &Context_;
+  std::vector<std::shared_ptr<IReadSession>> Sessions_;
 };
 
 } // namespace
@@ -376,6 +391,8 @@ int DoRun(TDatabaseOptions &dbOptions, int argc, char **argv) {
   workers.GetValueSync();
   Y_UNUSED(stopRequest);
 
+  writers.Close();
+  readers.Close();
   context.Finish();
   return context.Failed() ? EXIT_FAILURE : EXIT_SUCCESS;
 }
