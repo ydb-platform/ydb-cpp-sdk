@@ -119,7 +119,7 @@ jobs:
             ccache_scope: slo
             target: slo-topic
             binary: tests/slo_workloads/topic/slo-topic
-            command: "--write-rps 1000"
+            command: "--write-rps 1000 --writer-count 20 --reader-count 5"
             metrics_yaml_path: sdk-current/tests/slo_workloads/metrics-topic.yaml
           - name: cpp-topic-userver
             preset: release-test-clang
@@ -129,7 +129,7 @@ jobs:
             ccache_scope: slo-userver
             target: slo-userver-topic
             binary: tests/slo_workloads/userver/topic/slo-userver-topic
-            command: "--write-rps 1000"
+            command: "--write-rps 1000 --writer-count 20 --reader-count 5"
             metrics_yaml_path: sdk-current/tests/slo_workloads/metrics-topic.yaml
 
     concurrency:

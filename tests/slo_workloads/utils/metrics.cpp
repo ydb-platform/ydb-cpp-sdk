@@ -219,6 +219,15 @@ private:
             slot->ErrorAttrs["operation_status"] = "error";
             slot->RetryAttrs = CommonAttributes_;
             slot->RetryAttrs["operation_type"] = op;
+
+            OperationsTotal_->Add(uint64_t{0},
+                opentelemetry::common::MakeKeyValueIterableView(slot->SuccessAttrs));
+            OperationsTotal_->Add(uint64_t{0},
+                opentelemetry::common::MakeKeyValueIterableView(slot->ErrorAttrs));
+            if (!StubRetry_) {
+                RetryAttemptsTotal_->Add(uint64_t{0},
+                    opentelemetry::common::MakeKeyValueIterableView(slot->RetryAttrs));
+            }
         }
         return *slot;
     }
