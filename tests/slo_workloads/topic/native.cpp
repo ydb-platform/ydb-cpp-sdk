@@ -6,14 +6,10 @@
 #include <util/string/builder.h>
 #include <util/string/cast.h>
 
-#include <algorithm>
 #include <chrono>
-#include <condition_variable>
 #include <cstdint>
 #include <memory>
-#include <mutex>
 #include <optional>
-#include <queue>
 #include <stop_token>
 #include <thread>
 #include <utility>
@@ -23,82 +19,10 @@ using namespace NYdb::NTopic;
 
 namespace {
 
-using TClock = std::chrono::steady_clock;
-
-class TTopicRateLimiter {
-public:
-  explicit TTopicRateLimiter(std::uint32_t rps)
-      : Interval_(std::chrono::microseconds(
-            std::max<std::uint64_t>(1, 1'000'000 / rps))),
-        Thread_([this] { Run(); }) {}
-
-  ~TTopicRateLimiter() {
-    {
-      std::lock_guard lock(Mutex_);
-      Stopping_ = true;
-    }
-    Condition_.notify_all();
-    Thread_.join();
-  }
-
-  NThreading::TFuture<void> Acquire() {
-    auto promise = NThreading::NewPromise<void>();
-    auto future = promise.GetFuture();
-    {
-      std::lock_guard lock(Mutex_);
-      Waiters_.push(std::move(promise));
-    }
-    Condition_.notify_one();
-    co_await future;
-  }
-
-private:
-  void Run() {
-    auto next = TClock::now();
-    std::unique_lock lock(Mutex_);
-
-    while (!Stopping_) {
-      Condition_.wait(lock, [this] { return Stopping_ || !Waiters_.empty(); });
-      if (Stopping_) {
-        break;
-      }
-
-      auto promise = std::move(Waiters_.front());
-      Waiters_.pop();
-      next = std::max(next, TClock::now());
-      const auto wakeAt = next;
-      next += Interval_;
-
-      lock.unlock();
-      std::this_thread::sleep_until(wakeAt);
-      promise.TrySetValue();
-      lock.lock();
-    }
-
-    std::vector<NThreading::TPromise<void>> cancelled;
-    while (!Waiters_.empty()) {
-      cancelled.push_back(std::move(Waiters_.front()));
-      Waiters_.pop();
-    }
-    lock.unlock();
-    for (auto &promise : cancelled) {
-      promise.TrySetValue();
-    }
-  }
-
-  const std::chrono::microseconds Interval_;
-  std::mutex Mutex_;
-  std::condition_variable Condition_;
-  std::queue<NThreading::TPromise<void>> Waiters_;
-  bool Stopping_ = false;
-  std::thread Thread_;
-};
-
 class TTopicWriters {
 public:
-  TTopicWriters(TTopicClient &client, TTopicRunContext &context,
-                TTopicRateLimiter &limiter)
-      : Client_(client), Context_(context), Limiter_(limiter),
+  TTopicWriters(TTopicClient &client, TTopicRunContext &context)
+      : Client_(client), Context_(context),
         Sessions_(context.GetOptions().WriterCount) {}
 
   NThreading::TFuture<void> Run(std::stop_token stopToken) {
@@ -138,8 +62,6 @@ private:
 
       while (!stopToken.stop_requested()) {
         if (continuationToken && !pendingSeqNo) {
-          co_await Limiter_.Acquire();
-
           const std::uint64_t seqNo = nextSeqNo++;
           TWriteMessage message(ToString(seqNo));
           message.SeqNo(seqNo).CreateTimestamp(TInstant::Now());
@@ -189,7 +111,6 @@ private:
 
   TTopicClient &Client_;
   TTopicRunContext &Context_;
-  TTopicRateLimiter &Limiter_;
   std::vector<std::shared_ptr<IWriteSession>> Sessions_;
 };
 
@@ -262,9 +183,8 @@ int DoRun(TDatabaseOptions &dbOptions, int argc, char **argv) {
   std::stop_source stopSource;
   TTopicClient client(dbOptions.Driver);
   TTopicRunContext context(options, stopSource);
-  TTopicRateLimiter limiter(options.WriteRps);
   TTopicReaders readers(client, context);
-  TTopicWriters writers(client, context, limiter);
+  TTopicWriters writers(client, context);
 
   context.Start();
   std::thread([stopSource, duration = std::chrono::seconds(

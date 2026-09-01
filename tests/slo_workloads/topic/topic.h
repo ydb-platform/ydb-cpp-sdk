@@ -17,7 +17,6 @@ struct TTopicOptions {
 
   TDatabaseOptions DatabaseOptions;
   std::uint32_t SecondsToRun = 10;
-  std::uint32_t WriteRps = 1000;
   std::uint32_t PartitionCount = 10;
   std::string ConsumerName = "slo-consumer";
   std::uint32_t ReaderCount = 5;

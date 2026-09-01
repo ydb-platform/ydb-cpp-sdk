@@ -232,10 +232,6 @@ bool ParseTopicOptions(int argc, char **argv, TTopicOptions &options) {
       .RequiredArgument("SECONDS")
       .DefaultValue(options.SecondsToRun)
       .StoreResult(&options.SecondsToRun);
-  opts.AddLongOption("write-rps", "Total messages submitted per second")
-      .RequiredArgument("NUM")
-      .DefaultValue(options.WriteRps)
-      .StoreResult(&options.WriteRps);
   opts.AddLongOption("partition-count", "Topic partition count")
       .RequiredArgument("NUM")
       .DefaultValue(options.PartitionCount)
@@ -271,9 +267,9 @@ bool ParseTopicOptions(int argc, char **argv, TTopicOptions &options) {
   Y_UNUSED(result);
 
   options.TopicPath = MakeTopicPath(options.DatabaseOptions);
-  if (!options.SecondsToRun || !options.WriteRps || !options.PartitionCount ||
+  if (!options.SecondsToRun || !options.PartitionCount ||
       !options.ReaderCount || !options.WriterCount) {
-    Cerr << "Topic workload counts, RPS, and duration must be greater than zero"
+    Cerr << "Topic workload counts and duration must be greater than zero"
          << Endl;
     return false;
   }

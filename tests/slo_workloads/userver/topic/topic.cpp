@@ -13,8 +13,6 @@
 #include <util/string/builder.h>
 #include <util/string/cast.h>
 
-#include <algorithm>
-#include <atomic>
 #include <chrono>
 #include <cstdint>
 #include <memory>
@@ -27,43 +25,12 @@ using namespace NYdb::NTopic;
 
 namespace {
 
-using TClock = std::chrono::steady_clock;
 using namespace std::chrono_literals;
-
-class TTopicRateLimiter {
-public:
-  explicit TTopicRateLimiter(std::uint32_t rps)
-      : IntervalMicros_(std::max<std::uint64_t>(1, 1'000'000 / rps)),
-        NextMicros_(NowMicros()) {}
-
-  void Acquire() {
-    std::int64_t current = NextMicros_.load();
-    std::int64_t scheduled;
-    do {
-      scheduled = std::max(current, NowMicros());
-    } while (!NextMicros_.compare_exchange_weak(current,
-                                                scheduled + IntervalMicros_));
-
-    userver::engine::InterruptibleSleepUntil(
-        TClock::time_point(std::chrono::microseconds(scheduled)));
-  }
-
-private:
-  static std::int64_t NowMicros() {
-    return std::chrono::duration_cast<std::chrono::microseconds>(
-               TClock::now().time_since_epoch())
-        .count();
-  }
-
-  const std::int64_t IntervalMicros_;
-  std::atomic<std::int64_t> NextMicros_;
-};
 
 class TTopicWriters {
 public:
-  TTopicWriters(userver::ydb::TopicClient &client, TTopicRunContext &context,
-                TTopicRateLimiter &limiter)
-      : Client_(client), Context_(context), Limiter_(limiter) {}
+  TTopicWriters(userver::ydb::TopicClient &client, TTopicRunContext &context)
+      : Client_(client), Context_(context) {}
 
   userver::engine::TaskWithResult<void> Run(std::stop_token stopToken) {
     return userver::engine::AsyncNoTracing([this, stopToken] {
@@ -100,8 +67,6 @@ private:
 
       while (!stopToken.stop_requested()) {
         if (continuationToken && !pendingSeqNo) {
-          Limiter_.Acquire();
-
           const std::uint64_t seqNo = nextSeqNo++;
           TWriteMessage message(ToString(seqNo));
           message.SeqNo(seqNo).CreateTimestamp(TInstant::Now());
@@ -151,7 +116,6 @@ private:
 
   userver::ydb::TopicClient &Client_;
   TTopicRunContext &Context_;
-  TTopicRateLimiter &Limiter_;
 };
 
 class TTopicReaders {
@@ -225,9 +189,8 @@ int DoRun(TDatabaseOptions &dbOptions, int argc, char **argv) {
   std::stop_source stopSource;
   auto &client = userver_slo::GetTopicClient();
   TTopicRunContext context(options, stopSource);
-  TTopicRateLimiter limiter(options.WriteRps);
   TTopicReaders readers(client, context);
-  TTopicWriters writers(client, context, limiter);
+  TTopicWriters writers(client, context);
 
   context.Start();
   auto stopTask =
