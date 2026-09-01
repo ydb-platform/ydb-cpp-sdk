@@ -23,6 +23,11 @@ using namespace NYdb::NTopic;
 
 namespace {
 
+// TopicReaderOptions in the Rust workload defaults to 1,000 messages.  The
+// native C++ SDK exposes server/decompression events instead, so RunReader
+// combines events from one partition-session epoch up to the same limit.
+constexpr std::size_t kTopicReadBatchSize = 1'000;
+
 TStatus SuccessStatus() {
     return TStatus(EStatus::SUCCESS, NIssue::TIssues());
 }
@@ -128,10 +133,42 @@ struct TTopicRunContext::TImpl {
             : CreateOtelMetricsPusher(options.MetricsPushUrl, "topic_e2e"))
     {}
 
-    void RecordCommittedEndOffset(std::uint64_t partitionId, std::uint64_t endOffset) {
+    void ActivatePartitionSession(std::uint64_t partitionId, const std::string& sessionKey) {
         std::lock_guard lock(Mutex);
+        ActivePartitionSessions[partitionId] = sessionKey;
+    }
+
+    void RetirePartitionSession(std::uint64_t partitionId, const std::string& sessionKey) {
+        std::lock_guard lock(Mutex);
+        if (auto it = ActivePartitionSessions.find(partitionId);
+            it != ActivePartitionSessions.end() && it->second == sessionKey)
+        {
+            ActivePartitionSessions.erase(it);
+        }
+    }
+
+    bool IsActivePartitionSession(
+        std::uint64_t partitionId,
+        const std::string& sessionKey) const
+    {
+        std::lock_guard lock(Mutex);
+        const auto it = ActivePartitionSessions.find(partitionId);
+        return it != ActivePartitionSessions.end() && it->second == sessionKey;
+    }
+
+    bool RecordCommittedEndOffset(
+        std::uint64_t partitionId,
+        const std::string& sessionKey,
+        std::uint64_t endOffset)
+    {
+        std::lock_guard lock(Mutex);
+        const auto active = ActivePartitionSessions.find(partitionId);
+        if (active == ActivePartitionSessions.end() || active->second != sessionKey) {
+            return false;
+        }
         auto& current = CommittedOffsets[partitionId];
         current = std::max(current, endOffset);
+        return true;
     }
 
     TTopicOptions Options;
@@ -144,10 +181,11 @@ struct TTopicRunContext::TImpl {
     mutable std::mutex FailureMutex;
     std::string FailureMessage;
 
-    std::mutex Mutex;
+    mutable std::mutex Mutex;
     std::unordered_map<std::string, std::uint64_t> ProducerSeqNos;
     std::unordered_map<std::string, std::uint64_t> StreamSeqNos;
     std::unordered_map<std::uint64_t, std::uint64_t> CommittedOffsets;
+    std::unordered_map<std::uint64_t, std::string> ActivePartitionSessions;
 };
 
 TTopicRunContext::TTopicRunContext(const TTopicOptions& options)
@@ -263,10 +301,16 @@ void TTopicRunContext::RunReader(std::unique_ptr<ITopicReadSession> session) {
             // In particular, do not record the acknowledgement's potentially
             // coalesced offset: Rust records the submitted batch end offset.
         } else if (auto* start = std::get_if<TReadSessionEvent::TStartPartitionSessionEvent>(&event)) {
-            retiredPartitionSessions.erase(PartitionSessionKey(start->GetPartitionSession()));
+            const auto partitionSession = start->GetPartitionSession();
+            const std::string sessionKey = PartitionSessionKey(partitionSession);
+            retiredPartitionSessions.erase(sessionKey);
+            Impl_->ActivatePartitionSession(partitionSession->GetPartitionId(), sessionKey);
             start->Confirm();
         } else if (auto* stop = std::get_if<TReadSessionEvent::TStopPartitionSessionEvent>(&event)) {
-            retiredPartitionSessions.insert(PartitionSessionKey(stop->GetPartitionSession()));
+            const auto partitionSession = stop->GetPartitionSession();
+            const std::string sessionKey = PartitionSessionKey(partitionSession);
+            retiredPartitionSessions.insert(sessionKey);
+            Impl_->RetirePartitionSession(partitionSession->GetPartitionId(), sessionKey);
             stop->Confirm();
         } else if (auto* end = std::get_if<TReadSessionEvent::TEndPartitionSessionEvent>(&event)) {
             // Rust closes an ended partition session for new input, but keeps
@@ -276,7 +320,10 @@ void TTopicRunContext::RunReader(std::unique_ptr<ITopicReadSession> session) {
         } else if (auto* closed =
                        std::get_if<TReadSessionEvent::TPartitionSessionClosedEvent>(&event))
         {
-            retiredPartitionSessions.insert(PartitionSessionKey(closed->GetPartitionSession()));
+            const auto partitionSession = closed->GetPartitionSession();
+            const std::string sessionKey = PartitionSessionKey(partitionSession);
+            retiredPartitionSessions.insert(sessionKey);
+            Impl_->RetirePartitionSession(partitionSession->GetPartitionId(), sessionKey);
         } else if (auto* closed = std::get_if<TSessionClosedEvent>(&event)) {
             if (!closed->IsSuccess()) {
                 return TStringBuilder()
@@ -325,48 +372,125 @@ void TTopicRunContext::RunReader(std::unique_ptr<ITopicReadSession> session) {
         if (auto* data = std::get_if<TReadSessionEvent::TDataReceivedEvent>(&event)) {
             const auto partitionSession = data->GetPartitionSession();
             const std::string partitionSessionKey = PartitionSessionKey(partitionSession);
-            if (retiredPartitionSessions.contains(partitionSessionKey)) {
+            const std::uint64_t partitionId = partitionSession->GetPartitionId();
+
+            // Rust handles lifecycle messages in its background reader runtime,
+            // independently of read_batch/commit_with_ack.  Do the same before
+            // exposing buffered data: a later Stop must discard earlier queued
+            // data, and a newer Start may transfer the partition to another
+            // reader while this reader still has old decompressed events.
+            std::optional<std::string> queuedControlError;
+            for (auto it = queuedEvents.begin(); it != queuedEvents.end();) {
+                if (std::holds_alternative<TReadSessionEvent::TDataReceivedEvent>(*it)) {
+                    ++it;
+                    continue;
+                }
+                if (auto controlError = handleControlEvent(*it)) {
+                    queuedControlError = std::move(controlError);
+                }
+                it = queuedEvents.erase(it);
+            }
+            if (queuedControlError) {
+                Impl_->ReadStats.FinishRequest(delivery, ErrorStatus());
+                Fail(*queuedControlError);
+                break;
+            }
+
+            if (retiredPartitionSessions.contains(partitionSessionKey) ||
+                !Impl_->IsActivePartitionSession(partitionId, partitionSessionKey))
+            {
                 // The Rust reader runtime drops buffered data from a retired
-                // partition-session epoch. Raw C++ events can surface such a
-                // batch after the stop/close event while decompression drains.
+                // partition-session epoch.  Ownership is global because a new
+                // reader can commit ahead before the old reader observes Stop.
                 Impl_->ReadStats.CancelRequest(delivery);
                 continue;
             }
 
+            std::vector<TReadSessionEvent::TDataReceivedEvent> dataEvents;
+            std::size_t messageCount = data->GetMessagesCount();
+            dataEvents.emplace_back(std::move(*data));
+
+            // C++ events are grouped by consecutive raw responses.  Traffic
+            // from ten partitions interleaves those responses, so committing
+            // each event serially limited the harness to a few hundred
+            // messages/s and produced the observed 45-60 second queueing delay.
+            // Rust instead buffers per partition and pops up to 1,000 messages.
+            for (auto it = queuedEvents.begin(); it != queuedEvents.end();) {
+                auto* candidate =
+                    std::get_if<TReadSessionEvent::TDataReceivedEvent>(&*it);
+                if (!candidate ||
+                    PartitionSessionKey(candidate->GetPartitionSession()) != partitionSessionKey)
+                {
+                    ++it;
+                    continue;
+                }
+
+                const std::size_t candidateCount = candidate->GetMessagesCount();
+                if (messageCount + candidateCount > kTopicReadBatchSize) {
+                    break;
+                }
+                messageCount += candidateCount;
+                dataEvents.emplace_back(std::move(*candidate));
+                it = queuedEvents.erase(it);
+            }
+
             std::uint64_t endOffset = 0;
-            const std::uint64_t partitionId = partitionSession->GetPartitionId();
             std::optional<std::string> error;
 
             try {
-                for (const auto& message : data->GetMessages()) {
+                {
+                    std::lock_guard lock(Impl_->Mutex);
+                    const auto active = Impl_->ActivePartitionSessions.find(partitionId);
+                    if (active == Impl_->ActivePartitionSessions.end() ||
+                        active->second != partitionSessionKey)
                     {
-                        std::lock_guard lock(Impl_->Mutex);
-                        error = MessageError(
-                            message,
-                            Impl_->ProducerSeqNos,
-                            Impl_->StreamSeqNos,
-                            Impl_->CommittedOffsets);
-                    }
-                    if (error) {
-                        break;
+                        // A different reader accepted a newer epoch while this
+                        // batch was being assembled.
+                        Impl_->ReadStats.CancelRequest(delivery);
+                        continue;
                     }
 
-                    const TInstant createdAt = message.GetCreateTime();
-                    const TInstant now = TInstant::Now();
-                    if (createdAt == TInstant::Zero()) {
-                        error = "message has no timestamp";
-                        break;
+                    for (const auto& dataEvent : dataEvents) {
+                        for (const auto& message : dataEvent.GetMessages()) {
+                            error = MessageError(
+                                message,
+                                Impl_->ProducerSeqNos,
+                                Impl_->StreamSeqNos,
+                                Impl_->CommittedOffsets);
+                            if (error) {
+                                break;
+                            }
+                            endOffset = std::max(endOffset, message.GetOffset() + 1);
+                        }
+                        if (error) {
+                            break;
+                        }
                     }
-                    if (createdAt > now) {
-                        error = TStringBuilder() << "message timestamp is in the future";
-                        break;
+                }
+
+                if (!error) {
+                    for (const auto& dataEvent : dataEvents) {
+                        for (const auto& message : dataEvent.GetMessages()) {
+                            const TInstant createdAt = message.GetCreateTime();
+                            const TInstant now = TInstant::Now();
+                            if (createdAt == TInstant::Zero()) {
+                                error = "message has no timestamp";
+                                break;
+                            }
+                            if (createdAt > now) {
+                                error = TStringBuilder() << "message timestamp is in the future";
+                                break;
+                            }
+                            Impl_->E2eMetrics->PushRequestData({
+                                .Delay = now - createdAt,
+                                .Status = EStatus::SUCCESS,
+                                .RetryAttempts = 0,
+                            });
+                        }
+                        if (error) {
+                            break;
+                        }
                     }
-                    Impl_->E2eMetrics->PushRequestData({
-                        .Delay = now - createdAt,
-                        .Status = EStatus::SUCCESS,
-                        .RetryAttempts = 0,
-                    });
-                    endOffset = std::max(endOffset, message.GetOffset() + 1);
                 }
             } catch (const std::exception& e) {
                 error = TStringBuilder() << "message processing failed: " << e.what();
@@ -382,9 +506,17 @@ void TTopicRunContext::RunReader(std::unique_ptr<ITopicReadSession> session) {
             // successful read metric is the following commit acknowledgement.
             Impl_->ReadStats.CancelRequest(delivery);
 
+            if (!Impl_->IsActivePartitionSession(partitionId, partitionSessionKey)) {
+                continue;
+            }
+
             auto commit = Impl_->ReadStats.StartRequest();
             try {
-                data->Commit();
+                TDeferredCommit deferredCommit;
+                for (const auto& dataEvent : dataEvents) {
+                    deferredCommit.Add(dataEvent);
+                }
+                deferredCommit.Commit();
             } catch (const std::exception& e) {
                 Impl_->ReadStats.FinishRequest(commit, ErrorStatus());
                 Cerr << "Commit failed: " << e.what() << Endl;
@@ -495,8 +627,16 @@ void TTopicRunContext::RunReader(std::unique_ptr<ITopicReadSession> session) {
                     } else if (isExpectedAck) {
                         // Match Rust's OffsetOrder::insert(partition_id,
                         // batch.end_offset), not the SDK's coalesced ACK value.
-                        Impl_->RecordCommittedEndOffset(partitionId, endOffset);
-                        Impl_->ReadStats.FinishRequest(commit, SuccessStatus());
+                        if (Impl_->RecordCommittedEndOffset(
+                                partitionId, partitionSessionKey, endOffset))
+                        {
+                            Impl_->ReadStats.FinishRequest(commit, SuccessStatus());
+                        } else {
+                            // A newer epoch owns the partition.  Rust drops the
+                            // stopped epoch and fails its pending commit without
+                            // publishing that offset to the workload verifier.
+                            Impl_->ReadStats.FinishRequest(commit, ErrorStatus());
+                        }
                         commitFinished = true;
                     }
                 }
