@@ -22,7 +22,10 @@ public:
         if (!Session_->WaitEvent().Wait(timeout)) {
             return ETopicWaitResult::Timeout;
         }
-        events = Session_->GetEvents(false, 1);
+        // Let the SDK drain and coalesce every event that is already ready.
+        // Limiting this to one event turns interleaved partition traffic into
+        // tiny batches while a commit acknowledgement is pending.
+        events = Session_->GetEvents(false);
         return ETopicWaitResult::Events;
     }
 

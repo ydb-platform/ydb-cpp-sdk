@@ -43,7 +43,9 @@ public:
     {
         if (!Waiter_.IsValid()) {
             Waiter_ = userver::engine::AsyncNoTracing([this] {
-                return Session_.GetEvents(1);
+                // TopicReadSession suspends this engine task and then drains
+                // the native SDK queue using its automatic batch size.
+                return Session_.GetEvents();
             });
         }
 
