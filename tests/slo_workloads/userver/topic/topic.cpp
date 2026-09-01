@@ -2,303 +2,302 @@
 
 #include <tests/slo_workloads/userver/key_value/userver_table_client.h>
 
-#include <userver/concurrent/mpsc_queue.hpp>
 #include <userver/engine/async.hpp>
-#include <userver/engine/deadline.hpp>
-#include <userver/engine/exception.hpp>
+#include <userver/engine/future_status.hpp>
 #include <userver/engine/get_all.hpp>
 #include <userver/engine/sleep.hpp>
+#include <userver/engine/task/cancel.hpp>
+#include <userver/engine/task/current_task.hpp>
 #include <userver/engine/task/task_with_result.hpp>
-#include <userver/ydb/exceptions.hpp>
+#include <userver/engine/wait_all_checked.hpp>
 #include <userver/ydb/topic.hpp>
 
 #include <util/string/builder.h>
 #include <util/string/cast.h>
 
+#include <algorithm>
+#include <atomic>
 #include <chrono>
+#include <cstdint>
 #include <memory>
+#include <optional>
+#include <stop_token>
+#include <utility>
 #include <vector>
 
 using namespace NYdb::NTopic;
 
 namespace {
 
-NYdb::TStatus SuccessStatus() {
-    return NYdb::TStatus(NYdb::EStatus::SUCCESS, NYdb::NIssue::TIssues());
-}
+using TClock = std::chrono::steady_clock;
+using namespace std::chrono_literals;
 
-NYdb::TStatus ErrorStatus() {
-    return NYdb::TStatus(NYdb::EStatus::CLIENT_INTERNAL_ERROR, NYdb::NIssue::TIssues());
-}
-
-class TUserverTopicReadSession final : public ITopicReadSession {
+class TTaskStopCallback {
 public:
-    explicit TUserverTopicReadSession(userver::ydb::TopicReadSession session)
-        : Session_(std::move(session))
-    {}
-
-    ETopicWaitResult WaitEvents(
-        TDuration timeout,
-        std::vector<TReadSessionEvent::TEvent>& events) override
-    {
-        if (!Waiter_.IsValid()) {
-            Waiter_ = userver::engine::AsyncNoTracing([this] {
-                // TopicReadSession suspends this engine task and then drains
-                // the native SDK queue using its automatic batch size.
-                return Session_.GetEvents();
-            });
-        }
-
-        try {
-            Waiter_.WaitFor(std::chrono::microseconds(timeout.MicroSeconds()));
-            if (!Waiter_.IsFinished()) {
-                return ETopicWaitResult::Timeout;
-            }
-            events = Waiter_.Get();
-        } catch (const userver::engine::WaitInterruptedException&) {
-            return ETopicWaitResult::Cancelled;
-        } catch (const userver::ydb::OperationCancelledError&) {
-            return ETopicWaitResult::Cancelled;
-        }
-        return ETopicWaitResult::Events;
-    }
-
-    void Close(TDuration timeout) override {
-        if (Waiter_.IsValid()) {
-            Waiter_.SyncCancel();
-            try {
-                Waiter_.Get();
-            } catch (const std::exception&) {
-                // The pending GetEvents task is expected to observe cancellation.
-            }
-        }
-        Session_.Close(std::chrono::milliseconds(timeout.MilliSeconds()));
-    }
+  explicit TTaskStopCallback(std::stop_token stopToken)
+      : CancellationToken_(
+            userver::engine::current_task::GetCancellationToken()),
+        Callback_(stopToken, TCallback{CancellationToken_}) {}
 
 private:
-    userver::ydb::TopicReadSession Session_;
-    userver::engine::TaskWithResult<std::vector<TReadSessionEvent::TEvent>> Waiter_;
+  struct TCallback {
+    userver::engine::TaskCancellationToken CancellationToken;
+
+    void operator()() noexcept {
+      try {
+        CancellationToken.RequestCancel();
+      } catch (...) {
+      }
+    }
+  };
+
+  userver::engine::TaskCancellationToken CancellationToken_;
+  std::stop_callback<TCallback> Callback_;
 };
 
-using TWriteEvent = TWriteSessionEvent::TEvent;
-using TWriteEventQueue = userver::concurrent::MpscQueue<TWriteEvent>;
+class TTopicRateLimiter {
+public:
+  explicit TTopicRateLimiter(std::uint32_t rps)
+      : IntervalMicros_(std::max<std::uint64_t>(1, 1'000'000 / rps)),
+        NextMicros_(NowMicros()) {}
 
-void RunUserverTopicWriter(
-    userver::ydb::TopicClient& client,
-    std::uint32_t writerIndex,
-    TTopicRunContext& context,
-    TTopicRateLimiter& limiter,
-    std::atomic<std::uint32_t>& readyWriters)
-{
-    const auto& options = context.GetOptions();
-    const std::string producerId = options.ProducerIdPrefix + "-" + ToString(writerIndex);
-    TWriteSessionSettings settings;
-    settings.Path(options.TopicPath)
-        .ProducerId(producerId)
-        .MessageGroupId(producerId)
-        .Codec(ECodec::RAW);
-    auto session = std::make_shared<userver::ydb::TopicWriteSession>(
-        client.CreateWriteSession(settings));
+  bool Acquire(std::stop_token stopToken) {
+    std::int64_t current = NextMicros_.load();
+    std::int64_t scheduled;
+    do {
+      scheduled = std::max(current, NowMicros());
+    } while (!NextMicros_.compare_exchange_weak(current,
+                                                scheduled + IntervalMicros_));
 
-    auto eventQueue = TWriteEventQueue::Create(16);
-    auto eventConsumer = eventQueue->GetConsumer();
-    auto eventTask = userver::engine::AsyncNoTracing(
-        [session, producer = eventQueue->GetProducer(), &context, writerIndex]() mutable {
-            try {
-                while (true) {
-                    auto event = session->GetEvent();
-                    const bool closed = std::holds_alternative<TSessionClosedEvent>(event);
-                    if (!producer.Push(std::move(event)) || closed) {
-                        break;
-                    }
-                }
-            } catch (const userver::ydb::OperationCancelledError&) {
-                // Normal shutdown: the writer cancels this event pump.
-            } catch (const std::exception& e) {
-                context.Fail(TStringBuilder()
-                    << "write event pump " << writerIndex << " failed: " << e.what());
-            }
-        });
+    userver::engine::InterruptibleSleepUntil(
+        TClock::time_point(std::chrono::microseconds(scheduled)));
+    return !stopToken.stop_requested();
+  }
 
-    std::uint64_t seqNo = 1;
-    std::optional<TContinuationToken> token;
-    const TTopicSleep sleep = [](TDuration duration) {
-        userver::engine::SleepFor(std::chrono::microseconds(duration.MicroSeconds()));
-    };
+private:
+  static std::int64_t NowMicros() {
+    return std::chrono::duration_cast<std::chrono::microseconds>(
+               TClock::now().time_since_epoch())
+        .count();
+  }
 
-    // Match Rust's async TopicWriter::new: establish the write session before
-    // starting operation spans, rather than charging initial readiness to the
-    // first write's timeout.
-    try {
-        while (!token && context.ShouldContinue()) {
-            TWriteEvent event;
-            const auto readyDeadline = userver::engine::Deadline::FromDuration(
-                std::chrono::microseconds(options.WriteTimeout.MicroSeconds()));
-            if (!eventConsumer.Pop(event, readyDeadline)) {
-                continue;
-            }
-            bool unusedAck = false;
-            if (!HandleTopicWriteEvent(event, token, std::nullopt, unusedAck, context)) {
-                break;
-            }
+  const std::int64_t IntervalMicros_;
+  std::atomic<std::int64_t> NextMicros_;
+};
+
+class TTopicWriters {
+public:
+  TTopicWriters(userver::ydb::TopicClient &client, TTopicRunContext &context,
+                TTopicRateLimiter &limiter)
+      : Client_(client), Context_(context), Limiter_(limiter) {}
+
+  userver::engine::TaskWithResult<void> Run(std::stop_token stopToken) {
+    return userver::engine::AsyncNoTracing([this, stopToken] {
+      std::vector<userver::engine::TaskWithResult<void>> writers;
+      writers.reserve(Context_.GetOptions().WriterCount);
+      for (std::uint32_t i = 0; i < Context_.GetOptions().WriterCount; ++i) {
+        writers.push_back(userver::engine::AsyncNoTracing(
+            [this, i, stopToken] { RunWriter(i, stopToken); }));
+      }
+
+      try {
+        userver::engine::GetAll(writers);
+      } catch (const std::exception &e) {
+        if (!stopToken.stop_requested()) {
+          Context_.Fail(TStringBuilder()
+                        << "topic writer group failed: " << e.what());
         }
-    } catch (const userver::ydb::OperationCancelledError&) {
-        if (context.ShouldContinue()) {
-            context.Fail(TStringBuilder()
-                << "write session initialization was cancelled for writer " << writerIndex);
-        }
-    } catch (const std::exception& e) {
-        context.Fail(TStringBuilder()
-            << "write session initialization failed for writer " << writerIndex
-            << ": " << e.what());
-    }
+      }
+    });
+  }
 
-    if (token && context.ShouldContinue()) {
-        readyWriters.fetch_add(1);
-        while (readyWriters.load() < options.WriterCount && context.ShouldContinue()) {
-            userver::engine::SleepFor(std::chrono::milliseconds(1));
-        }
-    }
-
-    while (context.ShouldContinue()) {
-        limiter.Wait(sleep);
-        if (!context.ShouldContinue()) {
-            break;
-        }
-
-        const std::string payload = ToString(seqNo);
-        TWriteMessage message(payload);
-        message.SeqNo(seqNo).CreateTimestamp(TInstant::Now());
-        auto stat = context.StartWrite();
-        try {
-            const auto operationDeadline = userver::engine::Deadline::FromDuration(
-                std::chrono::microseconds(options.WriteTimeout.MicroSeconds()));
-            bool unusedAck = false;
-            while (!token && context.ShouldContinue()) {
-                TWriteEvent event;
-                if (!eventConsumer.Pop(event, operationDeadline)) {
-                    break;
-                }
-                if (!HandleTopicWriteEvent(event, token, std::nullopt, unusedAck, context)) {
-                    break;
-                }
-            }
-
-            if (!token) {
-                if (context.Failed()) {
-                    context.FinishWrite(stat, ErrorStatus());
-                    break;
-                }
-                if (!context.ShouldContinue()) {
-                    context.CancelWrite(stat);
-                    break;
-                }
-                context.FinishWrite(stat, TFinalStatus{});
-                continue;
-            }
-
-            const std::uint64_t submittedSeqNo = seqNo++;
-            session->Write(std::move(*token), std::move(message));
-            token.reset();
-
-            bool acked = false;
-            while (!acked && context.ShouldContinue()) {
-                TWriteEvent event;
-                if (!eventConsumer.Pop(event, operationDeadline)) {
-                    break;
-                }
-                if (!HandleTopicWriteEvent(
-                        event, token, submittedSeqNo, acked, context))
-                {
-                    break;
-                }
-            }
-
-            if (acked) {
-                context.FinishWrite(stat, SuccessStatus());
-            } else if (context.Failed()) {
-                context.FinishWrite(stat, ErrorStatus());
-                break;
-            } else if (!context.ShouldContinue()) {
-                context.CancelWrite(stat);
-                break;
-            } else {
-                context.FinishWrite(stat, TFinalStatus{});
-            }
-        } catch (const userver::ydb::OperationCancelledError&) {
-            context.CancelWrite(stat);
-            if (context.ShouldContinue()) {
-                context.Fail(TStringBuilder() << "write was cancelled at seq_no " << seqNo);
-            }
-            break;
-        } catch (const std::exception& e) {
-            context.FinishWrite(stat, ErrorStatus());
-            context.Fail(TStringBuilder() << "write failed: " << e.what());
-            break;
-        }
-    }
-
-    eventTask.RequestCancel();
-    try {
-        eventTask.Get();
-    } catch (const userver::engine::TaskCancelledException&) {
-        // The event pump may be cancelled before its callable starts.
-    }
+private:
+  void RunWriter(std::uint32_t writerIndex, std::stop_token stopToken) {
+    TTaskStopCallback stopCallback(stopToken);
+    std::optional<userver::ydb::TopicWriteSession> session;
+    std::shared_ptr<TStatUnit> writeStat;
+    std::optional<TContinuationToken> continuationToken;
+    std::optional<std::uint64_t> pendingSeqNo;
+    bool ownFailure = false;
 
     try {
-        if (!session->Close(std::chrono::milliseconds(options.WriteTimeout.MilliSeconds())) &&
-            !context.Failed())
-        {
-            context.Fail("topic write session close timed out");
+      session.emplace(Client_.CreateWriteSession(
+          MakeTopicWriteSettings(Context_.GetOptions(), writerIndex)));
+      std::uint64_t nextSeqNo = 1;
+
+      while (!stopToken.stop_requested()) {
+        if (continuationToken && !pendingSeqNo) {
+          if (!Limiter_.Acquire(stopToken)) {
+            break;
+          }
+
+          const std::uint64_t seqNo = nextSeqNo++;
+          TWriteMessage message(ToString(seqNo));
+          message.SeqNo(seqNo).CreateTimestamp(TInstant::Now());
+          writeStat = Context_.StartWrite();
+          session->Write(std::move(*continuationToken), std::move(message));
+          continuationToken.reset();
+          pendingSeqNo = seqNo;
+          continue;
         }
-    } catch (const std::exception& e) {
-        context.Fail(TStringBuilder() << "topic write session close failed: " << e.what());
+
+        auto event = session->GetEvent();
+        if (stopToken.stop_requested()) {
+          break;
+        }
+
+        bool acked = false;
+        if (!HandleTopicWriteEvent(event, continuationToken, pendingSeqNo,
+                                   acked, Context_)) {
+          ownFailure = true;
+          break;
+        }
+        if (acked && writeStat) {
+          Context_.FinishWrite(writeStat, true);
+          writeStat.reset();
+          pendingSeqNo.reset();
+        }
+      }
+    } catch (const std::exception &e) {
+      if (!stopToken.stop_requested()) {
+        ownFailure = true;
+        Context_.Fail(TStringBuilder() << "topic writer " << writerIndex
+                                       << " failed: " << e.what());
+      }
     }
-}
+
+    if (writeStat) {
+      if (ownFailure) {
+        Context_.FinishWrite(writeStat, false);
+      } else {
+        Context_.CancelWrite(writeStat);
+      }
+    }
+    if (session) {
+      try {
+        session->Close(0ms);
+      } catch (const std::exception &) {
+      }
+    }
+  }
+
+  userver::ydb::TopicClient &Client_;
+  TTopicRunContext &Context_;
+  TTopicRateLimiter &Limiter_;
+};
+
+class TTopicReaders {
+public:
+  TTopicReaders(userver::ydb::TopicClient &client, TTopicRunContext &context)
+      : Client_(client), Context_(context) {}
+
+  userver::engine::TaskWithResult<void> Run(std::stop_token stopToken) {
+    return userver::engine::AsyncNoTracing([this, stopToken] {
+      std::vector<userver::engine::TaskWithResult<void>> readers;
+      readers.reserve(Context_.GetOptions().ReaderCount);
+      for (std::uint32_t i = 0; i < Context_.GetOptions().ReaderCount; ++i) {
+        readers.push_back(userver::engine::AsyncNoTracing(
+            [this, i, stopToken] { RunReader(i, stopToken); }));
+      }
+
+      try {
+        userver::engine::GetAll(readers);
+      } catch (const std::exception &e) {
+        if (!stopToken.stop_requested()) {
+          Context_.Fail(TStringBuilder()
+                        << "topic reader group failed: " << e.what());
+        }
+      }
+    });
+  }
+
+private:
+  void RunReader(std::uint32_t readerIndex, std::stop_token stopToken) {
+    TTaskStopCallback stopCallback(stopToken);
+    std::optional<userver::ydb::TopicReadSession> session;
+
+    try {
+      session.emplace(Client_.CreateReadSession(
+          MakeTopicReadSettings(Context_.GetOptions())));
+      while (!stopToken.stop_requested()) {
+        auto events = session->GetEvents();
+        if (stopToken.stop_requested()) {
+          break;
+        }
+
+        for (auto &event : events) {
+          if (!HandleTopicReadEvent(event, Context_)) {
+            break;
+          }
+        }
+      }
+    } catch (const std::exception &e) {
+      if (!stopToken.stop_requested()) {
+        Context_.Fail(TStringBuilder() << "topic reader " << readerIndex
+                                       << " failed: " << e.what());
+      }
+    }
+
+    if (session) {
+      try {
+        session->Close(0ms);
+      } catch (const std::exception &) {
+      }
+    }
+  }
+
+  userver::ydb::TopicClient &Client_;
+  TTopicRunContext &Context_;
+};
 
 } // namespace
 
-int DoRun(TDatabaseOptions& dbOptions, int argc, char** argv) {
-    TTopicOptions options(dbOptions);
-    if (!ParseTopicOptions(argc, argv, options)) {
-        return EXIT_FAILURE;
-    }
+int DoRun(TDatabaseOptions &dbOptions, int argc, char **argv) {
+  TTopicOptions options(dbOptions);
+  if (!ParseTopicOptions(argc, argv, options)) {
+    return EXIT_FAILURE;
+  }
 
-    auto& userverClient = userver_slo::GetTopicClient();
-    TTopicRunContext context(options);
-    std::vector<userver::engine::TaskWithResult<void>> readers;
-    std::vector<userver::engine::TaskWithResult<void>> writers;
-    readers.reserve(options.ReaderCount);
-    writers.reserve(options.WriterCount);
-    TTopicRateLimiter limiter(options.WriteRps);
-    std::atomic<std::uint32_t> readyWriters{0};
+  std::stop_source stopSource;
+  auto &client = userver_slo::GetTopicClient();
+  TTopicRunContext context(options, stopSource);
+  TTopicRateLimiter limiter(options.WriteRps);
+  TTopicReaders readers(client, context);
+  TTopicWriters writers(client, context, limiter);
 
-    context.Start();
-    for (std::uint32_t i = 0; i < options.ReaderCount; ++i) {
-        auto session = std::make_unique<TUserverTopicReadSession>(
-            userverClient.CreateReadSession(MakeTopicReadSettings(options)));
-        readers.push_back(userver::engine::AsyncNoTracing(
-            [&context, session = std::move(session)]() mutable {
-                context.RunReader(std::move(session));
-            }));
-    }
-    for (std::uint32_t i = 0; i < options.WriterCount; ++i) {
-        writers.push_back(userver::engine::AsyncNoTracing(
-            [&userverClient, &context, &limiter, &readyWriters, i] {
-                try {
-                    RunUserverTopicWriter(userverClient, i, context, limiter, readyWriters);
-                } catch (const std::exception& e) {
-                    context.Fail(TStringBuilder()
-                        << "topic writer " << i << " failed: " << e.what());
-                }
-            }));
-    }
+  context.Start();
+  auto stopTask =
+      userver::engine::AsyncNoTracing([stopSource, &options]() mutable {
+        userver::engine::InterruptibleSleepFor(
+            std::chrono::seconds(options.SecondsToRun));
+        stopSource.request_stop();
+      });
+  auto readerTask = readers.Run(stopSource.get_token());
+  auto writerTask = writers.Run(stopSource.get_token());
 
-    userver::engine::GetAll(writers);
-    for (auto& reader : readers) {
-        reader.RequestCancel();
+  try {
+    const auto status = userver::engine::WaitAllCheckedFor(
+        std::chrono::seconds(options.SecondsToRun) + 60s, readerTask,
+        writerTask);
+    if (status != userver::engine::FutureStatus::kReady) {
+      context.Fail("topic workers did not stop within 60 seconds");
+      readerTask.RequestCancel();
+      writerTask.RequestCancel();
     }
-    userver::engine::GetAll(readers);
-    context.Finish();
-    return context.Failed() ? EXIT_FAILURE : EXIT_SUCCESS;
+    userver::engine::GetAll(readerTask, writerTask);
+  } catch (const std::exception &e) {
+    if (!context.Failed()) {
+      context.Fail(TStringBuilder() << "topic workload failed: " << e.what());
+    }
+    if (readerTask.IsValid()) {
+      readerTask.SyncCancel();
+    }
+    if (writerTask.IsValid()) {
+      writerTask.SyncCancel();
+    }
+  }
+
+  stopTask.SyncCancel();
+  context.Finish();
+  return context.Failed() ? EXIT_FAILURE : EXIT_SUCCESS;
 }

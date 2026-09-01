@@ -5,108 +5,73 @@
 
 #include <ydb-cpp-sdk/client/topic/client.h>
 
-#include <atomic>
-#include <chrono>
-#include <functional>
+#include <cstdint>
 #include <memory>
-#include <mutex>
 #include <optional>
+#include <stop_token>
 #include <string>
-#include <vector>
 
 struct TTopicOptions {
-    explicit TTopicOptions(const TDatabaseOptions& databaseOptions)
-        : DatabaseOptions(databaseOptions)
-    {}
+  explicit TTopicOptions(const TDatabaseOptions &databaseOptions)
+      : DatabaseOptions(databaseOptions) {}
 
-    TDatabaseOptions DatabaseOptions;
-    std::uint32_t SecondsToRun = 10;
-    std::uint32_t WriteRps = 1000;
-    TDuration WriteTimeout = TDuration::Seconds(5);
-    TDuration DeliveryTimeout = TDuration::Seconds(5);
-    TDuration CommitTimeout = TDuration::Seconds(5);
-    std::uint32_t PartitionCount = 10;
-    std::string ConsumerName = "slo-consumer";
-    std::uint32_t ReaderCount = 5;
-    std::string ProducerIdPrefix = "producer";
-    std::uint32_t WriterCount = 20;
-    bool DontPushMetrics = false;
-    std::string MetricsPushUrl = "http://localhost:9090/api/v1/otlp/v1/metrics";
-    std::string TopicPath;
-};
-
-enum class ETopicWaitResult {
-    Events,
-    Timeout,
-    Cancelled,
-};
-
-class ITopicReadSession {
-public:
-    virtual ~ITopicReadSession() = default;
-
-    virtual ETopicWaitResult WaitEvents(
-        TDuration timeout,
-        std::vector<NYdb::NTopic::TReadSessionEvent::TEvent>& events) = 0;
-    virtual void Close(TDuration timeout) = 0;
+  TDatabaseOptions DatabaseOptions;
+  std::uint32_t SecondsToRun = 10;
+  std::uint32_t WriteRps = 1000;
+  std::uint32_t PartitionCount = 10;
+  std::string ConsumerName = "slo-consumer";
+  std::uint32_t ReaderCount = 5;
+  std::string ProducerIdPrefix = "producer";
+  std::uint32_t WriterCount = 20;
+  bool DontPushMetrics = false;
+  std::string MetricsPushUrl = "http://localhost:9090/api/v1/otlp/v1/metrics";
+  std::string TopicPath;
 };
 
 class TTopicRunContext {
 public:
-    explicit TTopicRunContext(const TTopicOptions& options);
-    ~TTopicRunContext();
+  TTopicRunContext(const TTopicOptions &options, std::stop_source stopSource);
+  ~TTopicRunContext();
 
-    const TTopicOptions& GetOptions() const;
-    bool ShouldContinue() const;
-    void Fail(std::string message);
-    bool Failed() const;
+  const TTopicOptions &GetOptions() const;
+  void Fail(std::string message);
+  bool Failed() const;
 
-    void Start();
-    void Finish();
-    void RunReader(std::unique_ptr<ITopicReadSession> session);
-    std::shared_ptr<TStatUnit> StartWrite();
-    void FinishWrite(const std::shared_ptr<TStatUnit>& stat, const TFinalStatus& status);
-    void CancelWrite(const std::shared_ptr<TStatUnit>& stat);
+  void Start();
+  void Finish();
 
-private:
-    struct TImpl;
-    std::unique_ptr<TImpl> Impl_;
-};
+  std::shared_ptr<TStatUnit> StartRead();
+  void FinishRead(const std::shared_ptr<TStatUnit> &stat, bool success);
+  void CancelRead(const std::shared_ptr<TStatUnit> &stat);
 
-using TTopicSleep = std::function<void(TDuration)>;
+  std::shared_ptr<TStatUnit> StartWrite();
+  void FinishWrite(const std::shared_ptr<TStatUnit> &stat, bool success);
+  void CancelWrite(const std::shared_ptr<TStatUnit> &stat);
 
-class TTopicRateLimiter {
-public:
-    explicit TTopicRateLimiter(std::uint32_t rps);
-
-    void Wait(const TTopicSleep& sleep);
+  bool
+  ProcessDataEvent(NYdb::NTopic::TReadSessionEvent::TDataReceivedEvent &event);
 
 private:
-    using TClock = std::chrono::steady_clock;
-
-    const std::chrono::microseconds Interval_;
-    TClock::time_point Next_;
-    std::mutex Mutex_;
+  struct TImpl;
+  std::unique_ptr<TImpl> Impl_;
 };
 
-bool ParseTopicOptions(int argc, char** argv, TTopicOptions& options);
-NYdb::NTopic::TReadSessionSettings MakeTopicReadSettings(const TTopicOptions& options);
+bool ParseTopicOptions(int argc, char **argv, TTopicOptions &options);
+
+NYdb::NTopic::TReadSessionSettings
+MakeTopicReadSettings(const TTopicOptions &options);
+NYdb::NTopic::TWriteSessionSettings
+MakeTopicWriteSettings(const TTopicOptions &options, std::uint32_t writerIndex);
+
+bool HandleTopicReadEvent(NYdb::NTopic::TReadSessionEvent::TEvent &event,
+                          TTopicRunContext &context);
 
 bool HandleTopicWriteEvent(
-    NYdb::NTopic::TWriteSessionEvent::TEvent& event,
-    std::optional<NYdb::NTopic::TContinuationToken>& token,
-    std::optional<std::uint64_t> expectedAck,
-    bool& acked,
-    TTopicRunContext& context);
+    NYdb::NTopic::TWriteSessionEvent::TEvent &event,
+    std::optional<NYdb::NTopic::TContinuationToken> &token,
+    std::optional<std::uint64_t> expectedAck, bool &acked,
+    TTopicRunContext &context);
 
-void RunTopicWriter(
-    NYdb::NTopic::TTopicClient& client,
-    std::uint32_t writerIndex,
-    TTopicRunContext& context,
-    TTopicRateLimiter& limiter,
-    std::atomic<std::uint32_t>& readyWriters,
-    const TTopicSleep& sleep);
-
-int DoCreate(TDatabaseOptions& dbOptions, int argc, char** argv);
-int DoRun(TDatabaseOptions& dbOptions, int argc, char** argv);
-int DoCleanup(TDatabaseOptions& dbOptions, int argc);
+int DoCreate(TDatabaseOptions &dbOptions, int argc, char **argv);
+int DoRun(TDatabaseOptions &dbOptions, int argc, char **argv);
+int DoCleanup(TDatabaseOptions &dbOptions, int argc);
