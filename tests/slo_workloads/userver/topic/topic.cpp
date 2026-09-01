@@ -6,8 +6,6 @@
 #include <userver/engine/future_status.hpp>
 #include <userver/engine/get_all.hpp>
 #include <userver/engine/sleep.hpp>
-#include <userver/engine/task/cancel.hpp>
-#include <userver/engine/task/current_task.hpp>
 #include <userver/engine/task/task_with_result.hpp>
 #include <userver/engine/wait_all_checked.hpp>
 #include <userver/ydb/topic.hpp>
@@ -32,36 +30,13 @@ namespace {
 using TClock = std::chrono::steady_clock;
 using namespace std::chrono_literals;
 
-class TTaskStopCallback {
-public:
-  explicit TTaskStopCallback(std::stop_token stopToken)
-      : CancellationToken_(
-            userver::engine::current_task::GetCancellationToken()),
-        Callback_(stopToken, TCallback{CancellationToken_}) {}
-
-private:
-  struct TCallback {
-    userver::engine::TaskCancellationToken CancellationToken;
-
-    void operator()() noexcept {
-      try {
-        CancellationToken.RequestCancel();
-      } catch (...) {
-      }
-    }
-  };
-
-  userver::engine::TaskCancellationToken CancellationToken_;
-  std::stop_callback<TCallback> Callback_;
-};
-
 class TTopicRateLimiter {
 public:
   explicit TTopicRateLimiter(std::uint32_t rps)
       : IntervalMicros_(std::max<std::uint64_t>(1, 1'000'000 / rps)),
         NextMicros_(NowMicros()) {}
 
-  bool Acquire(std::stop_token stopToken) {
+  void Acquire() {
     std::int64_t current = NextMicros_.load();
     std::int64_t scheduled;
     do {
@@ -71,7 +46,6 @@ public:
 
     userver::engine::InterruptibleSleepUntil(
         TClock::time_point(std::chrono::microseconds(scheduled)));
-    return !stopToken.stop_requested();
   }
 
 private:
@@ -113,7 +87,6 @@ public:
 
 private:
   void RunWriter(std::uint32_t writerIndex, std::stop_token stopToken) {
-    TTaskStopCallback stopCallback(stopToken);
     std::optional<userver::ydb::TopicWriteSession> session;
     std::shared_ptr<TStatUnit> writeStat;
     std::optional<TContinuationToken> continuationToken;
@@ -127,9 +100,7 @@ private:
 
       while (!stopToken.stop_requested()) {
         if (continuationToken && !pendingSeqNo) {
-          if (!Limiter_.Acquire(stopToken)) {
-            break;
-          }
+          Limiter_.Acquire();
 
           const std::uint64_t seqNo = nextSeqNo++;
           TWriteMessage message(ToString(seqNo));
@@ -142,9 +113,6 @@ private:
         }
 
         auto event = session->GetEvent();
-        if (stopToken.stop_requested()) {
-          break;
-        }
 
         bool acked = false;
         if (!HandleTopicWriteEvent(event, continuationToken, pendingSeqNo,
@@ -213,7 +181,6 @@ public:
 
 private:
   void RunReader(std::uint32_t readerIndex, std::stop_token stopToken) {
-    TTaskStopCallback stopCallback(stopToken);
     std::optional<userver::ydb::TopicReadSession> session;
 
     try {
@@ -221,9 +188,6 @@ private:
           MakeTopicReadSettings(Context_.GetOptions())));
       while (!stopToken.stop_requested()) {
         auto events = session->GetEvents();
-        if (stopToken.stop_requested()) {
-          break;
-        }
 
         for (auto &event : events) {
           if (!HandleTopicReadEvent(event, Context_)) {
