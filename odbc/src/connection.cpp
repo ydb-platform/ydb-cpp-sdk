@@ -272,6 +272,13 @@ const std::string& TConnection::GetDbmsVersion() {
                 NQuery::TTxControl::NoTx(),
                 NYdb::TParamsBuilder().Build()).ExtractValueSync();
             if (!result.IsSuccess()) {
+                // Version() is unavailable on YDB 24.1 and 24.2. SQL_DBMS_VER is
+                // mandatory metadata, so report an unknown version on those servers.
+                const auto issues = result.GetIssues().ToOneLineString();
+                if (issues.find("Unknown builtin: Version") != std::string::npos) {
+                    fetched = "00.00.0000";
+                    return NYdb::TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
+                }
                 return result;
             }
             if (result.GetResultSets().empty()) {
