@@ -12,7 +12,6 @@
 #include <atomic>
 #include <cctype>
 #include <mutex>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -76,9 +75,6 @@ struct TTopicRunContext::TImpl {
   std::atomic<bool> Failure{false};
   std::mutex FailureMutex;
   std::string FailureMessage;
-
-  std::mutex SequenceMutex;
-  std::unordered_map<std::string, std::uint64_t> ProducerSeqNos;
 };
 
 TTopicRunContext::TTopicRunContext(const TTopicOptions &options,
@@ -153,33 +149,7 @@ bool TTopicRunContext::ProcessDataEvent(
   std::optional<std::string> error;
 
   try {
-    std::lock_guard lock(Impl_->SequenceMutex);
     for (const auto &message : event.GetMessages()) {
-      const std::uint64_t seqNo = message.GetSeqNo();
-      if (message.GetData() != ToString(seqNo)) {
-        error = TStringBuilder() << "payload mismatch for seq_no " << seqNo;
-        break;
-      }
-
-      const std::string &producerId = message.GetProducerId();
-      auto [it, inserted] = Impl_->ProducerSeqNos.emplace(producerId, seqNo);
-      if (inserted) {
-        if (seqNo != 1) {
-          error = TStringBuilder()
-                  << "producer " << producerId << " starts at seq_no " << seqNo;
-          break;
-        }
-      } else if (seqNo > it->second + 1) {
-        error = TStringBuilder()
-                << "producer " << producerId << " expected seq_no "
-                << it->second + 1 << ", got " << seqNo;
-        break;
-      } else if (seqNo == it->second + 1) {
-        it->second = seqNo;
-      } else {
-        continue;
-      }
-
       const TInstant createdAt = message.GetCreateTime();
       const TInstant now = TInstant::Now();
       if (createdAt == TInstant::Zero()) {
@@ -331,7 +301,6 @@ bool HandleTopicReadEvent(TReadSessionEvent::TEvent &event,
 
 bool HandleTopicWriteEvent(TWriteSessionEvent::TEvent &event,
                            std::optional<TContinuationToken> &token,
-                           std::optional<std::uint64_t> expectedAck,
                            bool &acked, TTopicRunContext &context) {
   if (auto *ready =
           std::get_if<TWriteSessionEvent::TReadyToAcceptEvent>(&event)) {
@@ -345,20 +314,10 @@ bool HandleTopicWriteEvent(TWriteSessionEvent::TEvent &event,
 
   if (auto *acks = std::get_if<TWriteSessionEvent::TAcksEvent>(&event)) {
     for (const auto &ack : acks->Acks) {
-      if (!expectedAck || ack.SeqNo < *expectedAck) {
-        continue;
-      }
-      if (ack.SeqNo > *expectedAck) {
-        context.Fail(TStringBuilder()
-                     << "unexpected write ack for seq_no " << ack.SeqNo
-                     << ", expected " << *expectedAck);
-        return false;
-      }
       if (ack.State != TWriteSessionEvent::TWriteAck::EES_WRITTEN &&
           ack.State != TWriteSessionEvent::TWriteAck::EES_ALREADY_WRITTEN) {
-        context.Fail(TStringBuilder()
-                     << "write was not persisted at seq_no " << ack.SeqNo
-                     << ", ack state " << static_cast<int>(ack.State));
+        context.Fail(TStringBuilder() << "write was not persisted, ack state "
+                                      << static_cast<int>(ack.State));
         return false;
       }
       acked = true;

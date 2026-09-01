@@ -4,7 +4,6 @@
 #include <library/cpp/threading/future/wait/wait.h>
 
 #include <util/string/builder.h>
-#include <util/string/cast.h>
 
 #include <chrono>
 #include <cstdint>
@@ -52,23 +51,18 @@ private:
     auto &session = Sessions_[writerIndex];
     std::shared_ptr<TStatUnit> writeStat;
     std::optional<TContinuationToken> continuationToken;
-    std::optional<std::uint64_t> pendingSeqNo;
     bool ownFailure = false;
 
     try {
       session = Client_.CreateWriteSession(
           MakeTopicWriteSettings(Context_.GetOptions(), writerIndex));
-      std::uint64_t nextSeqNo = 1;
 
       while (!stopToken.stop_requested()) {
-        if (continuationToken && !pendingSeqNo) {
-          const std::uint64_t seqNo = nextSeqNo++;
-          TWriteMessage message(ToString(seqNo));
-          message.SeqNo(seqNo).CreateTimestamp(TInstant::Now());
+        if (continuationToken && !writeStat) {
           writeStat = Context_.StartWrite();
-          session->Write(std::move(*continuationToken), std::move(message));
+          session->Write(std::move(*continuationToken),
+                         TWriteMessage("message"));
           continuationToken.reset();
-          pendingSeqNo = seqNo;
           continue;
         }
 
@@ -77,8 +71,8 @@ private:
 
         bool acked = false;
         for (auto &event : session->GetEvents(false)) {
-          if (!HandleTopicWriteEvent(event, continuationToken, pendingSeqNo,
-                                     acked, Context_)) {
+          if (!HandleTopicWriteEvent(event, continuationToken, acked,
+                                     Context_)) {
             ownFailure = true;
             break;
           }
@@ -86,7 +80,6 @@ private:
         if (acked && writeStat) {
           Context_.FinishWrite(writeStat, true);
           writeStat.reset();
-          pendingSeqNo.reset();
         }
         if (ownFailure) {
           break;

@@ -67,8 +67,7 @@ bool HandleTopicReadEvent(NYdb::NTopic::TReadSessionEvent::TEvent &event,
 
 bool HandleTopicWriteEvent(
     NYdb::NTopic::TWriteSessionEvent::TEvent &event,
-    std::optional<NYdb::NTopic::TContinuationToken> &token,
-    std::optional<std::uint64_t> expectedAck, bool &acked,
+    std::optional<NYdb::NTopic::TContinuationToken> &token, bool &acked,
     TTopicRunContext &context);
 
 int DoCreate(TDatabaseOptions &dbOptions, int argc, char **argv);
