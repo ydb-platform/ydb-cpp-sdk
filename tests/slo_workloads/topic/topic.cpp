@@ -169,13 +169,15 @@ bool TTopicRunContext::ProcessDataEvent(
                   << "producer " << producerId << " starts at seq_no " << seqNo;
           break;
         }
-      } else if (seqNo != it->second + 1) {
+      } else if (seqNo > it->second + 1) {
         error = TStringBuilder()
                 << "producer " << producerId << " expected seq_no "
                 << it->second + 1 << ", got " << seqNo;
         break;
-      } else {
+      } else if (seqNo == it->second + 1) {
         it->second = seqNo;
+      } else {
+        continue;
       }
 
       const TInstant createdAt = message.GetCreateTime();
