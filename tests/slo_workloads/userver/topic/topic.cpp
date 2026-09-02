@@ -60,7 +60,8 @@ private:
 
     try {
       session.emplace(Client_.CreateWriteSession(
-          MakeTopicWriteSettings(Context_.GetOptions(), writerIndex)));
+          MakeTopicWriteSettings(Context_.GetOptions(), writerIndex,
+                                 [this] { Context_.RecordWriteRetry(); })));
 
       while (!stopToken.stop_requested()) {
         if (continuationToken && !writeStat) {
@@ -78,7 +79,11 @@ private:
           ownFailure = true;
           break;
         }
-        if (acked && writeStat) {
+        if (acked && !writeStat) {
+          ownFailure = true;
+          Context_.Fail("write session acknowledged no pending message");
+          break;
+        } else if (acked) {
           Context_.FinishWrite(writeStat, true);
           writeStat.reset();
         }
@@ -140,8 +145,8 @@ private:
     std::optional<userver::ydb::TopicReadSession> session;
 
     try {
-      session.emplace(Client_.CreateReadSession(
-          MakeTopicReadSettings(Context_.GetOptions())));
+      session.emplace(Client_.CreateReadSession(MakeTopicReadSettings(
+          Context_.GetOptions(), [this] { Context_.RecordReadRetry(); })));
       while (!stopToken.stop_requested()) {
         auto events = session->GetEvents();
 
@@ -185,10 +190,10 @@ int DoRun(TDatabaseOptions &dbOptions, int argc, char **argv) {
   TTopicWriters writers(client, context);
 
   context.Start();
-  auto stopTask =
-      userver::engine::AsyncNoTracing([stopSource, &options]() mutable {
+  auto stopTask = userver::engine::AsyncNoTracing(
+      [stopSource, secondsToRun = options.SecondsToRun]() mutable {
         userver::engine::InterruptibleSleepFor(
-            std::chrono::seconds(options.SecondsToRun));
+            std::chrono::seconds(secondsToRun));
         stopSource.request_stop();
       });
   auto readerTask = readers.Run(stopSource.get_token());

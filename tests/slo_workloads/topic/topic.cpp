@@ -12,6 +12,7 @@
 #include <atomic>
 #include <cctype>
 #include <mutex>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -48,6 +49,49 @@ std::string MakeTopicPath(const TDatabaseOptions &dbOptions) {
                                         SanitizePathPart(ref) + "-topic");
 }
 
+using TTopicRetryPolicy = NYdb::NTopic::IRetryPolicy;
+
+class TCountingRetryPolicy final : public TTopicRetryPolicy {
+private:
+  class TState final : public TTopicRetryPolicy::IRetryState {
+  public:
+    TState(TTopicRetryPolicy::IRetryState::TPtr state,
+           TTopicRetryCallback retryCallback)
+        : State_(std::move(state)), RetryCallback_(std::move(retryCallback)) {}
+
+    TMaybe<TDuration> GetNextRetryDelay(EStatus status) override {
+      auto delay = State_->GetNextRetryDelay(status);
+      if (delay) {
+        RetryCallback_();
+      }
+      return delay;
+    }
+
+  private:
+    TTopicRetryPolicy::IRetryState::TPtr State_;
+    TTopicRetryCallback RetryCallback_;
+  };
+
+public:
+  explicit TCountingRetryPolicy(TTopicRetryCallback retryCallback)
+      : Policy_(TTopicRetryPolicy::GetDefaultPolicy()),
+        RetryCallback_(std::move(retryCallback)) {}
+
+  TTopicRetryPolicy::IRetryState::TPtr CreateRetryState() const override {
+    return std::make_unique<TState>(Policy_->CreateRetryState(),
+                                    RetryCallback_);
+  }
+
+private:
+  TTopicRetryPolicy::TPtr Policy_;
+  TTopicRetryCallback RetryCallback_;
+};
+
+TTopicRetryPolicy::TPtr
+MakeCountingRetryPolicy(TTopicRetryCallback retryCallback) {
+  return std::make_shared<TCountingRetryPolicy>(std::move(retryCallback));
+}
+
 } // namespace
 
 struct TTopicRunContext::TImpl {
@@ -60,17 +104,15 @@ struct TTopicRunContext::TImpl {
         WriteStats(options.DontPushMetrics
                        ? std::nullopt
                        : std::make_optional(options.MetricsPushUrl),
-                   "write"),
-        E2eMetrics(options.DontPushMetrics
-                       ? CreateNoopMetricsPusher()
-                       : CreateOtelMetricsPusher(options.MetricsPushUrl,
-                                                 "topic_e2e")) {}
+                   "write") {}
 
   TTopicOptions Options;
   std::stop_source StopSource;
   TStat ReadStats;
   TStat WriteStats;
-  std::unique_ptr<IMetricsPusher> E2eMetrics;
+
+  std::mutex DeliveryMutex;
+  std::unordered_map<std::uint64_t, std::uint64_t> LastOffsets;
 
   std::atomic<bool> Failure{false};
   std::mutex FailureMutex;
@@ -108,6 +150,9 @@ void TTopicRunContext::Start() {
 void TTopicRunContext::Finish() {
   Impl_->ReadStats.Finish();
   Impl_->WriteStats.Finish();
+  if (!Impl_->WriteStats.ForceFlushMetrics()) {
+    Fail("failed to flush topic metrics");
+  }
 
   TStringBuilder report;
   report << Endl << "======- Topic read report -======" << Endl;
@@ -122,13 +167,11 @@ std::shared_ptr<TStatUnit> TTopicRunContext::StartRead() {
 }
 
 void TTopicRunContext::FinishRead(const std::shared_ptr<TStatUnit> &stat,
-                                  bool success) {
-  Impl_->ReadStats.FinishRequest(stat, MakeStatus(success));
+                                  bool success, TInstant end) {
+  Impl_->ReadStats.FinishRequest(stat, MakeStatus(success), end);
 }
 
-void TTopicRunContext::CancelRead(const std::shared_ptr<TStatUnit> &stat) {
-  Impl_->ReadStats.CancelRequest(stat);
-}
+void TTopicRunContext::RecordReadRetry() { Impl_->ReadStats.RecordRetry(); }
 
 std::shared_ptr<TStatUnit> TTopicRunContext::StartWrite() {
   return Impl_->WriteStats.StartRequest();
@@ -143,13 +186,25 @@ void TTopicRunContext::CancelWrite(const std::shared_ptr<TStatUnit> &stat) {
   Impl_->WriteStats.CancelRequest(stat);
 }
 
+void TTopicRunContext::RecordWriteRetry() { Impl_->WriteStats.RecordRetry(); }
+
 bool TTopicRunContext::ProcessDataEvent(
     TReadSessionEvent::TDataReceivedEvent &event) {
-  std::vector<TDuration> latencies;
+  struct TDelivery {
+    std::uint64_t Offset;
+    TInstant CreatedAt;
+    TInstant ReceivedAt;
+  };
+
+  std::vector<TDelivery> deliveries;
   std::optional<std::string> error;
 
   try {
     for (const auto &message : event.GetMessages()) {
+      if (message.GetData() != "message") {
+        error = "message has unexpected payload";
+        break;
+      }
       const TInstant createdAt = message.GetCreateTime();
       const TInstant now = TInstant::Now();
       if (createdAt == TInstant::Zero()) {
@@ -160,7 +215,7 @@ bool TTopicRunContext::ProcessDataEvent(
         error = "message creation timestamp is in the future";
         break;
       }
-      latencies.push_back(now - createdAt);
+      deliveries.push_back({message.GetOffset(), createdAt, now});
     }
   } catch (const std::exception &e) {
     error = TStringBuilder() << "message processing failed: " << e.what();
@@ -171,12 +226,29 @@ bool TTopicRunContext::ProcessDataEvent(
     return false;
   }
 
-  for (const TDuration latency : latencies) {
-    Impl_->E2eMetrics->PushRequestData({
-        .Delay = latency,
-        .Status = EStatus::SUCCESS,
-        .RetryAttempts = 0,
-    });
+  std::vector<std::pair<TInstant, TInstant>> newDeliveries;
+  newDeliveries.reserve(deliveries.size());
+  {
+    std::lock_guard lock(Impl_->DeliveryMutex);
+    const auto partitionId = event.GetPartitionSession()->GetPartitionId();
+    auto last = Impl_->LastOffsets.find(partitionId);
+    for (const auto &delivery : deliveries) {
+      if (last != Impl_->LastOffsets.end() && delivery.Offset <= last->second) {
+        continue;
+      }
+      if (last == Impl_->LastOffsets.end()) {
+        last = Impl_->LastOffsets.emplace(partitionId, delivery.Offset).first;
+      } else {
+        last->second = delivery.Offset;
+      }
+      newDeliveries.emplace_back(delivery.CreatedAt, delivery.ReceivedAt);
+    }
+  }
+
+  for (const auto &[createdAt, receivedAt] : newDeliveries) {
+    auto stat = StartRead();
+    stat->Start = createdAt;
+    FinishRead(stat, true, receivedAt);
   }
   return true;
 }
@@ -246,36 +318,37 @@ bool ParseTopicOptions(int argc, char **argv, TTopicOptions &options) {
   return true;
 }
 
-TReadSessionSettings MakeTopicReadSettings(const TTopicOptions &options) {
+TReadSessionSettings MakeTopicReadSettings(const TTopicOptions &options,
+                                           TTopicRetryCallback retryCallback) {
   return TReadSessionSettings()
       .ConsumerName(options.ConsumerName)
-      .AppendTopics(options.TopicPath);
+      .AppendTopics(options.TopicPath)
+      .RetryPolicy(MakeCountingRetryPolicy(std::move(retryCallback)));
 }
 
-TWriteSessionSettings MakeTopicWriteSettings(const TTopicOptions &options,
-                                             std::uint32_t writerIndex) {
+TWriteSessionSettings
+MakeTopicWriteSettings(const TTopicOptions &options, std::uint32_t writerIndex,
+                       TTopicRetryCallback retryCallback) {
   const std::string producerId =
       options.ProducerIdPrefix + "-" + ToString(writerIndex);
   return TWriteSessionSettings()
       .Path(options.TopicPath)
       .ProducerId(producerId)
       .MessageGroupId(producerId)
+      .PartitionId(writerIndex % options.PartitionCount)
+      .RetryPolicy(MakeCountingRetryPolicy(std::move(retryCallback)))
       .Codec(ECodec::RAW);
 }
 
 bool HandleTopicReadEvent(TReadSessionEvent::TEvent &event,
                           TTopicRunContext &context) {
   if (auto *data = std::get_if<TReadSessionEvent::TDataReceivedEvent>(&event)) {
-    auto stat = context.StartRead();
     try {
       if (!context.ProcessDataEvent(*data)) {
-        context.FinishRead(stat, false);
         return false;
       }
       data->Commit();
-      context.FinishRead(stat, true);
     } catch (const std::exception &e) {
-      context.FinishRead(stat, false);
       context.Fail(TStringBuilder() << "read event failed: " << e.what());
       return false;
     }

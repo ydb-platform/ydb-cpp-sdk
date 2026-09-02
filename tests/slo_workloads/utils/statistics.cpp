@@ -55,8 +55,8 @@ std::shared_ptr<TStatUnit> TStat::StartRequest() {
     return unit;
 }
 
-void TStat::FinishRequest(const std::shared_ptr<TStatUnit>& unit, const TFinalStatus& status) {
-    unit->End = TInstant::Now();
+void TStat::FinishRequest(const std::shared_ptr<TStatUnit>& unit, const TFinalStatus& status, TInstant end) {
+    unit->End = end == TInstant::Zero() ? TInstant::Now() : end;
     const auto delay = unit->End - unit->Start;
     const auto retryAttempts = unit->RetryAttempts;
 
@@ -88,6 +88,14 @@ void TStat::FinishRequest(const std::shared_ptr<TStatUnit>& unit, const TFinalSt
 void TStat::CancelRequest([[maybe_unused]] const std::shared_ptr<TStatUnit>& unit) {
     std::lock_guard lock(Mutex);
     --Infly;
+}
+
+void TStat::RecordRetry() {
+    MetricsPusher->PushRetry();
+}
+
+bool TStat::ForceFlushMetrics() {
+    return MetricsPusher->ForceFlush();
 }
 
 void TStat::ReportMaxInfly() {

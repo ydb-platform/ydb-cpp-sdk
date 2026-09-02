@@ -119,7 +119,7 @@ jobs:
             ccache_scope: slo
             target: slo-topic
             binary: tests/slo_workloads/topic/slo-topic
-            command: "--writer-count 20 --reader-count 5"
+            command: "--writer-count 20 --reader-count 5 --partition-count 10"
             metrics_yaml_path: sdk-current/tests/slo_workloads/metrics-topic.yaml
           - name: cpp-topic-userver
             preset: release-test-clang
@@ -129,7 +129,7 @@ jobs:
             ccache_scope: slo-userver
             target: slo-userver-topic
             binary: tests/slo_workloads/userver/topic/slo-userver-topic
-            command: "--writer-count 20 --reader-count 5"
+            command: "--writer-count 20 --reader-count 5 --partition-count 10"
             metrics_yaml_path: sdk-current/tests/slo_workloads/metrics-topic.yaml
 
     concurrency:
@@ -259,8 +259,6 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ matrix.sdk.cache_scope }}-${{ matrix.sdk.preset }}
 
       - name: Build baseline workload image
-        id: baseline-build
-        continue-on-error: true
         uses: docker/build-push-action@v6
         env:
           DOCKER_BUILD_SUMMARY: "false"
@@ -280,12 +278,6 @@ jobs:
             type=gha,scope=${{ matrix.sdk.sdk_cache_scope }}-${{ matrix.sdk.preset }}
             type=gha,scope=${{ matrix.sdk.ccache_scope }}-${{ matrix.sdk.preset }}
           cache-to: type=gha,mode=max,scope=${{ matrix.sdk.cache_scope }}-${{ matrix.sdk.preset }}-baseline
-
-      - name: Fall back to current image for baseline
-        if: steps.baseline-build.outcome == 'failure'
-        run: |
-          echo "Baseline build failed; reusing current image as baseline."
-          docker tag ydb-app-current ydb-app-baseline
 
       - name: Run SLO Tests
         uses: ydb-platform/ydb-slo-action/init@v2

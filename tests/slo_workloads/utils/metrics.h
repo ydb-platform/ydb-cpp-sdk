@@ -16,6 +16,8 @@ public:
     virtual ~IMetricsPusher() = default;
 
     virtual void PushRequestData(const TRequestData& requestData) = 0;
+    virtual void PushRetry() = 0;
+    virtual bool ForceFlush() = 0;
 };
 
 std::unique_ptr<IMetricsPusher> CreateOtelMetricsPusher(const std::string& metricsPushUrl, const std::string& operationType);
