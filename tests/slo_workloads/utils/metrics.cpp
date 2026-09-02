@@ -24,7 +24,7 @@ using namespace std::chrono_literals;
 namespace {
 
 constexpr std::int64_t kHdrMinLatencyNs = 1'000;          // 1 us
-constexpr std::int64_t kHdrMaxLatencyNs = 60'000'000'000; // 60 s
+constexpr std::int64_t kHdrMaxLatencyNs = 900'000'000'000; // 15 min
 constexpr int kHdrSignificantFigures = 3;
 
 // Thread-safe HDR histogram. Only successful latencies are recorded; errors
@@ -153,6 +153,26 @@ public:
         if (success) {
             series.Recorder.Record(data.Delay);
         }
+    }
+
+    void RecordRetry(const std::string& operationType) {
+        if (StubRetry_) {
+            return;
+        }
+        auto& series = GetOrCreateSeries(operationType);
+        RetryAttemptsTotal_->Add(uint64_t{1},
+            opentelemetry::common::MakeKeyValueIterableView(series.RetryAttrs));
+    }
+
+    bool ForceFlush() {
+        {
+            std::shared_lock lock(SeriesMutex_);
+            for (const auto& item : Series_) {
+                std::lock_guard snapshotLock(item.second->SnapshotMutex);
+                item.second->LastSnapshot = {};
+            }
+        }
+        return MeterProvider_->ForceFlush(5s);
     }
 
 private:
@@ -357,6 +377,14 @@ public:
         Shared_->Record(OperationType_, requestData);
     }
 
+    void PushRetry() override {
+        Shared_->RecordRetry(OperationType_);
+    }
+
+    bool ForceFlush() override {
+        return Shared_->ForceFlush();
+    }
+
 private:
     std::shared_ptr<TOtelSharedPusher> Shared_;
     std::string OperationType_;
@@ -365,6 +393,8 @@ private:
 class TNoopMetricsPusher : public IMetricsPusher {
 public:
     void PushRequestData([[maybe_unused]] const TRequestData& requestData) override {}
+    void PushRetry() override {}
+    bool ForceFlush() override { return true; }
 };
 
 } // namespace

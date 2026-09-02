@@ -52,8 +52,11 @@ public:
     void Finish();
 
     std::shared_ptr<TStatUnit> StartRequest();
-    void FinishRequest(const std::shared_ptr<TStatUnit>& unit, const TFinalStatus& status);
+    void FinishRequest(const std::shared_ptr<TStatUnit>& unit, const TFinalStatus& status,
+                       TInstant end = TInstant::Zero());
     void CancelRequest(const std::shared_ptr<TStatUnit>& unit);
+    void RecordRetry();
+    bool ForceFlushMetrics();
 
     void ReportMaxInfly();
     void ReportStats(std::uint64_t sessions, std::uint64_t readPromises, std::uint64_t executorPromises);

@@ -55,7 +55,8 @@ private:
 
     try {
       session = Client_.CreateWriteSession(
-          MakeTopicWriteSettings(Context_.GetOptions(), writerIndex));
+          MakeTopicWriteSettings(Context_.GetOptions(), writerIndex,
+                                 [this] { Context_.RecordWriteRetry(); }));
 
       while (!stopToken.stop_requested()) {
         if (continuationToken && !writeStat) {
@@ -77,7 +78,11 @@ private:
             break;
           }
         }
-        if (acked && writeStat) {
+        if (acked && !writeStat) {
+          ownFailure = true;
+          Context_.Fail("write session acknowledged no pending message");
+          break;
+        } else if (acked) {
           Context_.FinishWrite(writeStat, true);
           writeStat.reset();
         }
@@ -140,8 +145,8 @@ private:
     auto &session = Sessions_[readerIndex];
 
     try {
-      session = Client_.CreateReadSession(
-          MakeTopicReadSettings(Context_.GetOptions()));
+      session = Client_.CreateReadSession(MakeTopicReadSettings(
+          Context_.GetOptions(), [this] { Context_.RecordReadRetry(); }));
       while (!stopToken.stop_requested()) {
         auto eventFuture = session->WaitEvent();
         co_await eventFuture;

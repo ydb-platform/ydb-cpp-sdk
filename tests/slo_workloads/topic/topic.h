@@ -6,6 +6,7 @@
 #include <ydb-cpp-sdk/client/topic/client.h>
 
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <optional>
 #include <stop_token>
@@ -27,6 +28,8 @@ struct TTopicOptions {
   std::string TopicPath;
 };
 
+using TTopicRetryCallback = std::function<void()>;
+
 class TTopicRunContext {
 public:
   TTopicRunContext(const TTopicOptions &options, std::stop_source stopSource);
@@ -40,12 +43,14 @@ public:
   void Finish();
 
   std::shared_ptr<TStatUnit> StartRead();
-  void FinishRead(const std::shared_ptr<TStatUnit> &stat, bool success);
-  void CancelRead(const std::shared_ptr<TStatUnit> &stat);
+  void FinishRead(const std::shared_ptr<TStatUnit> &stat, bool success,
+                  TInstant end = TInstant::Zero());
+  void RecordReadRetry();
 
   std::shared_ptr<TStatUnit> StartWrite();
   void FinishWrite(const std::shared_ptr<TStatUnit> &stat, bool success);
   void CancelWrite(const std::shared_ptr<TStatUnit> &stat);
+  void RecordWriteRetry();
 
   bool
   ProcessDataEvent(NYdb::NTopic::TReadSessionEvent::TDataReceivedEvent &event);
@@ -58,9 +63,11 @@ private:
 bool ParseTopicOptions(int argc, char **argv, TTopicOptions &options);
 
 NYdb::NTopic::TReadSessionSettings
-MakeTopicReadSettings(const TTopicOptions &options);
+MakeTopicReadSettings(const TTopicOptions &options,
+                      TTopicRetryCallback retryCallback);
 NYdb::NTopic::TWriteSessionSettings
-MakeTopicWriteSettings(const TTopicOptions &options, std::uint32_t writerIndex);
+MakeTopicWriteSettings(const TTopicOptions &options, std::uint32_t writerIndex,
+                       TTopicRetryCallback retryCallback);
 
 bool HandleTopicReadEvent(NYdb::NTopic::TReadSessionEvent::TEvent &event,
                           TTopicRunContext &context);
