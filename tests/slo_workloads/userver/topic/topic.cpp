@@ -63,17 +63,16 @@ private:
           MakeTopicWriteSettings(Context_.GetOptions(), writerIndex,
                                  [this] { Context_.RecordWriteRetry(); })));
 
-      while (!stopToken.stop_requested()) {
-        if (continuationToken && !writeStat) {
-          writeStat = Context_.StartWrite();
-          session->Write(std::move(*continuationToken),
-                         TWriteMessage("message"));
-          continuationToken.reset();
-          continue;
+      std::stop_callback closeOnStop(stopToken, [&session]() noexcept {
+        try {
+          session->Close(0ms);
+        } catch (...) {
         }
+      });
 
-        auto event = session->GetEvent();
+      auto event = session->GetEvent();
 
+      while (!stopToken.stop_requested()) {
         bool acked = false;
         if (!HandleTopicWriteEvent(event, continuationToken, acked, Context_)) {
           ownFailure = true;
@@ -87,6 +86,15 @@ private:
           Context_.FinishWrite(writeStat, true);
           writeStat.reset();
         }
+
+        if (continuationToken && !writeStat) {
+          writeStat = Context_.StartWrite();
+          session->Write(std::move(*continuationToken),
+                         TWriteMessage("message"));
+          continuationToken.reset();
+        }
+
+        event = session->GetEvent();
       }
     } catch (const std::exception &e) {
       if (!stopToken.stop_requested()) {
@@ -147,14 +155,24 @@ private:
     try {
       session.emplace(Client_.CreateReadSession(MakeTopicReadSettings(
           Context_.GetOptions(), [this] { Context_.RecordReadRetry(); })));
-      while (!stopToken.stop_requested()) {
-        auto events = session->GetEvents();
 
+      std::stop_callback closeOnStop(stopToken, [&session]() noexcept {
+        try {
+          session->Close(0ms);
+        } catch (...) {
+        }
+      });
+
+      auto events = session->GetEvents();
+
+      while (!stopToken.stop_requested()) {
         for (auto &event : events) {
           if (!HandleTopicReadEvent(event, Context_)) {
             break;
           }
         }
+
+        events = session->GetEvents();
       }
     } catch (const std::exception &e) {
       if (!stopToken.stop_requested()) {
