@@ -430,7 +430,10 @@ static NYdb::TStatus ScanQuerySelect(TTableClient client, const std::string& pat
         .Build();
 
     // Executes scan query
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
     auto resultScanQuery = client.StreamExecuteScanQuery(query, parameters).GetValueSync();
+#pragma GCC diagnostic pop
 
     if (!resultScanQuery.IsSuccess()) {
         return resultScanQuery;

@@ -1768,9 +1768,11 @@ public:
     TAsyncReadRowsResult ReadRows(const std::string& table, TValue&& keys, const std::vector<std::string>& columns = {},
         const TReadRowsSettings& settings = TReadRowsSettings());
 
+    [[deprecated("Use NQuery::TQueryClient::StreamExecuteQuery instead")]]
     TAsyncScanQueryPartIterator StreamExecuteScanQuery(const std::string& query,
         const TStreamExecScanQuerySettings& settings = TStreamExecScanQuerySettings());
 
+    [[deprecated("Use NQuery::TQueryClient::StreamExecuteQuery instead")]]
     TAsyncScanQueryPartIterator StreamExecuteScanQuery(const std::string& query, const TParams& params,
         const TStreamExecScanQuerySettings& settings = TStreamExecScanQuerySettings());
 
