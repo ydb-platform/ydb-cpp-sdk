@@ -1,3 +1,5 @@
+* Deprecated `TTableClient::StreamExecuteScanQuery`, use `NQuery::TQueryClient::StreamExecuteQuery` instead.
+
 # v3.22.0
 
 * Added `IWriteSession::Flush` to asynchronously wait until all previously accepted topic writes are acknowledged.
