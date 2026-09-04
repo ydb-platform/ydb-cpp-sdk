@@ -12,7 +12,7 @@ jobs:
     if: contains(github.event.pull_request.labels.*.name, 'SLO')
 
     name: Cache SLO SDK (${{ matrix.sdk.name }})
-    runs-on: ubuntu-latest
+    runs-on: large-runner-cpp-sdk
     timeout-minutes: 90
 
     strategy:
@@ -86,7 +86,7 @@ jobs:
     needs: sdk-cache
 
     name: Run YDB SLO Tests (${{ matrix.sdk.name }})
-    runs-on: ubuntu-latest
+    runs-on: large-runner-cpp-sdk
     timeout-minutes: 120
 
     strategy:
