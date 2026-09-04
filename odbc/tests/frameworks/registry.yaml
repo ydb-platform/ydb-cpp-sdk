@@ -1,0 +1,204 @@
+schema_version: 2
+ydb:
+  image: ydbplatform/local-ydb:25.2.1@sha256:f65076231c056659f85d5399ae79e98ecc6278dc0f97dbbde3d2d0a1c79d5412
+  endpoint: localhost:2136
+  database: /local
+classifications:
+  - outcome: unsupported
+    reason: Requires Qt's Oracle plugin and Oracle-specific SQL rather than QODBC.
+    tests:
+      qt:
+        - qt.*.qsqldatabase.{oci_tables,recordOCI,oci_serverDetach,oci_xmltypeSupport,oci_fieldLength,oci_synonymstest}
+        - qt.*.qsqlquery.{oci_nullBlob,oci_rawField,oraOutValues,oraClob,oraClobBatch,oraLong,oraOCINumber,oraRowId,oraArrayBind,QTBUG_551,QTBUG_6421,QTBUG_14132,dateTime}
+  - outcome: unsupported
+    reason: Requires Qt's MySQL plugin and MySQL-specific SQL rather than QODBC.
+    tests:
+      qt:
+        - qt.*.qsqldatabase.{recordMySQL,mysql_multiselect,mysql_savepointtest}
+        - qt.*.qsqlquery.{mysql_outValues,mysql_timeType,QTBUG_6852,QTBUG_5765,QTBUG_53969,gisPointDatatype,integralTypesMysql}
+  - outcome: unsupported
+    reason: Requires Qt's PostgreSQL plugin and PostgreSQL-specific SQL rather than QODBC.
+    tests:
+      qt:
+        - qt.*.qsqldatabase.{recordPSQL,infinityAndNan,psql_schemas,psql_escapedIdentifiers,psql_escapeBytea,psql_bug249059}
+        - qt.*.qsqlquery.{psql_forwardOnlyQueryResultsLost,psql_bindWithDoubleColonCastOperator,psql_specialFloatValues,task_233829,QTBUG_12477,QTBUG_5251,QTBUG_36211}
+  - outcome: unsupported
+    reason: Exercises SQL Server or TDS-specific behavior outside the YDB binding contract.
+    tests:
+      qt:
+        - qt.*.qsqldatabase.{errorReporting,recordTDS,recordSQLServer,odbc_uniqueidentifier}
+        - qt.*.qsqlquery.{tds_bitField,sqlServerLongStrings,sqlServerReturn0,QTBUG_6618,QTBUG_18435}
+  - outcome: unsupported
+    reason: Requires Qt's DB2 plugin and DB2-specific behavior rather than QODBC.
+    tests:
+      qt:
+        - qt.*.qsqldatabase.{recordDB2,db2_valueCacheUpdate}
+  - outcome: unsupported
+    reason: Requires Qt's DB2 plugin and DB2-specific SQL rather than QODBC.
+    tests:
+      qt:
+        - qt.*.qsqlquery.outValuesDB2
+  - outcome: unsupported
+    reason: Requires Qt's SQLite plugin and SQLite-specific behavior rather than QODBC.
+    tests:
+      qt:
+        - qt.*.qsqldatabase.{recordSQLite,sqlite_bindAndFetchUInt,sqlite_enable_cache_mode,sqlite_enableRegexp,sqlite_openError,sqlite_check_json1}
+        - qt.*.qsqltablemodel.{insertWithAutoColumn,revert,primaryKeyOrder,sqlite_bigTable,sqlite_attachedDatabase,sqlite_selectFromIdentifierWithDot,modelInAnotherThread}
+  - outcome: unsupported
+    reason: Exercises Microsoft Access-specific behavior rather than YDB ODBC.
+    tests:
+      qt:
+        - qt.*.qsqldatabase.{recordAccess,accessOdbc_strings}
+  - outcome: unsupported
+    reason: Requires Qt's InterBase plugin and InterBase-specific SQL rather than QODBC.
+    tests:
+      qt:
+        - qt.*.qsqldatabase.{recordIBase,ibase_numericFields,ibase_fetchBlobs,ibase_useCustomCharset,ibase_procWithoutReturnValues,ibase_procWithReturnValues}
+        - qt.*.qsqlquery.{storedProceduresIBase,ibase_executeBlock,ibaseArray}
+  - outcome: unsupported
+    reason: Exercises the MySQL ODBC driver rather than the YDB ODBC driver.
+    tests:
+      qt:
+        - qt.*.qsqldatabase.mysqlOdbc_unsignedIntegers
+  - outcome: unsupported
+    reason: Database event notifications are outside the binding contract.
+    tests:
+      qt:
+        - qt.*.qsqldatabase.{eventNotification,eventNotificationIBase,eventNotificationPSQL,eventNotificationSQLite}
+  - outcome: unsupported
+    reason: YDB table paths are outside Qt's whitespace-delimited SQL identifier scenario.
+    tests:
+      qt:
+        - qt.*.qsqldatabase.whitespaceInIdentifiers
+        - qt.*.qsqlrelationaltablemodel.whiteSpaceInIdentifiers
+        - qt.*.qsqltablemodel.whitespaceInIdentifiers
+  - outcome: unsupported
+    reason: Requires Qt's SQLite plugin and SQLite-specific SQL rather than QODBC.
+    tests:
+      qt:
+        - qt.*.qsqlquery.{record_sqlite,sqlite_finish,sqliteVirtualTable,QTBUG_12186,QTBUG_21884,QTBUG_16967,QTBUG_23895,QTBUG_14904,sqlite_constraint,sqlite_real,QTBUG_57138}
+  - outcome: unsupported
+    reason: Exercises non-QODBC backend plugins selected explicitly by the upstream test.
+    tests:
+      qt:
+        - qt.*.qsqlquery.createQueryOnClosedDatabase
+  - outcome: unsupported
+    reason: Stored procedures and output parameters are optional ODBC features outside the binding contract.
+    tests:
+      qt:
+        - qt.*.qsqlquery.outValues
+  - outcome: unsupported
+    reason: Generated-key retrieval is outside the binding contract.
+    tests:
+      qt:
+        - qt.*.qsqlquery.lastInsertId
+  - outcome: unsupported
+    reason: Exercises generic ANSI join syntax instead of the YQL dialect accepted by the driver.
+    tests:
+      qt:
+        - qt.*.qsqlquery.joins
+  - outcome: unsupported
+    reason: Upstream permanently disables this query-level experiment; qsqldatabase.transaction exercises the required transaction contract.
+    tests:
+      qt:
+        - qt.*.qsqlquery.transaction
+  - outcome: unsupported
+    reason: YDB result-set metadata does not carry the base-table origin required for SQL_DESC_BASE_TABLE_NAME.
+    tests:
+      qt:
+        - qt.*.qsqlquery.record
+  - outcome: unsupported
+    reason: The fixture relies on implicit conversion of an ANSI floating-point literal to Decimal; the documented SQL-dialect limitation does not translate arbitrary ANSI coercions into YQL.
+    tests:
+      qt:
+        - qt.*.qsqlquery.precision
+  - outcome: unsupported
+    reason: Requires Qt's PostgreSQL plugin and PostgreSQL schema semantics rather than QODBC.
+    tests:
+      qt:
+        - qt.*.qsqlrelationaltablemodel.psqlSchemaTest
+        - qt.*.qsqltablemodel.tablesAndSchemas
+  - outcome: skipped
+    reason: Qt 6.4 QODBC exposes its BLOB feature only for MySQL; YDB binary binding is covered by native ODBC integration tests.
+    tests:
+      qt:
+        - qt.*.qsqlquery.{blob,blobsPreparedQuery}
+  - outcome: skipped
+    reason: Qt skips its DML assertions when a preceding SELECT returns the ODBC-defined unknown row count; YDB DML counts are covered by native ODBC integration tests.
+    tests:
+      qt:
+        - qt.*.qsqlquery.numRowsAffected
+  - outcome: unsupported
+    reason: The driver exposes one result set per executed statement, so Qt's SQLMoreResults scenarios are unavailable.
+    tests:
+      qt:
+        - qt.*.qsqlquery.{nextResult,forwardOnlyMultipleResultSet}
+  - outcome: unsupported
+    reason: Qt's relational models generate implicit comma joins, which YDB rejects unless implicit Cartesian products are enabled.
+    tests:
+      qt:
+        - qt.*.qsqlrelationaldelegate.comboBoxEditor
+        - qt.*.qsqlrelationaltablemodel.{data,setData,multipleRelation,insertRecord,setRecord,insertWithStrategies,removeColumn,filter,sort,revert,clearDisplayValuesCache,insertRecordDuplicateFieldNames,invalidData,relationModel,casing,escapedRelations,escapedTableName,selectAfterUpdate,relationOnFirstColumn,setRelation}
+  - outcome: unsupported
+    reason: Qt's fixture updates the id column in place, but YDB primary-key columns are immutable.
+    tests:
+      qt:
+        - qt.*.qsqltablemodel.setData
+  - outcome: unsupported
+    reason: Qt's fixture inserts the same id ten times into a table that must have a primary key, and YDB rejects duplicate keys.
+    tests:
+      qt:
+        - qt.*.qsqltablemodel.insertRecordsInLoop
+  - outcome: unsupported
+    reason: Qt removes the model's sole primary-key column before deleting a row, while YDB requires that key to identify the row.
+    tests:
+      qt:
+        - qt.*.qsqltablemodel.removeColumnAndRow
+consumers:
+  - id: package-contract
+    display_name: Debian package contract
+    kind: package
+    language: shell
+    tier: smoke
+    runtime_image: ubuntu:24.04@sha256:019e8eb29a85e74d64925745884f2ec79aa27e3feab36353d24656f4d6b89467
+    runtime_version: [dpkg-query, -W, '-f=${Version}', base-files]
+    runner: package-contract
+    source: system
+    expected:
+      required: [package.clean_install, package.upgrade, package.remove, package.replacement]
+  - id: isql
+    display_name: unixODBC isql
+    kind: smoke
+    language: SQL
+    tier: smoke
+    runtime_image: ubuntu:24.04@sha256:019e8eb29a85e74d64925745884f2ec79aa27e3feab36353d24656f4d6b89467
+    runtime_version: [odbcinst, -j]
+    source: system
+    modes: [dsn]
+    tests:
+      - id: isql.select_scalar
+        name: isql executes a scalar query
+        command: [isql, -b, -v, '{dsn}']
+        stdin: "SELECT 42 AS value;\n"
+        output_regex: '(^|[^0-9])42([^0-9]|$)'
+    expected:
+      required: [isql.select_scalar]
+  - id: qt
+    display_name: Qt 6.4 QODBC upstream SQL tests
+    kind: framework
+    language: C++
+    tier: core
+    runtime_image: ubuntu:24.04@sha256:019e8eb29a85e74d64925745884f2ec79aa27e3feab36353d24656f4d6b89467
+    runtime_version: [qmake6, -query, QT_VERSION]
+    source:
+      kind: archive
+      url: https://codeload.github.com/qt/qtbase/tar.gz/e3e40c44d3f998a433a6a1080297c5f28e9a768f
+      revision: e3e40c44d3f998a433a6a1080297c5f28e9a768f
+      sha256: 31968efe5280ca254b66a60fe2d717e6bc3367e1bd7ff404b256c2a27eb003ba
+      license: GPL-3.0-only WITH Qt-GPL-exception-1.0
+      ci_only: true
+    modes: [dsn, connection_string]
+    expected:
+      discovered: true
+      required:
+        - qt.*.*.*

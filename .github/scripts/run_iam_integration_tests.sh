@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-IAM_REGEX='^(DriverAuth|TMetadataFixture|TJwtIamFixture|TOAuthIamFixture|OAuth_WithFacility)\.'
+IAM_REGEX='^(DriverAuth|TMetadataFixture|TJwtIamFixture|TOAuthIamFixture|OAuth_WithFacility|OdbcAuthentication)\.'
 IAM_CONTAINER_NAME="${IAM_CONTAINER_NAME:-ydb-iam}"
 IAM_CTEST_JOBS="${IAM_CTEST_JOBS:-2}"
 IAM_READY_ATTEMPTS="${IAM_READY_ATTEMPTS:-60}"
@@ -16,7 +16,7 @@ cleanup_iam() {
 wait_for_iam_ydb() {
   for _ in $(seq 1 "${IAM_READY_ATTEMPTS}"); do
     if docker exec -e "YDB_TOKEN=${IAM_TOKEN}" "${IAM_CONTAINER_NAME}" /ydb \
-        --endpoint grpc://localhost:2136 \
+        --endpoint grpc://localhost:2236 \
         --database /local \
         sql -s 'select 1' >/dev/null 2>&1; then
       return 0
@@ -29,12 +29,22 @@ wait_for_iam_ydb() {
   return 1
 }
 
+provision_odbc_static_user() {
+  docker exec -e "YDB_TOKEN=${IAM_TOKEN}" "${IAM_CONTAINER_NAME}" /ydb \
+    --endpoint grpc://localhost:2236 \
+    --database /local \
+    sql -s "CREATE USER odbcauth PASSWORD '12345678'"
+}
+
 trap cleanup_iam EXIT
 cleanup_iam
 
 docker run -d --name "${IAM_CONTAINER_NAME}" --hostname localhost \
-  -p 2235:2135 -p 2236:2136 -p 28765:8765 \
+  -p 2235:2235 -p 2236:2236 -p 28765:28765 \
   -v /tmp/ydb_iam_certs:/ydb_certs \
+  -e GRPC_TLS_PORT=2235 \
+  -e GRPC_PORT=2236 \
+  -e MON_PORT=28765 \
   -e YDB_USE_IN_MEMORY_PDISKS=true \
   -e YDB_TABLE_ENABLE_PREPARED_DDL=true \
   -e YDB_ENFORCE_USER_TOKEN_REQUIREMENT=true \
@@ -42,6 +52,8 @@ docker run -d --name "${IAM_CONTAINER_NAME}" --hostname localhost \
   ghcr.io/ydb-platform/local-ydb:trunk
 
 wait_for_iam_ydb
+provision_odbc_static_user
 
 YDB_ENDPOINT=localhost:2236 YDB_DATABASE=/local \
+YDB_ODBC_STATIC_USER=odbcauth YDB_ODBC_STATIC_PASSWORD=12345678 \
   ctest -j"${IAM_CTEST_JOBS}" --test-dir build -R "${IAM_REGEX}" --output-on-failure
