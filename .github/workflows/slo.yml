@@ -282,6 +282,8 @@ jobs:
       - name: Run SLO Tests
         uses: ydb-platform/ydb-slo-action/init@v2
         timeout-minutes: 30
+        env:
+          BUILDX_BUILDER: default
         with:
           github_issue: ${{ github.event.pull_request.number }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
