@@ -5,6 +5,7 @@
 #include <mutex>
 
 namespace NYdb {
+inline namespace V3 {
 namespace NCoordination {
     struct TDistributedLock::TImpl {
         struct TLockState {
@@ -202,5 +203,6 @@ namespace NCoordination {
     std::stop_token TDistributedLock::getStopToken() const {
         return impl_->LockState->GetStopToken();
     }
+}
 }
 }

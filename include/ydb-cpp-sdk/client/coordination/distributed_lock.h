@@ -2,6 +2,7 @@
 #include <ydb-cpp-sdk/client/coordination/coordination.h>
 #include <stop_token>
 namespace NYdb {
+inline namespace V3 {
 namespace NCoordination {
     struct TYdbLockException : public TYdbException {
         TYdbLockException(const std::string& message) : TYdbException(message) {}
@@ -38,5 +39,6 @@ namespace NCoordination {
         struct TImpl;
         std::unique_ptr<TImpl> impl_;
     };
+}
 }
 }

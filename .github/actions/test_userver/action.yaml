@@ -1,0 +1,182 @@
+name: Test installed SDK with userver
+description: Build current userver with SDK Debian packages and run its YDB tests
+
+inputs:
+  deb-directory:
+    description: Directory containing the SDK Debian packages from this build
+    required: true
+  userver-ref:
+    description: userver branch or commit to test
+    default: develop
+  build-jobs:
+    description: Number of concurrent compiler processes
+    default: '2'
+  ydb-endpoint:
+    description: Running YDB server, as host:port
+    default: localhost:2136
+  ydb-database:
+    description: YDB database name without a leading slash
+    default: local
+
+runs:
+  using: composite
+  steps:
+    - name: Clone latest userver
+      uses: actions/checkout@v4
+      with:
+        repository: userver-framework/userver
+        ref: ${{ inputs.userver-ref }}
+        path: userver
+        persist-credentials: false
+
+    - name: Record tested userver revision
+      shell: bash
+      run: git -C userver log -1 --format='%H %s' | tee userver-revision.txt
+
+    - name: Restore userver dependency and compiler caches
+      uses: actions/cache@v4
+      with:
+        path: |
+          .cache/userver/cpm
+          .cache/userver/ccache
+        key: userver-ubuntu-24.04-clang18-${{ hashFiles('userver/cmake/**') }}-${{ github.run_id }}
+        restore-keys: |
+          userver-ubuntu-24.04-clang18-${{ hashFiles('userver/cmake/**') }}-
+
+    - name: Install userver dependencies and SDK packages
+      shell: bash
+      env:
+        DEB_DIRECTORY: ${{ inputs.deb-directory }}
+      run: |
+        mapfile -t dependencies < <(
+          cat userver/scripts/docs/en/deps/ubuntu-24.04/{universal,core,chaotic,ydb} |
+            sed '/^[[:space:]]*#/d; /^[[:space:]]*$/d' | sort -u
+        )
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends clang-18 lld-18 curl "${dependencies[@]}"
+
+        shopt -s nullglob
+        packages=()
+        for name in yandex-googleapis-api-common-protos libydb-cpp-dev libydb-cpp-iam-dev; do
+          matches=("$DEB_DIRECTORY/${name}_"*.deb)
+          if [[ ${#matches[@]} -ne 1 ]]; then
+            echo "Expected exactly one $name package in $DEB_DIRECTORY" >&2
+            exit 1
+          fi
+          packages+=("$(realpath "${matches[0]}")")
+        done
+        sudo apt-get install -y --no-install-recommends "${packages[@]}"
+
+        # The functional tests create their YDB schema through Goose migrations.
+        goose_binary="$RUNNER_TEMP/userver-goose"
+        curl -fsSL --retry 3 \
+          https://github.com/pressly/goose/releases/download/v3.28.0/goose_linux_x86_64 \
+          -o "$goose_binary"
+        printf '%s  %s\n' \
+          ab073515b78ef345f64f018c0d79aa7db50106806efc686dda7181253765ae13 \
+          "$goose_binary" | sha256sum --check -
+        sudo install -m 755 "$goose_binary" /usr/local/bin/goose
+        goose -version
+
+        ydb_binary="$RUNNER_TEMP/userver-ydb-cli"
+        curl -fsSL --retry 3 \
+          https://storage.yandexcloud.net/yandexcloud-ydb/release/2.31.0/linux/amd64/ydb \
+          -o "$ydb_binary"
+        printf '%s  %s\n' \
+          6cbf9504438cb46f6cd129ddaf1bac0f1de937ae693807cc8d13457617336ff0 \
+          "$ydb_binary" | sha256sum --check -
+        sudo install -m 755 "$ydb_binary" /usr/local/bin/ydb
+        ydb version --disable-checks
+        ydb version --semantic
+
+    - name: Configure userver against the installed SDK
+      shell: bash
+      env:
+        CPM_SOURCE_CACHE: ${{ github.workspace }}/.cache/userver/cpm
+        CCACHE_DIR: ${{ github.workspace }}/.cache/userver/ccache
+      run: |
+        sdk_version=$(dpkg-query -W -f='${Version}' libydb-cpp-dev)
+        # The Debian SDK and gRPC require the distro Abseil ABI. A downloaded
+        # Abseil can reuse the same CMake targets with incompatible symbols.
+        cmake -S userver -B build-userver -G Ninja \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DCMAKE_C_COMPILER=clang-18 \
+          -DCMAKE_CXX_COMPILER=clang++-18 \
+          -DCMAKE_CXX_STANDARD=20 \
+          -DCMAKE_CXX_SCAN_FOR_MODULES=OFF \
+          -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+          -DCMAKE_PREFIX_PATH=/usr/share/yandex \
+          -Dydb-cpp-sdk_DIR=/usr/share/yandex/lib/cmake/ydb-cpp-sdk \
+          -DUSERVER_YDBCPPSDK_VERSION="$sdk_version" \
+          -DUSERVER_DOWNLOAD_PACKAGE_YDBCPPSDK=OFF \
+          -DUSERVER_FORCE_DOWNLOAD_PACKAGES=OFF \
+          -DUSERVER_FORCE_DOWNLOAD_ABSEIL=OFF \
+          -DUSERVER_DOWNLOAD_PACKAGE_ABSEIL=OFF \
+          -DUSERVER_BUILD_ALL_COMPONENTS=OFF \
+          -DUSERVER_FEATURE_YDB=ON \
+          -DUSERVER_FEATURE_CHAOTIC_OPENAPI=OFF \
+          -DUSERVER_FEATURE_TESTSUITE=ON \
+          -DUSERVER_BUILD_TESTS=ON \
+          -DUSERVER_BUILD_SAMPLES=OFF \
+          -DUSERVER_NO_WERROR=ON
+
+    - name: Build userver YDB test binaries
+      id: build
+      shell: bash
+      env:
+        CCACHE_DIR: ${{ github.workspace }}/.cache/userver/ccache
+        BUILD_JOBS: ${{ inputs.build-jobs }}
+      run: |
+        cmake --build build-userver --parallel "$BUILD_JOBS" \
+          --target userver-ydb-unittest userver-ydb-tests
+
+    - name: Run userver YDB C++ tests
+      if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+      shell: bash
+      env:
+        YDB_ENDPOINT: ${{ inputs.ydb-endpoint }}
+        YDB_DATABASE: ${{ inputs.ydb-database }}
+        # The optional coroutine stack monitor requires userfaultfd privileges.
+        USERVER_ENABLE_STACK_USAGE_MONITOR: '0'
+      run: |
+        export YDB_DATABASE="/${YDB_DATABASE#/}"
+        ctest --test-dir build-userver --output-on-failure --no-tests=error \
+          --timeout 1800 --output-junit "${{ github.workspace }}/userver-ydb-cpp.xml" \
+          -R '^userver-ydb-unittest$'
+
+    - name: Run userver YDB functional testsuite
+      if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+      shell: bash
+      env:
+        YDB_ENDPOINT: ${{ inputs.ydb-endpoint }}
+        YDB_DATABASE: ${{ inputs.ydb-database }}
+        USERVER_ENABLE_STACK_USAGE_MONITOR: '0'
+      run: |
+        export YDB_DATABASE="${YDB_DATABASE#/}"
+        ctest --test-dir build-userver --output-on-failure --no-tests=error \
+          --timeout 1800 --parallel 1 --output-junit "${{ github.workspace }}/userver-ydb-functional.xml" \
+          -R '^testsuite-userver-ydb-'
+
+    - name: Check userver YDB CMake dependency discovery
+      if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+      shell: bash
+      run: |
+        ctest --test-dir build-userver --output-on-failure --no-tests=error \
+          --timeout 300 --output-junit "${{ github.workspace }}/userver-ydb-cmake.xml" \
+          -R '^userver-cmake-find-ydb-grpc$'
+
+    - name: Upload userver test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: userver-ydb-results
+        if-no-files-found: warn
+        retention-days: 7
+        path: |
+          userver-revision.txt
+          userver-ydb-*.xml
+          build-userver/CMakeCache.txt
+          build-userver/Testing/Temporary/
+          build-userver/test-results/
+          build-userver/ydb/functional_tests/basic/Testing/Temporary/**/service.log
