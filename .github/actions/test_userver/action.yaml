@@ -152,6 +152,9 @@ runs:
         YDB_ENDPOINT: ${{ inputs.ydb-endpoint }}
         YDB_DATABASE: ${{ inputs.ydb-database }}
         USERVER_ENABLE_STACK_USAGE_MONITOR: '0'
+        # The Python harness forks to exec the service with live YDB channels.
+        # gRPC's child fork handlers can abort before exec with active threads.
+        GRPC_ENABLE_FORK_SUPPORT: '0'
       run: |
         export YDB_DATABASE="${YDB_DATABASE#/}"
         ctest --test-dir build-userver --output-on-failure --no-tests=error \
