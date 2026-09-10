@@ -13,7 +13,7 @@ endif()
 
 find_package(
     ydb-cpp-sdk REQUIRED CONFIG
-    COMPONENTS Driver Iam OpenTelemetryMetrics OpenTelemetryTrace
+    COMPONENTS Coordination Driver Iam Topic OpenTelemetryMetrics OpenTelemetryTrace
 )
 
 foreach(target IN ITEMS gRPC::grpc++ absl::flat_hash_map)
@@ -26,8 +26,10 @@ add_executable(test_app main.cpp)
 
 target_link_libraries(test_app
     PRIVATE
+    YDB-CPP-SDK::Coordination
     YDB-CPP-SDK::Driver
     YDB-CPP-SDK::Iam
+    YDB-CPP-SDK::Topic
     YDB-CPP-SDK::OpenTelemetryMetrics
     YDB-CPP-SDK::OpenTelemetryTrace
 )
