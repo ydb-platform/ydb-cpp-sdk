@@ -101,18 +101,6 @@ To smoke-test generated `.deb` packages with the sample consumer project:
 ./scripts/test_deb_packages.sh build-deb/packages
 ```
 
-The smoke test compiles and runs consumers with GCC and Clang, including
-producer settings and distributed locks. The `Tests` workflow also passes
-these packages to [the userver action](.github/actions/test_userver/action.yaml),
-which clones the latest `develop` branch, builds with Clang, and runs the YDB
-C++ tests and Python functional testsuite against a local YDB server.
-
-When building userver with the Debian SDK, pass
-`-DUSERVER_FORCE_DOWNLOAD_ABSEIL=OFF -DUSERVER_DOWNLOAD_PACKAGE_ABSEIL=OFF`
-to use the same system Abseil ABI as the SDK and gRPC. Pass
-`-DUSERVER_FORCE_DOWNLOAD_PACKAGES=OFF -DUSERVER_DOWNLOAD_PACKAGE_YDBCPPSDK=OFF`
-to require the installed SDK.
-
 ### Install from GitHub releases
 
 Pre-built `.deb` packages for Ubuntu 24.04 (Noble) are attached to each

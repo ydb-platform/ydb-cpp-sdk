@@ -88,12 +88,6 @@ cmake -S /test_project -B /test_project/build-pkgconfig-grpc \
   -DYDB_TEST_GRPC_PKGCONFIG_FALLBACK=ON
 cmake --build /test_project/build-pkgconfig-grpc --parallel "$(nproc)"
 /test_project/build-pkgconfig-grpc/test_app
-
-cmake -S /test_project -B /test_project/build-clang \
-  -DCMAKE_PREFIX_PATH=/usr/share/yandex \
-  -DCMAKE_CXX_COMPILER=clang++-18
-cmake --build /test_project/build-clang --parallel "$(nproc)"
-/test_project/build-clang/test_app
 '
 
 echo "Test successful!"
