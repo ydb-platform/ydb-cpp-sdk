@@ -23,24 +23,16 @@ namespace {
         return Odbc::CallOdbc<Mode, Handle>(handle, std::forward<Fn>(fn));
     }
 
-    template<class Char>
+    template<class Char, bool PreserveNull = false>
     struct TLazyText {
         Char* Value;
         SQLINTEGER Length;
-        std::string Resolve() const {
-            return Odbc::GetString(Value, Length);
-        }
-    };
-
-    template<class Char>
-    struct TLazyOptionalText {
-        Char* Value;
-        SQLINTEGER Length;
-        std::optional<std::string> Resolve() const {
-            if (!Value) {
-                return std::nullopt;
+        auto Resolve() const {
+            if constexpr (PreserveNull) {
+                return Value ? std::optional{Odbc::GetString(Value, Length)} : std::nullopt;
+            } else {
+                return Odbc::GetString(Value, Length);
             }
-            return Odbc::GetString(Value, Length);
         }
     };
 
@@ -59,7 +51,7 @@ namespace {
     }
 
     template<class Char>
-    TLazyOptionalText<Char> OptionalText(Char* value, SQLINTEGER length) {
+    TLazyText<Char, true> OptionalText(Char* value, SQLINTEGER length) {
         return {value, length};
     }
 
