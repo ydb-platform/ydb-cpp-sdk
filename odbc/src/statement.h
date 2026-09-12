@@ -39,20 +39,20 @@ public:
     SQLRETURN BindCol(SQLUSMALLINT columnNumber, SQLSMALLINT targetType, SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd);
     SQLRETURN BindParameter(SQLUSMALLINT paramNumber, SQLSMALLINT inputOutputType, SQLSMALLINT valueType, SQLSMALLINT parameterType, SQLULEN columnSize, SQLSMALLINT decimalDigits, SQLPOINTER parameterValuePtr, SQLLEN bufferLength, SQLLEN* strLenOrIndPtr);
 
-    SQLRETURN Columns(const std::string& catalogName,
-                      const std::string& schemaName,
-                      const std::string& tableName,
-                      const std::string& columnName);
+    SQLRETURN Columns(const std::optional<std::string>& catalogName,
+                      const std::optional<std::string>& schemaName,
+                      const std::optional<std::string>& tableName,
+                      const std::optional<std::string>& columnName);
 
-    SQLRETURN Tables(const std::string& catalogName,
-                     const std::string& schemaName,
-                     const std::string& tableName,
-                     const std::string& tableType);
+    SQLRETURN Tables(const std::optional<std::string>& catalogName,
+                     const std::optional<std::string>& schemaName,
+                     const std::optional<std::string>& tableName,
+                     const std::optional<std::string>& tableType);
 
     SQLRETURN GetTypeInfo(SQLSMALLINT dataType);
-    SQLRETURN Statistics(const std::string& catalogName,
-                         const std::string& schemaName,
-                         const std::string& tableName,
+    SQLRETURN Statistics(const std::optional<std::string>& catalogName,
+                         const std::optional<std::string>& schemaName,
+                         const std::optional<std::string>& tableName,
                          SQLUSMALLINT unique,
                          SQLUSMALLINT accuracy);
     SQLRETURN SpecialColumns(const std::string& catalogName,
@@ -60,9 +60,9 @@ public:
                              const std::string& tableName,
                              SQLUSMALLINT identifierType,
                              SQLUSMALLINT scope);
-    SQLRETURN PrimaryKeys(const std::string& catalogName,
-                          const std::string& schemaName,
-                          const std::string& tableName);
+    SQLRETURN PrimaryKeys(const std::optional<std::string>& catalogName,
+                          const std::optional<std::string>& schemaName,
+                          const std::optional<std::string>& tableName);
     SQLRETURN ForeignKeys(const std::string& pkCatalogName,
                           const std::string& pkSchemaName,
                           const std::string& pkTableName,
@@ -165,9 +165,12 @@ private:
     std::optional<TDescriptorAttribute> ResolveDescriptorAttribute(SQLINTEGER attr);
 
     SQLUSMALLINT FindNextNeedDataParam() const;
-    std::string GetTraversalRoot(const std::string& pattern) const;
+    std::string QualifyMetadataTableName(const std::string& tableName) const;
     std::string GetMetadataTableName(const std::string& path) const;
-    bool MetadataNamespaceMatches(const std::string& catalog, const std::string& schema) const;
+    bool MetadataNamespaceMatches(const std::optional<std::string>& catalog,
+                                  const std::optional<std::string>& schema,
+                                  bool catalogPatternsAllowed,
+                                  bool schemaPatternsAllowed) const;
 
     NQuery::TExecuteQueryResult ExecuteQuery(
         NQuery::TSession& session,
@@ -175,9 +178,16 @@ private:
         SQLULEN paramSet);
 
     NYdb::NRetry::TRetryOperationSettings MakeAutocommitRetrySettings();
-    std::vector<NScheme::TSchemeEntry> GetPatternEntries(const std::string& pattern);
-    SQLRETURN VisitEntry(const std::string& path, const std::string& pattern, std::vector<NScheme::TSchemeEntry>& resultEntries);
-    bool IsPatternMatch(const std::string& path, const std::string& pattern);
+    std::vector<NScheme::TSchemeEntry> GetMetadataEntries(
+        const std::optional<std::string>& tableName,
+        bool patternsAllowed);
+    SQLRETURN VisitEntry(const std::string& path,
+                         const std::string& tableName,
+                         bool patternsAllowed,
+                         std::vector<NScheme::TSchemeEntry>& resultEntries);
+    bool IsMetadataTableMatch(const std::string& path,
+                              const std::string& tableName,
+                              bool patternsAllowed);
     std::optional<std::string> GetTableType(NScheme::ESchemeEntryType type);
 };
 
