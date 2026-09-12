@@ -33,9 +33,6 @@ TEST(SqlLikeMatch, BackslashEscapesWildcards) {
     EXPECT_TRUE(SqlLikeMatch("rate%", "rate\\%"));
     EXPECT_FALSE(SqlLikeMatch("rate123", "rate\\%"));
     EXPECT_TRUE(SqlLikeMatch("a\\b", "a\\\\b"));
-}
-
-TEST(SqlLikeMatch, PercentBacktrackingHonorsEscapes) {
     EXPECT_TRUE(SqlLikeMatch("prefix_value_suffix", "%\\_value\\_%"));
     EXPECT_FALSE(SqlLikeMatch("prefixXvalueYsuffix", "%\\_value\\_%"));
 }
