@@ -6,7 +6,6 @@
 #include "utils/util.h"
 
 #include <algorithm>
-#include <array>
 #include <cctype>
 #include <limits>
 #include <ranges>
@@ -98,27 +97,22 @@ const TColumnMeta kStatisticsSchema[] = {
     V("FILTER_CONDITION"),
 };
 
-using TSchemeEntryType = NScheme::ESchemeEntryType;
-
-constexpr std::array kTableTypes{
-    std::pair{TSchemeEntryType::Table, std::string_view{"TABLE"}},
-    std::pair{TSchemeEntryType::View, std::string_view{"VIEW"}},
-    std::pair{TSchemeEntryType::ColumnStore, std::string_view{"COLUMN_STORE"}},
-    std::pair{TSchemeEntryType::ColumnTable, std::string_view{"COLUMN_TABLE"}},
-    std::pair{TSchemeEntryType::Sequence, std::string_view{"SEQUENCE"}},
-    std::pair{TSchemeEntryType::Replication, std::string_view{"REPLICATION"}},
-    std::pair{TSchemeEntryType::Topic, std::string_view{"TOPIC"}},
-    std::pair{TSchemeEntryType::ExternalTable, std::string_view{"EXTERNAL_TABLE"}},
-    std::pair{TSchemeEntryType::ExternalDataSource, std::string_view{"EXTERNAL_DATA_SOURCE"}},
-    std::pair{TSchemeEntryType::ResourcePool, std::string_view{"RESOURCE_POOL"}},
-    std::pair{TSchemeEntryType::PqGroup, std::string_view{"PQ_GROUP"}},
-    std::pair{TSchemeEntryType::RtmrVolume, std::string_view{"RTMR_VOLUME"}},
-    std::pair{TSchemeEntryType::BlockStoreVolume, std::string_view{"BLOCK_STORE_VOLUME"}},
-    std::pair{TSchemeEntryType::CoordinationNode, std::string_view{"COORDINATION_NODE"}},
-    std::pair{TSchemeEntryType::Unknown, std::string_view{"UNKNOWN"}},
-    std::pair{TSchemeEntryType::SysView, std::string_view{"SYSTEM VIEW"}},
-    std::pair{TSchemeEntryType::Transfer, std::string_view{"TRANSFER"}},
+using EEntry = NScheme::ESchemeEntryType;
+constexpr std::pair<EEntry, std::string_view> kTableTypes[] = {
+    {EEntry::Table, "TABLE"}, {EEntry::View, "VIEW"}, {EEntry::ColumnStore, "COLUMN_STORE"},
+    {EEntry::ColumnTable, "COLUMN_TABLE"}, {EEntry::Sequence, "SEQUENCE"},
+    {EEntry::Replication, "REPLICATION"}, {EEntry::Topic, "TOPIC"},
+    {EEntry::ExternalTable, "EXTERNAL_TABLE"},
+    {EEntry::ExternalDataSource, "EXTERNAL_DATA_SOURCE"}, {EEntry::ResourcePool, "RESOURCE_POOL"},
+    {EEntry::PqGroup, "PQ_GROUP"}, {EEntry::RtmrVolume, "RTMR_VOLUME"},
+    {EEntry::BlockStoreVolume, "BLOCK_STORE_VOLUME"},
+    {EEntry::CoordinationNode, "COORDINATION_NODE"}, {EEntry::Unknown, "UNKNOWN"},
+    {EEntry::SysView, "SYSTEM VIEW"}, {EEntry::Transfer, "TRANSFER"},
 };
+
+bool IsTable(EEntry type) {
+    return type == EEntry::Table || type == EEntry::ColumnTable;
+}
 
 const TColumnMeta kSpecialColumnsSchema[] = {
     N("SCOPE", SQL_SMALLINT),
@@ -188,11 +182,11 @@ TOdbcScalar Int32OrNull(uint64_t value) {
         : Null();
 }
 
-bool IsExplicitEmpty(const std::optional<std::string>& value) {
+bool IsExplicitEmpty(const TMetadataArgument& value) {
     return value && value->empty();
 }
 
-bool IsSpecialValue(const std::optional<std::string>& value, std::string_view special) {
+bool IsSpecialValue(const TMetadataArgument& value, std::string_view special) {
     return value && *value == special;
 }
 
@@ -213,38 +207,32 @@ TOdbcScalar GetDateTimeSub(SQLSMALLINT type) {
     }
 }
 
+TOdbcScalar GetColumnSize(const TYdbTypeInfo& type) {
+    return type.ColumnSize ? I(static_cast<SQLINTEGER>(type.ColumnSize)) : Null();
+}
+
 TOdbcScalar GetBufferLength(const TYdbTypeInfo& type) {
     switch (type.SqlType) {
-        case SQL_BIT:
-        case SQL_TINYINT: return I(sizeof(SQLCHAR));
+        case SQL_BIT: case SQL_TINYINT: return I(sizeof(SQLCHAR));
         case SQL_SMALLINT: return I(sizeof(SQLSMALLINT));
-        case SQL_INTEGER:
-        case SQL_REAL: return I(sizeof(SQLINTEGER));
-        case SQL_BIGINT:
-        case SQL_DOUBLE: return I(sizeof(SQLBIGINT));
+        case SQL_INTEGER: case SQL_REAL: return I(sizeof(SQLINTEGER));
+        case SQL_BIGINT: case SQL_DOUBLE: return I(sizeof(SQLBIGINT));
         case SQL_TYPE_DATE: return I(sizeof(SQL_DATE_STRUCT));
         case SQL_TYPE_TIME: return I(sizeof(SQL_TIME_STRUCT));
         case SQL_TYPE_TIMESTAMP: return I(sizeof(SQL_TIMESTAMP_STRUCT));
         case SQL_GUID: return I(sizeof(SQLGUID));
-        default:
-            return type.ColumnSize ? I(static_cast<SQLINTEGER>(type.ColumnSize)) : Null();
+        default: return GetColumnSize(type);
     }
 }
 
 TOdbcScalar GetCharOctetLength(const TYdbTypeInfo& type) {
     switch (type.SqlType) {
-        case SQL_CHAR:
-        case SQL_VARCHAR:
-        case SQL_LONGVARCHAR:
-        case SQL_WCHAR:
-        case SQL_WVARCHAR:
-        case SQL_WLONGVARCHAR:
-        case SQL_BINARY:
-        case SQL_VARBINARY:
+        case SQL_CHAR: case SQL_VARCHAR: case SQL_LONGVARCHAR:
+        case SQL_WCHAR: case SQL_WVARCHAR: case SQL_WLONGVARCHAR:
+        case SQL_BINARY: case SQL_VARBINARY:
         case SQL_LONGVARBINARY:
-            return type.ColumnSize ? I(static_cast<SQLINTEGER>(type.ColumnSize)) : Null();
-        default:
-            return Null();
+            return GetColumnSize(type);
+        default: return Null();
     }
 }
 
@@ -260,7 +248,7 @@ std::string GetMetadataCatalogName(TConnection* connection) {
 
 template <class Visitor>
 void DescribeTable(TConnection* connection, const std::string& path,
-                   bool withTableStatistics, Visitor&& visitor) {
+                   Visitor&& visitor, bool withTableStatistics = false) {
     auto client = connection->GetTableClient();
     if (!client) {
         throw TOdbcException("HY000", 0, "No client connection");
@@ -275,11 +263,6 @@ void DescribeTable(TConnection* connection, const std::string& path,
             return TStatus(EStatus::SUCCESS, {});
         });
     NStatusHelpers::ThrowOnError(status);
-}
-
-template <class Visitor>
-void DescribeTable(TConnection* connection, const std::string& path, Visitor&& visitor) {
-    DescribeTable(connection, path, false, std::forward<Visitor>(visitor));
 }
 
 bool MatchesTableTypeFilter(std::string_view filter, std::string_view entryType) {
@@ -337,10 +320,10 @@ TTable BuildTypeInfoRows(SQLSMALLINT dataType) {
 
 } // namespace
 
-SQLRETURN TStatement::Columns(const std::optional<std::string>& catalogName,
-                              const std::optional<std::string>& schemaName,
-                              const std::optional<std::string>& tableName,
-                              const std::optional<std::string>& columnName) {
+SQLRETURN TStatement::Columns(const TMetadataArgument& catalogName,
+                              const TMetadataArgument& schemaName,
+                              const TMetadataArgument& tableName,
+                              const TMetadataArgument& columnName) {
     if (Attributes_.GetMetadataId() == SQL_TRUE
         && (!catalogName || !schemaName || !tableName || !columnName)) {
         return AddError("HY009", 0, "Identifier arguments must not be null");
@@ -355,8 +338,7 @@ SQLRETURN TStatement::Columns(const std::optional<std::string>& catalogName,
     const std::string catalog = GetMetadataCatalogName(Conn_);
     TTable table;
     for (const auto& entry : GetMetadataEntries(tableName, patternsAllowed)) {
-        if (entry.Type != NScheme::ESchemeEntryType::Table
-            && entry.Type != NScheme::ESchemeEntryType::ColumnTable) {
+        if (!IsTable(entry.Type)) {
             continue;
         }
         DescribeTable(Conn_, entry.Name, [&](const auto& description) {
@@ -371,8 +353,7 @@ SQLRETURN TStatement::Columns(const std::optional<std::string>& catalogName,
                     continue;
                 }
                 const TYdbTypeInfo type = DescribeYdbType(column.Type);
-                const TOdbcScalar size = type.ColumnSize
-                    ? I(static_cast<SQLINTEGER>(type.ColumnSize)) : Null();
+                const TOdbcScalar size = GetColumnSize(type);
                 const bool notNull = type.Nullable == SQL_NO_NULLS
                     || (column.NotNull && *column.NotNull)
                     || std::ranges::find(primaryKeyColumns, column.Name) != primaryKeyColumns.end();
@@ -391,10 +372,10 @@ SQLRETURN TStatement::Columns(const std::optional<std::string>& catalogName,
     return SQL_SUCCESS;
 }
 
-SQLRETURN TStatement::Tables(const std::optional<std::string>& catalogName,
-                             const std::optional<std::string>& schemaName,
-                             const std::optional<std::string>& tableName,
-                             const std::optional<std::string>& tableType) {
+SQLRETURN TStatement::Tables(const TMetadataArgument& catalogName,
+                             const TMetadataArgument& schemaName,
+                             const TMetadataArgument& tableName,
+                             const TMetadataArgument& tableType) {
     if (Attributes_.GetMetadataId() == SQL_TRUE
         && (!catalogName || !schemaName || !tableName)) {
         return AddError("HY009", 0, "Identifier arguments must not be null");
@@ -419,14 +400,11 @@ SQLRETURN TStatement::Tables(const std::optional<std::string>& catalogName,
     if (IsSpecialValue(tableType, SQL_ALL_TABLE_TYPES)
         && IsExplicitEmpty(catalogName) && emptySchema && emptyTable) {
         std::vector<std::string_view> types;
-        types.reserve(kTableTypes.size());
         for (const auto& [_, type] : kTableTypes) {
             types.push_back(type);
         }
         std::ranges::sort(types);
-        types.erase(std::unique(types.begin(), types.end()), types.end());
         TTable table;
-        table.reserve(types.size());
         for (const std::string_view type : types) {
             table.push_back({Null(), Null(), Null(), std::string(type), Null()});
         }
@@ -465,9 +443,9 @@ SQLRETURN TStatement::GetTypeInfo(SQLSMALLINT dataType) {
     return SQL_SUCCESS;
 }
 
-SQLRETURN TStatement::Statistics(const std::optional<std::string>& catalogName,
-                                 const std::optional<std::string>& schemaName,
-                                 const std::optional<std::string>& tableName,
+SQLRETURN TStatement::Statistics(const TMetadataArgument& catalogName,
+                                 const TMetadataArgument& schemaName,
+                                 const TMetadataArgument& tableName,
                                  SQLUSMALLINT unique, SQLUSMALLINT accuracy) {
     if (unique != SQL_INDEX_UNIQUE && unique != SQL_INDEX_ALL) {
         return AddError("HY100", 0, "Invalid index uniqueness option");
@@ -490,14 +468,12 @@ SQLRETURN TStatement::Statistics(const std::optional<std::string>& catalogName,
 
     auto entries = GetMetadataEntries(tableName, false);
     TTable table;
-    if (entries.size() == 1
-        && (entries.front().Type == NScheme::ESchemeEntryType::Table
-            || entries.front().Type == NScheme::ESchemeEntryType::ColumnTable)) {
+    if (!entries.empty() && IsTable(entries.front().Type)) {
         const auto& entry = entries.front();
         const std::string catalog = GetMetadataCatalogName(Conn_);
         const std::string tableNameResult = GetMetadataTableName(entry.Name);
         const bool withTableStatistics = accuracy == SQL_ENSURE;
-        DescribeTable(Conn_, entry.Name, withTableStatistics, [&](const auto& description) {
+        DescribeTable(Conn_, entry.Name, [&](const auto& description) {
             table.push_back({
                 catalog, Null(), tableNameResult, Null(), Null(), Null(), I(SQL_TABLE_STAT),
                 Null(), Null(), Null(),
@@ -506,12 +482,11 @@ SQLRETURN TStatement::Statistics(const std::optional<std::string>& catalogName,
             });
 
             auto indexes = description.GetIndexDescriptions();
-            std::ranges::sort(indexes, [](const auto& lhs, const auto& rhs) {
-                const bool lhsUnique = lhs.GetIndexType() == NTable::EIndexType::GlobalUnique;
-                const bool rhsUnique = rhs.GetIndexType() == NTable::EIndexType::GlobalUnique;
-                return std::pair{!lhsUnique, lhs.GetIndexName()}
-                    < std::pair{!rhsUnique, rhs.GetIndexName()};
-            });
+            const auto indexOrder = [](const auto& index) {
+                return std::pair{index.GetIndexType() != NTable::EIndexType::GlobalUnique,
+                                 index.GetIndexName()};
+            };
+            std::ranges::sort(indexes, {}, indexOrder);
             for (const auto& index : indexes) {
                 const bool isUnique = index.GetIndexType() == NTable::EIndexType::GlobalUnique;
                 if (unique == SQL_INDEX_UNIQUE && !isUnique) {
@@ -526,7 +501,7 @@ SQLRETURN TStatement::Statistics(const std::optional<std::string>& catalogName,
                     });
                 }
             }
-        });
+        }, withTableStatistics);
     }
     SetCursor(CreateVirtualCursor(kStatisticsSchema, std::move(table)));
     return SQL_SUCCESS;
@@ -563,8 +538,7 @@ SQLRETURN TStatement::SpecialColumns(const std::string& catalogName, const std::
                     continue;
                 }
                 const TYdbTypeInfo type = DescribeYdbType(column->Type);
-                const TOdbcScalar size = type.ColumnSize
-                    ? I(static_cast<SQLINTEGER>(type.ColumnSize)) : Null();
+                const TOdbcScalar size = GetColumnSize(type);
                 table.push_back({I(SQL_SCOPE_SESSION), pkName, I(type.SqlType), type.TypeName,
                                  size, size, Maybe(type.DecimalDigits), I(SQL_PC_NOT_PSEUDO)});
             }
@@ -574,9 +548,9 @@ SQLRETURN TStatement::SpecialColumns(const std::string& catalogName, const std::
     return SQL_SUCCESS;
 }
 
-SQLRETURN TStatement::PrimaryKeys(const std::optional<std::string>& catalogName,
-                                  const std::optional<std::string>& schemaName,
-                                  const std::optional<std::string>& tableName) {
+SQLRETURN TStatement::PrimaryKeys(const TMetadataArgument& catalogName,
+                                  const TMetadataArgument& schemaName,
+                                  const TMetadataArgument& tableName) {
     if (!tableName) {
         return AddError("HY009", 0, "TableName must not be null");
     }
@@ -620,32 +594,19 @@ SQLRETURN TStatement::ColumnPrivileges(const std::string&, const std::string&,
     return SQL_SUCCESS;
 }
 
-std::string TStatement::QualifyMetadataTableName(const std::string& tableName) const {
-    if (!tableName.empty() && tableName.front() == '/') {
-        return tableName;
-    }
-    const std::string catalog = Conn_->GetCatalogBinding().Catalog;
-    if (catalog.empty() || catalog == "/") {
-        return "/" + tableName;
-    }
-    return catalog + "/" + tableName;
-}
-
 std::vector<NScheme::TSchemeEntry> TStatement::GetMetadataEntries(
-    const std::optional<std::string>& tableName,
-    bool patternsAllowed) {
+    const TMetadataArgument& tableName, bool patternsAllowed) {
     std::vector<NScheme::TSchemeEntry> entries;
     if (tableName && tableName->empty()) {
         return entries;
     }
 
     const std::string catalog = Conn_->GetCatalogBinding().Catalog;
-    const std::string qualifiedName = tableName ? QualifyMetadataTableName(*tableName) : std::string{};
+    const std::string prefix = catalog.empty() || catalog == "/" ? "/" : catalog + "/";
+    const std::string qualifiedName = tableName
+        ? (tableName->starts_with('/') ? *tableName : prefix + *tableName) : std::string{};
     if (tableName) {
-        const bool insideCatalog = catalog == "/"
-            ? qualifiedName.starts_with('/')
-            : qualifiedName == catalog || qualifiedName.starts_with(catalog + "/");
-        if (!insideCatalog) {
+        if (catalog != "/" && qualifiedName != catalog && !qualifiedName.starts_with(prefix)) {
             return entries;
         }
     }
@@ -666,31 +627,28 @@ std::string TStatement::GetMetadataTableName(const std::string& path) const {
 }
 
 bool TStatement::MetadataNamespaceMatches(
-    const std::optional<std::string>& catalog,
-    const std::optional<std::string>& schema,
+    const TMetadataArgument& catalog,
+    const TMetadataArgument& schema,
     bool catalogPatternsAllowed,
     bool schemaPatternsAllowed) const {
-    const auto matches = [](std::string_view value, std::string_view argument,
-                            bool patternsAllowed) {
-        return patternsAllowed ? SqlLikeMatch(value, argument) : value == argument;
+    const auto matches = [](std::string_view value, std::string_view argument, bool patterns) {
+        return patterns ? SqlLikeMatch(value, argument) : value == argument;
     };
-
-    if (catalog) {
-        std::string catalogArgument = *catalog;
-        if (catalogArgument.starts_with('/')) {
-            catalogArgument.erase(0, 1);
-        }
-        if (!matches(GetMetadataCatalogName(Conn_), catalogArgument,
-                     catalogPatternsAllowed)) {
-            return false;
-        }
+    const bool schemaMatches = !schema || matches("", *schema, schemaPatternsAllowed);
+    if (!catalog) {
+        return schemaMatches;
     }
-    return !schema || matches("", *schema, schemaPatternsAllowed);
+    std::string_view catalogArgument = *catalog;
+    if (catalogArgument.starts_with('/')) {
+        catalogArgument.remove_prefix(1);
+    }
+    return schemaMatches
+        && matches(GetMetadataCatalogName(Conn_), catalogArgument, catalogPatternsAllowed);
 }
 
-SQLRETURN TStatement::VisitEntry(const std::string& path, const std::string& tableName,
-                                 bool patternsAllowed,
-                                 std::vector<NScheme::TSchemeEntry>& result) {
+void TStatement::VisitEntry(const std::string& path, const std::string& tableName,
+                            bool patternsAllowed,
+                            std::vector<NScheme::TSchemeEntry>& result) {
     auto client = Conn_->GetSchemeClient();
     if (!client) {
         throw TOdbcException("HY000", 0, "No client connection");
@@ -702,19 +660,13 @@ SQLRETURN TStatement::VisitEntry(const std::string& path, const std::string& tab
         if (entry.Type == NScheme::ESchemeEntryType::Directory
             || entry.Type == NScheme::ESchemeEntryType::SubDomain) {
             VisitEntry(fullPath, tableName, patternsAllowed, result);
-        } else if (IsMetadataTableMatch(fullPath, tableName, patternsAllowed)) {
+        } else if (tableName.empty()
+                   || (patternsAllowed ? SqlLikeMatch(fullPath, tableName)
+                                       : fullPath == tableName)) {
             result.push_back(entry);
             result.back().Name = fullPath;
         }
     }
-    return SQL_SUCCESS;
-}
-
-bool TStatement::IsMetadataTableMatch(const std::string& path,
-                                      const std::string& tableName,
-                                      bool patternsAllowed) {
-    return tableName.empty() || (patternsAllowed ? SqlLikeMatch(path, tableName)
-                                                 : path == tableName);
 }
 
 std::optional<std::string> TStatement::GetTableType(NScheme::ESchemeEntryType type) {

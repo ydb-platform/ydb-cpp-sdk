@@ -1,8 +1,12 @@
 #include "test_utils.h"
 
 #include <array>
+#include <initializer_list>
 #include <optional>
 #include <set>
+#include <string_view>
+#include <utility>
+#include <variant>
 #include <vector>
 
 #ifndef SQL_ATTR_METADATA_ID
@@ -10,6 +14,24 @@
 #endif
 
 namespace {
+
+struct TMetadataHandles {
+    SQLHENV Env = SQL_NULL_HENV;
+    SQLHDBC Dbc = SQL_NULL_HDBC;
+    SQLHSTMT Stmt = SQL_NULL_HSTMT;
+
+    TMetadataHandles() {
+        AllocEnvAndConnect(&Env, &Dbc);
+        EXPECT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, Dbc, &Stmt), SQL_SUCCESS);
+    }
+
+    ~TMetadataHandles() {
+        SQLFreeHandle(SQL_HANDLE_STMT, Stmt);
+        SQLDisconnect(Dbc);
+        SQLFreeHandle(SQL_HANDLE_DBC, Dbc);
+        SQLFreeHandle(SQL_HANDLE_ENV, Env);
+    }
+};
 
 void ExecuteAndClose(SQLHSTMT stmt, const char* sql) {
     CHECK_ODBC_OK(SQLExecDirect(
@@ -27,23 +49,39 @@ std::optional<std::string> ReadText(SQLHSTMT stmt, SQLUSMALLINT column) {
         ADD_FAILURE() << GetOdbcError(stmt, SQL_HANDLE_STMT);
         return std::nullopt;
     }
-    if (indicator == SQL_NULL_DATA) {
-        return std::nullopt;
-    }
-    return std::string(value);
+    return indicator == SQL_NULL_DATA ? std::nullopt
+                                      : std::optional<std::string>{value};
 }
 
-template <class T>
-std::optional<T> ReadNumber(SQLHSTMT stmt, SQLUSMALLINT column, SQLSMALLINT targetType) {
-    T value = {};
-    SQLLEN indicator = 0;
-    const SQLRETURN rc = SQLGetData(
-        stmt, column, targetType, &value, sizeof(value), &indicator);
-    if (rc != SQL_SUCCESS && rc != SQL_SUCCESS_WITH_INFO) {
-        ADD_FAILURE() << GetOdbcError(stmt, SQL_HANDLE_STMT);
-        return std::nullopt;
+constexpr std::monostate AnyValue;
+using TExpectedValue = std::variant<std::nullptr_t, std::string_view, int64_t, std::monostate>;
+using TExpectedCell = std::pair<SQLUSMALLINT, TExpectedValue>;
+
+void ExpectRow(SQLHSTMT stmt, std::initializer_list<TExpectedCell> cells) {
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    for (const auto& [column, expected] : cells) {
+        const auto value = ReadText(stmt, column);
+        if (std::holds_alternative<std::nullptr_t>(expected)) {
+            EXPECT_FALSE(value) << "column " << column;
+            continue;
+        }
+        ASSERT_TRUE(value) << "column " << column;
+        if (const auto* text = std::get_if<std::string_view>(&expected)) {
+            EXPECT_EQ(*value, *text) << "column " << column;
+        } else if (const auto* number = std::get_if<int64_t>(&expected)) {
+            EXPECT_EQ(*value, std::to_string(*number)) << "column " << column;
+        }
     }
-    return indicator == SQL_NULL_DATA ? std::nullopt : std::optional<T>{value};
+}
+
+void FinishResult(SQLHSTMT stmt) {
+    EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
+    ASSERT_EQ(SQLFreeStmt(stmt, SQL_CLOSE), SQL_SUCCESS);
+}
+
+void ExpectError(SQLRETURN result, SQLHSTMT stmt, std::string_view state) {
+    EXPECT_EQ(result, SQL_ERROR);
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), state));
 }
 
 } // namespace
@@ -443,31 +481,21 @@ TEST(MetadataApi, DdlWithComment) {
 }
 
 TEST(MetadataApi, SQLTablesSpecialEnumerationsAndEmptyArguments) {
-    SQLHENV env;
-    SQLHDBC dbc;
-    SQLHSTMT stmt;
-    AllocEnvAndConnect(&env, &dbc);
-    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    TMetadataHandles handles;
+    const SQLHSTMT stmt = handles.Stmt;
 
     SQLCHAR empty[] = "";
     SQLCHAR all[] = "%";
     CHECK_ODBC_OK(SQLTables(
         stmt, all, SQL_NTS,
         empty, 0, empty, 0, empty, 0), stmt, SQL_HANDLE_STMT);
-    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
-    EXPECT_EQ(ReadText(stmt, 1), std::optional<std::string>{"local"});
-    EXPECT_FALSE(ReadText(stmt, 2));
-    EXPECT_FALSE(ReadText(stmt, 3));
-    EXPECT_FALSE(ReadText(stmt, 4));
-    EXPECT_FALSE(ReadText(stmt, 5));
-    EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
-    ASSERT_EQ(SQLFreeStmt(stmt, SQL_CLOSE), SQL_SUCCESS);
+    ExpectRow(stmt, {{1, "local"}, {2, nullptr}, {3, nullptr}, {4, nullptr}, {5, nullptr}});
+    FinishResult(stmt);
 
     CHECK_ODBC_OK(SQLTables(
         stmt, empty, 0, all, SQL_NTS,
         empty, 0, empty, 0), stmt, SQL_HANDLE_STMT);
-    EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
-    ASSERT_EQ(SQLFreeStmt(stmt, SQL_CLOSE), SQL_SUCCESS);
+    FinishResult(stmt);
 
     CHECK_ODBC_OK(SQLTables(
         stmt, empty, 0, empty, 0, empty, 0,
@@ -490,26 +518,17 @@ TEST(MetadataApi, SQLTablesSpecialEnumerationsAndEmptyArguments) {
     CHECK_ODBC_OK(SQLTables(
         stmt, empty, 0, nullptr, 0, nullptr, 0, nullptr, 0),
         stmt, SQL_HANDLE_STMT);
-    EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
-    ASSERT_EQ(SQLFreeStmt(stmt, SQL_CLOSE), SQL_SUCCESS);
+    FinishResult(stmt);
 
     CHECK_ODBC_OK(SQLTables(
         stmt, nullptr, 0, nullptr, 0, empty, 0, nullptr, 0),
         stmt, SQL_HANDLE_STMT);
-    EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
-
-    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
-    SQLDisconnect(dbc);
-    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
-    SQLFreeHandle(SQL_HANDLE_ENV, env);
+    FinishResult(stmt);
 }
 
 TEST(MetadataApi, SQLColumnsFieldsAndCompositePrimaryKey) {
-    SQLHENV env;
-    SQLHDBC dbc;
-    SQLHSTMT stmt;
-    AllocEnvAndConnect(&env, &dbc);
-    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    TMetadataHandles handles;
+    const SQLHSTMT stmt = handles.Stmt;
 
     ExecuteAndClose(stmt, "DROP TABLE IF EXISTS test_column_metadata_fields");
     ExecuteAndClose(stmt,
@@ -522,16 +541,16 @@ TEST(MetadataApi, SQLColumnsFieldsAndCompositePrimaryKey) {
         SQLSMALLINT DataType;
         SQLSMALLINT Nullable;
         SQLSMALLINT SqlDataType;
-        std::optional<SQLSMALLINT> DateTimeSub;
-        std::optional<SQLINTEGER> CharOctetLength;
+        TExpectedValue DateTimeSub;
+        TExpectedValue CharOctetLength;
     };
     const std::array expectedColumns{
-        TExpectedColumn{"pk_a", SQL_INTEGER, SQL_NO_NULLS, SQL_INTEGER, std::nullopt, std::nullopt},
-        TExpectedColumn{"pk_b", SQL_BIGINT, SQL_NO_NULLS, SQL_BIGINT, std::nullopt, std::nullopt},
-        TExpectedColumn{"text_value", SQL_VARCHAR, SQL_NULLABLE, SQL_VARCHAR, std::nullopt, 255},
-        TExpectedColumn{"payload", SQL_VARBINARY, SQL_NULLABLE, SQL_VARBINARY, std::nullopt, 4096},
+        TExpectedColumn{"pk_a", SQL_INTEGER, SQL_NO_NULLS, SQL_INTEGER, nullptr, nullptr},
+        TExpectedColumn{"pk_b", SQL_BIGINT, SQL_NO_NULLS, SQL_BIGINT, nullptr, nullptr},
+        TExpectedColumn{"text_value", SQL_VARCHAR, SQL_NULLABLE, SQL_VARCHAR, nullptr, 255},
+        TExpectedColumn{"payload", SQL_VARBINARY, SQL_NULLABLE, SQL_VARBINARY, nullptr, 4096},
         TExpectedColumn{"created", SQL_TYPE_TIMESTAMP, SQL_NULLABLE, SQL_DATETIME,
-                        SQL_CODE_TIMESTAMP, std::nullopt},
+                        SQL_CODE_TIMESTAMP, nullptr},
     };
 
     SQLCHAR tableName[] = "test_column_metadata_fields";
@@ -539,53 +558,33 @@ TEST(MetadataApi, SQLColumnsFieldsAndCompositePrimaryKey) {
         stmt, nullptr, 0, nullptr, 0, tableName, SQL_NTS, nullptr, 0),
         stmt, SQL_HANDLE_STMT);
     for (size_t i = 0; i < expectedColumns.size(); ++i) {
-        ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
         const auto& expected = expectedColumns[i];
-        EXPECT_EQ(ReadText(stmt, 1), std::optional<std::string>{"local"});
-        EXPECT_FALSE(ReadText(stmt, 2));
-        EXPECT_EQ(ReadText(stmt, 3), std::optional<std::string>{"test_column_metadata_fields"});
-        EXPECT_EQ(ReadText(stmt, 4), std::optional<std::string>{expected.Name});
-        EXPECT_EQ(ReadNumber<SQLSMALLINT>(stmt, 5, SQL_C_SSHORT), expected.DataType);
-        EXPECT_TRUE(ReadNumber<SQLINTEGER>(stmt, 8, SQL_C_LONG));
-        EXPECT_EQ(ReadNumber<SQLSMALLINT>(stmt, 11, SQL_C_SSHORT), expected.Nullable);
-        EXPECT_EQ(ReadNumber<SQLSMALLINT>(stmt, 14, SQL_C_SSHORT), expected.SqlDataType);
-        EXPECT_EQ(ReadNumber<SQLSMALLINT>(stmt, 15, SQL_C_SSHORT), expected.DateTimeSub);
-        EXPECT_EQ(ReadNumber<SQLINTEGER>(stmt, 16, SQL_C_LONG), expected.CharOctetLength);
-        EXPECT_EQ(ReadNumber<SQLINTEGER>(stmt, 17, SQL_C_LONG),
-                  std::optional<SQLINTEGER>{static_cast<SQLINTEGER>(i + 1)});
-        EXPECT_EQ(ReadText(stmt, 18),
-                  std::optional<std::string>{expected.Nullable == SQL_NO_NULLS ? "NO" : "YES"});
+        ExpectRow(stmt, {
+            {1, "local"}, {2, nullptr}, {3, "test_column_metadata_fields"}, {4, expected.Name},
+            {5, expected.DataType}, {8, AnyValue}, {11, expected.Nullable},
+            {14, expected.SqlDataType}, {15, expected.DateTimeSub},
+            {16, expected.CharOctetLength}, {17, static_cast<SQLINTEGER>(i + 1)},
+            {18, expected.Nullable == SQL_NO_NULLS ? "NO" : "YES"},
+        });
     }
-    EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
-    ASSERT_EQ(SQLFreeStmt(stmt, SQL_CLOSE), SQL_SUCCESS);
+    FinishResult(stmt);
 
     CHECK_ODBC_OK(SQLPrimaryKeys(
         stmt, nullptr, 0, nullptr, 0, tableName, SQL_NTS), stmt, SQL_HANDLE_STMT);
     const std::array<const char*, 2> expectedKeys{"pk_b", "pk_a"};
     for (size_t i = 0; i < expectedKeys.size(); ++i) {
-        ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
-        EXPECT_EQ(ReadText(stmt, 1), std::optional<std::string>{"local"});
-        EXPECT_FALSE(ReadText(stmt, 2));
-        EXPECT_EQ(ReadText(stmt, 3), std::optional<std::string>{"test_column_metadata_fields"});
-        EXPECT_EQ(ReadText(stmt, 4), std::optional<std::string>{expectedKeys[i]});
-        EXPECT_EQ(ReadNumber<SQLSMALLINT>(stmt, 5, SQL_C_SSHORT),
-                  std::optional<SQLSMALLINT>{static_cast<SQLSMALLINT>(i + 1)});
-        EXPECT_FALSE(ReadText(stmt, 6));
+        ExpectRow(stmt, {
+            {1, "local"}, {2, nullptr}, {3, "test_column_metadata_fields"},
+            {4, expectedKeys[i]}, {5, static_cast<SQLSMALLINT>(i + 1)}, {6, nullptr},
+        });
     }
-    EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
-
-    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
-    SQLDisconnect(dbc);
-    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
-    SQLFreeHandle(SQL_HANDLE_ENV, env);
+    FinishResult(stmt);
 }
 
 TEST(MetadataApi, MetadataUsesCurrentCatalogForSameNamedTables) {
-    SQLHENV env;
-    SQLHDBC dbc;
-    SQLHSTMT stmt;
-    AllocEnvAndConnect(&env, &dbc);
-    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    TMetadataHandles handles;
+    const SQLHDBC dbc = handles.Dbc;
+    const SQLHSTMT stmt = handles.Stmt;
 
     ExecuteAndClose(stmt, "DROP TABLE IF EXISTS `/local/cat_a/catalog_metadata_same`");
     ExecuteAndClose(stmt, "DROP TABLE IF EXISTS `/local/cat_b/catalog_metadata_same`");
@@ -604,11 +603,8 @@ TEST(MetadataApi, MetadataUsesCurrentCatalogForSameNamedTables) {
     CHECK_ODBC_OK(SQLTables(
         stmt, catalogA, SQL_NTS, nullptr, 0, relativeTable, SQL_NTS,
         (SQLCHAR*)"TABLE", SQL_NTS), stmt, SQL_HANDLE_STMT);
-    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
-    EXPECT_EQ(ReadText(stmt, 1), std::optional<std::string>{"local/cat_a"});
-    EXPECT_EQ(ReadText(stmt, 3), std::optional<std::string>{"catalog_metadata_same"});
-    EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
-    ASSERT_EQ(SQLFreeStmt(stmt, SQL_CLOSE), SQL_SUCCESS);
+    ExpectRow(stmt, {{1, "local/cat_a"}, {3, "catalog_metadata_same"}});
+    FinishResult(stmt);
 
     CHECK_ODBC_OK(SQLColumns(
         stmt, nullptr, 0, nullptr, 0, relativeTable, SQL_NTS, nullptr, 0),
@@ -628,15 +624,9 @@ TEST(MetadataApi, MetadataUsesCurrentCatalogForSameNamedTables) {
     CHECK_ODBC_OK(SQLPrimaryKeys(
         stmt, nullptr, 0, nullptr, 0, relativeTable, SQL_NTS),
         stmt, SQL_HANDLE_STMT);
-    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
-    EXPECT_EQ(ReadText(stmt, 1), std::optional<std::string>{"local/cat_b"});
-    EXPECT_EQ(ReadText(stmt, 4), std::optional<std::string>{"tenant_id"});
-    EXPECT_EQ(ReadNumber<SQLSMALLINT>(stmt, 5, SQL_C_SSHORT), 1);
-    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
-    EXPECT_EQ(ReadText(stmt, 4), std::optional<std::string>{"id"});
-    EXPECT_EQ(ReadNumber<SQLSMALLINT>(stmt, 5, SQL_C_SSHORT), 2);
-    EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
-    ASSERT_EQ(SQLFreeStmt(stmt, SQL_CLOSE), SQL_SUCCESS);
+    ExpectRow(stmt, {{1, "local/cat_b"}, {4, "tenant_id"}, {5, 1}});
+    ExpectRow(stmt, {{4, "id"}, {5, 2}});
+    FinishResult(stmt);
 
     CHECK_ODBC_OK(SQLSetConnectAttr(
         dbc, SQL_ATTR_CURRENT_CATALOG, (SQLPOINTER)"/local", SQL_NTS),
@@ -645,34 +635,20 @@ TEST(MetadataApi, MetadataUsesCurrentCatalogForSameNamedTables) {
     CHECK_ODBC_OK(SQLTables(
         stmt, nullptr, 0, nullptr, 0, nestedTable, SQL_NTS,
         (SQLCHAR*)"TABLE", SQL_NTS), stmt, SQL_HANDLE_STMT);
-    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
-    EXPECT_EQ(ReadText(stmt, 3),
-              std::optional<std::string>{"cat_a/catalog_metadata_same"});
-    EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
-    ASSERT_EQ(SQLFreeStmt(stmt, SQL_CLOSE), SQL_SUCCESS);
+    ExpectRow(stmt, {{3, "cat_a/catalog_metadata_same"}});
+    FinishResult(stmt);
 
     SQLCHAR absoluteTable[] = "/local/cat_b/catalog_metadata_same";
     CHECK_ODBC_OK(SQLColumns(
         stmt, nullptr, 0, nullptr, 0, absoluteTable, SQL_NTS,
         (SQLCHAR*)"b_value", SQL_NTS), stmt, SQL_HANDLE_STMT);
-    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
-    EXPECT_EQ(ReadText(stmt, 3),
-              std::optional<std::string>{"cat_b/catalog_metadata_same"});
-    EXPECT_EQ(ReadText(stmt, 4), std::optional<std::string>{"b_value"});
-    EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
-
-    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
-    SQLDisconnect(dbc);
-    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
-    SQLFreeHandle(SQL_HANDLE_ENV, env);
+    ExpectRow(stmt, {{3, "cat_b/catalog_metadata_same"}, {4, "b_value"}});
+    FinishResult(stmt);
 }
 
 TEST(MetadataApi, SQLStatisticsReportsIndexesAndHonorsOptions) {
-    SQLHENV env;
-    SQLHDBC dbc;
-    SQLHSTMT stmt;
-    AllocEnvAndConnect(&env, &dbc);
-    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    TMetadataHandles handles;
+    const SQLHSTMT stmt = handles.Stmt;
 
     ExecuteAndClose(stmt, "DROP TABLE IF EXISTS test_statistics_metadata");
     ExecuteAndClose(stmt,
@@ -690,90 +666,50 @@ TEST(MetadataApi, SQLStatisticsReportsIndexesAndHonorsOptions) {
         stmt, nullptr, 0, nullptr, 0, tableName, SQL_NTS,
         SQL_INDEX_ALL, SQL_QUICK), stmt, SQL_HANDLE_STMT);
 
-    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
-    EXPECT_EQ(ReadText(stmt, 3), std::optional<std::string>{"test_statistics_metadata"});
-    EXPECT_FALSE(ReadNumber<SQLSMALLINT>(stmt, 4, SQL_C_SSHORT));
-    EXPECT_FALSE(ReadText(stmt, 6));
-    EXPECT_EQ(ReadNumber<SQLSMALLINT>(stmt, 7, SQL_C_SSHORT), SQL_TABLE_STAT);
-    EXPECT_FALSE(ReadNumber<SQLSMALLINT>(stmt, 8, SQL_C_SSHORT));
-    EXPECT_FALSE(ReadText(stmt, 9));
-    EXPECT_FALSE(ReadText(stmt, 10));
-    EXPECT_FALSE(ReadNumber<SQLINTEGER>(stmt, 11, SQL_C_LONG));
-    EXPECT_FALSE(ReadNumber<SQLINTEGER>(stmt, 12, SQL_C_LONG));
-    EXPECT_FALSE(ReadText(stmt, 13));
-
-    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
-    EXPECT_EQ(ReadNumber<SQLSMALLINT>(stmt, 4, SQL_C_SSHORT), SQL_FALSE);
-    EXPECT_EQ(ReadText(stmt, 6), std::optional<std::string>{"idx_email"});
-    EXPECT_EQ(ReadNumber<SQLSMALLINT>(stmt, 7, SQL_C_SSHORT), SQL_INDEX_OTHER);
-    EXPECT_EQ(ReadNumber<SQLSMALLINT>(stmt, 8, SQL_C_SSHORT), 1);
-    EXPECT_EQ(ReadText(stmt, 9), std::optional<std::string>{"email"});
-    EXPECT_FALSE(ReadNumber<SQLINTEGER>(stmt, 11, SQL_C_LONG));
+    ExpectRow(stmt, {
+        {3, "test_statistics_metadata"}, {4, nullptr}, {6, nullptr}, {7, SQL_TABLE_STAT},
+        {8, nullptr}, {9, nullptr}, {10, nullptr}, {11, nullptr}, {12, nullptr}, {13, nullptr},
+    });
+    ExpectRow(stmt, {
+        {4, SQL_FALSE}, {6, "idx_email"}, {7, SQL_INDEX_OTHER}, {8, 1},
+        {9, "email"}, {11, nullptr},
+    });
 
     const std::array<const char*, 2> regularIndexColumns{"city", "created"};
     for (size_t i = 0; i < regularIndexColumns.size(); ++i) {
-        ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
-        EXPECT_EQ(ReadNumber<SQLSMALLINT>(stmt, 4, SQL_C_SSHORT), SQL_TRUE);
-        EXPECT_EQ(ReadText(stmt, 6), std::optional<std::string>{"idx_city_created"});
-        EXPECT_EQ(ReadNumber<SQLSMALLINT>(stmt, 7, SQL_C_SSHORT), SQL_INDEX_OTHER);
-        EXPECT_EQ(ReadNumber<SQLSMALLINT>(stmt, 8, SQL_C_SSHORT),
-                  std::optional<SQLSMALLINT>{static_cast<SQLSMALLINT>(i + 1)});
-        EXPECT_EQ(ReadText(stmt, 9),
-                  std::optional<std::string>{regularIndexColumns[i]});
-        EXPECT_FALSE(ReadNumber<SQLINTEGER>(stmt, 11, SQL_C_LONG));
-        EXPECT_FALSE(ReadNumber<SQLINTEGER>(stmt, 12, SQL_C_LONG));
+        ExpectRow(stmt, {
+            {4, SQL_TRUE}, {6, "idx_city_created"}, {7, SQL_INDEX_OTHER},
+            {8, static_cast<SQLSMALLINT>(i + 1)}, {9, regularIndexColumns[i]},
+            {11, nullptr}, {12, nullptr},
+        });
     }
-    EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
-    ASSERT_EQ(SQLFreeStmt(stmt, SQL_CLOSE), SQL_SUCCESS);
+    FinishResult(stmt);
 
     CHECK_ODBC_OK(SQLStatistics(
         stmt, nullptr, 0, nullptr, 0, tableName, SQL_NTS,
         SQL_INDEX_UNIQUE, SQL_ENSURE), stmt, SQL_HANDLE_STMT);
-    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
-    EXPECT_EQ(ReadNumber<SQLSMALLINT>(stmt, 7, SQL_C_SSHORT), SQL_TABLE_STAT);
-    EXPECT_TRUE(ReadNumber<SQLINTEGER>(stmt, 11, SQL_C_LONG));
-    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
-    EXPECT_EQ(ReadNumber<SQLSMALLINT>(stmt, 4, SQL_C_SSHORT), SQL_FALSE);
-    EXPECT_EQ(ReadText(stmt, 6), std::optional<std::string>{"idx_email"});
-    EXPECT_EQ(ReadText(stmt, 9), std::optional<std::string>{"email"});
-    EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
-
-    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
-    SQLDisconnect(dbc);
-    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
-    SQLFreeHandle(SQL_HANDLE_ENV, env);
+    ExpectRow(stmt, {{7, SQL_TABLE_STAT}, {11, AnyValue}});
+    ExpectRow(stmt, {{4, SQL_FALSE}, {6, "idx_email"}, {9, "email"}});
+    FinishResult(stmt);
 }
 
 TEST(MetadataApi, RequiredTableArgumentsAndStatisticsOptionsAreValidated) {
-    SQLHENV env;
-    SQLHDBC dbc;
-    SQLHSTMT stmt;
-    AllocEnvAndConnect(&env, &dbc);
-    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    TMetadataHandles handles;
+    const SQLHSTMT stmt = handles.Stmt;
 
-    EXPECT_EQ(SQLPrimaryKeys(stmt, nullptr, 0, nullptr, 0, nullptr, 0), SQL_ERROR);
-    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "HY009"));
-    EXPECT_EQ(SQLStatistics(
-        stmt, nullptr, 0, nullptr, 0, nullptr, 0, SQL_INDEX_ALL, SQL_QUICK), SQL_ERROR);
-    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "HY009"));
+    ExpectError(SQLPrimaryKeys(stmt, nullptr, 0, nullptr, 0, nullptr, 0), stmt, "HY009");
+    ExpectError(SQLStatistics(
+        stmt, nullptr, 0, nullptr, 0, nullptr, 0, SQL_INDEX_ALL, SQL_QUICK), stmt, "HY009");
 
     SQLCHAR tableName[] = "not_used";
-    EXPECT_EQ(SQLStatistics(
-        stmt, nullptr, 0, nullptr, 0, tableName, SQL_NTS, 99, SQL_QUICK), SQL_ERROR);
-    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "HY100"));
-    EXPECT_EQ(SQLStatistics(
-        stmt, nullptr, 0, nullptr, 0, tableName, SQL_NTS, SQL_INDEX_ALL, 99), SQL_ERROR);
-    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "HY101"));
+    ExpectError(SQLStatistics(
+        stmt, nullptr, 0, nullptr, 0, tableName, SQL_NTS, 99, SQL_QUICK), stmt, "HY100");
+    ExpectError(SQLStatistics(
+        stmt, nullptr, 0, nullptr, 0, tableName, SQL_NTS, SQL_INDEX_ALL, 99), stmt, "HY101");
 
     CHECK_ODBC_OK(SQLSetStmtAttr(
         stmt, SQL_ATTR_METADATA_ID, (SQLPOINTER)(uintptr_t)SQL_TRUE, 0),
         stmt, SQL_HANDLE_STMT);
-    EXPECT_EQ(SQLTables(
-        stmt, nullptr, 0, nullptr, 0, tableName, SQL_NTS, nullptr, 0), SQL_ERROR);
-    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "HY009"));
-
-    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
-    SQLDisconnect(dbc);
-    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
-    SQLFreeHandle(SQL_HANDLE_ENV, env);
+    ExpectError(SQLTables(
+        stmt, nullptr, 0, nullptr, 0, tableName, SQL_NTS, nullptr, 0), stmt, "HY009");
 }
