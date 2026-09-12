@@ -9,6 +9,8 @@
 
 #include "odbc_compat.h"
 
+#include <optional>
+
 namespace {
     namespace Odbc = NYdb::NOdbc;
     using Odbc::TConnection;
@@ -30,6 +32,18 @@ namespace {
         }
     };
 
+    template<class Char>
+    struct TLazyOptionalText {
+        Char* Value;
+        SQLINTEGER Length;
+        std::optional<std::string> Resolve() const {
+            if (!Value) {
+                return std::nullopt;
+            }
+            return Odbc::GetString(Value, Length);
+        }
+    };
+
     template<class T>
     decltype(auto) Resolve(T& value) {
         if constexpr (requires { value.Resolve(); }) {
@@ -41,6 +55,11 @@ namespace {
 
     template<class Char>
     TLazyText<Char> Text(Char* value, SQLINTEGER length) {
+        return {value, length};
+    }
+
+    template<class Char>
+    TLazyOptionalText<Char> OptionalText(Char* value, SQLINTEGER length) {
         return {value, length};
     }
 
@@ -287,15 +306,15 @@ ODBC_FORWARD(SQLColumns, TStatement, TStatement::Columns,
     (SQLHSTMT statementHandle, SQLCHAR* catalogName, SQLSMALLINT nameLength1,
      SQLCHAR* schemaName, SQLSMALLINT nameLength2, SQLCHAR* tableName,
      SQLSMALLINT nameLength3, SQLCHAR* columnName, SQLSMALLINT nameLength4),
-    (statementHandle, Text(catalogName, nameLength1), Text(schemaName, nameLength2),
-     Text(tableName, nameLength3), Text(columnName, nameLength4)))
+    (statementHandle, OptionalText(catalogName, nameLength1), OptionalText(schemaName, nameLength2),
+     OptionalText(tableName, nameLength3), OptionalText(columnName, nameLength4)))
 
 ODBC_FORWARD(SQLTables, TStatement, TStatement::Tables,
     (SQLHSTMT statementHandle, SQLCHAR* catalogName, SQLSMALLINT nameLength1,
      SQLCHAR* schemaName, SQLSMALLINT nameLength2, SQLCHAR* tableName,
      SQLSMALLINT nameLength3, SQLCHAR* tableType, SQLSMALLINT nameLength4),
-    (statementHandle, Text(catalogName, nameLength1), Text(schemaName, nameLength2),
-     Text(tableName, nameLength3), Text(tableType, nameLength4)))
+    (statementHandle, OptionalText(catalogName, nameLength1), OptionalText(schemaName, nameLength2),
+     OptionalText(tableName, nameLength3), OptionalText(tableType, nameLength4)))
 
 ODBC_FORWARD(SQLCloseCursor, TStatement, TStatement::Close,
     (SQLHSTMT statementHandle), (statementHandle, false))
@@ -371,8 +390,8 @@ ODBC_FORWARD(SQLStatistics, TStatement, TStatement::Statistics,
     (SQLHSTMT statementHandle, SQLCHAR* catalogName, SQLSMALLINT nameLength1,
      SQLCHAR* schemaName, SQLSMALLINT nameLength2, SQLCHAR* tableName,
      SQLSMALLINT nameLength3, SQLUSMALLINT unique, SQLUSMALLINT reserved),
-    (statementHandle, Text(catalogName, nameLength1), Text(schemaName, nameLength2),
-     Text(tableName, nameLength3), unique, reserved))
+    (statementHandle, OptionalText(catalogName, nameLength1), OptionalText(schemaName, nameLength2),
+     OptionalText(tableName, nameLength3), unique, reserved))
 
 ODBC_FORWARD(SQLSpecialColumns, TStatement, TStatement::SpecialColumns,
     (SQLHSTMT statementHandle, SQLUSMALLINT identifierType, SQLCHAR* catalogName,
@@ -424,8 +443,8 @@ ODBC_FORWARD(SQLPrimaryKeys, TStatement, TStatement::PrimaryKeys,
     (SQLHSTMT statementHandle, SQLCHAR* catalogName, SQLSMALLINT nameLength1,
      SQLCHAR* schemaName, SQLSMALLINT nameLength2,
      SQLCHAR* tableName, SQLSMALLINT nameLength3),
-    (statementHandle, Text(catalogName, nameLength1), Text(schemaName, nameLength2),
-     Text(tableName, nameLength3)))
+    (statementHandle, OptionalText(catalogName, nameLength1), OptionalText(schemaName, nameLength2),
+     OptionalText(tableName, nameLength3)))
 
 ODBC_FORWARD(SQLForeignKeys, TStatement, TStatement::ForeignKeys,
     (SQLHSTMT statementHandle, SQLCHAR* pkCatalogName, SQLSMALLINT nameLength1,

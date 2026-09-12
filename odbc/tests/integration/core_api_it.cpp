@@ -314,13 +314,15 @@ TEST(CoreApi, SQLSetGetCursorName) {
     SQLFreeHandle(SQL_HANDLE_ENV, env);
 }
 
-TEST(CoreApi, SQLStatisticsEmpty) {
+TEST(CoreApi, SQLStatisticsSchemaForMissingTable) {
     SQLHENV env;
     SQLHDBC dbc;
     SQLHSTMT stmt;
     AllocEnvAndConnect(&env, &dbc);
     ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
-    CHECK_ODBC_OK(SQLStatistics(stmt, nullptr, 0, nullptr, 0, (SQLCHAR*)"%", SQL_NTS, SQL_INDEX_ALL, SQL_ENSURE),
+    CHECK_ODBC_OK(SQLStatistics(stmt, nullptr, 0, nullptr, 0,
+                                (SQLCHAR*)"missing_statistics_table", SQL_NTS,
+                                SQL_INDEX_ALL, SQL_QUICK),
                   stmt, SQL_HANDLE_STMT);
     SQLCHAR columnName[32] = {};
     SQLSMALLINT nameLength = 0;
@@ -333,6 +335,7 @@ TEST(CoreApi, SQLStatisticsEmpty) {
                   stmt, SQL_HANDLE_STMT);
     EXPECT_STREQ(reinterpret_cast<char*>(columnName), "NON_UNIQUE");
     EXPECT_EQ(dataType, SQL_SMALLINT);
+    EXPECT_EQ(nullable, SQL_NULLABLE);
     ASSERT_EQ(SQLFetch(stmt), SQL_NO_DATA);
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
