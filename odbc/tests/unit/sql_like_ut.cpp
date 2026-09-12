@@ -26,3 +26,16 @@ TEST(SqlLikeMatch, PercentAtEnds) {
     EXPECT_TRUE(SqlLikeMatch("hello", "hel%"));
     EXPECT_TRUE(SqlLikeMatch("hello", "%llo"));
 }
+
+TEST(SqlLikeMatch, BackslashEscapesWildcards) {
+    EXPECT_TRUE(SqlLikeMatch("a_c", "a\\_c"));
+    EXPECT_FALSE(SqlLikeMatch("abc", "a\\_c"));
+    EXPECT_TRUE(SqlLikeMatch("rate%", "rate\\%"));
+    EXPECT_FALSE(SqlLikeMatch("rate123", "rate\\%"));
+    EXPECT_TRUE(SqlLikeMatch("a\\b", "a\\\\b"));
+}
+
+TEST(SqlLikeMatch, PercentBacktrackingHonorsEscapes) {
+    EXPECT_TRUE(SqlLikeMatch("prefix_value_suffix", "%\\_value\\_%"));
+    EXPECT_FALSE(SqlLikeMatch("prefixXvalueYsuffix", "%\\_value\\_%"));
+}
