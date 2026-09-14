@@ -1,70 +1,32 @@
 metrics:
-  - name: topic_e2e_latency_p50_ms
-    unit: ms
+  - name: topic_delivered_rps
+    unit: msgs/s
     query: |
-      1000 * max by(ref) (
-        sdk_operation_latency_p50_seconds{operation_type="read",operation_status="success"}
+      sum by(ref) (
+        rate(sdk_topic_messages_delivered_total[5s])
       )
 
-  - name: topic_e2e_latency_p95_ms
-    unit: ms
+  - name: topic_lost_errors
+    unit: msgs
     query: |
-      1000 * max by(ref) (
-        sdk_operation_latency_p95_seconds{operation_type="read",operation_status="success"}
+      sum by(ref) (
+        increase(sdk_topic_messages_lost_total[5s])
       )
+    round: 1
 
-  - name: topic_e2e_latency_p99_ms
-    unit: ms
+  - name: topic_duplicates
+    unit: msgs
     query: |
-      1000 * max by(ref) (
-        sdk_operation_latency_p99_seconds{operation_type="read",operation_status="success"}
+      sum by(ref) (
+        increase(sdk_topic_messages_duplicated_total[5s])
       )
+    round: 1
 
-  - name: topic_write_latency_p50_ms
-    unit: ms
-    query: |
-      1000 * max by(ref) (
-        sdk_operation_latency_p50_seconds{operation_type="write",operation_status="success"}
-      )
+  - name: read_throughput
+    disabled: true
 
-  - name: topic_write_latency_p95_ms
-    unit: ms
-    query: |
-      1000 * max by(ref) (
-        sdk_operation_latency_p95_seconds{operation_type="write",operation_status="success"}
-      )
+  - name: read_retry_attempts
+    disabled: true
 
-  - name: topic_write_latency_p99_ms
-    unit: ms
-    query: |
-      1000 * max by(ref) (
-        sdk_operation_latency_p99_seconds{operation_type="write",operation_status="success"}
-      )
-
-  - name: topic_write_success_total
-    unit: count
-    query: |
-      max by(ref) (
-        sdk_operations_total{operation_type="write",operation_status="success"}
-      )
-
-  - name: topic_write_error_total
-    unit: count
-    query: |
-      max by(ref) (
-        sdk_operations_total{operation_type="write",operation_status="error"}
-      )
-
-  - name: topic_write_retries_total
-    unit: count
-    query: |
-      clamp_min(
-        sum by(ref) (
-          sdk_retry_attempts_total{operation_type="write"}
-        )
-        -
-        sum by(ref) (
-          sdk_operations_total{operation_type="write"}
-        ),
-        0
-      )
+  - name: write_retry_attempts
+    disabled: true

@@ -104,15 +104,20 @@ struct TTopicRunContext::TImpl {
         WriteStats(options.DontPushMetrics
                        ? std::nullopt
                        : std::make_optional(options.MetricsPushUrl),
-                   "write") {}
+                   "write"),
+        TopicMetrics(options.DontPushMetrics
+                         ? CreateNoopMetricsPusher()
+                         : CreateOtelMetricsPusher(options.MetricsPushUrl,
+                                                   "topic")) {}
 
   TTopicOptions Options;
   std::stop_source StopSource;
   TStat ReadStats;
   TStat WriteStats;
+  std::unique_ptr<IMetricsPusher> TopicMetrics;
 
   std::mutex DeliveryMutex;
-  std::unordered_map<std::uint64_t, std::uint64_t> LastOffsets;
+  std::unordered_map<std::string, std::uint64_t> LastSeqNos;
 
   std::atomic<bool> Failure{false};
   std::mutex FailureMutex;
@@ -171,6 +176,8 @@ void TTopicRunContext::FinishRead(const std::shared_ptr<TStatUnit> &stat,
   Impl_->ReadStats.FinishRequest(stat, MakeStatus(success), end);
 }
 
+void TTopicRunContext::RecordReadError() { FinishRead(StartRead(), false); }
+
 void TTopicRunContext::RecordReadRetry() { Impl_->ReadStats.RecordRetry(); }
 
 std::shared_ptr<TStatUnit> TTopicRunContext::StartWrite() {
@@ -191,7 +198,8 @@ void TTopicRunContext::RecordWriteRetry() { Impl_->WriteStats.RecordRetry(); }
 bool TTopicRunContext::ProcessDataEvent(
     TReadSessionEvent::TDataReceivedEvent &event) {
   struct TDelivery {
-    std::uint64_t Offset;
+    std::string ProducerId;
+    std::uint64_t SeqNo;
     TInstant CreatedAt;
     TInstant ReceivedAt;
   };
@@ -215,35 +223,42 @@ bool TTopicRunContext::ProcessDataEvent(
         error = "message creation timestamp is in the future";
         break;
       }
-      deliveries.push_back({message.GetOffset(), createdAt, now});
+      deliveries.push_back(
+          {message.GetProducerId(), message.GetSeqNo(), createdAt, now});
     }
   } catch (const std::exception &e) {
     error = TStringBuilder() << "message processing failed: " << e.what();
   }
 
   if (error) {
+    RecordReadError();
     Fail(std::move(*error));
     return false;
   }
 
   std::vector<std::pair<TInstant, TInstant>> newDeliveries;
   newDeliveries.reserve(deliveries.size());
+  std::uint64_t lost = 0;
+  std::uint64_t duplicated = 0;
   {
     std::lock_guard lock(Impl_->DeliveryMutex);
-    const auto partitionId = event.GetPartitionSession()->GetPartitionId();
-    auto last = Impl_->LastOffsets.find(partitionId);
     for (const auto &delivery : deliveries) {
-      if (last != Impl_->LastOffsets.end() && delivery.Offset <= last->second) {
+      auto [last, inserted] =
+          Impl_->LastSeqNos.emplace(delivery.ProducerId, delivery.SeqNo);
+      if (!inserted && delivery.SeqNo <= last->second) {
+        ++duplicated;
         continue;
       }
-      if (last == Impl_->LastOffsets.end()) {
-        last = Impl_->LastOffsets.emplace(partitionId, delivery.Offset).first;
-      } else {
-        last->second = delivery.Offset;
+      if (!inserted) {
+        lost += delivery.SeqNo - last->second - 1;
+        last->second = delivery.SeqNo;
       }
       newDeliveries.emplace_back(delivery.CreatedAt, delivery.ReceivedAt);
     }
   }
+
+  Impl_->TopicMetrics->PushTopicMessages(newDeliveries.size(), lost,
+                                         duplicated);
 
   for (const auto &[createdAt, receivedAt] : newDeliveries) {
     auto stat = StartRead();
@@ -349,6 +364,7 @@ bool HandleTopicReadEvent(TReadSessionEvent::TEvent &event,
       }
       data->Commit();
     } catch (const std::exception &e) {
+      context.RecordReadError();
       context.Fail(TStringBuilder() << "read event failed: " << e.what());
       return false;
     }
@@ -365,6 +381,7 @@ bool HandleTopicReadEvent(TReadSessionEvent::TEvent &event,
                      &event)) {
     end->Confirm();
   } else if (auto *closed = std::get_if<TSessionClosedEvent>(&event)) {
+    context.RecordReadError();
     context.Fail(TStringBuilder() << "read session closed unexpectedly: "
                                   << closed->GetIssues().ToString());
     return false;

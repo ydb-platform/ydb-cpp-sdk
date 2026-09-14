@@ -45,6 +45,7 @@ public:
   std::shared_ptr<TStatUnit> StartRead();
   void FinishRead(const std::shared_ptr<TStatUnit> &stat, bool success,
                   TInstant end = TInstant::Zero());
+  void RecordReadError();
   void RecordReadRetry();
 
   std::shared_ptr<TStatUnit> StartWrite();
