@@ -4,7 +4,7 @@
 
 #include <mutex>
 
-namespace NYdb {
+namespace NYdb::inline V3 {
 namespace NCoordination {
     struct TDistributedLock::TImpl {
         struct TLockState {
