@@ -17,6 +17,7 @@ public:
 
     virtual void PushRequestData(const TRequestData& requestData) = 0;
     virtual void PushRetry() = 0;
+    virtual void PushTopicMessages(std::uint64_t delivered, std::uint64_t lost, std::uint64_t duplicated) = 0;
     virtual bool ForceFlush() = 0;
 };
 

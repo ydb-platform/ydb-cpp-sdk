@@ -164,6 +164,19 @@ public:
             opentelemetry::common::MakeKeyValueIterableView(series.RetryAttrs));
     }
 
+    void RecordTopicMessages(std::uint64_t delivered, std::uint64_t lost, std::uint64_t duplicated) {
+        const auto attributes = opentelemetry::common::MakeKeyValueIterableView(CommonAttributes_);
+        if (delivered) {
+            TopicMessagesDeliveredTotal_->Add(delivered, attributes);
+        }
+        if (lost) {
+            TopicMessagesLostTotal_->Add(lost, attributes);
+        }
+        if (duplicated) {
+            TopicMessagesDuplicatedTotal_->Add(duplicated, attributes);
+        }
+    }
+
     bool ForceFlush() {
         {
             std::shared_lock lock(SeriesMutex_);
@@ -257,6 +270,14 @@ private:
             "Total number of operations, categorized by operation type and status.");
         RetryAttemptsTotal_ = Meter_->CreateUInt64Counter("sdk_retry_attempts_total",
             "Total number of retry attempts (including the first attempt), categorized by operation type.");
+        TopicMessagesDeliveredTotal_ = Meter_->CreateUInt64Counter("sdk_topic_messages_delivered_total");
+        TopicMessagesLostTotal_ = Meter_->CreateUInt64Counter("sdk_topic_messages_lost_total");
+        TopicMessagesDuplicatedTotal_ = Meter_->CreateUInt64Counter("sdk_topic_messages_duplicated_total");
+
+        const auto attributes = opentelemetry::common::MakeKeyValueIterableView(CommonAttributes_);
+        TopicMessagesDeliveredTotal_->Add(uint64_t{0}, attributes);
+        TopicMessagesLostTotal_->Add(uint64_t{0}, attributes);
+        TopicMessagesDuplicatedTotal_->Add(uint64_t{0}, attributes);
 
         LatencyP50_ = Meter_->CreateDoubleObservableGauge(
             "sdk_operation_latency_p50_seconds",
@@ -314,6 +335,9 @@ private:
 
     std::unique_ptr<opentelemetry::metrics::Counter<uint64_t>> OperationsTotal_;
     std::unique_ptr<opentelemetry::metrics::Counter<uint64_t>> RetryAttemptsTotal_;
+    std::unique_ptr<opentelemetry::metrics::Counter<uint64_t>> TopicMessagesDeliveredTotal_;
+    std::unique_ptr<opentelemetry::metrics::Counter<uint64_t>> TopicMessagesLostTotal_;
+    std::unique_ptr<opentelemetry::metrics::Counter<uint64_t>> TopicMessagesDuplicatedTotal_;
     std::shared_ptr<opentelemetry::metrics::ObservableInstrument> LatencyP50_;
     std::shared_ptr<opentelemetry::metrics::ObservableInstrument> LatencyP95_;
     std::shared_ptr<opentelemetry::metrics::ObservableInstrument> LatencyP99_;
@@ -381,6 +405,10 @@ public:
         Shared_->RecordRetry(OperationType_);
     }
 
+    void PushTopicMessages(std::uint64_t delivered, std::uint64_t lost, std::uint64_t duplicated) override {
+        Shared_->RecordTopicMessages(delivered, lost, duplicated);
+    }
+
     bool ForceFlush() override {
         return Shared_->ForceFlush();
     }
@@ -394,6 +422,7 @@ class TNoopMetricsPusher : public IMetricsPusher {
 public:
     void PushRequestData([[maybe_unused]] const TRequestData& requestData) override {}
     void PushRetry() override {}
+    void PushTopicMessages(std::uint64_t, std::uint64_t, std::uint64_t) override {}
     bool ForceFlush() override { return true; }
 };
 

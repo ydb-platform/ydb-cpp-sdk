@@ -176,6 +176,7 @@ private:
       }
     } catch (const std::exception &e) {
       if (!stopToken.stop_requested()) {
+        Context_.RecordReadError();
         Context_.Fail(TStringBuilder() << "topic reader " << readerIndex
                                        << " failed: " << e.what());
       }
