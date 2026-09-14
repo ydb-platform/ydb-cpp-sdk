@@ -6,7 +6,7 @@
 #include <memory>
 #include <utility>
 
-namespace NYdb::inline V3::NTopic {
+namespace NYdb::NTopic {
 
 struct TProducerSettings : public TWriteSessionSettings {
     using TSelf = TProducerSettings;
