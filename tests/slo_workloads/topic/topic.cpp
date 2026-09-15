@@ -265,6 +265,11 @@ bool TTopicRunContext::ProcessDataEvent(
     stat->Start = createdAt;
     FinishRead(stat, true, receivedAt);
   }
+  if (lost) {
+    RecordReadError();
+    Fail(TStringBuilder() << "detected " << lost << " lost topic messages");
+    return false;
+  }
   return true;
 }
 
