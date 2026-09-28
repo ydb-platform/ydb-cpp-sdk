@@ -653,13 +653,12 @@ TEST(MetadataApi, SQLStatisticsReportsIndexesAndHonorsOptions) {
     ExecuteAndClose(stmt, "DROP TABLE IF EXISTS test_statistics_metadata");
     ExecuteAndClose(stmt,
         "CREATE TABLE test_statistics_metadata ("
-        "id Int32, email Utf8 NOT NULL, city Utf8, created Timestamp, "
+        "id Int32, city Utf8, created Timestamp, "
         "INDEX idx_city_created GLOBAL SYNC ON (city, created), "
-        "INDEX idx_email GLOBAL UNIQUE SYNC ON (email), "
         "PRIMARY KEY (id))");
     ExecuteAndClose(stmt,
-        "UPSERT INTO test_statistics_metadata (id, email, city) VALUES "
-        "(1, 'one@example.test', 'A'), (2, 'two@example.test', 'B')");
+        "UPSERT INTO test_statistics_metadata (id, city) VALUES "
+        "(1, 'A'), (2, 'B')");
 
     SQLCHAR tableName[] = "test_statistics_metadata";
     CHECK_ODBC_OK(SQLStatistics(
@@ -670,11 +669,6 @@ TEST(MetadataApi, SQLStatisticsReportsIndexesAndHonorsOptions) {
         {3, "test_statistics_metadata"}, {4, nullptr}, {6, nullptr}, {7, SQL_TABLE_STAT},
         {8, nullptr}, {9, nullptr}, {10, nullptr}, {11, nullptr}, {12, nullptr}, {13, nullptr},
     });
-    ExpectRow(stmt, {
-        {4, SQL_FALSE}, {6, "idx_email"}, {7, SQL_INDEX_OTHER}, {8, 1},
-        {9, "email"}, {11, nullptr},
-    });
-
     const std::array<const char*, 2> regularIndexColumns{"city", "created"};
     for (size_t i = 0; i < regularIndexColumns.size(); ++i) {
         ExpectRow(stmt, {
@@ -689,7 +683,38 @@ TEST(MetadataApi, SQLStatisticsReportsIndexesAndHonorsOptions) {
         stmt, nullptr, 0, nullptr, 0, tableName, SQL_NTS,
         SQL_INDEX_UNIQUE, SQL_ENSURE), stmt, SQL_HANDLE_STMT);
     ExpectRow(stmt, {{7, SQL_TABLE_STAT}, {11, AnyValue}});
-    ExpectRow(stmt, {{4, SQL_FALSE}, {6, "idx_email"}, {9, "email"}});
+    FinishResult(stmt);
+}
+
+TEST(MetadataApi, SQLStatisticsUniqueIndexWhenSupported) {
+    TMetadataHandles handles;
+    const SQLHSTMT stmt = handles.Stmt;
+
+    ExecuteAndClose(stmt, "DROP TABLE IF EXISTS test_statistics_unique_metadata");
+    const char* createTable =
+        "CREATE TABLE test_statistics_unique_metadata ("
+        "id Int32, email Utf8 NOT NULL, "
+        "INDEX idx_email GLOBAL UNIQUE SYNC ON (email), "
+        "PRIMARY KEY (id))";
+    const SQLRETURN rc = SQLExecDirect(
+        stmt, reinterpret_cast<SQLCHAR*>(const_cast<char*>(createTable)), SQL_NTS);
+    if (rc == SQL_ERROR) {
+        const std::string error = GetOdbcError(stmt, SQL_HANDLE_STMT);
+        if (error.find("Unique constraint feature is disabled") != std::string::npos) {
+            GTEST_SKIP() << error;
+        }
+    }
+    CHECK_ODBC_OK(rc, stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFreeStmt(stmt, SQL_CLOSE), SQL_SUCCESS);
+
+    SQLCHAR tableName[] = "test_statistics_unique_metadata";
+    CHECK_ODBC_OK(SQLStatistics(
+        stmt, nullptr, 0, nullptr, 0, tableName, SQL_NTS,
+        SQL_INDEX_UNIQUE, SQL_QUICK), stmt, SQL_HANDLE_STMT);
+    ExpectRow(stmt, {{7, SQL_TABLE_STAT}});
+    ExpectRow(stmt, {
+        {4, SQL_FALSE}, {6, "idx_email"}, {7, SQL_INDEX_OTHER}, {8, 1}, {9, "email"},
+    });
     FinishResult(stmt);
 }
 
