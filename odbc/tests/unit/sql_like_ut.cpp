@@ -36,3 +36,10 @@ TEST(SqlLikeMatch, BackslashEscapesWildcards) {
     EXPECT_TRUE(SqlLikeMatch("prefix_value_suffix", "%\\_value\\_%"));
     EXPECT_FALSE(SqlLikeMatch("prefixXvalueYsuffix", "%\\_value\\_%"));
 }
+
+TEST(SqlLikeMatch, BackslashWithoutSpecialCharacterIsLiteral) {
+    EXPECT_TRUE(SqlLikeMatch("a\\b", "a\\b"));
+    EXPECT_FALSE(SqlLikeMatch("ab", "a\\b"));
+    EXPECT_TRUE(SqlLikeMatch("abc\\", "abc\\"));
+    EXPECT_FALSE(SqlLikeMatch("abc", "abc\\"));
+}
