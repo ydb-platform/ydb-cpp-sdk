@@ -524,6 +524,17 @@ TEST(MetadataApi, SQLTablesSpecialEnumerationsAndEmptyArguments) {
         stmt, nullptr, 0, nullptr, 0, empty, 0, nullptr, 0),
         stmt, SQL_HANDLE_STMT);
     FinishResult(stmt);
+
+    CHECK_ODBC_OK(SQLSetStmtAttr(
+        stmt, SQL_ATTR_METADATA_ID, (SQLPOINTER)(uintptr_t)SQL_TRUE, 0),
+        stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLTables(
+        stmt, all, SQL_NTS, empty, 0, empty, 0, empty, 0), stmt, SQL_HANDLE_STMT);
+    FinishResult(stmt);
+    CHECK_ODBC_OK(SQLTables(
+        stmt, empty, 0, empty, 0, empty, 0, all, SQL_NTS), stmt, SQL_HANDLE_STMT);
+    ExpectRow(stmt, {{4, AnyValue}});
+    ASSERT_EQ(SQLFreeStmt(stmt, SQL_CLOSE), SQL_SUCCESS);
 }
 
 TEST(MetadataApi, SQLColumnsFieldsAndCompositePrimaryKey) {
@@ -644,6 +655,27 @@ TEST(MetadataApi, MetadataUsesCurrentCatalogForSameNamedTables) {
         (SQLCHAR*)"b_value", SQL_NTS), stmt, SQL_HANDLE_STMT);
     ExpectRow(stmt, {{3, "cat_b/catalog_metadata_same"}, {4, "b_value"}});
     FinishResult(stmt);
+
+    SQLCHAR allTables[] = "%";
+    CHECK_ODBC_OK(SQLTables(
+        stmt, nullptr, 0, nullptr, 0, allTables, SQL_NTS,
+        (SQLCHAR*)"TABLE", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    std::set<std::string> names;
+    while (SQLFetch(stmt) == SQL_SUCCESS) {
+        const auto name = ReadText(stmt, 3);
+        ASSERT_TRUE(name);
+        names.insert(*name);
+    }
+    EXPECT_TRUE(names.contains("cat_a/catalog_metadata_same"));
+    EXPECT_TRUE(names.contains("cat_b/catalog_metadata_same"));
+    ASSERT_EQ(SQLFreeStmt(stmt, SQL_CLOSE), SQL_SUCCESS);
+
+    SQLCHAR nestedPattern[] = "cat_a/catalog_metadata_%";
+    CHECK_ODBC_OK(SQLTables(
+        stmt, nullptr, 0, nullptr, 0, nestedPattern, SQL_NTS,
+        (SQLCHAR*)"TABLE", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    ExpectRow(stmt, {{3, "cat_a/catalog_metadata_same"}});
+    FinishResult(stmt);
 }
 
 TEST(MetadataApi, SQLStatisticsReportsIndexesAndHonorsOptions) {
@@ -693,7 +725,8 @@ TEST(MetadataApi, SQLStatisticsUniqueIndexWhenSupported) {
     ExecuteAndClose(stmt, "DROP TABLE IF EXISTS test_statistics_unique_metadata");
     const char* createTable =
         "CREATE TABLE test_statistics_unique_metadata ("
-        "id Int32, email Utf8 NOT NULL, "
+        "id Int32, email Utf8 NOT NULL, city Utf8, "
+        "INDEX idx_city GLOBAL SYNC ON (city), "
         "INDEX idx_email GLOBAL UNIQUE SYNC ON (email), "
         "PRIMARY KEY (id))";
     const SQLRETURN rc = SQLExecDirect(
@@ -708,6 +741,14 @@ TEST(MetadataApi, SQLStatisticsUniqueIndexWhenSupported) {
     ASSERT_EQ(SQLFreeStmt(stmt, SQL_CLOSE), SQL_SUCCESS);
 
     SQLCHAR tableName[] = "test_statistics_unique_metadata";
+    CHECK_ODBC_OK(SQLStatistics(
+        stmt, nullptr, 0, nullptr, 0, tableName, SQL_NTS,
+        SQL_INDEX_ALL, SQL_QUICK), stmt, SQL_HANDLE_STMT);
+    ExpectRow(stmt, {{7, SQL_TABLE_STAT}});
+    ExpectRow(stmt, {{4, SQL_FALSE}, {6, "idx_email"}, {8, 1}, {9, "email"}});
+    ExpectRow(stmt, {{4, SQL_TRUE}, {6, "idx_city"}, {8, 1}, {9, "city"}});
+    FinishResult(stmt);
+
     CHECK_ODBC_OK(SQLStatistics(
         stmt, nullptr, 0, nullptr, 0, tableName, SQL_NTS,
         SQL_INDEX_UNIQUE, SQL_QUICK), stmt, SQL_HANDLE_STMT);

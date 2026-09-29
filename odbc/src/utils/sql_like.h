@@ -25,7 +25,9 @@ inline bool SqlLikeMatch(std::string_view text, std::string_view pattern) {
             size_t nextPat = patPos + 1;
             char expected = pattern[patPos];
             bool anyCharacter = expected == '_';
-            if (expected == '\\' && nextPat < patLen) {
+            if (expected == '\\' && nextPat < patLen
+                && (pattern[nextPat] == '%' || pattern[nextPat] == '_'
+                    || pattern[nextPat] == '\\')) {
                 expected = pattern[nextPat++];
                 anyCharacter = false;
             }
