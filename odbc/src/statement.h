@@ -14,6 +14,7 @@
 #include <optional>
 #include <vector>
 #include <string>
+#include <string_view>
 
 
 namespace NYdb::NOdbc {
@@ -177,7 +178,7 @@ private:
     std::vector<NScheme::TSchemeEntry> GetMetadataEntries(const TMetadataArgument& tableName,
                                                           bool patternsAllowed);
     void VisitEntry(const std::string& path, const std::string& tableName,
-                    bool patternsAllowed,
+                    bool patternsAllowed, std::string_view literalPrefix, bool hasWildcard,
                     std::vector<NScheme::TSchemeEntry>& resultEntries);
     std::optional<std::string> GetTableType(NScheme::ESchemeEntryType type);
 };

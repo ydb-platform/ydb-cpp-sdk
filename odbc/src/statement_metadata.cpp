@@ -10,6 +10,7 @@
 #include <limits>
 #include <ranges>
 #include <string_view>
+#include <tuple>
 #include <utility>
 
 namespace NYdb::NOdbc {
@@ -177,9 +178,27 @@ TOdbcScalar Maybe(const std::optional<T>& value) {
 }
 
 TOdbcScalar Int32OrNull(uint64_t value) {
+    // CARDINALITY is SQL_INTEGER; NULL is safer than reporting a clipped row count.
     return value <= static_cast<uint64_t>(std::numeric_limits<SQLINTEGER>::max())
         ? I(static_cast<SQLINTEGER>(value))
         : Null();
+}
+
+std::pair<std::string, bool> GetLiteralPrefix(std::string_view pattern) {
+    std::string prefix;
+    for (size_t i = 0; i < pattern.size(); ++i) {
+        const char ch = pattern[i];
+        if (ch == '\\' && i + 1 < pattern.size()
+            && (pattern[i + 1] == '%' || pattern[i + 1] == '_'
+                || pattern[i + 1] == '\\')) {
+            prefix.push_back(pattern[++i]);
+        } else if (ch == '%' || ch == '_') {
+            return {prefix, true};
+        } else {
+            prefix.push_back(ch);
+        }
+    }
+    return {prefix, false};
 }
 
 bool IsExplicitEmpty(const TMetadataArgument& value) {
@@ -385,14 +404,15 @@ SQLRETURN TStatement::Tables(const TMetadataArgument& catalogName,
     const bool emptySchema = IsExplicitEmpty(schemaName);
     const bool emptyTable = IsExplicitEmpty(tableName);
     const bool emptyType = IsExplicitEmpty(tableType);
-    if (IsSpecialValue(catalogName, SQL_ALL_CATALOGS)
+    const bool patternsAllowed = Attributes_.GetMetadataId() != SQL_TRUE;
+    if (patternsAllowed && IsSpecialValue(catalogName, SQL_ALL_CATALOGS)
         && emptySchema && emptyTable && emptyType) {
         SetCursor(CreateVirtualCursor(kTablesSchema, {{
             GetMetadataCatalogName(Conn_), Null(), Null(), Null(), Null(),
         }}));
         return SQL_SUCCESS;
     }
-    if (IsSpecialValue(schemaName, SQL_ALL_SCHEMAS)
+    if (patternsAllowed && IsSpecialValue(schemaName, SQL_ALL_SCHEMAS)
         && IsExplicitEmpty(catalogName) && emptyTable && emptyType) {
         SetCursor(CreateVirtualCursor(kTablesSchema));
         return SQL_SUCCESS;
@@ -412,7 +432,6 @@ SQLRETURN TStatement::Tables(const TMetadataArgument& catalogName,
         return SQL_SUCCESS;
     }
 
-    const bool patternsAllowed = Attributes_.GetMetadataId() != SQL_TRUE;
     if (!MetadataNamespaceMatches(catalogName, schemaName,
                                   patternsAllowed, patternsAllowed)) {
         SetCursor(CreateVirtualCursor(kTablesSchema));
@@ -421,18 +440,16 @@ SQLRETURN TStatement::Tables(const TMetadataArgument& catalogName,
 
     const std::string catalog = GetMetadataCatalogName(Conn_);
     TTable table;
-    auto entries = GetMetadataEntries(tableName, patternsAllowed);
-    std::ranges::sort(entries, [this](const auto& lhs, const auto& rhs) {
-        return std::pair{GetTableType(lhs.Type).value_or(""), GetMetadataTableName(lhs.Name)}
-            < std::pair{GetTableType(rhs.Type).value_or(""), GetMetadataTableName(rhs.Name)};
-    });
     const std::string_view typeFilter = tableType ? std::string_view(*tableType) : std::string_view{};
-    for (const auto& entry : entries) {
+    for (const auto& entry : GetMetadataEntries(tableName, patternsAllowed)) {
         const auto type = GetTableType(entry.Type);
         if (type && MatchesTableTypeFilter(typeFilter, *type)) {
             table.push_back({catalog, Null(), GetMetadataTableName(entry.Name), *type, Null()});
         }
     }
+    std::ranges::sort(table, {}, [](const auto& row) {
+        return std::tie(std::get<std::string>(row[3]), std::get<std::string>(row[2]));
+    });
     SetCursor(CreateVirtualCursor(kTablesSchema, std::move(table)));
     return SQL_SUCCESS;
 }
@@ -611,8 +628,10 @@ std::vector<NScheme::TSchemeEntry> TStatement::GetMetadataEntries(
         }
     }
 
+    const auto [literalPrefix, hasWildcard] = patternsAllowed
+        ? GetLiteralPrefix(qualifiedName) : std::pair{qualifiedName, false};
     VisitEntry(catalog.empty() ? "/" : catalog, qualifiedName,
-               tableName ? patternsAllowed : true, entries);
+               patternsAllowed, literalPrefix, hasWildcard, entries);
     std::ranges::sort(entries, {}, &NScheme::TSchemeEntry::Name);
     return entries;
 }
@@ -647,7 +666,8 @@ bool TStatement::MetadataNamespaceMatches(
 }
 
 void TStatement::VisitEntry(const std::string& path, const std::string& tableName,
-                            bool patternsAllowed,
+                            bool patternsAllowed, std::string_view literalPrefix,
+                            bool hasWildcard,
                             std::vector<NScheme::TSchemeEntry>& result) {
     auto client = Conn_->GetSchemeClient();
     if (!client) {
@@ -659,7 +679,10 @@ void TStatement::VisitEntry(const std::string& path, const std::string& tableNam
         const std::string fullPath = path == "/" ? path + entry.Name : path + "/" + entry.Name;
         if (entry.Type == NScheme::ESchemeEntryType::Directory
             || entry.Type == NScheme::ESchemeEntryType::SubDomain) {
-            VisitEntry(fullPath, tableName, patternsAllowed, result);
+            if (tableName.empty() || literalPrefix.starts_with(fullPath + "/")
+                || (hasWildcard && fullPath.starts_with(literalPrefix))) {
+                VisitEntry(fullPath, tableName, patternsAllowed, literalPrefix, hasWildcard, result);
+            }
         } else if (tableName.empty()
                    || (patternsAllowed ? SqlLikeMatch(fullPath, tableName)
                                        : fullPath == tableName)) {
