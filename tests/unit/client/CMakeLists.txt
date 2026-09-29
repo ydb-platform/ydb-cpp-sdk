@@ -126,6 +126,7 @@ add_ydb_test(NAME client-result_ut
 
 add_ydb_test(NAME client-value_ut GTEST
   SOURCES
+    value/embedding_ut.cpp
     value/value_ut.cpp
   LINK_LIBRARIES
     YDB-CPP-SDK::Value
