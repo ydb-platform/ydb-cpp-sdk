@@ -457,6 +457,12 @@ TEST(MetadataApi, SQLTablesFilterByType) {
                   stmt, SQL_HANDLE_STMT);
     ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
     ASSERT_EQ(SQLFetch(stmt), SQL_NO_DATA);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLTables(stmt, nullptr, 0, nullptr, 0,
+                           (SQLCHAR*)"/local/test_type_filter", SQL_NTS,
+                           (SQLCHAR*)"", 0),
+                  stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_NO_DATA);
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);
@@ -578,6 +584,18 @@ TEST(MetadataApi, SQLColumnsFieldsAndCompositePrimaryKey) {
             {18, expected.Nullable == SQL_NO_NULLS ? "NO" : "YES"},
         });
     }
+    FinishResult(stmt);
+
+    SQLCHAR catalog[] = "local";
+    SQLCHAR catalogPattern[] = "loca%";
+    CHECK_ODBC_OK(SQLColumns(
+        stmt, catalog, SQL_NTS, nullptr, 0, tableName, SQL_NTS,
+        (SQLCHAR*)"pk_a", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    ExpectRow(stmt, {{4, "pk_a"}});
+    FinishResult(stmt);
+    CHECK_ODBC_OK(SQLColumns(
+        stmt, catalogPattern, SQL_NTS, nullptr, 0, tableName, SQL_NTS,
+        (SQLCHAR*)"pk_a", SQL_NTS), stmt, SQL_HANDLE_STMT);
     FinishResult(stmt);
 
     CHECK_ODBC_OK(SQLPrimaryKeys(
@@ -778,4 +796,41 @@ TEST(MetadataApi, RequiredTableArgumentsAndStatisticsOptionsAreValidated) {
         stmt, SQL_HANDLE_STMT);
     ExpectError(SQLTables(
         stmt, nullptr, 0, nullptr, 0, tableName, SQL_NTS, nullptr, 0), stmt, "HY009");
+}
+
+TEST(MetadataApi, SQLSpecialColumnsDistinguishesNullAndEmptyArguments) {
+    TMetadataHandles handles;
+    const SQLHSTMT stmt = handles.Stmt;
+
+    ExecuteAndClose(stmt, "DROP TABLE IF EXISTS test_special_columns_metadata");
+    ExecuteAndClose(stmt,
+        "CREATE TABLE test_special_columns_metadata (id Int32, PRIMARY KEY (id))");
+
+    SQLCHAR tableName[] = "test_special_columns_metadata";
+    SQLCHAR catalog[] = "local";
+    SQLCHAR empty[] = "";
+    ExpectError(SQLSpecialColumns(
+        stmt, SQL_BEST_ROWID, nullptr, 0, nullptr, 0, nullptr, 0,
+        SQL_SCOPE_SESSION, SQL_NULLABLE), stmt, "HY009");
+
+    CHECK_ODBC_OK(SQLSpecialColumns(
+        stmt, SQL_BEST_ROWID, empty, 0, nullptr, 0, tableName, SQL_NTS,
+        SQL_SCOPE_SESSION, SQL_NULLABLE), stmt, SQL_HANDLE_STMT);
+    FinishResult(stmt);
+
+    CHECK_ODBC_OK(SQLSetStmtAttr(
+        stmt, SQL_ATTR_METADATA_ID, (SQLPOINTER)(uintptr_t)SQL_TRUE, 0),
+        stmt, SQL_HANDLE_STMT);
+    ExpectError(SQLSpecialColumns(
+        stmt, SQL_BEST_ROWID, nullptr, 0, empty, 0, tableName, SQL_NTS,
+        SQL_SCOPE_SESSION, SQL_NULLABLE), stmt, "HY009");
+    ExpectError(SQLSpecialColumns(
+        stmt, SQL_BEST_ROWID, catalog, SQL_NTS, nullptr, 0, tableName, SQL_NTS,
+        SQL_SCOPE_SESSION, SQL_NULLABLE), stmt, "HY009");
+
+    CHECK_ODBC_OK(SQLSpecialColumns(
+        stmt, SQL_BEST_ROWID, catalog, SQL_NTS, empty, 0, tableName, SQL_NTS,
+        SQL_SCOPE_SESSION, SQL_NULLABLE), stmt, SQL_HANDLE_STMT);
+    ExpectRow(stmt, {{2, "id"}});
+    FinishResult(stmt);
 }
