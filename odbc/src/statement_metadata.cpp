@@ -432,6 +432,11 @@ SQLRETURN TStatement::Tables(const TMetadataArgument& catalogName,
         return SQL_SUCCESS;
     }
 
+    if (emptyType) {
+        SetCursor(CreateVirtualCursor(kTablesSchema));
+        return SQL_SUCCESS;
+    }
+
     if (!MetadataNamespaceMatches(catalogName, schemaName,
                                   patternsAllowed, patternsAllowed)) {
         SetCursor(CreateVirtualCursor(kTablesSchema));
@@ -524,23 +529,26 @@ SQLRETURN TStatement::Statistics(const TMetadataArgument& catalogName,
     return SQL_SUCCESS;
 }
 
-SQLRETURN TStatement::SpecialColumns(const std::string& catalogName, const std::string& schemaName,
-                                     const std::string& tableName, SQLUSMALLINT identifierType,
+SQLRETURN TStatement::SpecialColumns(const TMetadataArgument& catalogName,
+                                     const TMetadataArgument& schemaName,
+                                     const TMetadataArgument& tableName, SQLUSMALLINT identifierType,
                                      SQLUSMALLINT) {
     if (identifierType != SQL_BEST_ROWID) {
         return AddError("HYC00", 0, "Optional feature not implemented");
     }
+    if (!tableName) {
+        return AddError("HY009", 0, "TableName must not be null");
+    }
+    if (Attributes_.GetMetadataId() == SQL_TRUE && (!catalogName || !schemaName)) {
+        return AddError("HY009", 0, "Identifier arguments must not be null");
+    }
     ResetForMetadata();
-    const std::optional<std::string> catalog = catalogName.empty()
-        ? std::nullopt : std::optional<std::string>{catalogName};
-    const std::optional<std::string> schema = schemaName.empty()
-        ? std::nullopt : std::optional<std::string>{schemaName};
-    if (!MetadataNamespaceMatches(catalog, schema, false, false)) {
+    if (!MetadataNamespaceMatches(catalogName, schemaName, false, false)) {
         SetCursor(CreateVirtualCursor(kSpecialColumnsSchema));
         return SQL_SUCCESS;
     }
 
-    auto entries = GetMetadataEntries(std::optional<std::string>{tableName}, false);
+    auto entries = GetMetadataEntries(tableName, false);
     if (entries.size() > 1) {
         throw TOdbcException("HY000", 0, "Ambiguous table name");
     }
@@ -679,7 +687,10 @@ void TStatement::VisitEntry(const std::string& path, const std::string& tableNam
         const std::string fullPath = path == "/" ? path + entry.Name : path + "/" + entry.Name;
         if (entry.Type == NScheme::ESchemeEntryType::Directory
             || entry.Type == NScheme::ESchemeEntryType::SubDomain) {
-            if (tableName.empty() || literalPrefix.starts_with(fullPath + "/")
+            if (tableName.empty()
+                || (literalPrefix.size() > fullPath.size()
+                    && literalPrefix.starts_with(fullPath)
+                    && literalPrefix[fullPath.size()] == '/')
                 || (hasWildcard && fullPath.starts_with(literalPrefix))) {
                 VisitEntry(fullPath, tableName, patternsAllowed, literalPrefix, hasWildcard, result);
             }
