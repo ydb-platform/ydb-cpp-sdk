@@ -54,9 +54,9 @@ public:
                          const TMetadataArgument& tableName,
                          SQLUSMALLINT unique,
                          SQLUSMALLINT accuracy);
-    SQLRETURN SpecialColumns(const std::string& catalogName,
-                             const std::string& schemaName,
-                             const std::string& tableName,
+    SQLRETURN SpecialColumns(const TMetadataArgument& catalogName,
+                             const TMetadataArgument& schemaName,
+                             const TMetadataArgument& tableName,
                              SQLUSMALLINT identifierType,
                              SQLUSMALLINT scope);
     SQLRETURN PrimaryKeys(const TMetadataArgument& catalogName, const TMetadataArgument& schemaName,
