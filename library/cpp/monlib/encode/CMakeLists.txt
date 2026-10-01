@@ -24,6 +24,7 @@ target_link_libraries(monlib-encode-json
     monlib-exception
     json
     json-writer
+    RapidJSON::RapidJSON
 )
 target_sources(monlib-encode-json
   PRIVATE

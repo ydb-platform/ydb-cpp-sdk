@@ -8,9 +8,9 @@
 
 #include <library/cpp/json/json_reader.h>
 
-#include <contrib/libs/rapidjson/include/rapidjson/error/en.h>
-#include <contrib/libs/rapidjson/include/rapidjson/memorystream.h>
-#include <contrib/libs/rapidjson/include/rapidjson/reader.h>
+#include <rapidjson/error/en.h>
+#include <rapidjson/memorystream.h>
+#include <rapidjson/reader.h>
 
 #include <util/datetime/base.h>
 #include <util/string/cast.h>
