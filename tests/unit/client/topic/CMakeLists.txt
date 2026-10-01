@@ -33,3 +33,16 @@ add_ydb_test(NAME client-topic-read-session-credentials_ut
   LABELS
     unit
 )
+
+add_ydb_test(NAME client-topic-read-session-accounting_ut
+  INCLUDE_DIRS ${YDB_SDK_SOURCE_DIR}
+  SOURCES ${YDB_SDK_SOURCE_DIR}/src/client/topic/ut/read_session_accounting_ut.cpp
+  LINK_LIBRARIES
+    YDB-CPP-SDK::Topic
+    client-ydb_topic-impl
+  LABELS unit
+)
+
+# read_session_kafka_timestamps_ut.cpp and reset_offset_ut.cpp use the
+# upstream TTopicSdkTestSetup and ydb/core server fixtures, which are absent
+# from the standalone SDK repository.

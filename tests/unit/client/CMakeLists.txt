@@ -2,6 +2,26 @@ add_subdirectory(federated_topic)
 add_subdirectory(oauth2_token_exchange/helpers)
 add_subdirectory(topic)
 
+add_ydb_test(NAME client-embedding_ut GTEST
+  SOURCES value/embedding_ut.cpp
+  LINK_LIBRARIES YDB-CPP-SDK::Value
+  LABELS unit
+)
+
+add_ydb_test(NAME client-oidc_ut
+  SOURCES
+    oidc/credentials_ut.cpp
+    oidc/protocol_ut.cpp
+    oidc/test_server.cpp
+    oidc/helpers/test_server.cpp
+  LINK_LIBRARIES
+    client-types-credentials-oidc
+    http-server
+    json
+    string_utils-base64
+  LABELS unit
+)
+
 add_ydb_test(NAME client-connection_string_ut GTEST
   SOURCES
     connection_string/connection_string_ut.cpp
