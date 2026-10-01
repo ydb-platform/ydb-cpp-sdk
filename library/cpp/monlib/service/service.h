@@ -13,6 +13,10 @@
 struct TMonitor;
 
 namespace NMonitoring {
+    /// Adds the monitoring media-type content-encoding policy while preserving
+    /// any policy already configured by the caller.
+    THttpServerOptions WithMonitoringContentEncodingPolicy(THttpServerOptions options);
+
     struct IHttpRequest {
         virtual ~IHttpRequest() {
         }
