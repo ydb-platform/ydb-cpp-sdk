@@ -726,13 +726,8 @@ if (NOT WIN32)
 endif ()
 
 if (CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
-  target_yasm_source(yutil
-    PRIVATE
-    ${YDB_SDK_SOURCE_DIR}/util/system/context_x86.asm
-    -I
-    ${YDB_SDK_BINARY_DIR}
-    -I
-    ${YDB_SDK_SOURCE_DIR}
+  target_sources(yutil PRIVATE
+    ${YDB_SDK_SOURCE_DIR}/util/system/context_x86.S
   )
 elseif (CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
   target_sources(yutil PRIVATE
