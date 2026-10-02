@@ -5,6 +5,7 @@ add_ydb_test(NAME operation_id_ut GTEST
     yutil
     lib-operation_id-protos
     library-operation_id
+    cpp-testing-unittest
   LABELS
     unit
 )

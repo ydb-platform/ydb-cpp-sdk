@@ -1,0 +1,216 @@
+name: ODBC consumer integration
+on:
+  pull_request:
+    branches: [odbc-driver-feature]
+    types: [labeled, synchronize, reopened, ready_for_review, closed]
+permissions: {contents: read}
+concurrency: {group: "odbc-integration-${{ github.event.pull_request.number }}-${{ github.event.action == 'closed' && 'merged' || 'pr' }}", cancel-in-progress: true}
+jobs:
+  build:
+    name: Build and validate ydb-odbc package
+    if: >-
+      (github.event.action == 'closed' && github.event.pull_request.merged == true) ||
+      (github.event.action != 'closed' &&
+       contains(github.event.pull_request.labels.*.name, 'ODBC full matrix'))
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.registry.outputs.matrix }}
+      config: ${{ steps.registry.outputs.config }}
+      target_sha: ${{ steps.target.outputs.sha }}
+    env:
+      CPM_SOURCE_CACHE: ${{ github.workspace }}/.cache/cpm
+      CCACHE_DIR: ${{ github.workspace }}/.cache/ccache
+    steps:
+      - name: Resolve tested commit
+        id: target
+        run: echo 'sha=${{ github.event.action == 'closed' && github.event.pull_request.merge_commit_sha || github.event.pull_request.head.sha }}' >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.target.outputs.sha }}
+      - name: Validate harness and create matrix
+        id: registry
+        run: |
+          python3 -m pip install --user --break-system-packages 'PyYAML==6.0.2'
+          harness=odbc/tests/frameworks/harness.py
+          python3 "$harness" registry
+          python3 -m unittest odbc.tests.test_integration_harness
+          echo "matrix=$(python3 "$harness" registry --matrix)" >> "$GITHUB_OUTPUT"
+          echo "config=$(python3 "$harness" registry --config)" >> "$GITHUB_OUTPUT"
+      - name: Restore dependency and compiler caches
+        uses: actions/cache@v4
+        with:
+          path: |
+            .cache/cpm
+            .cache/ccache
+          key: deb-ubuntu-24.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}-${{ github.run_id }}
+          restore-keys: |
+            deb-ubuntu-24.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}-
+      - name: Build ODBC package component
+        env:
+          YDB_DEB_COMPONENTS: ydb-odbc
+        run: ./scripts/build_cpack_deb_packages.sh build-odbc/packages
+      - name: Validate and upload package
+        shell: bash
+        run: |
+          shopt -s nullglob
+          packages=(build-odbc/packages/ydb-odbc_*.deb)
+          test "${#packages[@]}" -eq 1
+          sha256sum "${packages[0]}" > build-odbc/packages/ydb-odbc.sha256
+          dpkg-deb -f "${packages[0]}" > build-odbc/packages/ydb-odbc.control
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ydb-odbc-package
+          path: build-odbc/packages/ydb-odbc*
+          if-no-files-found: error
+          retention-days: 3
+      - name: Run package contract
+        continue-on-error: true
+        env:
+          DRIVER_COMMIT: ${{ steps.target.outputs.sha }}
+          YDB_TEST_IMAGE: ${{ fromJSON(steps.registry.outputs.config).ydb.image }}
+          YDB_ENDPOINT: ${{ fromJSON(steps.registry.outputs.config).ydb.endpoint }}
+          YDB_DATABASE: ${{ fromJSON(steps.registry.outputs.config).ydb.database }}
+        run: >-
+          python3 odbc/tests/frameworks/harness.py launch --consumer package-contract
+          --runtime-image '${{ fromJSON(steps.registry.outputs.config).package_runtime_image }}'
+          --package build-odbc/packages/ydb-odbc_*.deb --results results/package-contract
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: odbc-results-package-contract
+          path: results/package-contract
+          if-no-files-found: warn
+          retention-days: 14
+  consumers:
+    name: ${{ matrix.display_name }} (${{ matrix.mode }})
+    needs: build
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.build.outputs.matrix) }}
+    services:
+      ydb:
+        image: ${{ fromJSON(needs.build.outputs.config).ydb.image }}
+        ports: [2136:2136]
+        env: {YDB_USE_IN_MEMORY_PDISKS: true, YDB_TABLE_ENABLE_PREPARED_DDL: true}
+        options: --hostname localhost
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.build.outputs.target_sha }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: ydb-odbc-package
+          path: package
+      - name: Wait for YDB
+        shell: bash
+        run: |
+          for attempt in $(seq 1 60); do
+            docker exec '${{ job.services.ydb.id }}' /ydb \
+              -e grpc://localhost:2136 -d /local scheme ls >/dev/null 2>&1 && exit 0
+            sleep 2
+          done
+          docker logs '${{ job.services.ydb.id }}' || true
+          exit 1
+      - name: Run consumer
+        env:
+          DRIVER_COMMIT: ${{ needs.build.outputs.target_sha }}
+          YDB_TEST_IMAGE: ${{ fromJSON(needs.build.outputs.config).ydb.image }}
+          YDB_ENDPOINT: ${{ fromJSON(needs.build.outputs.config).ydb.endpoint }}
+          YDB_DATABASE: ${{ fromJSON(needs.build.outputs.config).ydb.database }}
+        run: >-
+          python3 odbc/tests/frameworks/harness.py launch --consumer '${{ matrix.consumer }}'
+          --mode '${{ matrix.mode }}'
+          --runtime-image '${{ matrix.runtime_image }}' --package package/ydb-odbc_*.deb
+          --results 'results/${{ matrix.run_id }}'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: odbc-results-${{ matrix.run_id }}
+          path: results/${{ matrix.run_id }}
+          if-no-files-found: warn
+          retention-days: 14
+  aggregate:
+    name: Aggregate ODBC reports
+    if: always() && needs.build.result == 'success'
+    needs: [build, consumers]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.build.outputs.target_sha }}
+      - run: python3 -m pip install --user --break-system-packages 'PyYAML==6.0.2'
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          pattern: odbc-results-*
+          path: collected-results
+      - name: Aggregate and validate results
+        id: aggregate
+        continue-on-error: true
+        run: >-
+          set -o pipefail; python3 odbc/tests/frameworks/harness.py aggregate --input collected-results
+          --output aggregated-results | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Generate browser report
+        id: allure
+        if: always()
+        continue-on-error: true
+        run: npx -y allure@3.14.3 generate aggregated-results/allure-results --output aggregated-results/html
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: odbc-integration-report
+          path: aggregated-results
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Enforce integration result
+        if: always()
+        run: test '${{ steps.aggregate.outcome }}' = success && test '${{ steps.allure.outcome }}' = success
+  publish:
+    name: Publish ODBC HTML report
+    if: always() && needs.build.result == 'success' && needs.aggregate.result != 'cancelled' && github.event.pull_request.head.repo.full_name == github.repository
+    needs: [build, aggregate]
+    runs-on: ubuntu-24.04
+    concurrency: {group: odbc-pages, cancel-in-progress: false}
+    permissions: {contents: write, pull-requests: write}
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: gh-pages, path: pages}
+      - uses: actions/download-artifact@v4
+        with: {name: odbc-integration-report, path: report}
+      - name: Publish report to GitHub Pages
+        id: pages
+        working-directory: pages
+        env: {DESTINATION: 'reports/odbc/pr-${{ github.event.pull_request.number }}'}
+        run: |
+          if test -d "$GITHUB_WORKSPACE/report/html"; then
+            rm -rf "$DESTINATION" && mkdir -p "$DESTINATION"
+            cp -a "$GITHUB_WORKSPACE/report/html/." "$DESTINATION/"
+            git add "$DESTINATION"
+            if ! git diff --cached --quiet; then
+              git -c user.name=github-actions[bot] -c user.email=41898282+github-actions[bot]@users.noreply.github.com commit -m "Publish ODBC report for PR #${{ github.event.pull_request.number }}"
+              git push
+            fi
+            echo available=true >> "$GITHUB_OUTPUT"
+          fi
+      - name: Add report link to pull request
+        continue-on-error: true
+        uses: actions/github-script@v7
+        env:
+          REPORT_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/reports/odbc/pr-${{ github.event.pull_request.number }}/index.html
+          REPORT_RESULT: ${{ needs.aggregate.result }}
+          REPORT_SHA: ${{ needs.build.outputs.target_sha }}
+          REPORT_AVAILABLE: ${{ steps.pages.outputs.available }}
+        with:
+          script: |
+            const marker = '<!-- ydb-odbc-integration-report -->'
+            const artifacts = await github.paginate(github.rest.actions.listWorkflowRunArtifacts, {...context.repo, run_id: context.runId, per_page: 100})
+            const artifact = artifacts.find(item => item.name === 'odbc-integration-report')
+            const download = artifact ? `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}/artifacts/${artifact.id}` : `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            const browser = process.env.REPORT_AVAILABLE === 'true' ? `✨ [Open the interactive Allure report](${process.env.REPORT_URL})` : '⚠️ The browser report could not be generated.'
+            const body = `${marker}\n### ODBC integration report\n${browser} · 📦 [Download the report bundle](${download})\n\nCommit: \`${process.env.REPORT_SHA}\`; result: **${process.env.REPORT_RESULT}**; updated by each run.`
+            const request = {...context.repo, issue_number: context.issue.number, per_page: 100}
+            const comments = await github.paginate(github.rest.issues.listComments, request)
+            const previous = comments.find(comment => comment.body?.includes(marker))
+            if (previous) await github.rest.issues.updateComment({...context.repo, comment_id: previous.id, body})
+            else await github.rest.issues.createComment({...context.repo, issue_number: context.issue.number, body})

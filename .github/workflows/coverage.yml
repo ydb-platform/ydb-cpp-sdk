@@ -71,7 +71,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          IAM_REGEX='^(DriverAuth|TMetadataFixture|TJwtIamFixture|TOAuthIamFixture|OAuth_WithFacility)\.'
+          IAM_REGEX='^(DriverAuth|TMetadataFixture|TJwtIamFixture|TOAuthIamFixture|OAuth_WithFacility|OdbcAuthentication)\.'
           FLAKY_REGEX='(ManyMessages|DiscoveryHang|DescribeHang)'
           EXCLUDE_REGEX="${IAM_REGEX}|${FLAKY_REGEX}"
 

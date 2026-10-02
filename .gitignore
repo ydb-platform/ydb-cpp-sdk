@@ -22,6 +22,8 @@ _deps
 !*/canondata/*
 # Unignore all files inside .github dir
 !*/.github/*
+# Integration adapter entrypoints
+!odbc/tests/frameworks/*/run-tests
 # C libraries
 *.so
 *.a
