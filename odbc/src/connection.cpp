@@ -19,6 +19,7 @@ TConnection::~TConnection() {
 
 void TConnection::DestroyYdbState() {
     InvalidatePreparedStatementMetadata();
+    CloseStatementCursors();
     QuerySession_.reset();
     Tx_.reset();
     Ydb_.reset();
@@ -145,6 +146,7 @@ SQLRETURN TConnection::SetAutocommit(bool value) {
         auto status = Tx_->Commit().ExtractValueSync();
         NStatusHelpers::ThrowOnError(status);
         Tx_.reset();
+        CloseStatementCursors();
     }
     return Attributes_.SetAutocommit(value);
 }

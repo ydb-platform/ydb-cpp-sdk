@@ -11,6 +11,7 @@
 #include "odbc_compat.h"
 
 #include <memory>
+#include <deque>
 #include <optional>
 #include <vector>
 #include <string>
@@ -29,6 +30,7 @@ public:
     SQLRETURN Prepare(const std::string& statementText);
     SQLRETURN Execute();
     SQLRETURN ExecuteInternal();
+    SQLRETURN MoreResults();
 
     SQLRETURN Fetch();
     SQLRETURN FetchScroll(SQLSMALLINT orientation, SQLLEN offset);
@@ -125,6 +127,7 @@ private:
 
     TConnection* Conn_;
     std::unique_ptr<ICursor> Cursor_;
+    std::deque<TResultSet> RemainingResultSets_;
     std::optional<std::vector<TColumnMeta>> PreparedColumnMeta_;
     std::string PreparedQuery_;
     bool IsPrepared_ = false;
@@ -154,6 +157,8 @@ private:
     void DescriptorChanged(const TDescriptor* descriptor);
     void SetImpRowDesc(const std::vector<TColumnMeta>& columns);
     void SetCursor(std::unique_ptr<ICursor> cursor);
+    void ClearResults();
+    void SetResults(const NQuery::TExecuteQueryResult& result);
 
     void ResetForMetadata();
     struct TDescriptorAttribute {
