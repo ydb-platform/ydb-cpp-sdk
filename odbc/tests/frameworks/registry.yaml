@@ -108,11 +108,6 @@ classifications:
       qt:
         - qt.*.qsqlquery.record
   - outcome: unsupported
-    reason: The fixture relies on implicit conversion of an ANSI floating-point literal to Decimal; the documented SQL-dialect limitation does not translate arbitrary ANSI coercions into YQL.
-    tests:
-      qt:
-        - qt.*.qsqlquery.precision
-  - outcome: unsupported
     reason: Requires Qt's PostgreSQL plugin and PostgreSQL schema semantics rather than QODBC.
     tests:
       qt:

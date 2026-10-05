@@ -919,9 +919,10 @@ diff -ruN a/kernel/qsqlquery/tst_qsqlquery.cpp b/kernel/qsqlquery/tst_qsqlquery.
                              .arg(qtest_precision)));
  
 -        QVERIFY_SQL(q, exec(QLatin1String("INSERT INTO %1 (col1) VALUES (%2)")
-+        QVERIFY_SQL(q, exec(QLatin1String("INSERT INTO %1 (pk, col1) VALUES (1, %2)")
++        QVERIFY_SQL(q, exec(QLatin1String("INSERT INTO %1 (pk, col1) VALUES (1, Decimal(\"%2\", 21, 20))")
                              .arg(qtest_precision, precStr)));
-         QVERIFY_SQL(q, exec("SELECT * FROM " + qtest_precision));
+-        QVERIFY_SQL(q, exec("SELECT * FROM " + qtest_precision));
++        QVERIFY_SQL(q, exec("SELECT col1 FROM " + qtest_precision));
          QVERIFY(q.next());
 @@ -2112,7 +2116,7 @@
      QSqlQuery q(db);
