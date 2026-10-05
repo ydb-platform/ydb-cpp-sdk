@@ -16,7 +16,7 @@ jobs:
   examples:
     name: Examples (ydb_tech)
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 60
     env:
       CPM_SOURCE_CACHE: ${{ github.workspace }}/.cache/cpm
     services:
@@ -35,8 +35,8 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ~/.ccache
-          key: ydb-tech-ccache-${{ runner.os }}-${{ github.sha }}
-          restore-keys: ydb-tech-ccache-${{ runner.os }}-
+          key: ubuntu-24.04-ccache-clang-ydb-tech-${{ github.sha }}
+          restore-keys: ubuntu-24.04-ccache-clang-
       - uses: ./.github/actions/prepare_vm
       - name: Configure examples
         run: cmake --preset release-clang -D YDB_SDK_EXAMPLES=ON -D YDB_SDK_TESTS=OFF
