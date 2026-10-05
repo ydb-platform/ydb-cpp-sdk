@@ -129,7 +129,7 @@ classifications:
       qt:
         - qt.*.qsqlquery.numRowsAffected
   - outcome: unsupported
-    reason: The driver exposes one result set per executed statement, so Qt's SQLMoreResults scenarios are unavailable.
+    reason: Qt's upstream multiple-result cases require stored procedures and mixed DML semantics not covered by this implementation yet.
     tests:
       qt:
         - qt.*.qsqlquery.{nextResult,forwardOnlyMultipleResultSet}

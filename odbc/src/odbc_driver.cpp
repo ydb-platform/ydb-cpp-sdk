@@ -349,10 +349,8 @@ ODBC_FORWARD(SQLDescribeCol, TStatement, Odbc::NMetadata::DescribeCol,
     (statementHandle, columnNumber, columnName, bufferLength, nameLengthPtr, dataTypePtr,
      columnSizePtr, decimalDigitsPtr, nullablePtr))
 
-SQLRETURN SQL_API SQLMoreResults(SQLHSTMT) {
-    // YDB ODBC currently exposes only one result set per statement.
-    return SQL_NO_DATA;
-}
+ODBC_FORWARD(SQLMoreResults, TStatement, TStatement::MoreResults,
+    (SQLHSTMT statementHandle), (statementHandle))
 
 SQLRETURN SQL_API SQLGetFunctions(SQLHDBC connectionHandle, SQLUSMALLINT functionId, SQLUSMALLINT* supportedPtr) {
     return Call<Odbc::ECallMode::Ordinary, TConnection>(connectionHandle, [&](auto*) {

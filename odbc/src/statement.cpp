@@ -104,7 +104,7 @@ void TStatement::DetachDescriptor(TDescriptor* desc) {
 SQLRETURN TStatement::Prepare(const std::string& statementText) {
     RowCount_ = -1;
     PreparedColumnMeta_.reset();
-    SetCursor(nullptr);
+    ClearResults();
     PreparedQuery_ = statementText;
     IsPrepared_ = true;
     ParamCount_ = CountOdbcParams(PreparedQuery_);
@@ -122,6 +122,8 @@ SQLRETURN TStatement::Execute() {
     if (!IsPrepared_ || PreparedQuery_.empty()) {
         throw TOdbcException("HY007", 0, "No prepared statement");
     }
+    ClearResults();
+    RowCount_ = -1;
     if (ParamCount_ > 0 && CurrentAppParamDesc_->GetArraySize() > 1
         && !StartsWithSqlStatement(PreparedQuery_, {"INSERT", "UPDATE", "DELETE", "UPSERT", "REPLACE"})) {
         return AddError("HYC00", 0, "Parameter arrays are supported only for data-modification statements");
@@ -217,7 +219,7 @@ SQLRETURN TStatement::ExecuteParamSet(
     SQLULEN paramSet,
     std::optional<SQLLEN>& affectedRows)
 {
-    SetCursor(nullptr);
+    ClearResults();
     auto client = Conn_->GetClient();
     if (!client) {
         throw TOdbcException("HY000", 0, "No client connection");
@@ -240,11 +242,7 @@ SQLRETURN TStatement::ExecuteParamSet(
                     return StatusFrom(result);
                 }
                 affectedRows = ExtractAffectedRows(result);
-                SetCursor(result.GetResultSets().empty()
-                    ? nullptr
-                    : CreateExecCursor(
-                        result.GetResultSet(0),
-                        Attributes_.CursorType == SQL_CURSOR_STATIC));
+                SetResults(result);
                 return NYdb::TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
             },
             retrySettings);
@@ -255,17 +253,29 @@ SQLRETURN TStatement::ExecuteParamSet(
         NQuery::TExecuteQueryResult result = ExecuteQuery(session, params, paramSet);
         NStatusHelpers::ThrowOnError(result);
         affectedRows = ExtractAffectedRows(result);
-        SetCursor(result.GetResultSets().empty()
-            ? nullptr
-            : CreateExecCursor(
-                result.GetResultSet(0),
-                Attributes_.CursorType == SQL_CURSOR_STATIC));
+        SetResults(result);
     }
     InAtExec_ = false;
     NeedDataParam_ = 0;
     NeedDataTokenDelivered_ = false;
     AtExecValues_.clear();
     return SQL_SUCCESS;
+}
+
+SQLRETURN TStatement::MoreResults() {
+    if (InAtExec_) {
+        return AddError("HY010", 0, "Function sequence error");
+    }
+    RowCount_ = -1;
+    if (!RemainingResultSets_.empty()) {
+        auto cursor = CreateExecCursor(
+            RemainingResultSets_.front(), Attributes_.CursorType == SQL_CURSOR_STATIC);
+        SetCursor(std::move(cursor));
+        RemainingResultSets_.pop_front();
+        return SQL_SUCCESS;
+    }
+    ClearResults();
+    return SQL_NO_DATA;
 }
 
 SQLUSMALLINT TStatement::FindNextNeedDataParam() const {
@@ -438,6 +448,11 @@ SQLRETURN TStatement::FillBoundColumns(SQLULEN row) {
     for (SQLSMALLINT number = 1; number <= CurrentAppRowDesc_->GetRecordCount(); ++number) {
         const TDescRecord* col = CurrentAppRowDesc_->FindRecord(number);
         if (!col || !col->DataPtr) {
+            continue;
+        }
+        if (static_cast<size_t>(number) > Cursor_->GetColumnMeta().size()) {
+            AddError("07009", 0, "Invalid descriptor index");
+            result = SQL_ERROR;
             continue;
         }
         const TResolvedBinding binding = CurrentAppRowDesc_->ResolveBinding(*col, row);
@@ -659,7 +674,7 @@ void TStatement::ResetForMetadata() {
     IsPrepared_ = false;
     ParamCount_ = 0;
     PreparedColumnMeta_.reset();
-    SetCursor(nullptr);
+    ClearResults();
 }
 
 SQLRETURN TStatement::DescribeParam(SQLUSMALLINT paramNumber, SQLSMALLINT* dataTypePtr, SQLULEN* paramSizePtr,
@@ -757,10 +772,10 @@ SQLRETURN TStatement::PutData(SQLPOINTER data, SQLLEN strLenOrInd) {
 }
 
 SQLRETURN TStatement::Cancel() {
-    if (!Cursor_ && !InAtExec_) {
+    if (!Cursor_ && RemainingResultSets_.empty() && !InAtExec_) {
         return SQL_SUCCESS;
     }
-    SetCursor(nullptr);
+    ClearResults();
     InAtExec_ = false;
     NeedDataParam_ = 0;
     NeedDataTokenDelivered_ = false;
@@ -779,11 +794,11 @@ SQLRETURN TStatement::GetCursorName(SQLCHAR* name, SQLSMALLINT bufferLength, SQL
 
 
 SQLRETURN TStatement::Close(bool force) {
-    if (!force && !Cursor_) {
+    if (!force && !Cursor_ && RemainingResultSets_.empty()) {
         throw TOdbcException("24000", 0, "Invalid handle");
     }
 
-    SetCursor(nullptr);
+    ClearResults();
     ClearErrors();
     return SQL_SUCCESS;
 }
@@ -949,14 +964,29 @@ void TStatement::SetImpRowDesc(const std::vector<TColumnMeta>& columns) {
 }
 
 void TStatement::SetCursor(std::unique_ptr<ICursor> cursor) {
-    if (cursor && IsPrepared_) {
-        PreparedColumnMeta_ = cursor->GetColumnMeta();
-    }
     Cursor_ = std::move(cursor);
     GetDataOffsets_.clear();
     static const std::vector<TColumnMeta> EmptyColumns;
     SetImpRowDesc(Cursor_ ? Cursor_->GetColumnMeta()
                           : PreparedColumnMeta_.value_or(EmptyColumns));
+}
+
+void TStatement::ClearResults() {
+    RemainingResultSets_.clear();
+    SetCursor(nullptr);
+}
+
+void TStatement::SetResults(const NQuery::TExecuteQueryResult& result) {
+    const auto& sets = result.GetResultSets();
+    auto cursor = sets.empty() ? nullptr : CreateExecCursor(
+        sets.front(), Attributes_.CursorType == SQL_CURSOR_STATIC);
+    if (cursor && IsPrepared_) {
+        PreparedColumnMeta_ = cursor->GetColumnMeta();
+    }
+    if (!sets.empty()) {
+        RemainingResultSets_.assign(sets.begin() + 1, sets.end());
+    }
+    SetCursor(std::move(cursor));
 }
 
 std::optional<TStatement::TDescriptorAttribute> TStatement::ResolveDescriptorAttribute(

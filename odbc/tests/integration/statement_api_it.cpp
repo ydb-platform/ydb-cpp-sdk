@@ -87,6 +87,140 @@ TEST(StatementApi, ExecDirectMultipleColumns) {
     SQLFreeHandle(SQL_HANDLE_ENV, env);
 }
 
+TEST(StatementApi, MultipleResults) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+
+    SQLUSMALLINT supported = SQL_FALSE;
+    CHECK_ODBC_OK(SQLGetFunctions(dbc, SQL_API_SQLMORERESULTS, &supported),
+                  dbc, SQL_HANDLE_DBC);
+    EXPECT_EQ(supported, SQL_TRUE);
+    SQLCHAR multipleResults[2] = {};
+    CHECK_ODBC_OK(SQLGetInfo(dbc, SQL_MULT_RESULT_SETS, multipleResults,
+                             sizeof(multipleResults), nullptr), dbc, SQL_HANDLE_DBC);
+    EXPECT_STREQ(reinterpret_cast<const char*>(multipleResults), "Y");
+    SQLUINTEGER batchSupport = 0;
+    CHECK_ODBC_OK(SQLGetInfo(dbc, SQL_BATCH_SUPPORT, &batchSupport,
+                             sizeof(batchSupport), nullptr), dbc, SQL_HANDLE_DBC);
+    EXPECT_NE(batchSupport & SQL_BS_SELECT_EXPLICIT, 0U);
+
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)
+        "SELECT 1 AS value UNION ALL SELECT 2 AS value ORDER BY value; "
+        "SELECT 42 AS value, 'second' AS label; "
+        "SELECT 99 AS value UNION ALL SELECT 100 AS value ORDER BY value",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+
+    SQLSMALLINT columns = 0;
+    CHECK_ODBC_OK(SQLNumResultCols(stmt, &columns), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(columns, 1);
+    SQLLEN rowCount = 0;
+    CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(rowCount, -1);
+    SQLINTEGER value = 0;
+    SQLLEN indicator = 0;
+    CHECK_ODBC_OK(SQLBindCol(stmt, 1, SQL_C_LONG, &value, sizeof(value), &indicator),
+                  stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLFetch(stmt), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(value, 1);
+
+    CHECK_ODBC_OK(SQLMoreResults(stmt), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLNumResultCols(stmt, &columns), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(columns, 2);
+    SQLCHAR columnName[32] = {};
+    CHECK_ODBC_OK(SQLDescribeCol(stmt, 2, columnName, sizeof(columnName), nullptr,
+                                 nullptr, nullptr, nullptr, nullptr),
+                  stmt, SQL_HANDLE_STMT);
+    EXPECT_STREQ(reinterpret_cast<const char*>(columnName), "label");
+    CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(rowCount, -1);
+    CHECK_ODBC_OK(SQLFetch(stmt), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(value, 42); // The column binding survives the result transition.
+    char label[16] = {};
+    CHECK_ODBC_OK(SQLGetData(stmt, 2, SQL_C_CHAR, label, sizeof(label), &indicator),
+                  stmt, SQL_HANDLE_STMT);
+    EXPECT_STREQ(label, "second");
+    CHECK_ODBC_OK(SQLBindCol(stmt, 2, SQL_C_CHAR, label, sizeof(label), &indicator),
+                  stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLMoreResults(stmt), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLNumResultCols(stmt, &columns), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(columns, 1);
+    EXPECT_EQ(SQLFetch(stmt), SQL_ERROR);
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "07009"));
+    CHECK_ODBC_OK(SQLBindCol(stmt, 2, SQL_C_CHAR, nullptr, 0, nullptr),
+                  stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLFetch(stmt), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(value, 100);
+    EXPECT_EQ(SQLMoreResults(stmt), SQL_NO_DATA);
+    EXPECT_EQ(SQLMoreResults(stmt), SQL_NO_DATA);
+
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT 7 AS value", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLFetch(stmt), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(value, 7);
+    EXPECT_EQ(SQLMoreResults(stmt), SQL_NO_DATA);
+
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT 10; SELECT 20", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLCloseCursor(stmt), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(SQLMoreResults(stmt), SQL_NO_DATA);
+
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT 30; SELECT 40", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLCancel(stmt), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(SQLMoreResults(stmt), SQL_NO_DATA);
+
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT 50; SELECT 60", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(SQLExecDirect(stmt, (SQLCHAR*)"INVALID SYNTAX HERE", SQL_NTS), SQL_ERROR);
+    EXPECT_EQ(SQLMoreResults(stmt), SQL_NO_DATA);
+
+    CHECK_ODBC_OK(SQLPrepare(stmt, (SQLCHAR*)
+        "SELECT 1 AS first; SELECT 2 AS second, 3 AS third", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLMoreResults(stmt), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLCloseCursor(stmt), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLNumResultCols(stmt, &columns), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(columns, 1); // Prepared metadata remains that of the first result.
+    CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLNumResultCols(stmt, &columns), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(columns, 1);
+    EXPECT_EQ(SQLMoreResults(stmt), SQL_SUCCESS);
+    EXPECT_EQ(SQLMoreResults(stmt), SQL_NO_DATA);
+
+    CHECK_ODBC_OK(SQLSetConnectAttr(dbc, SQL_ATTR_AUTOCOMMIT,
+                                     (SQLPOINTER)SQL_AUTOCOMMIT_OFF, 0), dbc, SQL_HANDLE_DBC);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT 1; SELECT 2; SELECT 3", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLMoreResults(stmt), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLSetConnectAttr(dbc, SQL_ATTR_AUTOCOMMIT,
+                                     (SQLPOINTER)SQL_AUTOCOMMIT_ON, 0), dbc, SQL_HANDLE_DBC);
+    EXPECT_EQ(SQLMoreResults(stmt), SQL_NO_DATA);
+
+    CHECK_ODBC_OK(SQLPrepare(stmt, (SQLCHAR*)"SELECT ?; SELECT 2", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    SQLINTEGER param = 1;
+    SQLLEN paramLength = 0;
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER,
+                                   0, 0, &param, 0, &paramLength), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
+    paramLength = SQL_DATA_AT_EXEC;
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER,
+                                   0, 0, &param, 0, &paramLength), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(SQLExecute(stmt), SQL_NEED_DATA);
+    EXPECT_EQ(SQLMoreResults(stmt), SQL_ERROR);
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "HY010"));
+    CHECK_ODBC_OK(SQLCancel(stmt), stmt, SQL_HANDLE_STMT);
+
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
 TEST(StatementApi, ExecDirectInvalidSyntax) {
     SQLHENV env;
     SQLHDBC dbc;
