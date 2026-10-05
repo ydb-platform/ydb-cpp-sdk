@@ -301,7 +301,7 @@ void Autoscaling(TTopicClient& client, const std::string& path) {
     // [BEGIN topic_autoscale_reader]
     for (bool fullSupport : {true, false}) {
         auto settings = TReadSessionSettings().ConsumerName("autoscale").AppendTopics(path)
-            .SetAutoscalingSupport(fullSupport);
+            .AutoPartitioningSupport(fullSupport);
         auto session = client.CreateReadSession(settings);
         std::map<std::string, size_t> received;
         while (received.empty()) {
@@ -365,7 +365,7 @@ void Transactions(TTopicClient& client, NYdb::NQuery::TQueryClient& queryClient,
         .ProducerId("tx-async").MessageGroupId("tx-async"));
     // [BEGIN topic_write_tx]
     ThrowOnError(queryClient.RetryQuerySync([&](NYdb::NQuery::TSession querySession) -> NYdb::TStatus {
-        auto beginResult = querySession.BeginTransaction().GetValueSync();
+        auto beginResult = querySession.BeginTransaction(NYdb::NQuery::TTxSettings::SerializableRW()).GetValueSync();
         if (!beginResult.IsSuccess()) {
             return beginResult;
         }
@@ -380,7 +380,7 @@ void Transactions(TTopicClient& client, NYdb::NQuery::TQueryClient& queryClient,
         .ProducerId("tx-blocking").MessageGroupId("tx-blocking"));
     // [BEGIN topic_write_tx_blocking]
     ThrowOnError(queryClient.RetryQuerySync([&](NYdb::NQuery::TSession querySession) -> NYdb::TStatus {
-        auto beginResult = querySession.BeginTransaction().GetValueSync();
+        auto beginResult = querySession.BeginTransaction(NYdb::NQuery::TTxSettings::SerializableRW()).GetValueSync();
         if (!beginResult.IsSuccess()) {
             return beginResult;
         }
@@ -396,7 +396,7 @@ void Transactions(TTopicClient& client, NYdb::NQuery::TQueryClient& queryClient,
         std::map<std::string, size_t> received;
         // [BEGIN topic_read_tx]
         ThrowOnError(queryClient.RetryQuerySync([&](NYdb::NQuery::TSession querySession) -> NYdb::TStatus {
-            auto beginResult = querySession.BeginTransaction().GetValueSync();
+            auto beginResult = querySession.BeginTransaction(NYdb::NQuery::TTxSettings::SerializableRW()).GetValueSync();
             if (!beginResult.IsSuccess()) {
                 return beginResult;
             }
