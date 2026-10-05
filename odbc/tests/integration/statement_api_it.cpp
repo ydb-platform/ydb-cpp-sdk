@@ -200,6 +200,30 @@ TEST(StatementApi, MultipleResults) {
                                      (SQLPOINTER)SQL_AUTOCOMMIT_ON, 0), dbc, SQL_HANDLE_DBC);
     EXPECT_EQ(SQLMoreResults(stmt), SQL_NO_DATA);
 
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_CURSOR_TYPE,
+                                 (SQLPOINTER)SQL_CURSOR_STATIC, 0), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)
+        "SELECT value FROM AS_TABLE(AsList(AsStruct(0 AS value))) WHERE value = 1; "
+        "SELECT CAST(NULL AS Utf8) AS value; SELECT CAST(2 AS Int32) AS value",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
+    CHECK_ODBC_OK(SQLMoreResults(stmt), stmt, SQL_HANDLE_STMT);
+    SQLSMALLINT sqlType = 0;
+    SQLSMALLINT nullable = 0;
+    CHECK_ODBC_OK(SQLDescribeCol(stmt, 1, columnName, sizeof(columnName), nullptr, &sqlType,
+                                 nullptr, nullptr, &nullable), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(sqlType, SQL_VARCHAR);
+    EXPECT_EQ(nullable, SQL_NULLABLE);
+    CHECK_ODBC_OK(SQLFetch(stmt), stmt, SQL_HANDLE_STMT);
+    char nullText[8] = {};
+    CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_CHAR, nullText, sizeof(nullText), &indicator),
+                  stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(indicator, SQL_NULL_DATA);
+    CHECK_ODBC_OK(SQLMoreResults(stmt), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLFetch(stmt), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(value, 2);
+    EXPECT_EQ(SQLMoreResults(stmt), SQL_NO_DATA);
+
     CHECK_ODBC_OK(SQLPrepare(stmt, (SQLCHAR*)"SELECT ?; SELECT 2", SQL_NTS),
                   stmt, SQL_HANDLE_STMT);
     SQLINTEGER param = 1;
