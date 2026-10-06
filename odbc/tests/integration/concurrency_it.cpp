@@ -337,7 +337,8 @@ TEST(Concurrency, AlreadyRolledBackFailedTransactionAllowsRecovery) {
     ASSERT_EQ(Execute(statement.Handle), SQL_SUCCESS);
     auto owner = std::dynamic_pointer_cast<TConnection>(PinHandle(connection.Dbc));
     // Model a server-side abort that removes the transaction but leaves its session alive.
-    ASSERT_TRUE(owner->GetTx()->Rollback().ExtractValueSync().IsSuccess());
+    auto tx = *owner->GetTx();
+    ASSERT_TRUE(tx.Rollback().ExtractValueSync().IsSuccess());
     owner->FailTransaction();
     EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_COMMIT), SQL_ERROR);
     EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_ROLLBACK), SQL_SUCCESS)
