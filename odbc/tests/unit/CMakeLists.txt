@@ -79,3 +79,11 @@ add_ydb_test(NAME odbc-cursor_ut GTEST
   LABELS
     unit
 )
+
+add_ydb_test(NAME odbc-status_util_ut GTEST
+  SOURCES status_util_ut.cpp
+  INCLUDE_DIRS ${YDB_ODBC_UNIT_INCLUDE_DIRS}
+    $<TARGET_PROPERTY:YDB-CPP-SDK::Query,INTERFACE_INCLUDE_DIRECTORIES>
+  LINK_LIBRARIES ydb-odbc
+  LABELS unit
+)

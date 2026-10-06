@@ -77,6 +77,11 @@ void TEnvironment::UnregisterConnection(TConnection* conn){
     Connections_.erase(conn);
 }
 
+bool TEnvironment::HasChildren() const {
+    std::lock_guard lock(ChildrenMutex_);
+    return !Connections_.empty();
+}
+
 std::vector<std::shared_ptr<TConnection>> TEnvironment::GetConnectionsSnapshot() const {
     std::lock_guard lock(ChildrenMutex_);
     std::vector<std::shared_ptr<TConnection>> result;

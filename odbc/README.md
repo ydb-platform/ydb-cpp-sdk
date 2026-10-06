@@ -14,11 +14,15 @@ Active cancellation can abort the shared explicit transaction. Call
 `SQL_ROLLBACK` before reusing it. Cancellation does not guarantee that a write
 was not committed; execution diagnostics retain uncertain outcomes. Sessions
 whose local invalidation cannot be confirmed remain leased until disconnect.
+`SQLCancel` returning success means the request was processed, not that execution
+was aborted. Older servers may finish execution or report its original timeout.
+Local session confirmation adds at most a 1-second RPC timeout to completion.
 
 Applications must keep bound buffers alive and avoid concurrent access to the
 same buffer during calls. Descriptor changes apply to subsequent calls, not to
 an operation's existing binding snapshot. Freeing a handle retires it while
 keeping already pinned calls safe. Applications must not reuse freed handles.
+`SQLFreeHandle` waits for an in-flight execution on that handle to finish.
 
 ## Requirements
 

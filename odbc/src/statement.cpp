@@ -294,7 +294,7 @@ SQLRETURN TStatement::ExecuteParamSet(
                     return StatusFrom(result);
                 }
                 affectedRows = ExtractAffectedRows(result);
-                if (!CancelRequested_.load(std::memory_order_relaxed)) {
+                if (!IsCancelRequested()) {
                     SetResults(result);
                 }
                 return NYdb::TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
@@ -309,7 +309,7 @@ SQLRETURN TStatement::ExecuteParamSet(
         CheckExecutionStatus(result);
         NStatusHelpers::ThrowOnError(result);
         affectedRows = ExtractAffectedRows(result);
-        if (!CancelRequested_.load(std::memory_order_relaxed)) {
+        if (!IsCancelRequested()) {
             SetResults(result);
         }
     }
@@ -856,21 +856,28 @@ void TStatement::StartExecution(bool transaction) {
 
 void TStatement::SetExecutingSession(const NQuery::TSession& session) {
     std::lock_guard lock(CancelMutex_);
-    if (CancelRequested_.load(std::memory_order_relaxed)) {
+    if (IsCancelRequested()) {
         throw TOdbcException("HY008", 0, "Operation canceled");
     }
     CancelSession_ = session;
+    CancelSessionInvalidated_ = false;
+}
+
+bool TStatement::HasExecutingSession() {
+    std::lock_guard lock(CancelMutex_);
+    return IsExecuting() && CancelSession_.has_value();
 }
 
 void TStatement::ReleaseExecutingSession() {
     std::lock_guard lock(CancelMutex_);
-    if (!CancelRequested_.load(std::memory_order_relaxed)) {
+    if (!IsCancelRequested()) {
         CancelSession_.reset();
     }
 }
 
-void TStatement::CheckExecutionStatus(const TStatus& status) const {
-    if (CancelRequested_.load(std::memory_order_relaxed) && !status.IsSuccess()) {
+void TStatement::CheckExecutionStatus(const TStatus& status) {
+    CancelSessionInvalidated_ |= IsSessionInvalidated(status);
+    if (IsCancelRequested() && !status.IsSuccess()) {
         if (status.GetStatus() == EStatus::BAD_SESSION
             || status.GetStatus() == EStatus::SESSION_EXPIRED
             || status.GetStatus() == EStatus::CANCELLED
@@ -893,7 +900,7 @@ std::optional<SQLRETURN> TStatement::CancelExecuting() {
     }
     if (!CancelRequested_.exchange(true, std::memory_order_relaxed)
         && CancelSession_ && CancelClient_) {
-        CancelFuture_ = CancelClient_->DeleteSession(CancelSession_->GetId(),
+        CancelClient_->DeleteSession(CancelSession_->GetId(),
             NQuery::TDeleteSessionSettings().ClientTimeout(TDuration::Seconds(5))
                 .RetrySettings(NRetry::TRetryOperationSettings().MaxRetries(0)));
     }
@@ -901,31 +908,28 @@ std::optional<SQLRETURN> TStatement::CancelExecuting() {
 }
 
 void TStatement::FinishExecution() noexcept {
-    std::optional<TAsyncStatus> cancellation;
     std::optional<NQuery::TSession> session;
     bool requested;
     {
         std::lock_guard lock(CancelMutex_);
         Executing_.store(false, std::memory_order_relaxed);
-        cancellation.swap(CancelFuture_);
         session.swap(CancelSession_);
         CancelClient_.reset();
-        requested = CancelRequested_.load(std::memory_order_relaxed);
+        requested = IsCancelRequested();
         if (requested) {
             ClearResults();
         }
     }
     if (requested && session) {
-        bool invalidated = false;
+        bool invalidated = CancelSessionInvalidated_;
         try {
-            if (cancellation) {
-                cancellation->ExtractValueSync();
+            if (!invalidated) {
+                // DeleteSession only enqueues server closure. Probe the lease,
+                // retaining it unless the SDK has made it unsafe to pool.
+                const auto status = session->ExecuteQuery("SELECT 1", NQuery::TTxControl::NoTx(),
+                    NQuery::TExecuteQuerySettings().ClientTimeout(TDuration::Seconds(1))).ExtractValueSync();
+                invalidated = IsSessionInvalidated(status);
             }
-            // DeleteSession only enqueues server closure. BAD_SESSION also
-            // makes the SDK invalidate the local lease before it can be pooled.
-            const auto status = session->ExecuteQuery("SELECT 1", NQuery::TTxControl::NoTx(),
-                NQuery::TExecuteQuerySettings().ClientTimeout(TDuration::Seconds(5))).ExtractValueSync();
-            invalidated = status.GetStatus() == EStatus::BAD_SESSION;
         } catch (...) {
         }
         if (!invalidated) {
