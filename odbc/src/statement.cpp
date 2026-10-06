@@ -451,7 +451,9 @@ SQLRETURN TStatement::FillBoundColumns(SQLULEN row) {
             continue;
         }
         if (static_cast<size_t>(number) > Cursor_->GetColumnMeta().size()) {
-            AddError("07009", 0, "Invalid descriptor index");
+            if (row == 0) {
+                AddError("07009", 0, "Invalid descriptor index");
+            }
             result = SQL_ERROR;
             continue;
         }
