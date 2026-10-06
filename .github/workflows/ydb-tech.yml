@@ -43,4 +43,4 @@ jobs:
       - name: Build examples
         run: cmake --build --preset default --target ydb_tech_examples
       - name: Run examples
-        run: bash ydb_tech/run.sh
+        run: bash examples/ydb_tech/run.sh

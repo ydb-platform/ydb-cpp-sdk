@@ -8,7 +8,7 @@ With the SDK build prerequisites and a local YDB instance, run from the reposito
 ```sh
 cmake --preset release-clang -D YDB_SDK_EXAMPLES=ON
 cmake --build --preset default --target ydb_tech_topic
-timeout 180s build/ydb_tech/topic/ydb_tech_topic
+timeout 180s build/examples/ydb_tech/topic/ydb_tech_topic
 ```
 
 `YDB_ENDPOINT` defaults to `localhost:2136` and `YDB_DATABASE` to `/local`.

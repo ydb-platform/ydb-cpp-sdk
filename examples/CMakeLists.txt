@@ -15,3 +15,5 @@ add_subdirectory(vector_index_builtin)
 if (YDB_SDK_ENABLE_OTEL_TRACE AND YDB_SDK_ENABLE_OTEL_METRICS)
   add_subdirectory(otel_tracing)
 endif()
+
+add_subdirectory(ydb_tech)

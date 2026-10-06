@@ -120,7 +120,6 @@ unset(_ydb_sdk_tests)
 
 if (YDB_SDK_EXAMPLES)
   add_subdirectory(examples)
-  add_subdirectory(ydb_tech)
 endif()
 
 if (YDB_SDK_TESTS)
