@@ -22,7 +22,10 @@ void TConnection::DestroyYdbState() {
     CloseStatementCursors();
     QuerySession_.reset();
     Tx_.reset();
+    TransactionFailed_ = false;
     Ydb_.reset();
+    // Unknown deletion outcomes must not release a lease before the client stops.
+    CanceledSessions_.clear();
 }
 
 SQLRETURN TConnection::DriverConnect(std::string_view connectionString,
@@ -130,23 +133,49 @@ std::unique_ptr<TStatement> TConnection::CreateStatement() {
 }
 
 void TConnection::CloseStatementCursors() {
-    for (TStatement* stmt : Statements_) {
+    // The exclusive lifecycle gate has drained statement/descriptor calls.
+    const auto generation = CursorGeneration_.fetch_add(1, std::memory_order_relaxed) + 1;
+    std::lock_guard children(ChildrenMutex_);
+    for (auto* stmt : Statements_) {
         stmt->Close(true);
+        stmt->CursorGeneration_ = generation;
     }
 }
 
 void TConnection::InvalidatePreparedStatementMetadata() {
-    for (TStatement* stmt : Statements_) {
+    std::lock_guard children(ChildrenMutex_);
+    for (auto* stmt : Statements_) {
         stmt->InvalidatePreparedColumnMeta();
     }
 }
 
+void TConnection::CheckTransaction() const {
+    if (TransactionFailed_) {
+        throw TOdbcException("25S03", 0, "Transaction was rolled back; call SQL_ROLLBACK before continuing");
+    }
+}
+
+void TConnection::FailTransaction() {
+    TransactionFailed_ = true;
+    // Other statements may still hold their own state mutex under a shared gate.
+    CursorGeneration_.fetch_add(1, std::memory_order_relaxed);
+}
+
+void TConnection::QuarantineSession(NQuery::TSession session) {
+    std::lock_guard lock(ChildrenMutex_);
+    CanceledSessions_.push_back(std::move(session));
+}
+
 SQLRETURN TConnection::SetAutocommit(bool value) {
+    CheckTransaction();
     if (value && Tx_) {
         auto status = Tx_->Commit().ExtractValueSync();
         NStatusHelpers::ThrowOnError(status);
         Tx_.reset();
         CloseStatementCursors();
+    }
+    if (value) {
+        QuerySession_.reset();
     }
     return Attributes_.SetAutocommit(value);
 }
@@ -195,15 +224,8 @@ void TConnection::SetTx(const NQuery::TTransaction& tx) {
     Tx_ = tx;
 }
 
-void TConnection::ResetTx() {
-    Tx_.reset();
-}
-
-void TConnection::ResetQuerySession() {
-    QuerySession_.reset();
-}
-
 SQLRETURN TConnection::CommitTx() {
+    CheckTransaction();
     if (!Tx_) {
         return SQL_SUCCESS;
     }
@@ -215,6 +237,20 @@ SQLRETURN TConnection::CommitTx() {
 }
 
 SQLRETURN TConnection::RollbackTx() {
+    if (TransactionFailed_) {
+        if (Tx_) {
+            auto status = Tx_->Rollback().ExtractValueSync();
+            if (status.GetStatus() != EStatus::BAD_SESSION
+                && status.GetStatus() != EStatus::SESSION_EXPIRED) {
+                NStatusHelpers::ThrowOnError(status);
+            }
+        }
+        Tx_.reset();
+        QuerySession_.reset();
+        TransactionFailed_ = false;
+        CloseStatementCursors();
+        return SQL_SUCCESS;
+    }
     if (!Tx_) {
         return SQL_SUCCESS;
     }
