@@ -352,8 +352,20 @@ void CommitOutside(TTopicClient& client, const std::string& path) {
         }
     }
     // [BEGIN topic_commit_outside_session]
+    auto description = client.DescribeConsumer(path, "outside", TDescribeConsumerSettings().IncludeStats(true))
+        .GetValueSync();
+    ThrowOnError(description);
+    std::string serverReadSessionId;
+    for (const auto& partition : description.GetConsumerDescription().GetPartitions()) {
+        const auto& stats = partition.GetPartitionConsumerStats();
+        if (partition.GetPartitionId() == partitionId && stats) {
+            serverReadSessionId = stats->GetReadSessionId();
+            break;
+        }
+    }
+    Require(!serverReadSessionId.empty(), "Active server read session ID is missing");
     ThrowOnError(client.CommitOffset(path, partitionId, "outside", *offset,
-        TCommitOffsetSettings().ReadSessionId(readSession->GetSessionId())).GetValueSync());
+        TCommitOffsetSettings().ReadSessionId(serverReadSessionId)).GetValueSync());
     // [END topic_commit_outside_session]
     Require(readSession->Close(TDuration::Seconds(30)), "Read session did not close");
     // [BEGIN topic_commit_outside]
