@@ -66,28 +66,33 @@ using TRecordProperties = TScalarProperties<
 TDescriptor::TDescriptor(EDescType type, TConnection* conn)
     : Type_(type)
     , Conn_(conn) {
+    SetLifecycle(conn->GetLifecycle());
     if (Type_ == EDescType::Explicit) {
         Conn_->RegisterDescriptor(this);
     }
 }
 
 TDescriptor::~TDescriptor() {
-    while (!Statements_.empty()) {
-        Statements_.back()->DetachDescriptor(this);
-    }
     if (Type_ == EDescType::Explicit) {
         Conn_->UnregisterDescriptor(this);
     }
 }
 
-TDescriptor* TDescriptor::FromHandle(SQLHDESC handle) {
-    if (!handle) {
-        throw TOdbcException("HY000", 0, "Invalid handle", SQL_INVALID_HANDLE);
-    }
-    return static_cast<TDescriptor*>(handle);
+void TDescriptor::Snapshot(TDescriptorState& state, uint64_t& generation) const {
+    std::lock_guard lock(GetMutex());
+    state = static_cast<const TDescriptorState&>(*this);
+    generation = GetGeneration();
+}
+
+void TDescriptor::SnapshotHeader(TDescriptorState& state, uint64_t& generation) const {
+    std::lock_guard lock(GetMutex());
+    // The implementation row descriptor is consumed only for status outputs.
+    state.Header_ = Header_;
+    generation = GetGeneration();
 }
 
 TDescRecord& TDescriptor::Record(SQLSMALLINT number) {
+    Changed();
     if (number < 1) {
         throw TOdbcException("07009", 0, "Invalid descriptor index");
     }
@@ -99,7 +104,7 @@ TDescRecord& TDescriptor::Record(SQLSMALLINT number) {
     return record;
 }
 
-const TDescRecord* TDescriptor::FindRecord(SQLSMALLINT number) const noexcept {
+const TDescRecord* TDescriptorState::FindRecord(SQLSMALLINT number) const noexcept {
     if (number < 1 || static_cast<size_t>(number) > Records_.size()) {
         return nullptr;
     }
@@ -108,10 +113,11 @@ const TDescRecord* TDescriptor::FindRecord(SQLSMALLINT number) const noexcept {
 }
 
 TDescRecord* TDescriptor::FindRecord(SQLSMALLINT number) noexcept {
-    return const_cast<TDescRecord*>(std::as_const(*this).FindRecord(number));
+    return const_cast<TDescRecord*>(static_cast<const TDescriptorState&>(*this).FindRecord(number));
 }
 
 void TDescriptor::RemoveRecord(SQLSMALLINT number) {
+    Changed();
     if (number > 0 && static_cast<size_t>(number) <= Records_.size()) {
         Records_[static_cast<size_t>(number - 1)] = {};
         while (!Records_.empty() && !Records_.back().Active) {
@@ -120,11 +126,11 @@ void TDescriptor::RemoveRecord(SQLSMALLINT number) {
     }
 }
 
-SQLSMALLINT TDescriptor::GetRecordCount() const noexcept {
+SQLSMALLINT TDescriptorState::GetRecordCount() const noexcept {
     return static_cast<SQLSMALLINT>(Records_.size());
 }
 
-TResolvedBinding TDescriptor::ResolveBinding(
+TResolvedBinding TDescriptorState::ResolveBinding(
     const TDescRecord& record, SQLULEN index) const noexcept {
     const SQLULEN offset = Header_.BindOffsetPtr ? *Header_.BindOffsetPtr : 0;
     const SQLULEN dataStride = Header_.BindType == SQL_BIND_BY_COLUMN
@@ -138,24 +144,16 @@ TResolvedBinding TDescriptor::ResolveBinding(
     };
 }
 
-void TDescriptor::Attach(TStatement* stmt) {
-    if (std::find(Statements_.begin(), Statements_.end(), stmt) == Statements_.end()) {
-        Statements_.push_back(stmt);
+void TDescriptor::Changed(bool schema) {
+    if (schema) {
+        ++SchemaGeneration_;
     }
-}
-
-void TDescriptor::Detach(TStatement* stmt) {
-    std::erase(Statements_, stmt);
-}
-
-void TDescriptor::NotifyStatements() {
-    for (TStatement* stmt : Statements_) {
-        stmt->DescriptorChanged(this);
-    }
+    Generation_.fetch_add(1, std::memory_order_relaxed);
 }
 
 SQLRETURN TDescriptor::GetDescField(SQLSMALLINT recNumber, SQLSMALLINT field, SQLPOINTER value,
                                     SQLINTEGER bufferLength, SQLINTEGER* lengthPtr) {
+    std::lock_guard lock(GetMutex());
     const bool stringField = field == SQL_DESC_BASE_COLUMN_NAME || field == SQL_DESC_NAME
         || field == SQL_DESC_TYPE_NAME || field == SQL_DESC_LOCAL_TYPE_NAME
         || field == SQL_DESC_LITERAL_PREFIX || field == SQL_DESC_LITERAL_SUFFIX;
@@ -223,6 +221,7 @@ SQLRETURN TDescriptor::GetDescRec(SQLSMALLINT recNumber, SQLCHAR* name, SQLSMALL
                                   SQLSMALLINT* subTypePtr, SQLLEN* lengthPtr,
                                   SQLSMALLINT* precisionPtr, SQLSMALLINT* scalePtr,
                                   SQLSMALLINT* nullablePtr) {
+    std::lock_guard lock(GetMutex());
     const TDescRecord* record = FindRecord(recNumber);
     if (!record) {
         return recNumber > GetRecordCount()
@@ -249,6 +248,8 @@ SQLRETURN TDescriptor::GetDescRec(SQLSMALLINT recNumber, SQLCHAR* name, SQLSMALL
 
 SQLRETURN TDescriptor::SetDescField(SQLSMALLINT recNumber, SQLSMALLINT field, SQLPOINTER value,
                                     SQLINTEGER bufferLength) {
+    std::lock_guard lock(GetMutex());
+    Changed(false);
     switch (field) {
         case SQL_DESC_COUNT: {
             const auto count = static_cast<SQLSMALLINT>(reinterpret_cast<intptr_t>(value));
@@ -256,10 +257,10 @@ SQLRETURN TDescriptor::SetDescField(SQLSMALLINT recNumber, SQLSMALLINT field, SQ
                 return AddError("HY024", 0, "Invalid SQL_DESC_COUNT value");
             }
             Records_.resize(static_cast<size_t>(count));
+            Changed();
             for (auto& record : Records_) {
                 record.Active = true;
             }
-            NotifyStatements();
             return SQL_SUCCESS;
         }
         case SQL_DESC_ARRAY_SIZE: {
@@ -282,7 +283,6 @@ SQLRETURN TDescriptor::SetDescField(SQLSMALLINT recNumber, SQLSMALLINT field, SQ
 
     TDescRecord& record = Record(recNumber);
     if (TRecordProperties::Set(field, record, value)) {
-        NotifyStatements();
         return SQL_SUCCESS;
     }
     if (field == SQL_DESC_NAME) {
@@ -301,6 +301,7 @@ SQLRETURN TDescriptor::SetDescRec(SQLSMALLINT recNumber, SQLSMALLINT type, SQLSM
                                   SQLLEN length, SQLSMALLINT precision, SQLSMALLINT scale,
                                   SQLPOINTER dataPtr, SQLLEN* stringLengthPtr,
                                   SQLLEN* indicatorPtr) {
+    std::lock_guard lock(GetMutex());
     if (Type_ == EDescType::ImpRow) {
         return AddError("HY016", 0, "Cannot modify an implementation row descriptor");
     }
@@ -314,7 +315,6 @@ SQLRETURN TDescriptor::SetDescRec(SQLSMALLINT recNumber, SQLSMALLINT type, SQLSM
     record.DataPtr = dataPtr;
     record.OctetLengthPtr = stringLengthPtr;
     record.IndicatorPtr = indicatorPtr;
-    NotifyStatements();
     return SQL_SUCCESS;
 }
 
@@ -327,7 +327,7 @@ SQLRETURN TDescriptor::CopyDesc(TDescriptor* target) {
     }
     target->Header_ = Header_;
     target->Records_ = Records_;
-    target->NotifyStatements();
+    target->Changed();
     return SQL_SUCCESS;
 }
 

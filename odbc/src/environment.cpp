@@ -65,6 +65,7 @@ void TEnvironment::RegisterConnection(TConnection* conn){
     if (conn == nullptr){
         throw std::invalid_argument("null connection");
     }
+    std::lock_guard lock(ChildrenMutex_);
     Connections_.insert(conn);
 }
 
@@ -72,11 +73,19 @@ void TEnvironment::UnregisterConnection(TConnection* conn){
     if (conn == nullptr){
         throw std::invalid_argument("null connection");
     }
+    std::lock_guard lock(ChildrenMutex_);
     Connections_.erase(conn);
 }
 
-std::vector<TConnection*> TEnvironment::GetConnectionsSnapshot() const {
-    return std::vector<TConnection*>(Connections_.begin(), Connections_.end());
+std::vector<std::shared_ptr<TConnection>> TEnvironment::GetConnectionsSnapshot() const {
+    std::lock_guard lock(ChildrenMutex_);
+    std::vector<std::shared_ptr<TConnection>> result;
+    for (auto* conn : Connections_) {
+        if (auto owner = std::dynamic_pointer_cast<TConnection>(PinHandle(conn))) {
+            result.push_back(std::move(owner));
+        }
+    }
+    return result;
 }
 
 SQLRETURN TEnvironment::EndTran(SQLSMALLINT completionType){
@@ -86,11 +95,18 @@ SQLRETURN TEnvironment::EndTran(SQLSMALLINT completionType){
     bool hasFailures = false;
     int failedCount = 0;
     
-    for (auto* conn : Connections_) {
-        if (!conn || !conn->GetTx()) {
-            continue;
-        }
+    for (const auto& conn : GetConnectionsSnapshot()) {
         try {
+            std::shared_lock check(*conn->GetLifecycle());
+            if (conn->IsRetired() || conn->GetAutocommit()) {
+                continue;
+            }
+            check.unlock();
+            std::unique_lock lifecycle(*conn->GetLifecycle());
+            std::lock_guard operation(conn->GetMutex());
+            if (conn->IsRetired()) {
+                continue;
+            }
             if (completionType == SQL_COMMIT) {
                 conn->CommitTx();
             } else {

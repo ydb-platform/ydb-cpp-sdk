@@ -26,6 +26,10 @@ class TStatement : public TErrorManager {
 public:
     TStatement(TConnection* conn);
     ~TStatement();
+    TConnection* GetConnection() const { return Conn_; }
+    void RegisterDescriptors(const std::shared_ptr<TStatement>& owner);
+    void UnregisterDescriptors();
+    void BeforeCall() override;
 
     SQLRETURN Prepare(const std::string& statementText);
     SQLRETURN Execute();
@@ -79,10 +83,11 @@ public:
     SQLRETURN ParamData(SQLPOINTER* valuePtr);
     SQLRETURN PutData(SQLPOINTER data, SQLLEN strLenOrInd);
     SQLRETURN Cancel();
+    std::optional<SQLRETURN> CancelExecuting();
+    bool IsExecuting() const { return Executing_.load(std::memory_order_relaxed); }
     SQLRETURN SetCursorName(const std::string& name);
     SQLRETURN GetCursorName(SQLCHAR* name, SQLSMALLINT bufferLength, SQLSMALLINT* nameLengthPtr);
 
-    void DetachDescriptor(TDescriptor* desc);
 
     SQLRETURN RowCount(SQLLEN* rowCount);
     SQLRETURN NumResultCols(SQLSMALLINT* colCount);
@@ -142,6 +147,24 @@ private:
     TDescriptor ImpParamDesc_;
     TDescriptor* CurrentAppRowDesc_;
     TDescriptor* CurrentAppParamDesc_;
+    std::shared_ptr<TDescriptor> AppRowOwner_;
+    std::shared_ptr<TDescriptor> AppParamOwner_;
+    TDescriptorState RowBindings_;
+    TDescriptorState ParamBindings_;
+    TDescriptorState ImpParamBindings_;
+    TDescriptorState ImpRowBindings_;
+    uint64_t RowGeneration_ = 0;
+    uint64_t ParamGeneration_ = 0;
+    uint64_t ImpParamGeneration_ = 0;
+    uint64_t ImpRowGeneration_ = 0;
+    uint64_t CursorGeneration_ = 0;
+    std::mutex CancelMutex_;
+    std::atomic<bool> CancelRequested_ = false;
+    std::atomic<bool> Executing_ = false;
+    bool TransactionExecution_ = false;
+    std::optional<NQuery::TQueryClient> CancelClient_;
+    std::optional<NQuery::TSession> CancelSession_;
+    std::optional<TAsyncStatus> CancelFuture_;
     SQLUSMALLINT NeedDataParam_ = 0;
     bool InAtExec_ = false;
     bool NeedDataTokenDelivered_ = false;
@@ -154,7 +177,12 @@ private:
     std::vector<TBoundParam> GetBoundParams(SQLULEN paramSet) const;
     void EnsurePreparedColumnMeta();
     void InvalidatePreparedColumnMeta();
-    void DescriptorChanged(const TDescriptor* descriptor);
+    void RefreshBindings();
+    void StartExecution(bool transaction);
+    void FinishExecution() noexcept;
+    void SetExecutingSession(const NQuery::TSession& session);
+    void ReleaseExecutingSession();
+    void CheckExecutionStatus(const TStatus& status) const;
     void SetImpRowDesc(const std::vector<TColumnMeta>& columns);
     void SetCursor(std::unique_ptr<ICursor> cursor);
     void ClearResults();

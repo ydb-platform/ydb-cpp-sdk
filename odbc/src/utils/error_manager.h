@@ -1,11 +1,14 @@
 #pragma once
 
 #include "odbc_compat.h"
+#include "handle.h"
+#include <atomic>
 #include <functional>
 #include <vector>
 #include <string>
 #include <exception>
 #include <mutex>
+#include <shared_mutex>
 #include <type_traits>
 #include <utility>
 
@@ -58,6 +61,13 @@ private:
 
 class TErrorManager {
 public:
+    virtual ~TErrorManager() = default;
+    virtual void BeforeCall() {}
+    void SetParent(std::shared_ptr<TErrorManager> parent) { Parent_ = std::move(parent); }
+    void SetLifecycle(std::shared_mutex* lifecycle) { Lifecycle_ = lifecycle; }
+    std::shared_mutex* GetLifecycle() const { return Lifecycle_; }
+    bool IsRetired() const { return Retired_.load(std::memory_order_relaxed); }
+    void Retire() { Retired_.store(true, std::memory_order_relaxed); }
     SQLRETURN AddError(const std::string& sqlState, SQLINTEGER nativeError, const std::string& message, SQLRETURN returnCode = SQL_ERROR);
     SQLRETURN AddError(const TOdbcException& ex);
     SQLRETURN AddError(const TStatus& status);
@@ -77,6 +87,9 @@ public:
                            SQLPOINTER diagInfoPtr, SQLSMALLINT bufferLength, SQLSMALLINT* stringLengthPtr);
 
 private:
+    std::shared_ptr<TErrorManager> Parent_;
+    std::shared_mutex* Lifecycle_ = nullptr;
+    std::atomic<bool> Retired_ = false;
     mutable std::recursive_mutex Mutex_;
     std::vector<TErrorInfo> Errors_;
     SQLRETURN LastReturnCode_ = SQL_SUCCESS;
@@ -96,20 +109,33 @@ SQLRETURN InvokeOdbc(Fn&& fn, Args&&... args) {
     }
 }
 
-template <ECallMode Mode, typename Handle, class Fn>
+template <ECallMode Mode, typename Handle, bool Exclusive = false, class Fn>
 SQLRETURN CallOdbc(SQLHANDLE handlePtr, Fn&& func) {
-    if (!handlePtr) {
+    auto owner = std::dynamic_pointer_cast<Handle>(PinHandle(handlePtr));
+    if (!owner) {
         return SQL_INVALID_HANDLE;
     }
-    auto* handle = static_cast<Handle*>(handlePtr);
-    std::unique_lock lock(handle->GetMutex(), std::defer_lock);
-    if constexpr (Mode != ECallMode::Consuming) {
-        lock.lock();
+    auto* handle = owner.get();
+    std::shared_lock<std::shared_mutex> shared;
+    std::unique_lock<std::shared_mutex> exclusive;
+    if (auto* lifecycle = handle->GetLifecycle()) {
+        if constexpr (Exclusive) {
+            exclusive = std::unique_lock(*lifecycle);
+        } else {
+            shared = std::shared_lock(*lifecycle);
+        }
+    }
+    std::unique_lock lock(handle->GetMutex());
+    if (handle->IsRetired()) {
+        return SQL_INVALID_HANDLE;
     }
     if constexpr (Mode != ECallMode::Diagnostic) {
         handle->ClearErrors();
     }
     try {
+        if constexpr (Mode == ECallMode::Ordinary) {
+            handle->BeforeCall();
+        }
         const SQLRETURN ret = InvokeOdbc(std::forward<Fn>(func), handle);
         if constexpr (Mode == ECallMode::Ordinary) {
             handle->SetLastReturnCode(ret);
@@ -120,30 +146,6 @@ SQLRETURN CallOdbc(SQLHANDLE handlePtr, Fn&& func) {
             return SQL_ERROR;
         }
         return RecordCurrentException(*handle);
-    }
-}
-
-enum class ENullInputHandlePolicy : unsigned char { Reject, Allow };
-
-template <class Fn>
-SQLRETURN CallOdbcUnchecked(
-    SQLHANDLE handlePtr,
-    Fn&& func,
-    ENullInputHandlePolicy nullInputPolicy = ENullInputHandlePolicy::Reject) {
-    if (!handlePtr && nullInputPolicy == ENullInputHandlePolicy::Reject) {
-        return SQL_INVALID_HANDLE;
-    }
-    try {
-        const SQLRETURN ret = InvokeOdbc(std::forward<Fn>(func));
-        if (handlePtr) {
-            static_cast<TErrorManager*>(handlePtr)->SetLastReturnCode(ret);
-        }
-        return ret;
-    } catch (...) {
-        if (handlePtr) {
-            static_cast<TErrorManager*>(handlePtr)->SetLastReturnCode(SQL_ERROR);
-        }
-        return SQL_ERROR;
     }
 }
 

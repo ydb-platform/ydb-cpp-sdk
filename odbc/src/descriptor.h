@@ -43,7 +43,9 @@ struct TResolvedBinding {
     SQLLEN* OctetLength = nullptr;
 };
 
-class TDescriptor : public TErrorManager {
+class TDescriptorState {
+    friend class TDescriptor;
+protected:
     struct THeader {
         SQLULEN ArraySize = 1;
         SQLULEN BindType = SQL_BIND_BY_COLUMN;
@@ -52,6 +54,21 @@ class TDescriptor : public TErrorManager {
         SQLULEN* RowsProcessedPtr = nullptr;
     };
 
+    THeader Header_;
+    std::vector<TDescRecord> Records_;
+    uint64_t SchemaGeneration_ = 0;
+
+public:
+    SQLULEN GetArraySize() const noexcept { return Header_.ArraySize; }
+    SQLUSMALLINT* GetArrayStatusPtr() const noexcept { return Header_.ArrayStatusPtr; }
+    SQLULEN* GetRowsProcessedPtr() const noexcept { return Header_.RowsProcessedPtr; }
+    uint64_t GetSchemaGeneration() const noexcept { return SchemaGeneration_; }
+    const TDescRecord* FindRecord(SQLSMALLINT number) const noexcept;
+    SQLSMALLINT GetRecordCount() const noexcept;
+    TResolvedBinding ResolveBinding(const TDescRecord& record, SQLULEN index) const noexcept;
+};
+
+class TDescriptor : public TErrorManager, public TDescriptorState {
     using THeaderProperties = TScalarProperties<
         TScalarProperty<SQL_DESC_ARRAY_SIZE, &THeader::ArraySize, true, false>,
         TScalarProperty<SQL_DESC_BIND_TYPE, &THeader::BindType>,
@@ -66,20 +83,14 @@ public:
     EDescType GetDescType() const noexcept { return Type_; }
     TConnection* GetConnection() const noexcept { return Conn_; }
 
-    SQLULEN GetArraySize() const noexcept { return Header_.ArraySize; }
-    SQLUSMALLINT* GetArrayStatusPtr() const noexcept { return Header_.ArrayStatusPtr; }
-    SQLULEN* GetRowsProcessedPtr() const noexcept { return Header_.RowsProcessedPtr; }
-
     TDescRecord& Record(SQLSMALLINT number);
-    const TDescRecord* FindRecord(SQLSMALLINT number) const noexcept;
+    using TDescriptorState::FindRecord;
     TDescRecord* FindRecord(SQLSMALLINT number) noexcept;
     void RemoveRecord(SQLSMALLINT number);
-    void ClearRecords() noexcept { Records_.clear(); }
-    SQLSMALLINT GetRecordCount() const noexcept;
-    TResolvedBinding ResolveBinding(const TDescRecord& record, SQLULEN index) const noexcept;
-
-    void Attach(TStatement* stmt);
-    void Detach(TStatement* stmt);
+    void ClearRecords() noexcept { Records_.clear(); Changed(); }
+    uint64_t GetGeneration() const { return Generation_.load(std::memory_order_relaxed); }
+    void Snapshot(TDescriptorState& state, uint64_t& generation) const;
+    void SnapshotHeader(TDescriptorState& state, uint64_t& generation) const;
 
     SQLRETURN GetDescField(SQLSMALLINT recNumber, SQLSMALLINT fieldIdentifier, SQLPOINTER value,
                            SQLINTEGER bufferLength, SQLINTEGER* stringLengthPtr);
@@ -94,16 +105,12 @@ public:
                          SQLLEN* stringLengthPtr, SQLLEN* indicatorPtr);
     SQLRETURN CopyDesc(TDescriptor* target);
 
-    static TDescriptor* FromHandle(SQLHDESC handle);
-
 private:
-    void NotifyStatements();
+    void Changed(bool schema = true);
 
     EDescType Type_;
     TConnection* Conn_;
-    THeader Header_;
-    std::vector<TDescRecord> Records_;
-    std::vector<TStatement*> Statements_;
+    std::atomic<uint64_t> Generation_ = 1;
 };
 
 } // namespace NYdb::NOdbc

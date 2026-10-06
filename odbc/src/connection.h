@@ -26,6 +26,11 @@ class TDescriptor;
 
 class TConnection : public TErrorManager {
 private:
+    std::shared_mutex Lifecycle_;
+    mutable std::mutex ChildrenMutex_;
+    std::mutex TransactionMutex_;
+    std::atomic<uint64_t> CursorGeneration_ = 0;
+    bool TransactionFailed_ = false; // Protected by transaction ordering / exclusive lifecycle.
     struct TYdbState {
         // Declared first: constructed before clients, destroyed after them.
         TDriver Driver;
@@ -49,6 +54,7 @@ private:
     std::optional<TDriverConfig> DriverConfig_;
     std::optional<NQuery::TTransaction> Tx_;
     std::optional<NQuery::TSession> QuerySession_;
+    std::vector<NQuery::TSession> CanceledSessions_;
 
     std::string Database_;
     std::string ServerName_;
@@ -66,6 +72,7 @@ private:
     void RebindToDatabase(std::string_view newDatabase);
     void InvalidatePreparedStatementMetadata();
 public:
+    TConnection() { SetLifecycle(&Lifecycle_); }
     ~TConnection();
 
     SQLRETURN Connect(std::string_view serverName,
@@ -77,12 +84,17 @@ public:
     SQLRETURN Disconnect();
 
     std::unique_ptr<TStatement> CreateStatement();
-    void RegisterStatement(TStatement* stmt) { Statements_.insert(stmt); }
-    void UnregisterStatement(TStatement* stmt) { Statements_.erase(stmt); }
-    void RegisterDescriptor(TDescriptor* desc) { Descriptors_.insert(desc); }
-    void UnregisterDescriptor(TDescriptor* desc) { Descriptors_.erase(desc); }
-    bool HasChildren() const noexcept { return !Statements_.empty() || !Descriptors_.empty(); }
+    void RegisterStatement(TStatement* stmt) { std::lock_guard lock(ChildrenMutex_); Statements_.insert(stmt); }
+    void UnregisterStatement(TStatement* stmt) { std::lock_guard lock(ChildrenMutex_); Statements_.erase(stmt); }
+    void RegisterDescriptor(TDescriptor* desc) { std::lock_guard lock(ChildrenMutex_); Descriptors_.insert(desc); }
+    void UnregisterDescriptor(TDescriptor* desc) { std::lock_guard lock(ChildrenMutex_); Descriptors_.erase(desc); }
+    bool HasChildren() const { std::lock_guard lock(ChildrenMutex_); return !Statements_.empty() || !Descriptors_.empty(); }
     void CloseStatementCursors();
+    uint64_t GetCursorGeneration() const { return CursorGeneration_.load(std::memory_order_relaxed); }
+    std::mutex& GetTransactionMutex() { return TransactionMutex_; }
+    void CheckTransaction() const;
+    void FailTransaction();
+    void QuarantineSession(NQuery::TSession session);
 
     std::optional<NQuery::TQueryClient> GetClient();
     NQuery::TSession& GetOrCreateQuerySession();
@@ -107,8 +119,6 @@ public:
 
     const std::optional<NQuery::TTransaction>& GetTx();
     void SetTx(const NQuery::TTransaction& tx);
-    void ResetTx();
-    void ResetQuerySession();
 
     SQLRETURN CommitTx();
     SQLRETURN RollbackTx();

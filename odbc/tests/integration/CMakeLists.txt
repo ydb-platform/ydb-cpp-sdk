@@ -51,3 +51,13 @@ add_odbc_test(NAME odbc-descriptor_api_it
   SOURCES
     descriptor_api_it.cpp
 )
+
+# Link the driver directly: Driver Manager locks must not mask driver races.
+add_ydb_test(NAME odbc-concurrency_it GTEST
+  TIMEOUT 30
+  SOURCES concurrency_it.cpp
+  INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../../src ${ODBC_INCLUDE_DIRS}
+    $<TARGET_PROPERTY:YDB-CPP-SDK::Query,INTERFACE_INCLUDE_DIRECTORIES>
+  LINK_LIBRARIES ydb-odbc
+  LABELS integration
+)
