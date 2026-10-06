@@ -100,9 +100,9 @@ public:
     }
 };
 
-std::string SqlState(SQLHSTMT stmt) {
+std::string SqlState(SQLHANDLE handle, SQLSMALLINT type = SQL_HANDLE_STMT) {
     SQLCHAR state[6] = {};
-    SQLGetDiagRec(SQL_HANDLE_STMT, stmt, 1, state, nullptr, nullptr, 0, nullptr);
+    SQLGetDiagRec(type, handle, 1, state, nullptr, nullptr, 0, nullptr);
     return reinterpret_cast<char*>(state);
 }
 
@@ -286,8 +286,9 @@ TEST(Concurrency, ActiveTransactionCancelRequiresRollback) {
     EXPECT_EQ(next.get(), SQL_ERROR);
     EXPECT_EQ(SqlState(queued.Handle), "25S03");
     EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_COMMIT), SQL_ERROR);
-    EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_ROLLBACK), SQL_SUCCESS);
-    EXPECT_EQ(Execute(queued.Handle), SQL_SUCCESS);
+    EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_ROLLBACK), SQL_SUCCESS)
+        << SqlState(connection.Dbc, SQL_HANDLE_DBC);
+    EXPECT_EQ(Execute(queued.Handle), SQL_SUCCESS) << SqlState(queued.Handle);
     EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_COMMIT), SQL_SUCCESS);
 }
 
@@ -326,6 +327,23 @@ TEST(Concurrency, SameHandleAndCrossThreadHandoff) {
     EXPECT_EQ(ready, std::future_status::ready);
     EXPECT_EQ(cancel.get(), SQL_SUCCESS);
     EXPECT_EQ(SqlState(statement.Handle), "HYT00");
+}
+
+TEST(Concurrency, AlreadyRolledBackFailedTransactionAllowsRecovery) {
+    TConnectionHandles connection;
+    TStatementHandle statement(connection.Dbc);
+    ASSERT_EQ(SQLSetConnectAttr(connection.Dbc, SQL_ATTR_AUTOCOMMIT,
+                               reinterpret_cast<SQLPOINTER>(SQL_AUTOCOMMIT_OFF), 0), SQL_SUCCESS);
+    ASSERT_EQ(Execute(statement.Handle), SQL_SUCCESS);
+    auto owner = std::dynamic_pointer_cast<TConnection>(PinHandle(connection.Dbc));
+    // Model a server-side abort that removes the transaction but leaves its session alive.
+    ASSERT_TRUE(owner->GetTx()->Rollback().ExtractValueSync().IsSuccess());
+    owner->FailTransaction();
+    EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_COMMIT), SQL_ERROR);
+    EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_ROLLBACK), SQL_SUCCESS)
+        << SqlState(connection.Dbc, SQL_HANDLE_DBC);
+    EXPECT_EQ(Execute(statement.Handle), SQL_SUCCESS) << SqlState(statement.Handle);
+    EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_ROLLBACK), SQL_SUCCESS);
 }
 
 TEST(Concurrency, ConnectionAllocationUnwindRemovesParentRegistration) {
