@@ -242,9 +242,12 @@ SQLRETURN TConnection::CommitTx() {
 SQLRETURN TConnection::RollbackTx() {
     if (TransactionFailed_) {
         if (Tx_) {
-            auto status = Tx_->Rollback().ExtractValueSync();
+            auto status = Tx_->Rollback(
+                NQuery::TRollbackTxSettings().ClientTimeout(TDuration::Seconds(1))).ExtractValueSync();
+            // A timeout may abort the transaction before its session is closed.
             if (status.GetStatus() != EStatus::BAD_SESSION
-                && status.GetStatus() != EStatus::SESSION_EXPIRED) {
+                && status.GetStatus() != EStatus::SESSION_EXPIRED
+                && status.GetStatus() != EStatus::NOT_FOUND) {
                 NStatusHelpers::ThrowOnError(status);
             }
         }
