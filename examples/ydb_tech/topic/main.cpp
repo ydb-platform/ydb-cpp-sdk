@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <chrono>
 #include <condition_variable>
+#include <cstdint>
 #include <cstdlib>
 #include <exception>
 #include <future>
@@ -41,6 +42,7 @@ const std::map<std::string, size_t> Expected = {
     {"codec_async", 1}, {"codec_blocking", 1}, {"codec_producer", 1},
 };
 
+// [BEGIN topic_next_token]
 TContinuationToken NextToken(const std::shared_ptr<IWriteSession>& session) {
     while (true) {
         auto event = session->GetEvent(true);
@@ -54,6 +56,7 @@ TContinuationToken NextToken(const std::shared_ptr<IWriteSession>& session) {
         }
     }
 }
+// [END topic_next_token]
 
 void Write(TTopicClient& client, const std::string& path) {
     std::atomic<size_t> acknowledged{0};
@@ -145,7 +148,7 @@ void Write(TTopicClient& client, const std::string& path) {
 void Codecs(TTopicClient& client, const std::string& path) {
     // [BEGIN topic_codec]
     auto session = client.CreateWriteSession(TWriteSessionSettings()
-        .Path(path).ProducerId("codec-async").MessageGroupId("codec-async").Codec(ECodec::GZIP));
+        .Path(path).ProducerId("codec-async").MessageGroupId("codec-async").Codec(ECodec::RAW));
     // [END topic_codec]
     session->Write(NextToken(session), TWriteMessage("codec_async"));
     Require(session->Close(TDuration::Seconds(30)), "Codec writer did not close");
@@ -183,11 +186,11 @@ void Record(TReadSessionEvent::TDataReceivedEvent& event, std::map<std::string, 
     }
 }
 
-void HandleControl(TReadSessionEvent::TEvent& event, bool ownOffsets = false) {
+void HandleControl(TReadSessionEvent::TEvent& event, std::map<uint64_t, uint64_t>* offsets = nullptr) {
     if (auto* start = std::get_if<TReadSessionEvent::TStartPartitionSessionEvent>(&event)) {
         // [BEGIN topic_client_offset]
-        if (ownOffsets) {
-            start->Confirm(0);
+        if (offsets) {
+            start->Confirm((*offsets)[start->GetPartitionSession()->GetPartitionId()]);
         } else {
             start->Confirm();
         }
@@ -214,25 +217,36 @@ void HandleControl(TReadSessionEvent::TEvent& event, bool ownOffsets = false) {
 
 void Read(TTopicClient& client, const std::string& path, const std::string& consumer,
           bool ownOffsets = false, bool withoutConsumer = false) {
-    auto settings = TReadSessionSettings().ConsumerName(consumer).AppendTopics(path);
+    std::shared_ptr<IReadSession> readSession;
     if (withoutConsumer) {
         // [BEGIN topic_no_consumer]
-        settings = TReadSessionSettings().WithoutConsumer().AppendTopics(
+        auto settings = TReadSessionSettings().WithoutConsumer().AppendTopics(
             TTopicReadSettings(path).AppendPartitionIds(0).AppendPartitionIds(1).AppendPartitionIds(2));
+        auto session = client.CreateReadSession(settings);
         // [END topic_no_consumer]
+        readSession = std::move(session);
         ownOffsets = true;
+    } else {
+        // [BEGIN topic_start_reader]
+        auto settings = TReadSessionSettings().ConsumerName(consumer).AppendTopics(path);
+        auto session = client.CreateReadSession(settings);
+        // [END topic_start_reader]
+        readSession = std::move(session);
     }
-    // [BEGIN topic_start_reader]
-    auto readSession = client.CreateReadSession(settings);
-    // [END topic_start_reader]
+    std::map<uint64_t, uint64_t> offsets;
     std::map<std::string, size_t> received;
     while (received.size() < Expected.size()) {
         auto event = readSession->GetEvent(true);
         Require(event.has_value(), "Read session closed unexpectedly");
         if (auto* data = std::get_if<TReadSessionEvent::TDataReceivedEvent>(&*event)) {
             Record(*data, received, Expected);
+            if (ownOffsets) {
+                for (const auto& message : data->GetMessages()) {
+                    offsets[message.GetPartitionSession()->GetPartitionId()] = message.GetOffset() + 1;
+                }
+            }
         } else {
-            HandleControl(*event, ownOffsets);
+            HandleControl(*event, ownOffsets ? &offsets : nullptr);
         }
     }
     Require(received == Expected, "Unexpected message counts");

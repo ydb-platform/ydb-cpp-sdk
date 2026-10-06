@@ -14,3 +14,5 @@ timeout 180s build/examples/ydb_tech/topic/ydb_tech_topic
 `YDB_ENDPOINT` defaults to `localhost:2136` and `YDB_DATABASE` to `/local`.
 The application creates unique topics, verifies all received payloads, tests writer
 and reader variants and transactions, and removes its topics afterwards.
+The client offset scenario stores the next position for each partition in memory;
+use persistent storage to recover this state after an application restart.
