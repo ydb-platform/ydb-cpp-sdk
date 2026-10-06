@@ -1,7 +1,6 @@
 #include <ydb-cpp-sdk/client/driver/driver.h>
 #include <ydb-cpp-sdk/client/query/client.h>
 #include <ydb-cpp-sdk/client/topic/client.h>
-#include <ydb-cpp-sdk/client/topic/codecs.h>
 #include <ydb-cpp-sdk/client/types/status/status.h>
 
 #include <atomic>
@@ -432,8 +431,6 @@ void Run() {
     // [END topic_init]
     // [BEGIN topic_client]
     TTopicClient client(driver);
-    // Explicit registration retains the codec implementation in static builds.
-    client.ProvideCodec(ECodec::GZIP, std::make_unique<TGzipCodec>());
     // [END topic_client]
     NYdb::NQuery::TQueryClient queryClient(driver);
     const std::string path = "ydb_tech_" + std::to_string(TInstant::Now().MicroSeconds());
