@@ -29,6 +29,10 @@ if(YDB_SDK_ENABLE_OTEL_METRICS OR YDB_SDK_ENABLE_OTEL_TRACE OR YDB_SDK_TESTS)
   endif()
 endif()
 
+if(YDB_SDK_ODBC)
+  find_package(ODBC REQUIRED)
+endif()
+
 # Google API common protos remain independently packageable for Ubuntu, while
 # CPM builds generate the same library directly from the pinned source tree.
 if(YDB_SDK_GOOGLE_COMMON_PROTOS_TARGET)
