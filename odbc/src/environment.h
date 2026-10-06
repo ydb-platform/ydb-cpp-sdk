@@ -15,6 +15,7 @@ class TEnvironment : public TErrorManager {
 private:
     SQLINTEGER OdbcVersion_;
     std::unordered_set<TConnection*> Connections_;
+    mutable std::mutex ChildrenMutex_;
 
 public:
     TEnvironment();
@@ -25,7 +26,7 @@ public:
 
     void RegisterConnection(TConnection*);
     void UnregisterConnection(TConnection*);
-    std::vector<TConnection*> GetConnectionsSnapshot() const;
+    std::vector<std::shared_ptr<TConnection>> GetConnectionsSnapshot() const;
 
     SQLRETURN EndTran(SQLSMALLINT completionType);
 };

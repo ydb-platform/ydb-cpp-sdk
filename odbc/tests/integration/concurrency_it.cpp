@@ -1,0 +1,416 @@
+#include "connection.h"
+#include "statement.h"
+
+#include <gtest/gtest.h>
+
+#include <barrier>
+#include <array>
+#include <chrono>
+#include <future>
+#include <thread>
+
+using namespace std::chrono_literals;
+using namespace NYdb::NOdbc;
+
+namespace {
+
+class TConnectionHandles {
+public:
+    SQLHENV Env = SQL_NULL_HENV;
+    SQLHDBC Dbc = SQL_NULL_HDBC;
+
+    TConnectionHandles() {
+        EXPECT_EQ(SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &Env), SQL_SUCCESS);
+        EXPECT_EQ(SQLSetEnvAttr(Env, SQL_ATTR_ODBC_VERSION,
+                               reinterpret_cast<SQLPOINTER>(SQL_OV_ODBC3), 0), SQL_SUCCESS);
+        EXPECT_EQ(SQLAllocHandle(SQL_HANDLE_DBC, Env, &Dbc), SQL_SUCCESS);
+        EXPECT_EQ(SQLDriverConnect(Dbc, nullptr,
+            reinterpret_cast<SQLCHAR*>(const_cast<char*>("Server=localhost:2136;Database=/local;")),
+            SQL_NTS, nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT), SQL_SUCCESS);
+    }
+
+    ~TConnectionHandles() {
+        SQLDisconnect(Dbc);
+        SQLFreeHandle(SQL_HANDLE_DBC, Dbc);
+        SQLFreeHandle(SQL_HANDLE_ENV, Env);
+    }
+};
+
+class TStatementHandle {
+public:
+    SQLHSTMT Handle = SQL_NULL_HSTMT;
+
+    explicit TStatementHandle(SQLHDBC dbc) {
+        EXPECT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &Handle), SQL_SUCCESS);
+        EXPECT_EQ(SQLSetStmtAttr(Handle, SQL_ATTR_QUERY_TIMEOUT,
+                               reinterpret_cast<SQLPOINTER>(10), 0), SQL_SUCCESS);
+    }
+
+    ~TStatementHandle() {
+        if (Handle) {
+            SQLFreeHandle(SQL_HANDLE_STMT, Handle);
+        }
+    }
+};
+
+SQLRETURN Execute(SQLHSTMT stmt, const char* query = "SELECT 42 AS value") {
+    return SQLExecDirect(stmt, reinterpret_cast<SQLCHAR*>(const_cast<char*>(query)), SQL_NTS);
+}
+
+class TLongQuery {
+    TConnectionHandles Monitoring_;
+    TStatementHandle Observer_{Monitoring_.Dbc};
+    const std::string Table_ = std::string("odbc_concurrency_")
+        + ::testing::UnitTest::GetInstance()->current_test_info()->name();
+public:
+    const std::string Query = "SELECT SUM(a.id + b.id + c.id) FROM " + Table_
+        + " AS a CROSS JOIN " + Table_ + " AS b CROSS JOIN " + Table_ + " AS c";
+
+    TLongQuery() {
+        Execute(Observer_.Handle, ("DROP TABLE IF EXISTS " + Table_).c_str());
+        EXPECT_EQ(Execute(Observer_.Handle,
+            ("CREATE TABLE " + Table_ + " (id Uint32, PRIMARY KEY(id))").c_str()), SQL_SUCCESS);
+        EXPECT_EQ(Execute(Observer_.Handle, ("UPSERT INTO " + Table_ + " (id) SELECT v FROM "
+            "AS_TABLE(ListMap(ListFromRange(1u, 1001u), ($x)->(AsStruct($x AS v))))").c_str()), SQL_SUCCESS);
+    }
+
+    ~TLongQuery() { Execute(Observer_.Handle, ("DROP TABLE " + Table_).c_str()); }
+
+    bool Running() {
+        const auto observer = Observer_.Handle;
+        const std::string query = std::string("SELECT COUNT(*) FROM `.sys/query_sessions` WHERE Query = '")
+            + Query + "' AND State = 'EXECUTING'";
+        if (Execute(observer, query.c_str()) != SQL_SUCCESS || SQLFetch(observer) != SQL_SUCCESS) {
+            return false;
+        }
+        SQLINTEGER count = 0;
+        return SQLGetData(observer, 1, SQL_C_LONG, &count, sizeof(count), nullptr) == SQL_SUCCESS
+            && count > 0;
+    }
+};
+
+std::string SqlState(SQLHSTMT stmt) {
+    SQLCHAR state[6] = {};
+    SQLGetDiagRec(SQL_HANDLE_STMT, stmt, 1, state, nullptr, nullptr, 0, nullptr);
+    return reinterpret_cast<char*>(state);
+}
+
+template<class Predicate>
+bool WaitUntil(Predicate predicate) {
+    const auto deadline = std::chrono::steady_clock::now() + 5s;
+    do {
+        if (predicate()) {
+            return true;
+        }
+        std::this_thread::yield();
+    } while (std::chrono::steady_clock::now() < deadline);
+    return false;
+}
+
+void RunConcurrentQueries(SQLHDBC first, SQLHDBC second) {
+    TStatementHandle a(first), b(second);
+    std::barrier start(2);
+    const auto work = [&](SQLHSTMT stmt) {
+        start.arrive_and_wait();
+        for (int i = 0; i < 30; ++i) {
+            EXPECT_EQ(Execute(stmt), SQL_SUCCESS) << SqlState(stmt);
+            EXPECT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+            SQLINTEGER value = 0;
+            EXPECT_EQ(SQLGetData(stmt, 1, SQL_C_LONG, &value, sizeof(value), nullptr), SQL_SUCCESS);
+            EXPECT_EQ(value, 42);
+        }
+    };
+    std::jthread worker(work, a.Handle);
+    work(b.Handle);
+}
+
+TEST(Concurrency, IndependentConnections) {
+    TConnectionHandles a, b;
+    RunConcurrentQueries(a.Dbc, b.Dbc);
+}
+
+TEST(Concurrency, AutocommitStatementsDoNotUseTransactionLock) {
+    TConnectionHandles connection;
+    auto owner = std::dynamic_pointer_cast<TConnection>(PinHandle(connection.Dbc));
+    std::unique_lock transaction(owner->GetTransactionMutex());
+    auto queries = std::async(std::launch::async, [&] {
+        RunConcurrentQueries(connection.Dbc, connection.Dbc);
+    });
+    EXPECT_EQ(queries.wait_for(2s), std::future_status::ready);
+    transaction.unlock();
+    queries.get();
+}
+
+TEST(Concurrency, ParameterArraysReleaseCompletedSessions) {
+    TConnectionHandles connection;
+    auto owner = std::dynamic_pointer_cast<TConnection>(PinHandle(connection.Dbc));
+    const auto count = owner->GetClient()->GetActiveSessionsLimit();
+    TStatementHandle setup(connection.Dbc);
+    ASSERT_EQ(Execute(setup.Handle, "DROP TABLE IF EXISTS odbc_concurrency_params"), SQL_SUCCESS);
+    ASSERT_EQ(Execute(setup.Handle,
+        "CREATE TABLE odbc_concurrency_params (id Int32, PRIMARY KEY(id))"), SQL_SUCCESS);
+    std::vector<std::unique_ptr<TStatementHandle>> statements;
+    std::vector<std::array<SQLINTEGER, 2>> parameters(count, {1, 2});
+    for (int i = 0; i < count; ++i) {
+        auto stmt = std::make_unique<TStatementHandle>(connection.Dbc);
+        parameters[i] = {2 * i, 2 * i + 1};
+        ASSERT_EQ(SQLPrepare(stmt->Handle, reinterpret_cast<SQLCHAR*>(const_cast<char*>(
+            "UPSERT INTO odbc_concurrency_params (id) VALUES (?)")),
+                             SQL_NTS), SQL_SUCCESS);
+        ASSERT_EQ(SQLSetStmtAttr(stmt->Handle, SQL_ATTR_PARAMSET_SIZE,
+                                reinterpret_cast<SQLPOINTER>(2), 0), SQL_SUCCESS);
+        ASSERT_EQ(SQLBindParameter(stmt->Handle, 1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER,
+                                  0, 0, parameters[i].data(), sizeof(SQLINTEGER), nullptr), SQL_SUCCESS);
+        statements.push_back(std::move(stmt));
+    }
+    std::barrier start(count);
+    {
+        std::vector<std::jthread> workers;
+        for (const auto& stmt : statements) {
+            workers.emplace_back([&, handle = stmt->Handle] {
+                start.arrive_and_wait();
+                EXPECT_EQ(SQLExecute(handle), SQL_SUCCESS) << SqlState(handle);
+            });
+        }
+    }
+    EXPECT_EQ(owner->GetClient()->GetActiveSessionCount(), 0);
+    EXPECT_EQ(Execute(setup.Handle, "DROP TABLE odbc_concurrency_params"), SQL_SUCCESS);
+}
+
+TEST(Concurrency, ExplicitTransactionStatements) {
+    TConnectionHandles connection;
+    TStatementHandle writer(connection.Dbc), reader(connection.Dbc);
+    ASSERT_EQ(Execute(writer.Handle, "DROP TABLE IF EXISTS odbc_concurrency_tx"), SQL_SUCCESS);
+    ASSERT_EQ(Execute(writer.Handle,
+        "CREATE TABLE odbc_concurrency_tx (id Int32, PRIMARY KEY(id))"), SQL_SUCCESS);
+    ASSERT_EQ(SQLSetConnectAttr(connection.Dbc, SQL_ATTR_AUTOCOMMIT,
+                               reinterpret_cast<SQLPOINTER>(SQL_AUTOCOMMIT_OFF), 0), SQL_SUCCESS);
+    RunConcurrentQueries(connection.Dbc, connection.Dbc);
+    EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_COMMIT), SQL_SUCCESS);
+    RunConcurrentQueries(connection.Dbc, connection.Dbc);
+    ASSERT_EQ(Execute(writer.Handle, "UPSERT INTO odbc_concurrency_tx (id) VALUES (42)"), SQL_SUCCESS);
+    auto read = std::async(std::launch::async, [&] {
+        return Execute(reader.Handle, "SELECT id FROM odbc_concurrency_tx WHERE id = 42");
+    });
+    ASSERT_EQ(read.get(), SQL_SUCCESS);
+    EXPECT_EQ(SQLFetch(reader.Handle), SQL_SUCCESS);
+    EXPECT_EQ(SQLEndTran(SQL_HANDLE_ENV, connection.Env, SQL_ROLLBACK), SQL_SUCCESS);
+    ASSERT_EQ(Execute(reader.Handle, "SELECT id FROM odbc_concurrency_tx WHERE id = 42"), SQL_SUCCESS);
+    EXPECT_EQ(SQLFetch(reader.Handle), SQL_NO_DATA);
+    EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_COMMIT), SQL_SUCCESS);
+    ASSERT_EQ(SQLSetConnectAttr(connection.Dbc, SQL_ATTR_AUTOCOMMIT,
+                               reinterpret_cast<SQLPOINTER>(SQL_AUTOCOMMIT_ON), 0), SQL_SUCCESS);
+    auto owner = std::dynamic_pointer_cast<TConnection>(PinHandle(connection.Dbc));
+    EXPECT_EQ(owner->GetClient()->GetActiveSessionCount(), 0);
+    EXPECT_EQ(Execute(writer.Handle, "DROP TABLE odbc_concurrency_tx"), SQL_SUCCESS);
+}
+
+TEST(Concurrency, AutocommitProgressAndActiveCancel) {
+    TConnectionHandles connection;
+    TStatementHandle slow(connection.Dbc), fast(connection.Dbc);
+    TLongQuery query;
+    auto execution = std::async(std::launch::async, [&] { return Execute(slow.Handle, query.Query.c_str()); });
+    EXPECT_TRUE(WaitUntil([&] { return query.Running(); }));
+    EXPECT_EQ(Execute(fast.Handle), SQL_SUCCESS);
+    EXPECT_EQ(execution.wait_for(0s), std::future_status::timeout);
+    EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_COMMIT), SQL_SUCCESS);
+    auto cancellation = std::async(std::launch::async, [&] { return SQLCancel(slow.Handle); });
+    EXPECT_EQ(cancellation.wait_for(1s), std::future_status::ready);
+    EXPECT_EQ(cancellation.get(), SQL_SUCCESS);
+    EXPECT_EQ(execution.wait_for(5s), std::future_status::ready);
+    EXPECT_EQ(execution.get(), SQL_ERROR);
+    EXPECT_EQ(SqlState(slow.Handle), "HY008");
+    EXPECT_EQ(SQLFetch(fast.Handle), SQL_SUCCESS);
+    for (int i = 0; i < 20; ++i) {
+        EXPECT_EQ(SQLCancel(slow.Handle), SQL_SUCCESS);
+        EXPECT_EQ(Execute(fast.Handle), SQL_SUCCESS);
+        EXPECT_EQ(Execute(slow.Handle), SQL_SUCCESS);
+    }
+}
+
+TEST(Concurrency, ActiveTransactionCancelRequiresRollback) {
+    TConnectionHandles connection;
+    TStatementHandle slow(connection.Dbc), queued(connection.Dbc);
+    TLongQuery query;
+    ASSERT_EQ(SQLSetConnectAttr(connection.Dbc, SQL_ATTR_AUTOCOMMIT,
+                               reinterpret_cast<SQLPOINTER>(SQL_AUTOCOMMIT_OFF), 0), SQL_SUCCESS);
+    // Establish the transaction before testing cancellation of its shared session.
+    ASSERT_EQ(Execute(slow.Handle), SQL_SUCCESS);
+    auto execution = std::async(std::launch::async, [&] { return Execute(slow.Handle, query.Query.c_str()); });
+    EXPECT_TRUE(WaitUntil([&] { return query.Running(); }));
+    auto next = std::async(std::launch::async, [&] { return Execute(queued.Handle); });
+    auto owner = std::dynamic_pointer_cast<TStatement>(PinHandle(queued.Handle));
+    EXPECT_TRUE(WaitUntil([&] { return owner->IsExecuting(); }));
+    EXPECT_EQ(next.wait_for(50ms), std::future_status::timeout);
+    EXPECT_EQ(SQLCancel(slow.Handle), SQL_SUCCESS);
+    EXPECT_EQ(execution.get(), SQL_ERROR);
+    EXPECT_EQ(SqlState(slow.Handle), "HY008");
+    EXPECT_EQ(next.get(), SQL_ERROR);
+    EXPECT_EQ(SqlState(queued.Handle), "25S03");
+    EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_COMMIT), SQL_ERROR);
+    EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_ROLLBACK), SQL_SUCCESS);
+    EXPECT_EQ(Execute(queued.Handle), SQL_SUCCESS);
+    EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_COMMIT), SQL_SUCCESS);
+}
+
+TEST(Concurrency, SameHandleAndCrossThreadHandoff) {
+    TConnectionHandles connection;
+    TStatementHandle statement(connection.Dbc);
+    std::barrier start(2);
+    const auto work = [&] {
+        start.arrive_and_wait();
+        for (int i = 0; i < 30; ++i) {
+            EXPECT_EQ(Execute(statement.Handle), SQL_SUCCESS);
+            SQLULEN value = 0;
+            EXPECT_EQ(SQLGetStmtAttr(statement.Handle, SQL_ATTR_CURSOR_TYPE,
+                                    &value, sizeof(value), nullptr), SQL_SUCCESS);
+        }
+    };
+    {
+        std::jthread worker(work);
+        work();
+    }
+    EXPECT_EQ(SQLFetch(statement.Handle), SQL_SUCCESS);
+    {
+        std::jthread nextOwner([&] {
+            SQLINTEGER value = 0;
+            EXPECT_EQ(SQLGetData(statement.Handle, 1, SQL_C_LONG,
+                                 &value, sizeof(value), nullptr), SQL_SUCCESS);
+            EXPECT_EQ(value, 42);
+        });
+    }
+}
+
+TEST(Concurrency, CancelQueuedTransactionDoesNotWaitOrAbortOtherStatements) {
+    TConnectionHandles connection;
+    TStatementHandle statement(connection.Dbc);
+    ASSERT_EQ(SQLSetConnectAttr(connection.Dbc, SQL_ATTR_AUTOCOMMIT,
+                               reinterpret_cast<SQLPOINTER>(SQL_AUTOCOMMIT_OFF), 0), SQL_SUCCESS);
+    auto owner = std::dynamic_pointer_cast<TConnection>(PinHandle(connection.Dbc));
+    auto stmt = std::dynamic_pointer_cast<TStatement>(PinHandle(statement.Handle));
+    std::unique_lock transaction(owner->GetTransactionMutex());
+    auto execution = std::async(std::launch::async, [&] { return Execute(statement.Handle); });
+    const bool started = WaitUntil([&] { return stmt->IsExecuting(); });
+    EXPECT_TRUE(started);
+    auto cancel = std::async(std::launch::async, [&] { return SQLCancel(statement.Handle); });
+    EXPECT_EQ(cancel.wait_for(1s), std::future_status::ready);
+    transaction.unlock();
+    EXPECT_EQ(cancel.get(), SQL_SUCCESS);
+    EXPECT_EQ(execution.get(), SQL_ERROR);
+    EXPECT_EQ(SqlState(statement.Handle), "HY008");
+    TStatementHandle other(connection.Dbc);
+    EXPECT_EQ(Execute(other.Handle), SQL_SUCCESS);
+    EXPECT_EQ(Execute(statement.Handle), SQL_SUCCESS);
+    EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_ROLLBACK), SQL_SUCCESS);
+}
+
+TEST(Concurrency, DescriptorCopyMutationAndFree) {
+    TConnectionHandles connection;
+    TStatementHandle a(connection.Dbc), b(connection.Dbc);
+    SQLHDESC first = SQL_NULL_HDESC, second = SQL_NULL_HDESC;
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_DESC, connection.Dbc, &first), SQL_SUCCESS);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_DESC, connection.Dbc, &second), SQL_SUCCESS);
+    ASSERT_EQ(SQLSetStmtAttr(a.Handle, SQL_ATTR_APP_ROW_DESC, first, 0), SQL_SUCCESS);
+    ASSERT_EQ(SQLSetStmtAttr(b.Handle, SQL_ATTR_APP_ROW_DESC, first, 0), SQL_SUCCESS);
+    SQLINTEGER firstValue = 0, secondValue = 0;
+    ASSERT_EQ(SQLBindCol(a.Handle, 1, SQL_C_LONG, &firstValue, sizeof(firstValue), nullptr), SQL_SUCCESS);
+    ASSERT_EQ(SQLCopyDesc(first, second), SQL_SUCCESS);
+    ASSERT_EQ(SQLSetDescField(second, 1, SQL_DESC_DATA_PTR, &secondValue, 0), SQL_SUCCESS);
+    ASSERT_EQ(Execute(a.Handle), SQL_SUCCESS);
+    ASSERT_EQ(Execute(b.Handle), SQL_SUCCESS);
+    std::barrier start(3);
+    {
+        std::jthread forward([&] {
+            start.arrive_and_wait();
+            for (int i = 0; i < 100; ++i) {
+                EXPECT_EQ(SQLCopyDesc(first, second), SQL_SUCCESS);
+            }
+        });
+        std::jthread reverse([&] {
+            start.arrive_and_wait();
+            for (int i = 0; i < 100; ++i) {
+                EXPECT_EQ(SQLCopyDesc(second, first), SQL_SUCCESS);
+            }
+        });
+        start.arrive_and_wait();
+        EXPECT_EQ(SQLFetch(a.Handle), SQL_SUCCESS);
+    }
+    EXPECT_TRUE(firstValue == 42 || secondValue == 42);
+    firstValue = secondValue = 0;
+    EXPECT_EQ(SQLFetch(b.Handle), SQL_SUCCESS);
+    EXPECT_TRUE(firstValue == 42 || secondValue == 42);
+    ASSERT_EQ(Execute(a.Handle), SQL_SUCCESS);
+    std::barrier freeing(2);
+    auto fetch = std::async(std::launch::async, [&] {
+        freeing.arrive_and_wait();
+        return SQLFetch(a.Handle);
+    });
+    freeing.arrive_and_wait();
+    EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_DESC, first), SQL_SUCCESS);
+    EXPECT_EQ(fetch.get(), SQL_SUCCESS);
+    SQLHDESC restored = SQL_NULL_HDESC;
+    EXPECT_EQ(SQLGetStmtAttr(a.Handle, SQL_ATTR_APP_ROW_DESC,
+                            &restored, sizeof(restored), nullptr), SQL_SUCCESS);
+    EXPECT_NE(restored, first);
+    EXPECT_EQ(SQLGetStmtAttr(b.Handle, SQL_ATTR_APP_ROW_DESC,
+                            &restored, sizeof(restored), nullptr), SQL_SUCCESS);
+    EXPECT_NE(restored, first);
+    EXPECT_EQ(SQLGetDescField(first, 0, SQL_DESC_COUNT, &restored, 0, nullptr), SQL_INVALID_HANDLE);
+    EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_DESC, second), SQL_SUCCESS);
+}
+
+TEST(Concurrency, DisconnectAndFreeRaces) {
+    TConnectionHandles connection;
+    TStatementHandle statement(connection.Dbc);
+    std::barrier start(3);
+    auto use = std::async(std::launch::async, [&] {
+        start.arrive_and_wait();
+        return Execute(statement.Handle);
+    });
+    auto disconnect = std::async(std::launch::async, [&] {
+        start.arrive_and_wait();
+        return SQLDisconnect(connection.Dbc);
+    });
+    start.arrive_and_wait();
+    EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_STMT, statement.Handle), SQL_SUCCESS);
+    EXPECT_EQ(disconnect.get(), SQL_SUCCESS);
+    const auto result = use.get();
+    EXPECT_TRUE(result == SQL_SUCCESS || result == SQL_ERROR || result == SQL_INVALID_HANDLE);
+    EXPECT_EQ(SQLCancel(statement.Handle), SQL_INVALID_HANDLE);
+    EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_STMT, statement.Handle), SQL_INVALID_HANDLE);
+    statement.Handle = SQL_NULL_HSTMT;
+}
+
+TEST(Concurrency, ImplicitDescriptorIsRetiredWithStatement) {
+    TConnectionHandles connection;
+    TStatementHandle statement(connection.Dbc);
+    SQLHDESC descriptor = SQL_NULL_HDESC;
+    ASSERT_EQ(SQLGetStmtAttr(statement.Handle, SQL_ATTR_IMP_ROW_DESC,
+                            &descriptor, sizeof(descriptor), nullptr), SQL_SUCCESS);
+    auto pin = PinHandle(descriptor);
+    ASSERT_TRUE(pin);
+    ASSERT_EQ(SQLFreeHandle(SQL_HANDLE_STMT, statement.Handle), SQL_SUCCESS);
+    statement.Handle = SQL_NULL_HSTMT;
+    SQLSMALLINT count = 0;
+    EXPECT_EQ(SQLGetDescField(descriptor, 0, SQL_DESC_COUNT, &count, 0, nullptr), SQL_INVALID_HANDLE);
+    EXPECT_TRUE(pin->IsRetired());
+    EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_DBC, connection.Dbc), SQL_SUCCESS);
+    connection.Dbc = SQL_NULL_HDBC;
+}
+
+TEST(Concurrency, DisconnectClearsImplicitMetadataWithoutStatementCall) {
+    TConnectionHandles connection;
+    TStatementHandle statement(connection.Dbc);
+    ASSERT_EQ(Execute(statement.Handle), SQL_SUCCESS);
+    SQLHDESC descriptor = SQL_NULL_HDESC;
+    ASSERT_EQ(SQLGetStmtAttr(statement.Handle, SQL_ATTR_IMP_ROW_DESC,
+                            &descriptor, sizeof(descriptor), nullptr), SQL_SUCCESS);
+    SQLSMALLINT count = 0;
+    ASSERT_EQ(SQLGetDescField(descriptor, 0, SQL_DESC_COUNT, &count, 0, nullptr), SQL_SUCCESS);
+    ASSERT_EQ(count, 1);
+    ASSERT_EQ(SQLDisconnect(connection.Dbc), SQL_SUCCESS);
+    EXPECT_EQ(SQLGetDescField(descriptor, 0, SQL_DESC_COUNT, &count, 0, nullptr), SQL_SUCCESS);
+    EXPECT_EQ(count, 0);
+}
+
+} // namespace
