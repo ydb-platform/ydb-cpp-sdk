@@ -14,6 +14,9 @@
 namespace NYdb::NOdbc {
 
 TConnection::~TConnection() {
+    if (ParentEnv_) {
+        ParentEnv_->UnregisterConnection(this);
+    }
     DestroyYdbState();
 }
 

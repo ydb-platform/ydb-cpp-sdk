@@ -85,6 +85,8 @@ public:
     SQLRETURN Cancel();
     std::optional<SQLRETURN> CancelExecuting();
     bool IsExecuting() const { return Executing_.load(std::memory_order_relaxed); }
+    bool IsCancelRequested() const { return CancelRequested_.load(std::memory_order_relaxed); }
+    bool HasExecutingSession();
     SQLRETURN SetCursorName(const std::string& name);
     SQLRETURN GetCursorName(SQLCHAR* name, SQLSMALLINT bufferLength, SQLSMALLINT* nameLengthPtr);
 
@@ -164,7 +166,7 @@ private:
     bool TransactionExecution_ = false;
     std::optional<NQuery::TQueryClient> CancelClient_;
     std::optional<NQuery::TSession> CancelSession_;
-    std::optional<TAsyncStatus> CancelFuture_;
+    bool CancelSessionInvalidated_ = false; // Protected by the statement operation mutex.
     SQLUSMALLINT NeedDataParam_ = 0;
     bool InAtExec_ = false;
     bool NeedDataTokenDelivered_ = false;
@@ -182,7 +184,7 @@ private:
     void FinishExecution() noexcept;
     void SetExecutingSession(const NQuery::TSession& session);
     void ReleaseExecutingSession();
-    void CheckExecutionStatus(const TStatus& status) const;
+    void CheckExecutionStatus(const TStatus& status);
     void SetImpRowDesc(const std::vector<TColumnMeta>& columns);
     void SetCursor(std::unique_ptr<ICursor> cursor);
     void ClearResults();

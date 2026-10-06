@@ -74,7 +74,7 @@ namespace {
     SQLRETURN Free(SQLHANDLE handle) {
         return Call<Odbc::ECallMode::Consuming, Handle, std::is_same_v<Handle, TConnection>>(handle, [](Handle* value) {
             if constexpr (std::is_same_v<Handle, TEnvironment>) {
-                if (!value->GetConnectionsSnapshot().empty()) {
+                if (value->HasChildren()) {
                     return value->AddError("HY010", 0, "Connection handles are still allocated");
                 }
             } else if constexpr (std::is_same_v<Handle, TConnection>) {
@@ -117,13 +117,15 @@ namespace {
                 if constexpr (std::is_same_v<Handle, TConnection>) {
                     value = std::make_shared<TConnection>();
                     value->SetEnvironment(parent);
-                    parent->RegisterConnection(value.get());
                 } else if constexpr (std::is_same_v<Handle, TStatement>) {
                     value = parent->CreateStatement();
                 } else {
                     value = std::make_shared<TDescriptor>(Odbc::EDescType::Explicit, parent);
                 }
                 value->SetParent(Odbc::PinHandle(parent));
+                if constexpr (std::is_same_v<Handle, TConnection>) {
+                    parent->RegisterConnection(value.get());
+                }
                 try {
                     Odbc::RegisterHandle(value.get(), value);
                     if constexpr (std::is_same_v<Handle, TStatement>) {

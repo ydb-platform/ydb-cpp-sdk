@@ -6,13 +6,20 @@
 #include <barrier>
 #include <array>
 #include <chrono>
+#include <cstdlib>
 #include <future>
+#include <string_view>
 #include <thread>
 
 using namespace std::chrono_literals;
 using namespace NYdb::NOdbc;
 
 namespace {
+
+bool SupportsActiveAbort() {
+    const char* version = std::getenv("YDB_VERSION");
+    return !version || std::string_view(version) == "trunk";
+}
 
 class TConnectionHandles {
 public:
@@ -76,7 +83,11 @@ public:
 
     ~TLongQuery() { Execute(Observer_.Handle, ("DROP TABLE " + Table_).c_str()); }
 
-    bool Running() {
+    bool Running(SQLHSTMT stmt) {
+        if (!SupportsActiveAbort()) {
+            auto owner = std::dynamic_pointer_cast<TStatement>(PinHandle(stmt));
+            return owner && owner->HasExecutingSession();
+        }
         const auto observer = Observer_.Handle;
         const std::string query = std::string("SELECT COUNT(*) FROM `.sys/query_sessions` WHERE Query = '")
             + Query + "' AND State = 'EXECUTING'";
@@ -93,6 +104,20 @@ std::string SqlState(SQLHSTMT stmt) {
     SQLCHAR state[6] = {};
     SQLGetDiagRec(SQL_HANDLE_STMT, stmt, 1, state, nullptr, nullptr, 0, nullptr);
     return reinterpret_cast<char*>(state);
+}
+
+void ExpectCanceledExecution(std::future<SQLRETURN>& execution, SQLHSTMT stmt) {
+    EXPECT_EQ(execution.wait_for(SupportsActiveAbort() ? 5s : 13s), std::future_status::ready);
+    const auto result = execution.get();
+    if (SupportsActiveAbort()) {
+        EXPECT_EQ(result, SQL_ERROR);
+        EXPECT_EQ(SqlState(stmt), "HY008");
+    } else if (result == SQL_ERROR) {
+        const auto state = SqlState(stmt);
+        EXPECT_TRUE(state == "HY008" || state == "HYT00") << state;
+    } else {
+        EXPECT_EQ(result, SQL_SUCCESS);
+    }
 }
 
 template<class Predicate>
@@ -210,16 +235,21 @@ TEST(Concurrency, AutocommitProgressAndActiveCancel) {
     TStatementHandle slow(connection.Dbc), fast(connection.Dbc);
     TLongQuery query;
     auto execution = std::async(std::launch::async, [&] { return Execute(slow.Handle, query.Query.c_str()); });
-    EXPECT_TRUE(WaitUntil([&] { return query.Running(); }));
+    EXPECT_TRUE(WaitUntil([&] { return query.Running(slow.Handle); }));
     EXPECT_EQ(Execute(fast.Handle), SQL_SUCCESS);
     EXPECT_EQ(execution.wait_for(0s), std::future_status::timeout);
     EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_COMMIT), SQL_SUCCESS);
-    auto cancellation = std::async(std::launch::async, [&] { return SQLCancel(slow.Handle); });
+    auto cancellation = std::async(std::launch::async, [&] {
+        auto owner = std::dynamic_pointer_cast<TStatement>(PinHandle(slow.Handle));
+        EXPECT_TRUE(owner->HasExecutingSession());
+        EXPECT_EQ(execution.wait_for(0s), std::future_status::timeout);
+        const auto result = SQLCancel(slow.Handle);
+        EXPECT_TRUE(owner->IsCancelRequested());
+        return result;
+    });
     EXPECT_EQ(cancellation.wait_for(1s), std::future_status::ready);
     EXPECT_EQ(cancellation.get(), SQL_SUCCESS);
-    EXPECT_EQ(execution.wait_for(5s), std::future_status::ready);
-    EXPECT_EQ(execution.get(), SQL_ERROR);
-    EXPECT_EQ(SqlState(slow.Handle), "HY008");
+    ExpectCanceledExecution(execution, slow.Handle);
     EXPECT_EQ(SQLFetch(fast.Handle), SQL_SUCCESS);
     for (int i = 0; i < 20; ++i) {
         EXPECT_EQ(SQLCancel(slow.Handle), SQL_SUCCESS);
@@ -237,14 +267,22 @@ TEST(Concurrency, ActiveTransactionCancelRequiresRollback) {
     // Establish the transaction before testing cancellation of its shared session.
     ASSERT_EQ(Execute(slow.Handle), SQL_SUCCESS);
     auto execution = std::async(std::launch::async, [&] { return Execute(slow.Handle, query.Query.c_str()); });
-    EXPECT_TRUE(WaitUntil([&] { return query.Running(); }));
+    EXPECT_TRUE(WaitUntil([&] { return query.Running(slow.Handle); }));
     auto next = std::async(std::launch::async, [&] { return Execute(queued.Handle); });
     auto owner = std::dynamic_pointer_cast<TStatement>(PinHandle(queued.Handle));
     EXPECT_TRUE(WaitUntil([&] { return owner->IsExecuting(); }));
     EXPECT_EQ(next.wait_for(50ms), std::future_status::timeout);
-    EXPECT_EQ(SQLCancel(slow.Handle), SQL_SUCCESS);
-    EXPECT_EQ(execution.get(), SQL_ERROR);
-    EXPECT_EQ(SqlState(slow.Handle), "HY008");
+    auto cancellation = std::async(std::launch::async, [&] {
+        auto slowOwner = std::dynamic_pointer_cast<TStatement>(PinHandle(slow.Handle));
+        EXPECT_TRUE(slowOwner->HasExecutingSession());
+        EXPECT_EQ(execution.wait_for(0s), std::future_status::timeout);
+        const auto result = SQLCancel(slow.Handle);
+        EXPECT_TRUE(slowOwner->IsCancelRequested());
+        return result;
+    });
+    EXPECT_EQ(cancellation.wait_for(1s), std::future_status::ready);
+    EXPECT_EQ(cancellation.get(), SQL_SUCCESS);
+    ExpectCanceledExecution(execution, slow.Handle);
     EXPECT_EQ(next.get(), SQL_ERROR);
     EXPECT_EQ(SqlState(queued.Handle), "25S03");
     EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_COMMIT), SQL_ERROR);
@@ -279,6 +317,32 @@ TEST(Concurrency, SameHandleAndCrossThreadHandoff) {
             EXPECT_EQ(value, 42);
         });
     }
+    auto owner = std::dynamic_pointer_cast<TStatement>(PinHandle(statement.Handle));
+    std::unique_lock operation(owner->GetMutex());
+    owner->AddError("HYT00", 0, "Execution timed out");
+    auto cancel = std::async(std::launch::async, [&] { return SQLCancel(statement.Handle); });
+    const auto ready = cancel.wait_for(1s);
+    operation.unlock();
+    EXPECT_EQ(ready, std::future_status::ready);
+    EXPECT_EQ(cancel.get(), SQL_SUCCESS);
+    EXPECT_EQ(SqlState(statement.Handle), "HYT00");
+}
+
+TEST(Concurrency, ConnectionAllocationUnwindRemovesParentRegistration) {
+    SQLHENV env = SQL_NULL_HENV;
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &env), SQL_SUCCESS);
+    auto parent = std::dynamic_pointer_cast<TEnvironment>(PinHandle(env));
+    {
+        auto connection = std::make_shared<TConnection>();
+        connection->SetParent(parent);
+        connection->SetEnvironment(parent.get());
+        parent->RegisterConnection(connection.get());
+        EXPECT_TRUE(parent->HasChildren());
+        EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_ENV, env), SQL_ERROR);
+        // Simulate unwinding before the connection is published in the registry.
+    }
+    EXPECT_FALSE(parent->HasChildren());
+    EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_ENV, env), SQL_SUCCESS);
 }
 
 TEST(Concurrency, CancelQueuedTransactionDoesNotWaitOrAbortOtherStatements) {

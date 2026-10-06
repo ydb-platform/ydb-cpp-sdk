@@ -26,6 +26,7 @@ public:
 
     void RegisterConnection(TConnection*);
     void UnregisterConnection(TConnection*);
+    bool HasChildren() const;
     std::vector<std::shared_ptr<TConnection>> GetConnectionsSnapshot() const;
 
     SQLRETURN EndTran(SQLSMALLINT completionType);
