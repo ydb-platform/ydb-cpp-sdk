@@ -101,7 +101,7 @@ void Write(TTopicClient& client, const std::string& path) {
 
     TProducerSettings producerSettings;
     // A producer stops its handler executor on destruction; keep it separate from other sessions.
-    producerSettings.EventHandlers_.HandlersExecutor(CreateThreadPoolExecutor(1));
+    producerSettings.EventHandlers_.HandlersExecutor(NYdb::CreateThreadPoolExecutor(1));
     // [BEGIN topic_producer_ack]
     producerSettings.EventHandlers_.AcksHandler([&](TWriteSessionEvent::TAcksEvent& event) {
         for (const auto& ack : event.Acks) {
@@ -157,7 +157,7 @@ void Codecs(TTopicClient& client, const std::string& path) {
     Require(blocking->Close(TDuration::Seconds(30)), "Codec writer did not close");
     // [BEGIN topic_codec_producer]
     TProducerSettings settings;
-    settings.EventHandlers_.HandlersExecutor(CreateThreadPoolExecutor(1));
+    settings.EventHandlers_.HandlersExecutor(NYdb::CreateThreadPoolExecutor(1));
     settings.Path(path).Codec(ECodec::GZIP);
     settings.ProducerIdPrefix("codec-producer")
         .PartitionChooserStrategy(TProducerSettings::EPartitionChooserStrategy::KafkaHash);
@@ -447,7 +447,7 @@ void Run() {
     // [END topic_create]
     try {
         // [BEGIN topic_alter]
-        ThrowOnError(client.AlterTopic(path, TAlterTopicSettings().BeginAddConsumer("another-consumer")
+        ThrowOnError(client.AlterTopic(path, TAlterTopicSettings().BeginAddConsumer("another-consumer").SetImportant(true)
             .EndAddConsumer().SetRetentionPeriod(TDuration::Days(2))).GetValueSync());
         // [END topic_alter]
         // [BEGIN topic_describe]
