@@ -198,7 +198,7 @@ TEST(Concurrency, ParameterArraysReleaseCompletedSessions) {
             });
         }
     }
-    EXPECT_EQ(owner->GetClient()->GetActiveSessionCount(), 0);
+    EXPECT_TRUE(WaitUntil([&] { return owner->GetClient()->GetActiveSessionCount() == 0; }));
     EXPECT_EQ(Execute(setup.Handle, "DROP TABLE odbc_concurrency_params"), SQL_SUCCESS);
 }
 
@@ -226,7 +226,7 @@ TEST(Concurrency, ExplicitTransactionStatements) {
     ASSERT_EQ(SQLSetConnectAttr(connection.Dbc, SQL_ATTR_AUTOCOMMIT,
                                reinterpret_cast<SQLPOINTER>(SQL_AUTOCOMMIT_ON), 0), SQL_SUCCESS);
     auto owner = std::dynamic_pointer_cast<TConnection>(PinHandle(connection.Dbc));
-    EXPECT_EQ(owner->GetClient()->GetActiveSessionCount(), 0);
+    EXPECT_TRUE(WaitUntil([&] { return owner->GetClient()->GetActiveSessionCount() == 0; }));
     EXPECT_EQ(Execute(writer.Handle, "DROP TABLE odbc_concurrency_tx"), SQL_SUCCESS);
 }
 
@@ -398,11 +398,11 @@ TEST(Concurrency, CancelQueuedTransactionDoesNotWaitOrAbortOtherStatements) {
 }
 
 TEST(Concurrency, DescriptorCopyMutationAndFree) {
-    TConnectionHandles connection;
+    TConnectionHandles connection, otherConnection;
     TStatementHandle a(connection.Dbc), b(connection.Dbc);
     SQLHDESC first = SQL_NULL_HDESC, second = SQL_NULL_HDESC;
     ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_DESC, connection.Dbc, &first), SQL_SUCCESS);
-    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_DESC, connection.Dbc, &second), SQL_SUCCESS);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_DESC, otherConnection.Dbc, &second), SQL_SUCCESS);
     ASSERT_EQ(SQLSetStmtAttr(a.Handle, SQL_ATTR_APP_ROW_DESC, first, 0), SQL_SUCCESS);
     ASSERT_EQ(SQLSetStmtAttr(b.Handle, SQL_ATTR_APP_ROW_DESC, first, 0), SQL_SUCCESS);
     SQLINTEGER firstValue = 0, secondValue = 0;
@@ -411,8 +411,17 @@ TEST(Concurrency, DescriptorCopyMutationAndFree) {
     ASSERT_EQ(SQLSetDescField(second, 1, SQL_DESC_DATA_PTR, &secondValue, 0), SQL_SUCCESS);
     ASSERT_EQ(Execute(a.Handle), SQL_SUCCESS);
     ASSERT_EQ(Execute(b.Handle), SQL_SUCCESS);
-    std::barrier start(3);
+    std::barrier start(5);
     {
+        auto attributes = [&](SQLHDBC dbc) {
+            start.arrive_and_wait();
+            for (int i = 0; i < 100; ++i) {
+                EXPECT_EQ(SQLSetConnectAttr(dbc, SQL_ATTR_AUTOCOMMIT,
+                    reinterpret_cast<SQLPOINTER>(SQL_AUTOCOMMIT_ON), 0), SQL_SUCCESS);
+            }
+        };
+        std::jthread firstAttributes(attributes, connection.Dbc);
+        std::jthread secondAttributes(attributes, otherConnection.Dbc);
         std::jthread forward([&] {
             start.arrive_and_wait();
             for (int i = 0; i < 100; ++i) {

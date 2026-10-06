@@ -550,10 +550,13 @@ SQLRETURN SQL_API SQLCopyDesc(SQLHDESC sourceDesc, SQLHDESC targetDesc) {
     if (!src || !dst) {
         return SQL_INVALID_HANDLE;
     }
-    std::shared_lock sourceLifecycle(*src->GetLifecycle());
+    std::shared_lock sourceLifecycle(*src->GetLifecycle(), std::defer_lock);
     std::shared_lock<std::shared_mutex> targetLifecycle;
     if (dst->GetLifecycle() != src->GetLifecycle()) {
-        targetLifecycle = std::shared_lock(*dst->GetLifecycle());
+        targetLifecycle = std::shared_lock(*dst->GetLifecycle(), std::defer_lock);
+        std::lock(sourceLifecycle, targetLifecycle);
+    } else {
+        sourceLifecycle.lock();
     }
     std::unique_lock sourceLock(src->GetMutex(), std::defer_lock);
     std::unique_lock targetLock(dst->GetMutex(), std::defer_lock);
