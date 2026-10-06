@@ -266,6 +266,8 @@ TEST(Concurrency, ActiveTransactionCancelRequiresRollback) {
                                reinterpret_cast<SQLPOINTER>(SQL_AUTOCOMMIT_OFF), 0), SQL_SUCCESS);
     // Establish the transaction before testing cancellation of its shared session.
     ASSERT_EQ(Execute(slow.Handle), SQL_SUCCESS);
+    auto connectionOwner = std::dynamic_pointer_cast<TConnection>(PinHandle(connection.Dbc));
+    const auto canceledSessionId = connectionOwner->GetOrCreateQuerySession().GetId();
     auto execution = std::async(std::launch::async, [&] { return Execute(slow.Handle, query.Query.c_str()); });
     EXPECT_TRUE(WaitUntil([&] { return query.Running(slow.Handle); }));
     auto next = std::async(std::launch::async, [&] { return Execute(queued.Handle); });
@@ -286,9 +288,11 @@ TEST(Concurrency, ActiveTransactionCancelRequiresRollback) {
     EXPECT_EQ(next.get(), SQL_ERROR);
     EXPECT_EQ(SqlState(queued.Handle), "25S03");
     EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_COMMIT), SQL_ERROR);
+    EXPECT_EQ(SqlState(connection.Dbc, SQL_HANDLE_DBC), "25S03");
     EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_ROLLBACK), SQL_SUCCESS)
         << SqlState(connection.Dbc, SQL_HANDLE_DBC);
     EXPECT_EQ(Execute(queued.Handle), SQL_SUCCESS) << SqlState(queued.Handle);
+    EXPECT_NE(connectionOwner->GetOrCreateQuerySession().GetId(), canceledSessionId);
     EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_COMMIT), SQL_SUCCESS);
 }
 
@@ -329,21 +333,27 @@ TEST(Concurrency, SameHandleAndCrossThreadHandoff) {
     EXPECT_EQ(SqlState(statement.Handle), "HYT00");
 }
 
-TEST(Concurrency, AlreadyRolledBackFailedTransactionAllowsRecovery) {
+TEST(Concurrency, FailedTransactionRecoveryUsesFreshSession) {
     TConnectionHandles connection;
     TStatementHandle statement(connection.Dbc);
     ASSERT_EQ(SQLSetConnectAttr(connection.Dbc, SQL_ATTR_AUTOCOMMIT,
                                reinterpret_cast<SQLPOINTER>(SQL_AUTOCOMMIT_OFF), 0), SQL_SUCCESS);
     ASSERT_EQ(Execute(statement.Handle), SQL_SUCCESS);
     auto owner = std::dynamic_pointer_cast<TConnection>(PinHandle(connection.Dbc));
+    const auto canceledSessionId = owner->GetOrCreateQuerySession().GetId();
     // Model a server-side abort that removes the transaction but leaves its session alive.
-    auto tx = *owner->GetTx();
-    ASSERT_TRUE(tx.Rollback().ExtractValueSync().IsSuccess());
+    {
+        auto tx = *owner->GetTx();
+        ASSERT_TRUE(tx.Rollback().ExtractValueSync().IsSuccess());
+    }
+    owner->QuarantineSession(owner->GetOrCreateQuerySession());
     owner->FailTransaction();
     EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_COMMIT), SQL_ERROR);
     EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_ROLLBACK), SQL_SUCCESS)
         << SqlState(connection.Dbc, SQL_HANDLE_DBC);
+    EXPECT_FALSE(owner->GetTx().has_value());
     EXPECT_EQ(Execute(statement.Handle), SQL_SUCCESS) << SqlState(statement.Handle);
+    EXPECT_NE(owner->GetOrCreateQuerySession().GetId(), canceledSessionId);
     EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_ROLLBACK), SQL_SUCCESS);
 }
 
