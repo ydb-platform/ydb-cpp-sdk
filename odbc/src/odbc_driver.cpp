@@ -81,17 +81,12 @@ namespace {
                 if (value->HasChildren()) {
                     return value->AddError("HY010", 0, "Statement or descriptor handles are still allocated");
                 }
-                if (auto* environment = value->GetEnvironment()) {
-                    environment->UnregisterConnection(value);
-                }
             } else if constexpr (std::is_same_v<Handle, TDescriptor>) {
                 if (value->GetDescType() != Odbc::EDescType::Explicit) {
                     return value->AddError("HY017", 0, "Invalid use of an automatically allocated descriptor handle");
                 }
-                value->GetConnection()->UnregisterDescriptor(value);
             } else if constexpr (std::is_same_v<Handle, TStatement>) {
                 value->UnregisterDescriptors();
-                value->GetConnection()->UnregisterStatement(value);
             }
             value->Retire();
             Odbc::UnregisterHandle(value);
@@ -116,16 +111,12 @@ namespace {
                 std::shared_ptr<Handle> value;
                 if constexpr (std::is_same_v<Handle, TConnection>) {
                     value = std::make_shared<TConnection>();
-                    value->SetEnvironment(parent);
                 } else if constexpr (std::is_same_v<Handle, TStatement>) {
-                    value = parent->CreateStatement();
+                    value = std::make_shared<TStatement>(parent);
                 } else {
                     value = std::make_shared<TDescriptor>(Odbc::EDescType::Explicit, parent);
                 }
                 value->SetParent(Odbc::PinHandle(parent));
-                if constexpr (std::is_same_v<Handle, TConnection>) {
-                    parent->RegisterConnection(value.get());
-                }
                 try {
                     Odbc::RegisterHandle(value.get(), value);
                     if constexpr (std::is_same_v<Handle, TStatement>) {
@@ -298,6 +289,11 @@ SQLRETURN SQL_API SQLEndTran(SQLSMALLINT handleType, SQLHANDLE handle, SQLSMALLI
         return Forward<TEnvironment, &TEnvironment::EndTran>(handle, completionType);
     }
     if (handleType == SQL_HANDLE_DBC) {
+        // Keep the same object alive across the shared-to-exclusive lock upgrade.
+        const auto owner = Odbc::PinHandle(handle);
+        if (!owner) {
+            return SQL_INVALID_HANDLE;
+        }
         const auto preflight = Call<Odbc::ECallMode::Ordinary, TConnection>(handle, [&](auto* connection) {
             if (completionType != SQL_COMMIT && completionType != SQL_ROLLBACK) {
                 throw Odbc::TOdbcException("HY012", 0, "Invalid transaction operation code");
@@ -311,10 +307,7 @@ SQLRETURN SQL_API SQLEndTran(SQLSMALLINT handleType, SQLHANDLE handle, SQLSMALLI
             if (completionType == SQL_COMMIT) {
                 return connection->CommitTx();
             }
-            if (completionType == SQL_ROLLBACK) {
-                return connection->RollbackTx();
-            }
-            throw Odbc::TOdbcException("HY012", 0, "Invalid transaction operation code");
+            return connection->RollbackTx();
         });
     }
     return SQL_INVALID_HANDLE;

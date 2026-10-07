@@ -25,8 +25,6 @@ using TMetadataArgument = std::optional<std::string>;
 class TStatement : public THandle {
 public:
     TStatement(TConnection* conn);
-    ~TStatement();
-    TConnection* GetConnection() const { return Conn_; }
     void RegisterDescriptors(const std::shared_ptr<TStatement>& owner);
     void UnregisterDescriptors();
     void BeforeCall() override;
@@ -144,8 +142,6 @@ private:
     TDescriptor AppParamDesc_;
     TDescriptor ImpRowDesc_;
     TDescriptor ImpParamDesc_;
-    TDescriptor* CurrentAppRowDesc_;
-    TDescriptor* CurrentAppParamDesc_;
     std::shared_ptr<TDescriptor> AppRowOwner_;
     std::shared_ptr<TDescriptor> AppParamOwner_;
     TDescriptorState RowBindings_;
@@ -177,6 +173,9 @@ private:
     std::vector<TBoundParam> GetBoundParams(SQLULEN paramSet) const;
     void EnsurePreparedColumnMeta();
     void InvalidatePreparedColumnMeta();
+    void SetImpRowDesc(const std::vector<TColumnMeta>& columns);
+    TDescriptor& GetAppRowDesc() { return AppRowOwner_ ? *AppRowOwner_ : AppRowDesc_; }
+    TDescriptor& GetAppParamDesc() { return AppParamOwner_ ? *AppParamOwner_ : AppParamDesc_; }
     void RefreshBindings();
     void StartExecution(bool transaction);
     void FinishExecution() noexcept;
