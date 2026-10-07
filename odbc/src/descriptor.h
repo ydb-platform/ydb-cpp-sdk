@@ -11,7 +11,7 @@
 namespace NYdb::NOdbc {
 
 class TConnection;
-struct TColumnMeta;
+class TStatement;
 
 enum class EDescType {
     AppRow,
@@ -79,24 +79,12 @@ class TDescriptor : public THandle, private TDescriptorState {
 
 public:
     TDescriptor(EDescType type, TConnection* conn);
-    ~TDescriptor();
 
     EDescType GetDescType() const noexcept { return Type_; }
     TConnection* GetConnection() const noexcept { return Conn_; }
 
     // Statement access locks this descriptor; binding snapshots are statement-owned.
-    void PrepareParams(SQLSMALLINT count);
-    void BindCol(SQLSMALLINT number, SQLSMALLINT type, SQLPOINTER data, SQLLEN length, SQLLEN* indicator);
-    void BindParameter(TDescriptor& implementation, SQLSMALLINT number,
-                       SQLSMALLINT valueType, SQLSMALLINT parameterType, SQLULEN columnSize,
-                       SQLSMALLINT decimalDigits, SQLPOINTER data, SQLLEN length, SQLLEN* indicator,
-                       bool atExec);
-    void ResetParams(TDescriptor& implementation, TDescriptorState& appState, uint64_t& appGeneration,
-                     TDescriptorState& impState, uint64_t& impGeneration);
     void Clear();
-    void SetColumns(const std::vector<TColumnMeta>& columns);
-    SQLRETURN GetHeaderField(SQLSMALLINT field, SQLPOINTER value);
-    SQLRETURN SetHeaderField(SQLSMALLINT field, SQLPOINTER value);
     uint64_t GetGeneration() const { return Generation_.load(std::memory_order_relaxed); }
     void Snapshot(TDescriptorState& state, uint64_t& generation) const;
     void SnapshotHeader(TDescriptorState& state, uint64_t& generation) const;
@@ -116,6 +104,21 @@ public:
     static SQLRETURN Copy(SQLHDESC source, SQLHDESC target);
 
 private:
+    friend class TStatement;
+
+    // Callbacks consume or mutate records within this scope; no references escape.
+    template<class Fn>
+    auto WithLock(Fn&& fn) {
+        std::lock_guard lock(OperationMutex_);
+        return std::forward<Fn>(fn)(*this);
+    }
+
+    template<class Fn>
+    auto WithLock(TDescriptor& other, Fn&& fn) {
+        std::scoped_lock lock(OperationMutex_, other.OperationMutex_);
+        return std::forward<Fn>(fn)(*this, other);
+    }
+
     TDescRecord& Record(SQLSMALLINT number);
     void RemoveRecord(SQLSMALLINT number);
     void ClearRecords() noexcept { Records_.clear(); Changed(); }

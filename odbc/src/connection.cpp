@@ -15,22 +15,11 @@
 
 namespace NYdb::NOdbc {
 
-TConnection::~TConnection() {
-    if (ParentEnv_) {
-        ParentEnv_->UnregisterConnection(this);
-    }
-    DestroyYdbState();
-}
-
 void TConnection::DestroyYdbState() {
-    InvalidatePreparedStatementMetadata();
-    CloseStatementCursors();
     QuerySession_.reset();
     Tx_.reset();
     TransactionFailed_ = false;
     Ydb_.reset();
-    // Unknown deletion outcomes must not release a lease before the client stops.
-    CanceledSessions_.clear();
 }
 
 SQLRETURN TConnection::DriverConnect(std::string_view connectionString,
@@ -94,6 +83,8 @@ SQLRETURN TConnection::Connect(std::string_view serverName,
 }
 
 SQLRETURN TConnection::Disconnect() {
+    InvalidatePreparedStatementMetadata();
+    CloseStatementCursors();
     DestroyYdbState();
     DriverConfig_.reset();
     DbmsVersionCache_.reset();
@@ -133,10 +124,6 @@ std::optional<NScheme::TSchemeClient> TConnection::GetSchemeClient() {
     return Ydb_->SchemeClient;
 }
 
-std::unique_ptr<TStatement> TConnection::CreateStatement() {
-    return std::make_unique<TStatement>(this);
-}
-
 SQLRETURN TConnection::Execute(TStatement& statement) {
     // The caller holds the statement operation lock and a shared lifecycle gate.
     std::unique_lock transaction(TransactionMutex_, std::defer_lock);
@@ -171,17 +158,19 @@ void TConnection::EndTranFromEnvironment(SQLSMALLINT completionType) {
 void TConnection::CloseStatementCursors() {
     // The exclusive lifecycle gate has drained statement/descriptor calls.
     const auto generation = CursorGeneration_.fetch_add(1, std::memory_order_relaxed) + 1;
-    std::lock_guard children(ResourcesMutex_);
-    for (auto* stmt : Statements_) {
-        stmt->Close(true);
-        stmt->CursorGeneration_ = generation;
+    for (const auto& child : GetChildren()) {
+        if (const auto stmt = std::dynamic_pointer_cast<TStatement>(child)) {
+            stmt->Close(true);
+            stmt->CursorGeneration_ = generation;
+        }
     }
 }
 
 void TConnection::InvalidatePreparedStatementMetadata() {
-    std::lock_guard children(ResourcesMutex_);
-    for (auto* stmt : Statements_) {
-        stmt->InvalidatePreparedColumnMeta();
+    for (const auto& child : GetChildren()) {
+        if (const auto stmt = std::dynamic_pointer_cast<TStatement>(child)) {
+            stmt->InvalidatePreparedColumnMeta();
+        }
     }
 }
 
@@ -198,19 +187,13 @@ void TConnection::FailTransaction() {
 }
 
 void TConnection::QuarantineSession(NQuery::TSession session) {
-    std::lock_guard lock(ResourcesMutex_);
-    CanceledSessions_.push_back(std::move(session));
+    Ydb_->QuarantineSession(std::move(session));
 }
 
 SQLRETURN TConnection::SetAutocommit(bool value) {
     CheckTransaction();
-    if (value && Tx_) {
-        auto status = Tx_->Commit().ExtractValueSync();
-        NStatusHelpers::ThrowOnError(status);
-        Tx_.reset();
-        CloseStatementCursors();
-    }
     if (value) {
+        CommitTx();
         QuerySession_.reset();
     }
     return Attributes_.SetAutocommit(value);
@@ -292,17 +275,6 @@ SQLRETURN TConnection::RollbackTx() {
     return SQL_SUCCESS;
 }
 
-void TConnection::SetEnvironment(TEnvironment* env){
-    if (ParentEnv_){
-        throw std::logic_error("Connection already bound to environment");
-    }
-    ParentEnv_ = env;
-}
-
-TEnvironment* TConnection::GetEnvironment(){
-    return ParentEnv_;
-}
-
 const std::string& TConnection::GetDataSourceName() const {
     return DataSourceName_;
 }
@@ -373,6 +345,8 @@ void TConnection::RecreateYdbClients() {
     if (!DriverConfig_) {
         throw TOdbcException("08003", 0, "Connection configuration is not available");
     }
+    InvalidatePreparedStatementMetadata();
+    CloseStatementCursors();
     DestroyYdbState();
     DbmsVersionCache_.reset();
     Ydb_.emplace(*DriverConfig_);

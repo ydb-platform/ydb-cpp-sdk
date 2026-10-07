@@ -1,7 +1,6 @@
 #include "descriptor.h"
 
 #include "connection.h"
-#include "utils/cursor.h"
 #include "utils/diag.h"
 #include "utils/sql_type_map.h"
 
@@ -68,15 +67,6 @@ TDescriptor::TDescriptor(EDescType type, TConnection* conn)
     : Type_(type)
     , Conn_(conn) {
     SetLifecycle(conn->GetLifecycle());
-    if (Type_ == EDescType::Explicit) {
-        Conn_->RegisterDescriptor(this);
-    }
-}
-
-TDescriptor::~TDescriptor() {
-    if (Type_ == EDescType::Explicit) {
-        Conn_->UnregisterDescriptor(this);
-    }
 }
 
 void TDescriptor::Snapshot(TDescriptorState& state, uint64_t& generation) const {
@@ -96,99 +86,9 @@ void TDescriptor::SnapshotHeader(TDescriptorState& state, uint64_t& generation) 
     generation = GetGeneration();
 }
 
-void TDescriptor::PrepareParams(SQLSMALLINT count) {
-    std::lock_guard lock(OperationMutex_);
-    while (GetRecordCount() > count) {
-        RemoveRecord(GetRecordCount());
-    }
-    for (SQLSMALLINT i = 1; i <= count; ++i) {
-        Record(i).Nullable = SQL_NULLABLE_UNKNOWN;
-    }
-}
-
-void TDescriptor::BindCol(SQLSMALLINT number, SQLSMALLINT type, SQLPOINTER data, SQLLEN length, SQLLEN* indicator) {
-    std::lock_guard lock(OperationMutex_);
-    if (!data) {
-        RemoveRecord(number);
-        return;
-    }
-    TDescRecord& record = Record(number);
-    record.Type = type;
-    record.Length = length;
-    record.OctetLength = length;
-    record.DataPtr = data;
-    record.IndicatorPtr = indicator;
-    record.OctetLengthPtr = indicator;
-}
-
-void TDescriptor::BindParameter(TDescriptor& implementation, SQLSMALLINT number,
-                                SQLSMALLINT valueType, SQLSMALLINT parameterType, SQLULEN columnSize,
-                                SQLSMALLINT decimalDigits, SQLPOINTER data, SQLLEN length, SQLLEN* indicator,
-                                bool atExec) {
-    std::scoped_lock lock(OperationMutex_, implementation.OperationMutex_);
-    if (!data && !indicator) {
-        RemoveRecord(number);
-        implementation.RemoveRecord(number);
-        return;
-    }
-    TDescRecord& app = Record(number);
-    app.Type = valueType;
-    app.Length = length;
-    app.OctetLength = length;
-    app.DataPtr = data;
-    app.IndicatorPtr = indicator;
-    app.OctetLengthPtr = indicator;
-    app.ParameterType = SQL_PARAM_INPUT;
-    app.AtExec = atExec;
-
-    TDescRecord& imp = implementation.Record(number);
-    imp.Type = parameterType;
-    imp.Length = static_cast<SQLLEN>(columnSize);
-    imp.OctetLength = static_cast<SQLLEN>(columnSize);
-    imp.Precision = static_cast<SQLSMALLINT>(columnSize);
-    imp.Scale = decimalDigits;
-    imp.Nullable = SQL_NULLABLE;
-    imp.ParameterType = SQL_PARAM_INPUT;
-}
-
-void TDescriptor::ResetParams(TDescriptor& implementation, TDescriptorState& appState, uint64_t& appGeneration,
-                              TDescriptorState& impState, uint64_t& impGeneration) {
-    std::scoped_lock lock(OperationMutex_, implementation.OperationMutex_);
-    ClearRecords();
-    implementation.ClearRecords();
-    SnapshotUnlocked(appState, appGeneration);
-    implementation.SnapshotUnlocked(impState, impGeneration);
-}
-
 void TDescriptor::Clear() {
     std::lock_guard lock(OperationMutex_);
     ClearRecords();
-}
-
-void TDescriptor::SetColumns(const std::vector<TColumnMeta>& columns) {
-    std::lock_guard lock(OperationMutex_);
-    ClearRecords();
-    SQLSMALLINT number = 0;
-    for (const TColumnMeta& column : columns) {
-        TDescRecord& record = Record(++number);
-        record.Name = column.Name;
-        record.Type = column.SqlType;
-        record.Length = static_cast<SQLLEN>(column.Size);
-        record.OctetLength = static_cast<SQLLEN>(column.Size);
-        record.Precision = static_cast<SQLSMALLINT>(column.Size);
-        record.Scale = column.DecimalDigits;
-        record.Nullable = column.Nullable;
-    }
-}
-
-SQLRETURN TDescriptor::GetHeaderField(SQLSMALLINT field, SQLPOINTER value) {
-    std::lock_guard lock(OperationMutex_);
-    return GetDescField(0, field, value, 0, nullptr);
-}
-
-SQLRETURN TDescriptor::SetHeaderField(SQLSMALLINT field, SQLPOINTER value) {
-    std::lock_guard lock(OperationMutex_);
-    return SetDescField(0, field, value, 0);
 }
 
 TDescRecord& TDescriptor::Record(SQLSMALLINT number) {
@@ -448,9 +348,9 @@ SQLRETURN TDescriptor::CopyDesc(TDescriptor& target) {
     if (target.Type_ == EDescType::ImpRow) {
         return AddError("HY016", 0, "Cannot modify an implementation row descriptor");
     }
+    target.Changed();
     target.Header_ = Header_;
     target.Records_ = Records_;
-    target.Changed();
     return SQL_SUCCESS;
 }
 

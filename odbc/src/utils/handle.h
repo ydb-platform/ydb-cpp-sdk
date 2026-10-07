@@ -9,6 +9,7 @@
 #include <shared_mutex>
 #include <type_traits>
 #include <utility>
+#include <vector>
 
 namespace NYdb::NOdbc {
 
@@ -17,7 +18,11 @@ enum class ECallMode : unsigned char { Ordinary, Diagnostic, Consuming };
 class THandle : public TErrorManager {
 public:
     virtual void BeforeCall() {}
+    // Assigned before registry publication and immutable thereafter.
     void SetParent(std::shared_ptr<THandle> parent) { Parent_ = std::move(parent); }
+    const THandle* GetParent() const { return Parent_.get(); }
+    bool HasChildren() const;
+    std::vector<std::shared_ptr<THandle>> GetChildren() const;
     void SetLifecycle(std::shared_mutex* lifecycle) { Lifecycle_ = lifecycle; }
     std::shared_mutex* GetLifecycle() const { return Lifecycle_; }
     bool IsRetired() const { return Retired_.load(std::memory_order_relaxed); }
