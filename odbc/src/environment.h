@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utils/error_manager.h"
+#include "utils/handle.h"
 
 #include "odbc_compat.h"
 #include <unordered_set>
@@ -11,11 +11,11 @@ namespace NOdbc {
 
 class TConnection;
 
-class TEnvironment : public TErrorManager {
+class TEnvironment : public THandle {
 private:
     SQLINTEGER OdbcVersion_;
     std::unordered_set<TConnection*> Connections_;
-    mutable std::mutex ChildrenMutex_;
+    mutable std::mutex ChildrenMutex_; // Connections_, including allocation unwind and deferred destruction.
 
 public:
     TEnvironment();

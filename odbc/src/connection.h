@@ -24,13 +24,13 @@ namespace NYdb::NOdbc {
 class TStatement;
 class TDescriptor;
 
-class TConnection : public TErrorManager {
+class TConnection : public THandle {
 private:
-    std::shared_mutex Lifecycle_;
-    mutable std::mutex ChildrenMutex_;
-    std::mutex TransactionMutex_;
+    std::shared_mutex Lifecycle_; // Shared by calls; exclusive for connection-state changes and child invalidation.
+    mutable std::mutex ResourcesMutex_; // Statements_, Descriptors_, CanceledSessions_, including deferred destruction.
+    std::mutex TransactionMutex_; // Tx_, QuerySession_, TransactionFailed_; also protected by exclusive Lifecycle_.
     std::atomic<uint64_t> CursorGeneration_ = 0;
-    bool TransactionFailed_ = false; // Protected by transaction ordering / exclusive lifecycle.
+    bool TransactionFailed_ = false;
     struct TYdbState {
         // Declared first: constructed before clients, destroyed after them.
         TDriver Driver;
@@ -84,14 +84,17 @@ public:
     SQLRETURN Disconnect();
 
     std::unique_ptr<TStatement> CreateStatement();
-    void RegisterStatement(TStatement* stmt) { std::lock_guard lock(ChildrenMutex_); Statements_.insert(stmt); }
-    void UnregisterStatement(TStatement* stmt) { std::lock_guard lock(ChildrenMutex_); Statements_.erase(stmt); }
-    void RegisterDescriptor(TDescriptor* desc) { std::lock_guard lock(ChildrenMutex_); Descriptors_.insert(desc); }
-    void UnregisterDescriptor(TDescriptor* desc) { std::lock_guard lock(ChildrenMutex_); Descriptors_.erase(desc); }
-    bool HasChildren() const { std::lock_guard lock(ChildrenMutex_); return !Statements_.empty() || !Descriptors_.empty(); }
+    void RegisterStatement(TStatement* stmt) { std::lock_guard lock(ResourcesMutex_); Statements_.insert(stmt); }
+    void UnregisterStatement(TStatement* stmt) { std::lock_guard lock(ResourcesMutex_); Statements_.erase(stmt); }
+    void RegisterDescriptor(TDescriptor* desc) { std::lock_guard lock(ResourcesMutex_); Descriptors_.insert(desc); }
+    void UnregisterDescriptor(TDescriptor* desc) { std::lock_guard lock(ResourcesMutex_); Descriptors_.erase(desc); }
+    bool HasChildren() const { std::lock_guard lock(ResourcesMutex_); return !Statements_.empty() || !Descriptors_.empty(); }
     void CloseStatementCursors();
     uint64_t GetCursorGeneration() const { return CursorGeneration_.load(std::memory_order_relaxed); }
-    std::mutex& GetTransactionMutex() { return TransactionMutex_; }
+    // Test seam for holding transaction ordering without a server-side operation.
+    std::unique_lock<std::mutex> LockTransaction() { return std::unique_lock(TransactionMutex_); }
+    SQLRETURN Execute(TStatement& statement);
+    void EndTranFromEnvironment(SQLSMALLINT completionType);
     void CheckTransaction() const;
     void FailTransaction();
     void QuarantineSession(NQuery::TSession session);
