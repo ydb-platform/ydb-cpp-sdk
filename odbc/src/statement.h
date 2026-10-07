@@ -22,7 +22,7 @@ namespace NYdb::NOdbc {
 
 using TMetadataArgument = std::optional<std::string>;
 
-class TStatement : public TErrorManager {
+class TStatement : public THandle {
 public:
     TStatement(TConnection* conn);
     ~TStatement();
@@ -33,7 +33,6 @@ public:
 
     SQLRETURN Prepare(const std::string& statementText);
     SQLRETURN Execute();
-    SQLRETURN ExecuteInternal();
     SQLRETURN MoreResults();
 
     SQLRETURN Fetch();
@@ -83,7 +82,6 @@ public:
     SQLRETURN ParamData(SQLPOINTER* valuePtr);
     SQLRETURN PutData(SQLPOINTER data, SQLLEN strLenOrInd);
     SQLRETURN Cancel();
-    std::optional<SQLRETURN> CancelExecuting();
     bool IsExecuting() const { return Executing_.load(std::memory_order_relaxed); }
     bool IsCancelRequested() const { return CancelRequested_.load(std::memory_order_relaxed); }
     bool HasExecutingSession();
@@ -102,7 +100,6 @@ public:
 
 private:
     friend class TConnection;
-    friend class TDescriptor;
 
     struct TAttributes {
         SQLUINTEGER QueryTimeoutSec = 0;
@@ -160,13 +157,13 @@ private:
     uint64_t ImpParamGeneration_ = 0;
     uint64_t ImpRowGeneration_ = 0;
     uint64_t CursorGeneration_ = 0;
-    std::mutex CancelMutex_;
+    bool TransactionExecution_ = false; // Execution-thread bookkeeping, under OperationMutex_.
+    bool CancelSessionInvalidated_ = false;
+    std::mutex CancelMutex_; // Publication of executing client/session and cancellation requests.
     std::atomic<bool> CancelRequested_ = false;
     std::atomic<bool> Executing_ = false;
-    bool TransactionExecution_ = false;
     std::optional<NQuery::TQueryClient> CancelClient_;
     std::optional<NQuery::TSession> CancelSession_;
-    bool CancelSessionInvalidated_ = false; // Protected by the statement operation mutex.
     SQLUSMALLINT NeedDataParam_ = 0;
     bool InAtExec_ = false;
     bool NeedDataTokenDelivered_ = false;
@@ -175,6 +172,7 @@ private:
 
     SQLRETURN BuildParams(NYdb::TParams& out, SQLULEN paramSet);
     SQLRETURN ExecuteParamSet(SQLULEN paramSet, std::optional<SQLLEN>& affectedRows);
+    SQLRETURN ExecuteInternal();
     SQLRETURN FillBoundColumns(SQLULEN row);
     std::vector<TBoundParam> GetBoundParams(SQLULEN paramSet) const;
     void EnsurePreparedColumnMeta();
@@ -184,8 +182,8 @@ private:
     void FinishExecution() noexcept;
     void SetExecutingSession(const NQuery::TSession& session);
     void ReleaseExecutingSession();
+    std::optional<SQLRETURN> CancelExecuting();
     void CheckExecutionStatus(const TStatus& status);
-    void SetImpRowDesc(const std::vector<TColumnMeta>& columns);
     void SetCursor(std::unique_ptr<ICursor> cursor);
     void ClearResults();
     void SetResults(const NQuery::TExecuteQueryResult& result);

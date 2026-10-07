@@ -6,6 +6,8 @@
 #include <ydb-cpp-sdk/client/result/result.h>
 #include <ydb-cpp-sdk/client/types/status/status.h>
 
+#include <util/generic/scope.h>
+
 #include <string>
 #include <cstring>
 
@@ -135,10 +137,41 @@ std::unique_ptr<TStatement> TConnection::CreateStatement() {
     return std::make_unique<TStatement>(this);
 }
 
+SQLRETURN TConnection::Execute(TStatement& statement) {
+    // The caller holds the statement operation lock and a shared lifecycle gate.
+    std::unique_lock transaction(TransactionMutex_, std::defer_lock);
+    const bool explicitTransaction = !GetAutocommit();
+    statement.StartExecution(explicitTransaction);
+    Y_DEFER { statement.FinishExecution(); };
+    if (explicitTransaction) {
+        transaction.lock();
+        CheckTransaction();
+    }
+    return statement.ExecuteInternal();
+}
+
+void TConnection::EndTranFromEnvironment(SQLSMALLINT completionType) {
+    std::shared_lock check(Lifecycle_);
+    if (IsRetired() || GetAutocommit()) {
+        return;
+    }
+    check.unlock();
+    std::unique_lock lifecycle(Lifecycle_);
+    auto operation = LockOperation();
+    if (IsRetired() || GetAutocommit()) {
+        return;
+    }
+    if (completionType == SQL_COMMIT) {
+        CommitTx();
+    } else {
+        RollbackTx();
+    }
+}
+
 void TConnection::CloseStatementCursors() {
     // The exclusive lifecycle gate has drained statement/descriptor calls.
     const auto generation = CursorGeneration_.fetch_add(1, std::memory_order_relaxed) + 1;
-    std::lock_guard children(ChildrenMutex_);
+    std::lock_guard children(ResourcesMutex_);
     for (auto* stmt : Statements_) {
         stmt->Close(true);
         stmt->CursorGeneration_ = generation;
@@ -146,7 +179,7 @@ void TConnection::CloseStatementCursors() {
 }
 
 void TConnection::InvalidatePreparedStatementMetadata() {
-    std::lock_guard children(ChildrenMutex_);
+    std::lock_guard children(ResourcesMutex_);
     for (auto* stmt : Statements_) {
         stmt->InvalidatePreparedColumnMeta();
     }
@@ -165,7 +198,7 @@ void TConnection::FailTransaction() {
 }
 
 void TConnection::QuarantineSession(NQuery::TSession session) {
-    std::lock_guard lock(ChildrenMutex_);
+    std::lock_guard lock(ResourcesMutex_);
     CanceledSessions_.push_back(std::move(session));
 }
 

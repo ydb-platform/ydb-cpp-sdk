@@ -157,7 +157,7 @@ TEST(Concurrency, IndependentConnections) {
 TEST(Concurrency, AutocommitStatementsDoNotUseTransactionLock) {
     TConnectionHandles connection;
     auto owner = std::dynamic_pointer_cast<TConnection>(PinHandle(connection.Dbc));
-    std::unique_lock transaction(owner->GetTransactionMutex());
+    auto transaction = owner->LockTransaction();
     auto queries = std::async(std::launch::async, [&] {
         RunConcurrentQueries(connection.Dbc, connection.Dbc);
     });
@@ -323,7 +323,7 @@ TEST(Concurrency, SameHandleAndCrossThreadHandoff) {
         });
     }
     auto owner = std::dynamic_pointer_cast<TStatement>(PinHandle(statement.Handle));
-    std::unique_lock operation(owner->GetMutex());
+    auto operation = owner->LockOperation();
     owner->AddError("HYT00", 0, "Execution timed out");
     auto cancel = std::async(std::launch::async, [&] { return SQLCancel(statement.Handle); });
     const auto ready = cancel.wait_for(1s);
@@ -381,7 +381,7 @@ TEST(Concurrency, CancelQueuedTransactionDoesNotWaitOrAbortOtherStatements) {
                                reinterpret_cast<SQLPOINTER>(SQL_AUTOCOMMIT_OFF), 0), SQL_SUCCESS);
     auto owner = std::dynamic_pointer_cast<TConnection>(PinHandle(connection.Dbc));
     auto stmt = std::dynamic_pointer_cast<TStatement>(PinHandle(statement.Handle));
-    std::unique_lock transaction(owner->GetTransactionMutex());
+    auto transaction = owner->LockTransaction();
     auto execution = std::async(std::launch::async, [&] { return Execute(statement.Handle); });
     const bool started = WaitUntil([&] { return stmt->IsExecuting(); });
     EXPECT_TRUE(started);
@@ -407,6 +407,13 @@ TEST(Concurrency, DescriptorCopyMutationAndFree) {
     ASSERT_EQ(SQLSetStmtAttr(b.Handle, SQL_ATTR_APP_ROW_DESC, first, 0), SQL_SUCCESS);
     SQLINTEGER firstValue = 0, secondValue = 0;
     ASSERT_EQ(SQLBindCol(a.Handle, 1, SQL_C_LONG, &firstValue, sizeof(firstValue), nullptr), SQL_SUCCESS);
+    ASSERT_EQ(SQLCopyDesc(first, first), SQL_SUCCESS);
+    SQLSMALLINT count = 0;
+    ASSERT_EQ(SQLGetDescField(first, 0, SQL_DESC_COUNT, &count, 0, nullptr), SQL_SUCCESS);
+    EXPECT_EQ(count, 1);
+    SQLPOINTER data = nullptr;
+    ASSERT_EQ(SQLGetDescField(first, 1, SQL_DESC_DATA_PTR, &data, 0, nullptr), SQL_SUCCESS);
+    EXPECT_EQ(data, &firstValue);
     ASSERT_EQ(SQLCopyDesc(first, second), SQL_SUCCESS);
     ASSERT_EQ(SQLSetDescField(second, 1, SQL_DESC_DATA_PTR, &secondValue, 0), SQL_SUCCESS);
     ASSERT_EQ(Execute(a.Handle), SQL_SUCCESS);

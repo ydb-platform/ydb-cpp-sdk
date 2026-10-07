@@ -102,21 +102,7 @@ SQLRETURN TEnvironment::EndTran(SQLSMALLINT completionType){
     
     for (const auto& conn : GetConnectionsSnapshot()) {
         try {
-            std::shared_lock check(*conn->GetLifecycle());
-            if (conn->IsRetired() || conn->GetAutocommit()) {
-                continue;
-            }
-            check.unlock();
-            std::unique_lock lifecycle(*conn->GetLifecycle());
-            std::lock_guard operation(conn->GetMutex());
-            if (conn->IsRetired()) {
-                continue;
-            }
-            if (completionType == SQL_COMMIT) {
-                conn->CommitTx();
-            } else {
-                conn->RollbackTx();
-            }
+            conn->EndTranFromEnvironment(completionType);
         } catch (const std::exception& ex) {
             hasFailures = true;
             ++failedCount;
