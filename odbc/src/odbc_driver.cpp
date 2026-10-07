@@ -449,33 +449,7 @@ ODBC_FORWARD(SQLPutData, TStatement, TStatement::PutData,
     (statementHandle, data, strLenOrInd))
 SQLRETURN SQL_API SQLCancel(SQLHSTMT statementHandle) {
     auto stmt = std::dynamic_pointer_cast<TStatement>(Odbc::PinHandle(statementHandle));
-    if (!stmt || stmt->IsRetired()) {
-        return SQL_INVALID_HANDLE;
-    }
-    try {
-        if (const auto result = stmt->CancelExecuting()) {
-            return *result;
-        }
-        std::shared_lock lifecycle(*stmt->GetLifecycle(), std::try_to_lock);
-        if (!lifecycle.owns_lock()) {
-            return stmt->CancelExecuting().value_or(SQL_SUCCESS);
-        }
-        std::unique_lock operation(stmt->GetMutex(), std::try_to_lock);
-        if (!operation.owns_lock()) {
-            return stmt->CancelExecuting().value_or(SQL_SUCCESS);
-        }
-        if (stmt->IsRetired()) {
-            return SQL_INVALID_HANDLE;
-        }
-        stmt->ClearErrors();
-        stmt->BeforeCall();
-        const auto result = stmt->Cancel();
-        stmt->SetLastReturnCode(result);
-        return result;
-    } catch (...) {
-        // Cross-thread cancellation must not replace the executing call's diagnostics.
-        return SQL_ERROR;
-    }
+    return stmt ? stmt->Cancel() : SQL_INVALID_HANDLE;
 }
 
 ODBC_FORWARD(SQLNativeSql, TConnection, TConnection::NativeSql,
@@ -545,37 +519,7 @@ ODBC_FORWARD(SQLSetDescRec, TDescriptor, TDescriptor::SetDescRec,
      stringLengthPtr, indicatorPtr))
 
 SQLRETURN SQL_API SQLCopyDesc(SQLHDESC sourceDesc, SQLHDESC targetDesc) {
-    auto src = std::dynamic_pointer_cast<TDescriptor>(Odbc::PinHandle(sourceDesc));
-    auto dst = std::dynamic_pointer_cast<TDescriptor>(Odbc::PinHandle(targetDesc));
-    if (!src || !dst) {
-        return SQL_INVALID_HANDLE;
-    }
-    std::shared_lock sourceLifecycle(*src->GetLifecycle(), std::defer_lock);
-    std::shared_lock<std::shared_mutex> targetLifecycle;
-    if (dst->GetLifecycle() != src->GetLifecycle()) {
-        targetLifecycle = std::shared_lock(*dst->GetLifecycle(), std::defer_lock);
-        std::lock(sourceLifecycle, targetLifecycle);
-    } else {
-        sourceLifecycle.lock();
-    }
-    std::unique_lock sourceLock(src->GetMutex(), std::defer_lock);
-    std::unique_lock targetLock(dst->GetMutex(), std::defer_lock);
-    if (src != dst) {
-        std::lock(sourceLock, targetLock);
-    } else {
-        sourceLock.lock();
-    }
-    if (src->IsRetired() || dst->IsRetired()) {
-        return SQL_INVALID_HANDLE;
-    }
-    src->ClearErrors();
-    try {
-        const auto result = src->CopyDesc(dst.get());
-        src->SetLastReturnCode(result);
-        return result;
-    } catch (...) {
-        return Odbc::RecordCurrentException(*src);
-    }
+    return TDescriptor::Copy(sourceDesc, targetDesc);
 }
 
 #undef ODBC_PREPARE

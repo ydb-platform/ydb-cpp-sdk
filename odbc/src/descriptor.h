@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils/attr.h"
+#include "utils/handle.h"
 
 #include "odbc_compat.h"
 
@@ -10,7 +11,7 @@
 namespace NYdb::NOdbc {
 
 class TConnection;
-class TStatement;
+struct TColumnMeta;
 
 enum class EDescType {
     AppRow,
@@ -68,7 +69,7 @@ public:
     TResolvedBinding ResolveBinding(const TDescRecord& record, SQLULEN index) const noexcept;
 };
 
-class TDescriptor : public TErrorManager, public TDescriptorState {
+class TDescriptor : public THandle, private TDescriptorState {
     using THeaderProperties = TScalarProperties<
         TScalarProperty<SQL_DESC_ARRAY_SIZE, &THeader::ArraySize, true, false>,
         TScalarProperty<SQL_DESC_BIND_TYPE, &THeader::BindType>,
@@ -83,15 +84,24 @@ public:
     EDescType GetDescType() const noexcept { return Type_; }
     TConnection* GetConnection() const noexcept { return Conn_; }
 
-    TDescRecord& Record(SQLSMALLINT number);
-    using TDescriptorState::FindRecord;
-    TDescRecord* FindRecord(SQLSMALLINT number) noexcept;
-    void RemoveRecord(SQLSMALLINT number);
-    void ClearRecords() noexcept { Records_.clear(); Changed(); }
+    // Statement access locks this descriptor; binding snapshots are statement-owned.
+    void PrepareParams(SQLSMALLINT count);
+    void BindCol(SQLSMALLINT number, SQLSMALLINT type, SQLPOINTER data, SQLLEN length, SQLLEN* indicator);
+    void BindParameter(TDescriptor& implementation, SQLSMALLINT number,
+                       SQLSMALLINT valueType, SQLSMALLINT parameterType, SQLULEN columnSize,
+                       SQLSMALLINT decimalDigits, SQLPOINTER data, SQLLEN length, SQLLEN* indicator,
+                       bool atExec);
+    void ResetParams(TDescriptor& implementation, TDescriptorState& appState, uint64_t& appGeneration,
+                     TDescriptorState& impState, uint64_t& impGeneration);
+    void Clear();
+    void SetColumns(const std::vector<TColumnMeta>& columns);
+    SQLRETURN GetHeaderField(SQLSMALLINT field, SQLPOINTER value);
+    SQLRETURN SetHeaderField(SQLSMALLINT field, SQLPOINTER value);
     uint64_t GetGeneration() const { return Generation_.load(std::memory_order_relaxed); }
     void Snapshot(TDescriptorState& state, uint64_t& generation) const;
     void SnapshotHeader(TDescriptorState& state, uint64_t& generation) const;
 
+    // ODBC entrypoints already hold the handle operation lock.
     SQLRETURN GetDescField(SQLSMALLINT recNumber, SQLSMALLINT fieldIdentifier, SQLPOINTER value,
                            SQLINTEGER bufferLength, SQLINTEGER* stringLengthPtr);
     SQLRETURN GetDescRec(SQLSMALLINT recNumber, SQLCHAR* name, SQLSMALLINT bufferLength,
@@ -103,9 +113,14 @@ public:
     SQLRETURN SetDescRec(SQLSMALLINT recNumber, SQLSMALLINT type, SQLSMALLINT subType, SQLLEN length,
                          SQLSMALLINT precision, SQLSMALLINT scale, SQLPOINTER dataPtr,
                          SQLLEN* stringLengthPtr, SQLLEN* indicatorPtr);
-    SQLRETURN CopyDesc(TDescriptor* target);
+    static SQLRETURN Copy(SQLHDESC source, SQLHDESC target);
 
 private:
+    TDescRecord& Record(SQLSMALLINT number);
+    void RemoveRecord(SQLSMALLINT number);
+    void ClearRecords() noexcept { Records_.clear(); Changed(); }
+    void SnapshotUnlocked(TDescriptorState& state, uint64_t& generation) const;
+    SQLRETURN CopyDesc(TDescriptor& target);
     void Changed(bool schema = true);
 
     EDescType Type_;
