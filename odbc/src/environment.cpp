@@ -2,7 +2,6 @@
 #include "connection.h"
 
  #include <exception>
- #include <stdexcept>
 
 namespace NYdb {
 namespace NOdbc {
@@ -61,38 +60,6 @@ SQLRETURN TEnvironment::GetAttribute(SQLINTEGER attribute, SQLPOINTER value, SQL
     }
 }
 
-void TEnvironment::RegisterConnection(TConnection* conn){
-    if (conn == nullptr){
-        throw std::invalid_argument("null connection");
-    }
-    std::lock_guard lock(ChildrenMutex_);
-    Connections_.insert(conn);
-}
-
-void TEnvironment::UnregisterConnection(TConnection* conn){
-    if (conn == nullptr){
-        throw std::invalid_argument("null connection");
-    }
-    std::lock_guard lock(ChildrenMutex_);
-    Connections_.erase(conn);
-}
-
-bool TEnvironment::HasChildren() const {
-    std::lock_guard lock(ChildrenMutex_);
-    return !Connections_.empty();
-}
-
-std::vector<std::shared_ptr<TConnection>> TEnvironment::GetConnectionsSnapshot() const {
-    std::lock_guard lock(ChildrenMutex_);
-    std::vector<std::shared_ptr<TConnection>> result;
-    for (auto* conn : Connections_) {
-        if (auto owner = std::dynamic_pointer_cast<TConnection>(PinHandle(conn))) {
-            result.push_back(std::move(owner));
-        }
-    }
-    return result;
-}
-
 SQLRETURN TEnvironment::EndTran(SQLSMALLINT completionType){
     if (completionType != SQL_COMMIT && completionType != SQL_ROLLBACK){
         return AddError("HY012", 0, "Invalid transaction operation code");
@@ -100,7 +67,8 @@ SQLRETURN TEnvironment::EndTran(SQLSMALLINT completionType){
     bool hasFailures = false;
     int failedCount = 0;
     
-    for (const auto& conn : GetConnectionsSnapshot()) {
+    for (const auto& child : GetChildren()) {
+        const auto conn = std::static_pointer_cast<TConnection>(child);
         try {
             conn->EndTranFromEnvironment(completionType);
         } catch (const std::exception& ex) {
