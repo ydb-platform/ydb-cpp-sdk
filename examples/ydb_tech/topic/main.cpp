@@ -1,4 +1,5 @@
 #include <ydb-cpp-sdk/client/driver/driver.h>
+#include <ydb-cpp-sdk/client/proto/accessor.h>
 #include <ydb-cpp-sdk/client/query/client.h>
 #include <ydb-cpp-sdk/client/topic/client.h>
 #include <ydb-cpp-sdk/client/types/status/status.h>
@@ -156,11 +157,14 @@ void WriteBlocking(TTopicClient& topicClient, const std::string& path) {
 
     auto session = topicClient.CreateSimpleBlockingWriteSession(settings);
     // [END topic_start_writer_blocking]
+    {
     // [BEGIN topic_write_blocking]
     auto messageData = std::string("message");
     NYdb::NTopic::TWriteMessage writeMessage(messageData);
     session->Write(std::move(writeMessage));
     // [END topic_write_blocking]
+    }
+    {
     // [BEGIN topic_write_metadata_blocking]
     auto messageData = std::string("message-data");
     NYdb::NTopic::TWriteMessage writeMessage(messageData);
@@ -170,6 +174,7 @@ void WriteBlocking(TTopicClient& topicClient, const std::string& path) {
     });
     session->Write(std::move(writeMessage));
     // [END topic_write_metadata_blocking]
+    }
     Require(session->Close(TDuration::Seconds(30)), "Blocking writer did not close");
 }
 
@@ -183,7 +188,8 @@ void WriteMetadata(TTopicClient& topicClient, const std::string& path) {
     auto session = topicClient.CreateWriteSession(settings);
 
     std::optional<NYdb::NTopic::TWriteSessionEvent::TEvent> event = session->GetEvent(/*block=*/true);
-    NYdb::NTopic::TWriteMessage message("This is yet another message").MessageMeta({
+    NYdb::NTopic::TWriteMessage message("This is yet another message");
+    message.MessageMeta({
         {"meta-key", "meta-value"},
         {"another-key", "value"}
     });
@@ -277,13 +283,14 @@ void Producer(TTopicClient& ignored, const std::string& path) {
     TTopicClient topicClient(*ProducerDriver, TTopicClientSettings()
         .DefaultHandlersExecutor(NYdb::CreateThreadPoolExecutor(1)));
     // [BEGIN topic_start_producer]
-    auto producerSettings = NYdb::NTopic::TProducerSettings()
-        .Path(path)
-        .ProducerIdPrefix("my-producer")
+    NYdb::NTopic::TProducerSettings producerSettings;
+    producerSettings.Path(path);
+    producerSettings.ProducerIdPrefix("my-producer")
         .PartitionChooserStrategy(NYdb::NTopic::TProducerSettings::EPartitionChooserStrategy::Bound);
 
     auto producer = topicClient.CreateProducer(producerSettings);
     // [END topic_start_producer]
+    {
     // [BEGIN topic_write_producer]
     auto messageData = std::string("order-created");
     // First argument is the partitioning key — the SDK chooses a partition by it.
@@ -291,6 +298,8 @@ void Producer(TTopicClient& ignored, const std::string& path) {
     producer->Write(std::move(writeMessage));
     producer->Flush().GetValueSync();
     // [END topic_write_producer]
+    }
+    {
     // [BEGIN topic_write_metadata_producer]
     auto messageData = std::string("message-data");
     NYdb::NTopic::TWriteMessage writeMessage("user-42", messageData);
@@ -300,6 +309,7 @@ void Producer(TTopicClient& ignored, const std::string& path) {
     });
     producer->Write(std::move(writeMessage));
     // [END topic_write_metadata_producer]
+    }
     Require(producer->Flush().GetValueSync().IsSuccess(), "Producer did not flush");
     Require(producer->Close(TDuration::Seconds(30)).IsSuccess(), "Producer did not close");
 }
@@ -309,9 +319,9 @@ void ProducerAck(TTopicClient& ignored, const std::string& path) {
     TTopicClient topicClient(*ProducerDriver, TTopicClientSettings()
         .DefaultHandlersExecutor(NYdb::CreateThreadPoolExecutor(1)));
     // [BEGIN topic_producer_ack]
-    auto producerSettings = NYdb::NTopic::TProducerSettings()
-        .Path(path)
-        .ProducerIdPrefix("my-producer")
+    NYdb::NTopic::TProducerSettings producerSettings;
+    producerSettings.Path(path);
+    producerSettings.ProducerIdPrefix("my-producer")
         .EventHandlers(
             NYdb::NTopic::TWriteSessionSettings::TEventHandlers()
                 .AcksHandler([](NYdb::NTopic::TWriteSessionEvent::TAcksEvent& event) {
@@ -330,7 +340,9 @@ void ProducerCodec(TTopicClient& ignored, const std::string& path) {
     (void)ignored;
     TTopicClient topicClient(*ProducerDriver, TTopicClientSettings()
         .DefaultHandlersExecutor(NYdb::CreateThreadPoolExecutor(1)));
-    auto producerSettings = TProducerSettings().Path(path).ProducerIdPrefix("codec-producer");
+    TProducerSettings producerSettings;
+    producerSettings.Path(path);
+    producerSettings.ProducerIdPrefix("codec-producer");
     // [BEGIN topic_codec_producer]
     producerSettings
         // other settings are set here
@@ -871,7 +883,7 @@ void Run() {
             auto result = topicClient.DescribeTopic(path).GetValueSync();
             if (result.IsSuccess()) {
                 const auto& description = result.GetTopicDescription();
-                std::cout << "Topic description: " << description.GetProto().DebugString() << std::endl;
+                std::cout << "Topic description: " << NYdb::TProtoAccessor::GetProto(description).DebugString() << std::endl;
             }
             // [END topic_describe]
             ThrowOnError(result);
