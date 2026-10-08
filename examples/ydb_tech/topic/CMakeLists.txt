@@ -5,6 +5,7 @@ target_link_libraries(ydb_tech_topic PRIVATE
   YDB-CPP-SDK::Driver
   YDB-CPP-SDK::Topic
   YDB-CPP-SDK::Query
+  YDB-CPP-SDK::Proto
 )
 # Built-in codecs register themselves through static initialization.
 if (APPLE)

@@ -42,5 +42,11 @@ jobs:
         run: cmake --preset release-clang -D YDB_SDK_EXAMPLES=ON -D YDB_SDK_TESTS=OFF
       - name: Build examples
         run: cmake --build --preset default --target ydb_tech_examples
+      - name: Save compilation cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.ccache
+          key: ubuntu-24.04-ccache-clang-ydb-tech-${{ github.sha }}
       - name: Run examples
         run: bash examples/ydb_tech/run.sh
