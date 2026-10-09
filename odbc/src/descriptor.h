@@ -1,7 +1,7 @@
 #pragma once
 
 #include "utils/attr.h"
-#include "utils/handle.h"
+#include "connection.h"
 
 #include "odbc_compat.h"
 
@@ -10,7 +10,6 @@
 
 namespace NYdb::NOdbc {
 
-class TConnection;
 class TStatement;
 
 enum class EDescType {
@@ -78,10 +77,10 @@ class TDescriptor : public THandle, private TDescriptorState {
         TScalarProperty<SQL_DESC_ROWS_PROCESSED_PTR, &THeader::RowsProcessedPtr>>;
 
 public:
-    TDescriptor(EDescType type, TConnection* conn);
+    explicit TDescriptor(std::shared_ptr<TConnection> conn, EDescType type = EDescType::Explicit);
 
     EDescType GetDescType() const noexcept { return Type_; }
-    TConnection* GetConnection() const noexcept { return Conn_; }
+    TConnection& GetConnection() const noexcept { return static_cast<TConnection&>(*GetParent()); }
 
     // Statement access locks this descriptor; binding snapshots are statement-owned.
     void Clear();
@@ -127,7 +126,6 @@ private:
     void Changed(bool schema = true);
 
     EDescType Type_;
-    TConnection* Conn_;
     std::atomic<uint64_t> Generation_ = 1;
 };
 

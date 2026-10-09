@@ -2,7 +2,7 @@
 
 #include "connection_attr.h"
 #include "connection_config.h"
-#include "utils/handle.h"
+#include "environment.h"
 
 #include <ydb-cpp-sdk/client/driver/driver.h>
 #include <ydb-cpp-sdk/client/query/client.h>
@@ -61,7 +61,12 @@ private:
     void RebindToDatabase(std::string_view newDatabase);
     void InvalidatePreparedStatementMetadata();
 public:
-    TConnection() { SetLifecycle(&Lifecycle_); }
+    explicit TConnection(std::shared_ptr<TEnvironment> parent = {}) : THandle(std::move(parent)) {}
+    TConnection& GetConnection() noexcept { return *this; }
+    template<class... Args>
+    auto LockShared(Args... args) { return std::shared_lock(Lifecycle_, args...); }
+    template<class... Args>
+    auto LockExclusive(Args... args) { return std::unique_lock(Lifecycle_, args...); }
 
     SQLRETURN Connect(std::string_view serverName,
                       std::string_view userName,
