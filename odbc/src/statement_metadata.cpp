@@ -255,8 +255,8 @@ TOdbcScalar GetCharOctetLength(const TYdbTypeInfo& type) {
     }
 }
 
-std::string GetMetadataCatalogName(TConnection* connection) {
-    std::string catalog = connection->GetCatalogBinding().Catalog;
+std::string GetMetadataCatalogName(const TConnection& connection) {
+    std::string catalog = connection.GetCatalogBinding().Catalog;
     // TABLE_CAT is an identifier. The leading slash belongs to YDB's absolute
     // path syntax and is supplied separately as SQL_CATALOG_NAME_SEPARATOR.
     if (catalog.starts_with('/')) {
@@ -266,9 +266,9 @@ std::string GetMetadataCatalogName(TConnection* connection) {
 }
 
 template <class Visitor>
-void DescribeTable(TConnection* connection, const std::string& path,
+void DescribeTable(TConnection& connection, const std::string& path,
                    Visitor&& visitor, bool withTableStatistics = false) {
-    auto client = connection->GetTableClient();
+    auto client = connection.GetTableClient();
     if (!client) {
         throw TOdbcException("HY000", 0, "No client connection");
     }
@@ -354,13 +354,13 @@ SQLRETURN TStatement::Columns(const TMetadataArgument& catalogName,
         return SQL_SUCCESS;
     }
 
-    const std::string catalog = GetMetadataCatalogName(Conn_);
+    const std::string catalog = GetMetadataCatalogName(GetConnection());
     TTable table;
     for (const auto& entry : GetMetadataEntries(tableName, patternsAllowed)) {
         if (!IsTable(entry.Type)) {
             continue;
         }
-        DescribeTable(Conn_, entry.Name, [&](const auto& description) {
+        DescribeTable(GetConnection(), entry.Name, [&](const auto& description) {
             const auto& columns = description.GetTableColumns();
             const auto& primaryKeyColumns = description.GetPrimaryKeyColumns();
             for (size_t index = 0; index < columns.size(); ++index) {
@@ -408,7 +408,7 @@ SQLRETURN TStatement::Tables(const TMetadataArgument& catalogName,
     if (patternsAllowed && IsSpecialValue(catalogName, SQL_ALL_CATALOGS)
         && emptySchema && emptyTable && emptyType) {
         SetCursor(CreateVirtualCursor(kTablesSchema, {{
-            GetMetadataCatalogName(Conn_), Null(), Null(), Null(), Null(),
+            GetMetadataCatalogName(GetConnection()), Null(), Null(), Null(), Null(),
         }}));
         return SQL_SUCCESS;
     }
@@ -443,7 +443,7 @@ SQLRETURN TStatement::Tables(const TMetadataArgument& catalogName,
         return SQL_SUCCESS;
     }
 
-    const std::string catalog = GetMetadataCatalogName(Conn_);
+    const std::string catalog = GetMetadataCatalogName(GetConnection());
     TTable table;
     const std::string_view typeFilter = tableType ? std::string_view(*tableType) : std::string_view{};
     for (const auto& entry : GetMetadataEntries(tableName, patternsAllowed)) {
@@ -492,10 +492,10 @@ SQLRETURN TStatement::Statistics(const TMetadataArgument& catalogName,
     TTable table;
     if (!entries.empty() && IsTable(entries.front().Type)) {
         const auto& entry = entries.front();
-        const std::string catalog = GetMetadataCatalogName(Conn_);
+        const std::string catalog = GetMetadataCatalogName(GetConnection());
         const std::string tableNameResult = GetMetadataTableName(entry.Name);
         const bool withTableStatistics = accuracy == SQL_ENSURE;
-        DescribeTable(Conn_, entry.Name, [&](const auto& description) {
+        DescribeTable(GetConnection(), entry.Name, [&](const auto& description) {
             table.push_back({
                 catalog, Null(), tableNameResult, Null(), Null(), Null(), I(SQL_TABLE_STAT),
                 Null(), Null(), Null(),
@@ -554,7 +554,7 @@ SQLRETURN TStatement::SpecialColumns(const TMetadataArgument& catalogName,
     }
     TTable table;
     if (!entries.empty()) {
-        DescribeTable(Conn_, entries.front().Name, [&](const auto& description) {
+        DescribeTable(GetConnection(), entries.front().Name, [&](const auto& description) {
             const auto& columns = description.GetTableColumns();
             for (const auto& pkName : description.GetPrimaryKeyColumns()) {
                 const auto column = std::ranges::find_if(
@@ -592,8 +592,8 @@ SQLRETURN TStatement::PrimaryKeys(const TMetadataArgument& catalogName,
     auto entries = GetMetadataEntries(tableName, false);
     TTable table;
     if (!entries.empty()) {
-        const std::string catalog = GetMetadataCatalogName(Conn_);
-        DescribeTable(Conn_, entries.front().Name, [&](const auto& description) {
+        const std::string catalog = GetMetadataCatalogName(GetConnection());
+        DescribeTable(GetConnection(), entries.front().Name, [&](const auto& description) {
             SQLSMALLINT sequence = 1;
             for (const auto& name : description.GetPrimaryKeyColumns()) {
                 table.push_back({catalog, Null(), GetMetadataTableName(entries.front().Name),
@@ -626,7 +626,7 @@ std::vector<NScheme::TSchemeEntry> TStatement::GetMetadataEntries(
         return entries;
     }
 
-    const std::string catalog = Conn_->GetCatalogBinding().Catalog;
+    const std::string catalog = GetConnection().GetCatalogBinding().Catalog;
     const std::string prefix = catalog.empty() || catalog == "/" ? "/" : catalog + "/";
     const std::string qualifiedName = tableName
         ? (tableName->starts_with('/') ? *tableName : prefix + *tableName) : std::string{};
@@ -645,7 +645,7 @@ std::vector<NScheme::TSchemeEntry> TStatement::GetMetadataEntries(
 }
 
 std::string TStatement::GetMetadataTableName(const std::string& path) const {
-    const std::string catalog = Conn_->GetCatalogBinding().Catalog;
+    const std::string catalog = GetConnection().GetCatalogBinding().Catalog;
     if (catalog == "/" && path.starts_with('/')) {
         return path.substr(1);
     }
@@ -670,14 +670,14 @@ bool TStatement::MetadataNamespaceMatches(
         catalogArgument.remove_prefix(1);
     }
     return schemaMatches
-        && matches(GetMetadataCatalogName(Conn_), catalogArgument, catalogPatternsAllowed);
+        && matches(GetMetadataCatalogName(GetConnection()), catalogArgument, catalogPatternsAllowed);
 }
 
 void TStatement::VisitEntry(const std::string& path, const std::string& tableName,
                             bool patternsAllowed, std::string_view literalPrefix,
                             bool hasWildcard,
                             std::vector<NScheme::TSchemeEntry>& result) {
-    auto client = Conn_->GetSchemeClient();
+    auto client = GetConnection().GetSchemeClient();
     if (!client) {
         throw TOdbcException("HY000", 0, "No client connection");
     }

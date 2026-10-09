@@ -136,12 +136,12 @@ SQLRETURN TConnection::Execute(TStatement& statement) {
 }
 
 void TConnection::EndTranFromEnvironment(SQLSMALLINT completionType) {
-    std::shared_lock check(Lifecycle_);
+    auto check = LockShared();
     if (IsRetired() || GetAutocommit()) {
         return;
     }
     check.unlock();
-    std::unique_lock lifecycle(Lifecycle_);
+    auto lifecycle = LockExclusive();
     auto operation = LockOperation();
     if (IsRetired() || GetAutocommit()) {
         return;

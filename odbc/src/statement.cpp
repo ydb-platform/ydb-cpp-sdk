@@ -68,14 +68,12 @@ namespace {
 
 }
 
-TStatement::TStatement(TConnection* conn)
-    : Conn_(conn)
-    , AppRowDesc_(EDescType::AppRow, conn)
-    , AppParamDesc_(EDescType::AppParam, conn)
-    , ImpRowDesc_(EDescType::ImpRow, conn)
-    , ImpParamDesc_(EDescType::ImpParam, conn) {
-    SetLifecycle(conn->GetLifecycle());
-}
+TStatement::TStatement(std::shared_ptr<TConnection> conn)
+    : THandle(conn)
+    , AppRowDesc_(conn, EDescType::AppRow)
+    , AppParamDesc_(conn, EDescType::AppParam)
+    , ImpRowDesc_(conn, EDescType::ImpRow)
+    , ImpParamDesc_(conn, EDescType::ImpParam) {}
 
 void TStatement::RegisterDescriptors(const std::shared_ptr<TStatement>& owner) {
     for (auto* desc : {&AppRowDesc_, &AppParamDesc_, &ImpRowDesc_, &ImpParamDesc_}) {
@@ -168,7 +166,7 @@ SQLRETURN TStatement::Execute() {
     }
     InAtExec_ = false;
     NeedDataParam_ = 0;
-    return Conn_->Execute(*this);
+    return GetConnection().Execute(*this);
 }
 
 SQLRETURN TStatement::ExecuteInternal() {
@@ -249,7 +247,7 @@ SQLRETURN TStatement::ExecuteParamSet(
 {
     ClearResults();
     CheckCancellation();
-    auto client = Conn_->GetClient();
+    auto client = GetConnection().GetClient();
     if (!client) {
         throw TOdbcException("HY000", 0, "No client connection");
     }
@@ -259,7 +257,7 @@ SQLRETURN TStatement::ExecuteParamSet(
         return buildRc;
     }
 
-    if (Conn_->GetAutocommit()) {
+    if (GetConnection().GetAutocommit()) {
         const NYdb::NRetry::TRetryOperationSettings retrySettings = MakeAutocommitRetrySettings();
 
         const NYdb::TStatus execStatus = client->RetryQuerySync(
@@ -280,7 +278,7 @@ SQLRETURN TStatement::ExecuteParamSet(
 
         NStatusHelpers::ThrowOnError(execStatus);
     } else {
-        NQuery::TSession& session = Conn_->GetOrCreateQuerySession();
+        NQuery::TSession& session = GetConnection().GetOrCreateQuerySession();
         CheckCancellation();
         NQuery::TExecuteQueryResult result = ExecuteQuery(session, params, paramSet);
         NStatusHelpers::ThrowOnError(result);
@@ -347,15 +345,15 @@ NQuery::TExecuteQueryResult TStatement::ExecuteQuery(
     }
     const bool isDdl = StartsWithSqlStatement(
         rewritten.Sql, {"CREATE", "DROP", "ALTER", "GRANT", "REVOKE"});
-    const std::string queryText = Conn_->WrapQueryForCurrentCatalog(rewritten.Sql);
+    const std::string queryText = GetConnection().WrapQueryForCurrentCatalog(rewritten.Sql);
     NQuery::TExecuteQuerySettings execSettings;
     execSettings.StatsMode(NQuery::EStatsMode::Basic);
     const SQLUINTEGER queryTimeoutSec = Attributes_.GetQueryTimeoutSec();
     if (queryTimeoutSec > 0) {
         execSettings.ClientTimeout(TDuration::Seconds(queryTimeoutSec));
     }
-    const auto txSettings = Conn_->MakeTxSettings();
-    if (Conn_->GetAutocommit()) {
+    const auto txSettings = GetConnection().MakeTxSettings();
+    if (GetConnection().GetAutocommit()) {
         // TS_SNAPSHOT_RW doesn't support explicit BeginTx() - we use NoTx() instead
         // DDL must use NoTx() per YDB documentation
         const bool isSnapshotRw = (txSettings.GetMode() == NQuery::TTxSettings::TS_SNAPSHOT_RW);
@@ -373,15 +371,15 @@ NQuery::TExecuteQueryResult TStatement::ExecuteQuery(
             params,
             execSettings).ExtractValueSync();
     }
-    if (!Conn_->GetTx()) {
+    if (!GetConnection().GetTx()) {
         auto beginTxResult = session.BeginTransaction(txSettings).ExtractValueSync();
         NStatusHelpers::ThrowOnError(beginTxResult);
-        Conn_->SetTx(beginTxResult.GetTransaction());
+        GetConnection().SetTx(beginTxResult.GetTransaction());
         CheckCancellation();
     }
     return session.ExecuteQuery(
         queryText,
-        NQuery::TTxControl::Tx(*Conn_->GetTx()).CommitTx(false),
+        NQuery::TTxControl::Tx(*GetConnection().GetTx()).CommitTx(false),
         params,
         execSettings).ExtractValueSync();
 }
@@ -775,7 +773,7 @@ SQLRETURN TStatement::ParamData(SQLPOINTER* valuePtr) {
     }
     InAtExec_ = false;
     NeedDataParam_ = 0;
-    return Conn_->Execute(*this);
+    return GetConnection().Execute(*this);
 }
 
 SQLRETURN TStatement::PutData(SQLPOINTER data, SQLLEN strLenOrInd) {
@@ -828,7 +826,7 @@ SQLRETURN TStatement::Cancel() {
         if (const auto result = CancelExecuting()) {
             return *result;
         }
-        lifecycle = std::shared_lock(*GetLifecycle(), std::try_to_lock);
+        lifecycle = GetConnection().LockShared(std::try_to_lock);
         if (!lifecycle.owns_lock()) {
             return CancelExecuting().value_or(SQL_SUCCESS);
         }
@@ -999,7 +997,7 @@ void TStatement::EnsurePreparedColumnMeta() {
             "Result metadata before execution is unavailable for parameterized statements");
     }
 
-    auto client = Conn_->GetClient();
+    auto client = GetConnection().GetClient();
     if (!client) {
         throw TOdbcException("HY000", 0, "No client connection");
     }
@@ -1012,7 +1010,7 @@ void TStatement::EnsurePreparedColumnMeta() {
     if (!rewritten.Success) {
         throw TOdbcException(rewritten.SqlState, 0, rewritten.Message);
     }
-    const std::string queryText = Conn_->WrapQueryForCurrentCatalog(rewritten.Sql);
+    const std::string queryText = GetConnection().WrapQueryForCurrentCatalog(rewritten.Sql);
 
     NYdb::NRetry::TRetryOperationSettings retrySettings;
     retrySettings.Idempotent(true);
@@ -1116,27 +1114,27 @@ std::optional<TStatement::TDescriptorAttribute> TStatement::ResolveDescriptorAtt
     SQLINTEGER attr) {
     switch (attr) {
         case SQL_ATTR_PARAM_BIND_TYPE:
-            return TDescriptorAttribute{&GetAppParamDesc(), SQL_DESC_BIND_TYPE};
+            return TDescriptorAttribute{GetAppParamDesc(), SQL_DESC_BIND_TYPE};
         case SQL_ATTR_PARAMSET_SIZE:
-            return TDescriptorAttribute{&GetAppParamDesc(), SQL_DESC_ARRAY_SIZE};
+            return TDescriptorAttribute{GetAppParamDesc(), SQL_DESC_ARRAY_SIZE};
         case SQL_ATTR_PARAM_BIND_OFFSET_PTR:
-            return TDescriptorAttribute{&GetAppParamDesc(), SQL_DESC_BIND_OFFSET_PTR};
+            return TDescriptorAttribute{GetAppParamDesc(), SQL_DESC_BIND_OFFSET_PTR};
         case SQL_ATTR_PARAM_OPERATION_PTR:
-            return TDescriptorAttribute{&GetAppParamDesc(), SQL_DESC_ARRAY_STATUS_PTR};
+            return TDescriptorAttribute{GetAppParamDesc(), SQL_DESC_ARRAY_STATUS_PTR};
         case SQL_ATTR_PARAM_STATUS_PTR:
-            return TDescriptorAttribute{&ImpParamDesc_, SQL_DESC_ARRAY_STATUS_PTR};
+            return TDescriptorAttribute{ImpParamDesc_, SQL_DESC_ARRAY_STATUS_PTR};
         case SQL_ATTR_PARAMS_PROCESSED_PTR:
-            return TDescriptorAttribute{&ImpParamDesc_, SQL_DESC_ROWS_PROCESSED_PTR};
+            return TDescriptorAttribute{ImpParamDesc_, SQL_DESC_ROWS_PROCESSED_PTR};
         case SQL_ATTR_ROW_BIND_TYPE:
-            return TDescriptorAttribute{&GetAppRowDesc(), SQL_DESC_BIND_TYPE};
+            return TDescriptorAttribute{GetAppRowDesc(), SQL_DESC_BIND_TYPE};
         case SQL_ATTR_ROW_ARRAY_SIZE:
-            return TDescriptorAttribute{&GetAppRowDesc(), SQL_DESC_ARRAY_SIZE};
+            return TDescriptorAttribute{GetAppRowDesc(), SQL_DESC_ARRAY_SIZE};
         case SQL_ATTR_ROW_BIND_OFFSET_PTR:
-            return TDescriptorAttribute{&GetAppRowDesc(), SQL_DESC_BIND_OFFSET_PTR};
+            return TDescriptorAttribute{GetAppRowDesc(), SQL_DESC_BIND_OFFSET_PTR};
         case SQL_ATTR_ROW_STATUS_PTR:
-            return TDescriptorAttribute{&ImpRowDesc_, SQL_DESC_ARRAY_STATUS_PTR};
+            return TDescriptorAttribute{ImpRowDesc_, SQL_DESC_ARRAY_STATUS_PTR};
         case SQL_ATTR_ROWS_FETCHED_PTR:
-            return TDescriptorAttribute{&ImpRowDesc_, SQL_DESC_ROWS_PROCESSED_PTR};
+            return TDescriptorAttribute{ImpRowDesc_, SQL_DESC_ROWS_PROCESSED_PTR};
         default:
             return std::nullopt;
     }
@@ -1151,9 +1149,8 @@ SQLRETURN TStatement::SetStmtAttr(
         if (value && (!owner || owner->IsRetired())) {
             return AddError("HY024", 0, "Invalid descriptor handle");
         }
-        TDescriptor* desc = owner.get();
-        if (desc && (desc->GetDescType() != EDescType::Explicit
-                     || desc->GetConnection() != Conn_)) {
+        if (owner && (owner->GetDescType() != EDescType::Explicit
+                      || &owner->GetConnection() != &GetConnection())) {
             return AddError("HY024", 0, "Descriptor belongs to another connection");
         }
         auto& current = attr == SQL_ATTR_APP_ROW_DESC ? AppRowOwner_ : AppParamOwner_;
@@ -1176,7 +1173,7 @@ SQLRETURN TStatement::SetStmtAttr(
             attr == SQL_ATTR_PARAMSET_SIZE ? "SQL_ATTR_PARAMSET_SIZE" : "SQL_ATTR_ROW_ARRAY_SIZE");
     }
     if (auto descriptorAttr = ResolveDescriptorAttribute(attr)) {
-        return descriptorAttr->Descriptor->WithLock([&](TDescriptor& desc) {
+        return descriptorAttr->Descriptor.WithLock([&](TDescriptor& desc) {
             return desc.SetDescField(0, descriptorAttr->Field, value, 0);
         });
     }
@@ -1316,7 +1313,7 @@ SQLRETURN TStatement::GetStmtAttr(
             break;
     }
     if (auto descriptorAttr = ResolveDescriptorAttribute(attr)) {
-        return descriptorAttr->Descriptor->WithLock([&](TDescriptor& desc) {
+        return descriptorAttr->Descriptor.WithLock([&](TDescriptor& desc) {
             return desc.GetDescField(0, descriptorAttr->Field, value, 0, nullptr);
         });
     }

@@ -13,18 +13,17 @@
 
 namespace NYdb::NOdbc {
 
+class TEnvironment;
+
 enum class ECallMode : unsigned char { Ordinary, Diagnostic, Consuming };
 
 class THandle : public TErrorManager {
 public:
+    explicit THandle(std::shared_ptr<THandle> parent = {}) : Parent_(std::move(parent)) {}
     virtual void BeforeCall() {}
-    // Assigned before registry publication and immutable thereafter.
-    void SetParent(std::shared_ptr<THandle> parent) { Parent_ = std::move(parent); }
-    const THandle* GetParent() const { return Parent_.get(); }
+    const std::shared_ptr<THandle>& GetParent() const { return Parent_; }
     bool HasChildren() const;
     std::vector<std::shared_ptr<THandle>> GetChildren() const;
-    void SetLifecycle(std::shared_mutex* lifecycle) { Lifecycle_ = lifecycle; }
-    std::shared_mutex* GetLifecycle() const { return Lifecycle_; }
     bool IsRetired() const { return Retired_.load(std::memory_order_relaxed); }
     void Retire() { Retired_.store(true, std::memory_order_relaxed); }
     std::unique_lock<std::mutex> LockOperation() const { return std::unique_lock(OperationMutex_); }
@@ -35,8 +34,7 @@ protected:
     mutable std::mutex OperationMutex_;
 
 private:
-    std::shared_ptr<THandle> Parent_;
-    std::shared_mutex* Lifecycle_ = nullptr;
+    const std::shared_ptr<THandle> Parent_;
     std::atomic<bool> Retired_ = false;
 };
 
@@ -60,37 +58,36 @@ SQLRETURN CallOdbc(SQLHANDLE handlePtr, Fn&& func) {
     if (!owner) {
         return SQL_INVALID_HANDLE;
     }
-    auto* handle = owner.get();
-    std::shared_lock<std::shared_mutex> shared;
-    std::unique_lock<std::shared_mutex> exclusive;
-    if (auto* lifecycle = handle->GetLifecycle()) {
+    std::conditional_t<Exclusive, std::unique_lock<std::shared_mutex>,
+        std::shared_lock<std::shared_mutex>> connection;
+    if constexpr (!std::is_same_v<Handle, TEnvironment>) {
         if constexpr (Exclusive) {
-            exclusive = std::unique_lock(*lifecycle);
+            connection = owner->GetConnection().LockExclusive();
         } else {
-            shared = std::shared_lock(*lifecycle);
+            connection = owner->GetConnection().LockShared();
         }
     }
-    auto lock = handle->LockOperation();
-    if (handle->IsRetired()) {
+    auto lock = owner->LockOperation();
+    if (owner->IsRetired()) {
         return SQL_INVALID_HANDLE;
     }
     if constexpr (Mode != ECallMode::Diagnostic) {
-        handle->ClearErrors();
+        owner->ClearErrors();
     }
     try {
         if constexpr (Mode == ECallMode::Ordinary) {
-            handle->BeforeCall();
+            owner->BeforeCall();
         }
-        const SQLRETURN ret = InvokeOdbc(std::forward<Fn>(func), handle);
+        const SQLRETURN ret = InvokeOdbc(std::forward<Fn>(func), owner.get());
         if constexpr (Mode == ECallMode::Ordinary) {
-            handle->SetLastReturnCode(ret);
+            owner->SetLastReturnCode(ret);
         }
         return ret;
     } catch (...) {
         if constexpr (Mode == ECallMode::Diagnostic) {
             return SQL_ERROR;
         }
-        return RecordCurrentException(*handle);
+        return RecordCurrentException(*owner);
     }
 }
 
