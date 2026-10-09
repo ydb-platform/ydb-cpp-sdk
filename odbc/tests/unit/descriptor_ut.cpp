@@ -67,6 +67,50 @@ TEST_F(TOdbcDescriptor, FetchUsesLatestColumnBinding) {
     EXPECT_EQ(second, SQL_INTEGER);
 }
 
+TEST(OdbcStatement, NoOpUnbindPreservesDescriptorGenerations) {
+    TConnection connection;
+    TStatement statement(&connection);
+    SQLINTEGER value = 0;
+    ASSERT_EQ(statement.BindCol(1, SQL_C_LONG, &value, sizeof(value), nullptr), SQL_SUCCESS);
+    SQLHDESC handle = SQL_NULL_HDESC;
+    ASSERT_EQ(statement.GetStmtAttr(SQL_ATTR_APP_ROW_DESC, &handle, 0, nullptr), SQL_SUCCESS);
+    auto& descriptor = *static_cast<TDescriptor*>(handle);
+    TDescriptorState before, after;
+    uint64_t generation = 0, nextGeneration = 0;
+    descriptor.Snapshot(before, generation);
+
+    ASSERT_EQ(statement.BindCol(2, SQL_C_LONG, nullptr, 0, nullptr), SQL_SUCCESS);
+    descriptor.Snapshot(after, nextGeneration);
+    EXPECT_EQ(nextGeneration, generation);
+    EXPECT_EQ(after.GetSchemaGeneration(), before.GetSchemaGeneration());
+    EXPECT_EQ(after.GetRecordCount(), 1);
+
+    ASSERT_EQ(statement.BindCol(1, SQL_C_LONG, nullptr, 0, nullptr), SQL_SUCCESS);
+    descriptor.Snapshot(after, nextGeneration);
+    EXPECT_NE(nextGeneration, generation);
+    EXPECT_NE(after.GetSchemaGeneration(), before.GetSchemaGeneration());
+    EXPECT_EQ(after.GetRecordCount(), 0);
+}
+
+TEST(OdbcStatement, CancelRecordsLocalErrors) {
+    class TFailingStatement : public TStatement {
+    public:
+        using TStatement::TStatement;
+        void BeforeCall() override {
+            throw TOdbcException("HY001", 0, "Test failure");
+        }
+    };
+    TConnection connection;
+    TFailingStatement statement(&connection);
+    EXPECT_EQ(statement.Cancel(), SQL_ERROR);
+    SQLRETURN result = SQL_SUCCESS;
+    ASSERT_EQ(statement.GetDiagField(0, SQL_DIAG_RETURNCODE, &result, 0, nullptr), SQL_SUCCESS);
+    EXPECT_EQ(result, SQL_ERROR);
+    SQLCHAR state[6] = {};
+    ASSERT_EQ(statement.GetDiagRec(1, state, nullptr, nullptr, 0, nullptr), SQL_SUCCESS);
+    EXPECT_STREQ(reinterpret_cast<char*>(state), "HY001");
+}
+
 TEST_F(TOdbcDescriptor, ExecuteUsesLatestParameterBinding) {
     TStatement statement(&Connection_);
     ASSERT_EQ(statement.Prepare("SELECT ?"), SQL_SUCCESS);
