@@ -92,13 +92,13 @@ void TDescriptor::Clear() {
 }
 
 TDescRecord& TDescriptor::Record(SQLSMALLINT number) {
-    Changed();
     if (number < 1) {
         throw TOdbcException("07009", 0, "Invalid descriptor index");
     }
     if (Records_.size() < static_cast<size_t>(number)) {
         Records_.resize(static_cast<size_t>(number));
     }
+    Changed();
     TDescRecord& record = Records_[static_cast<size_t>(number - 1)];
     record.Active = true;
     return record;
@@ -242,7 +242,6 @@ SQLRETURN TDescriptor::GetDescRec(SQLSMALLINT recNumber, SQLCHAR* name, SQLSMALL
 
 SQLRETURN TDescriptor::SetDescField(SQLSMALLINT recNumber, SQLSMALLINT field, SQLPOINTER value,
                                     SQLINTEGER bufferLength) {
-    Changed(false);
     switch (field) {
         case SQL_DESC_COUNT: {
             const auto count = static_cast<SQLSMALLINT>(reinterpret_cast<intptr_t>(value));
@@ -262,11 +261,13 @@ SQLRETURN TDescriptor::SetDescField(SQLSMALLINT recNumber, SQLSMALLINT field, SQ
                 return AddError("HY024", 0, "Invalid SQL_DESC_ARRAY_SIZE value");
             }
             Header_.ArraySize = size;
+            Changed(false);
             return SQL_SUCCESS;
         }
         default: break;
     }
     if (THeaderProperties::Set(field, Header_, value)) {
+        Changed(false);
         return SQL_SUCCESS;
     }
 
@@ -274,17 +275,21 @@ SQLRETURN TDescriptor::SetDescField(SQLSMALLINT recNumber, SQLSMALLINT field, SQ
         return AddError("HY016", 0, "Cannot modify an implementation row descriptor");
     }
 
-    TDescRecord& record = Record(recNumber);
-    if (TRecordProperties::Set(field, record, value)) {
+    if (TRecordProperties::CanSet(field)) {
+        TRecordProperties::Set(field, Record(recNumber), value);
         return SQL_SUCCESS;
     }
     if (field == SQL_DESC_NAME) {
         if (!value) {
             return Diag::AddNullPointer(*this);
         }
-        record.Name = bufferLength == SQL_NTS
+        if (bufferLength < 0 && bufferLength != SQL_NTS) {
+            return Diag::AddInvalidBufferLength(*this);
+        }
+        std::string name = bufferLength == SQL_NTS
             ? std::string(static_cast<const char*>(value))
             : std::string(static_cast<const char*>(value), static_cast<size_t>(bufferLength));
+        Record(recNumber).Name = std::move(name);
         return SQL_SUCCESS;
     }
     return Diag::AddNotImplemented(*this);

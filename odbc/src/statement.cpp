@@ -75,7 +75,6 @@ TStatement::TStatement(TConnection* conn)
     , ImpRowDesc_(EDescType::ImpRow, conn)
     , ImpParamDesc_(EDescType::ImpParam, conn) {
     SetLifecycle(conn->GetLifecycle());
-    CursorGeneration_ = conn->GetCursorGeneration();
 }
 
 void TStatement::RegisterDescriptors(const std::shared_ptr<TStatement>& owner) {
@@ -91,7 +90,7 @@ void TStatement::UnregisterDescriptors() {
     }
 }
 
-void TStatement::RefreshBindings() {
+void TStatement::BeforeCall() {
     if (AppRowOwner_ && AppRowOwner_->IsRetired()) {
         AppRowOwner_.reset();
         RowGeneration_ = 0;
@@ -102,36 +101,30 @@ void TStatement::RefreshBindings() {
         AtExecValues_.clear();
         InvalidatePreparedColumnMeta();
     }
+}
+
+void TStatement::RefreshRowBindings() {
     if (GetAppRowDesc().GetGeneration() != RowGeneration_) {
         GetAppRowDesc().Snapshot(RowBindings_, RowGeneration_);
     }
     if (ImpRowDesc_.GetGeneration() != ImpRowGeneration_) {
         ImpRowDesc_.SnapshotHeader(ImpRowBindings_, ImpRowGeneration_);
     }
-    if (GetAppParamDesc().GetGeneration() != ParamGeneration_
-        || ImpParamDesc_.GetGeneration() != ImpParamGeneration_) {
-        const auto paramSchema = ParamBindings_.GetSchemaGeneration();
-        const auto impSchema = ImpParamBindings_.GetSchemaGeneration();
-        if (GetAppParamDesc().GetGeneration() != ParamGeneration_) {
-            GetAppParamDesc().Snapshot(ParamBindings_, ParamGeneration_);
-        }
-        if (ImpParamDesc_.GetGeneration() != ImpParamGeneration_) {
-            ImpParamDesc_.Snapshot(ImpParamBindings_, ImpParamGeneration_);
-        }
-        if (paramSchema != ParamBindings_.GetSchemaGeneration()
-            || impSchema != ImpParamBindings_.GetSchemaGeneration()) {
-            InvalidatePreparedColumnMeta();
-        }
-    }
 }
 
-void TStatement::BeforeCall() {
-    const auto cursor = Conn_->GetCursorGeneration();
-    if (cursor != CursorGeneration_) {
-        CursorGeneration_ = cursor;
-        ClearResults();
+void TStatement::RefreshParamBindings() {
+    const auto paramSchema = ParamBindings_.GetSchemaGeneration();
+    const auto impSchema = ImpParamBindings_.GetSchemaGeneration();
+    if (GetAppParamDesc().GetGeneration() != ParamGeneration_) {
+        GetAppParamDesc().Snapshot(ParamBindings_, ParamGeneration_);
     }
-    RefreshBindings();
+    if (ImpParamDesc_.GetGeneration() != ImpParamGeneration_) {
+        ImpParamDesc_.Snapshot(ImpParamBindings_, ImpParamGeneration_);
+    }
+    if (paramSchema != ParamBindings_.GetSchemaGeneration()
+        || impSchema != ImpParamBindings_.GetSchemaGeneration()) {
+        InvalidatePreparedColumnMeta();
+    }
 }
 
 SQLRETURN TStatement::Prepare(const std::string& statementText) {
@@ -149,7 +142,6 @@ SQLRETURN TStatement::Prepare(const std::string& statementText) {
             desc.Record(i).Nullable = SQL_NULLABLE_UNKNOWN;
         }
     });
-    RefreshBindings();
     return SQL_SUCCESS;
 }
 
@@ -157,6 +149,7 @@ SQLRETURN TStatement::Execute() {
     if (!IsPrepared_ || PreparedQuery_.empty()) {
         throw TOdbcException("HY007", 0, "No prepared statement");
     }
+    RefreshParamBindings();
     ClearResults();
     RowCount_ = -1;
     if (ParamCount_ > 0 && ParamBindings_.GetArraySize() > 1
@@ -255,6 +248,7 @@ SQLRETURN TStatement::ExecuteParamSet(
     std::optional<SQLLEN>& affectedRows)
 {
     ClearResults();
+    CheckCancellation();
     auto client = Conn_->GetClient();
     if (!client) {
         throw TOdbcException("HY000", 0, "No client connection");
@@ -270,8 +264,7 @@ SQLRETURN TStatement::ExecuteParamSet(
 
         const NYdb::TStatus execStatus = client->RetryQuerySync(
             [this, &params, &affectedRows, paramSet](NQuery::TSession session) -> NYdb::TStatus {
-                SetExecutingSession(session);
-                Y_DEFER { ReleaseExecutingSession(); };
+                CheckCancellation();
                 NQuery::TExecuteQueryResult result = ExecuteQuery(session, params, paramSet);
                 CheckExecutionStatus(result);
                 if (!result.IsSuccess()) {
@@ -288,9 +281,8 @@ SQLRETURN TStatement::ExecuteParamSet(
         NStatusHelpers::ThrowOnError(execStatus);
     } else {
         NQuery::TSession& session = Conn_->GetOrCreateQuerySession();
-        SetExecutingSession(session);
+        CheckCancellation();
         NQuery::TExecuteQueryResult result = ExecuteQuery(session, params, paramSet);
-        CheckExecutionStatus(result);
         NStatusHelpers::ThrowOnError(result);
         affectedRows = ExtractAffectedRows(result);
         if (!IsCancelRequested()) {
@@ -383,9 +375,9 @@ NQuery::TExecuteQueryResult TStatement::ExecuteQuery(
     }
     if (!Conn_->GetTx()) {
         auto beginTxResult = session.BeginTransaction(txSettings).ExtractValueSync();
-        CheckExecutionStatus(beginTxResult);
         NStatusHelpers::ThrowOnError(beginTxResult);
         Conn_->SetTx(beginTxResult.GetTransaction());
+        CheckCancellation();
     }
     return session.ExecuteQuery(
         queryText,
@@ -420,6 +412,7 @@ SQLRETURN TStatement::FetchScroll(SQLSMALLINT orientation, SQLLEN offset) {
         return AddError("HY106", 0, "Fetch type out of range for a forward-only cursor");
     }
 
+    RefreshRowBindings();
     const SQLULEN rowArraySize = RowBindings_.GetArraySize();
     SQLUSMALLINT* const statuses = ImpRowBindings_.GetArrayStatusPtr();
     SQLULEN* const fetched = ImpRowBindings_.GetRowsProcessedPtr();
@@ -736,6 +729,7 @@ SQLRETURN TStatement::DescribeParam(SQLUSMALLINT paramNumber, SQLSMALLINT* dataT
     if (paramNumber < 1 || paramNumber > ParamCount_) {
         throw TOdbcException("07009", 0, "Invalid descriptor index");
     }
+    RefreshParamBindings();
     const TDescRecord* record = ImpParamBindings_.FindRecord(static_cast<SQLSMALLINT>(paramNumber));
     const SQLSMALLINT dataType = record ? record->Type : SQL_UNKNOWN_TYPE;
     const SQLULEN paramSize = record ? static_cast<SQLULEN>(record->Length) : 0;
@@ -763,6 +757,7 @@ SQLRETURN TStatement::ParamData(SQLPOINTER* valuePtr) {
     if (!InAtExec_) {
         return SQL_NO_DATA;
     }
+    RefreshParamBindings();
     if (NeedDataParam_ != 0 && NeedDataTokenDelivered_) {
         if (AtExecValues_.size() <= NeedDataParam_) {
             AtExecValues_.resize(NeedDataParam_ + 1);
@@ -787,6 +782,7 @@ SQLRETURN TStatement::PutData(SQLPOINTER data, SQLLEN strLenOrInd) {
     if (!InAtExec_ || NeedDataParam_ == 0) {
         throw TOdbcException("HY010", 0, "Function sequence error");
     }
+    RefreshParamBindings();
     const TDescRecord* param = ParamBindings_.FindRecord(
         static_cast<SQLSMALLINT>(NeedDataParam_));
     if (!param || !NeedDataTokenDelivered_) {
@@ -858,44 +854,18 @@ SQLRETURN TStatement::Cancel() {
     }
 }
 
-void TStatement::StartExecution(bool transaction) {
-    TransactionExecution_ = transaction;
-    std::lock_guard lock(CancelMutex_);
-    CancelClient_ = Conn_->GetClient();
-    CancelRequested_.store(false, std::memory_order_relaxed);
-    Executing_.store(true, std::memory_order_relaxed);
+void TStatement::StartExecution() {
+    ExecutionState_.store(EExecutionState::Executing, std::memory_order_relaxed);
 }
 
-void TStatement::SetExecutingSession(const NQuery::TSession& session) {
-    CancelSessionInvalidated_ = false;
-    std::lock_guard lock(CancelMutex_);
+void TStatement::CheckCancellation() const {
     if (IsCancelRequested()) {
         throw TOdbcException("HY008", 0, "Operation canceled");
-    }
-    CancelSession_ = session;
-}
-
-bool TStatement::HasExecutingSession() {
-    std::lock_guard lock(CancelMutex_);
-    return IsExecuting() && CancelSession_.has_value();
-}
-
-void TStatement::ReleaseExecutingSession() {
-    std::lock_guard lock(CancelMutex_);
-    if (!IsCancelRequested()) {
-        CancelSession_.reset();
     }
 }
 
 void TStatement::CheckExecutionStatus(const TStatus& status) {
-    CancelSessionInvalidated_ |= IsSessionInvalidated(status);
     if (IsCancelRequested() && !status.IsSuccess()) {
-        if (status.GetStatus() == EStatus::BAD_SESSION
-            || status.GetStatus() == EStatus::SESSION_EXPIRED
-            || status.GetStatus() == EStatus::CANCELLED
-            || status.GetStatus() == EStatus::CLIENT_CANCELLED) {
-            throw TOdbcException("HY008", 0, "Operation canceled");
-        }
         // A requested cancel must stop retries without hiding other errors,
         // particularly an unknown commit outcome.
         NStatusHelpers::ThrowOnError(status);
@@ -903,59 +873,23 @@ void TStatement::CheckExecutionStatus(const TStatus& status) {
 }
 
 std::optional<SQLRETURN> TStatement::CancelExecuting() {
-    if (!IsExecuting()) {
-        return std::nullopt;
+    auto expected = EExecutionState::Executing;
+    if (ExecutionState_.compare_exchange_strong(expected, EExecutionState::CancelRequested,
+            std::memory_order_relaxed) || expected == EExecutionState::CancelRequested) {
+        return SQL_SUCCESS;
     }
-    std::lock_guard lock(CancelMutex_);
-    if (!IsExecuting()) {
-        return std::nullopt;
-    }
-    if (!IsCancelRequested()) {
-        CancelRequested_.store(true, std::memory_order_relaxed);
-        if (CancelSession_ && CancelClient_) {
-            CancelClient_->DeleteSession(CancelSession_->GetId(),
-                NQuery::TDeleteSessionSettings().ClientTimeout(TDuration::Seconds(5))
-                    .RetrySettings(NRetry::TRetryOperationSettings().MaxRetries(0)));
-        }
-    }
-    return SQL_SUCCESS;
+    return std::nullopt;
 }
 
 void TStatement::FinishExecution() noexcept {
-    std::optional<NQuery::TSession> session;
-    bool requested;
-    {
-        std::lock_guard lock(CancelMutex_);
-        Executing_.store(false, std::memory_order_relaxed);
-        session.swap(CancelSession_);
-        CancelClient_.reset();
-        requested = IsCancelRequested();
-    }
+    const bool requested = ExecutionState_.exchange(EExecutionState::Idle, std::memory_order_relaxed)
+        == EExecutionState::CancelRequested;
     if (requested) {
         try {
             ClearResults();
         } catch (const std::bad_alloc&) {
             // Disposal already cleared the cursor; don't replace the original diagnostics.
             InvalidatePreparedColumnMeta();
-        }
-    }
-    if (requested && session) {
-        bool invalidated = CancelSessionInvalidated_;
-        try {
-            if (!invalidated) {
-                // DeleteSession only enqueues server closure. Probe the lease,
-                // retaining it unless the SDK has made it unsafe to pool.
-                const auto status = session->ExecuteQuery("SELECT 1", NQuery::TTxControl::NoTx(),
-                    NQuery::TExecuteQuerySettings().ClientTimeout(TDuration::Seconds(1))).ExtractValueSync();
-                invalidated = IsSessionInvalidated(status);
-            }
-        } catch (...) {
-        }
-        if (!invalidated) {
-            Conn_->QuarantineSession(std::move(*session));
-        }
-        if (TransactionExecution_) {
-            Conn_->FailTransaction();
         }
     }
 }
@@ -985,6 +919,7 @@ void TStatement::UnbindColumns() {
 }
 
 void TStatement::ResetParams() {
+    RefreshParamBindings();
     // Resetting bindings keeps the result schema learned by execution.
     GetAppParamDesc().WithLock(ImpParamDesc_, [&](TDescriptor& app, TDescriptor& imp) {
         app.ClearRecords();
@@ -1022,6 +957,7 @@ const std::vector<TColumnMeta>& TStatement::GetColumnMeta() {
 }
 
 void TStatement::EnsurePreparedColumnMeta() {
+    RefreshParamBindings();
     if (PreparedColumnMeta_) {
         return;
     }
@@ -1082,13 +1018,12 @@ void TStatement::EnsurePreparedColumnMeta() {
     }
 
     std::optional<std::vector<TColumnMeta>> columns;
-    StartExecution(false);
+    StartExecution();
     Y_DEFER { FinishExecution(); };
     const NYdb::TStatus execStatus = client->RetryQuerySync(
         [this, &queryText, &params, &columns, queryTimeoutSec](
             NQuery::TSession session) -> NYdb::TStatus {
-            SetExecutingSession(session);
-            Y_DEFER { ReleaseExecutingSession(); };
+            CheckCancellation();
             NQuery::TExecuteQuerySettings execSettings;
             execSettings.SchemaInclusionMode(NQuery::ESchemaInclusionMode::Always);
             if (queryTimeoutSec > 0) {
