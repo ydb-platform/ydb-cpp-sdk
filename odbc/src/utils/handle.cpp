@@ -1,6 +1,7 @@
 #include "handle.h"
 
 #include <mutex>
+#include <stdexcept>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -13,7 +14,10 @@ namespace {
             decltype(Handles_)::node_type removed;
             std::lock_guard lock(Mutex_);
             const auto [it, inserted] = Handles_.emplace(handle, std::move(owner));
-            if (inserted && parent) {
+            if (!inserted) {
+                throw std::logic_error("Handle already registered");
+            }
+            if (parent) {
                 try {
                     Children_[parent].insert(handle);
                 } catch (...) {
@@ -36,7 +40,14 @@ namespace {
         bool HasChildren(const THandle* parent) {
             std::lock_guard lock(Mutex_);
             const auto children = Children_.find(parent);
-            return children != Children_.end() && !children->second.empty();
+            if (children != Children_.end()) {
+                for (auto handle : children->second) {
+                    if (!Handles_.at(handle)->IsRetired()) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         std::vector<std::shared_ptr<THandle>> GetChildren(const THandle* parent) {

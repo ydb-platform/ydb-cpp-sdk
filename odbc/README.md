@@ -10,13 +10,12 @@ cancellation without waiting for execution. Explicit-transaction statements
 share one session and execute in order; connection reconfiguration, transaction
 completion and disconnect wait for active calls.
 
-Active cancellation can abort the shared explicit transaction. Call
-`SQL_ROLLBACK` before reusing it. Cancellation does not guarantee that a write
-was not committed; execution diagnostics retain uncertain outcomes. Sessions
-whose local invalidation cannot be confirmed remain leased until disconnect.
-`SQLCancel` returning success means the request was processed, not that execution
-was aborted. Older servers may finish execution or report its original timeout.
-Local session confirmation adds at most a 1-second RPC timeout to completion.
+Cancellation is local: it discards pending results and stops subsequent query
+attempts without interrupting an RPC already in flight. That RPC may finish or
+reach its configured timeout, and writes may still commit. Execution diagnostics
+are preserved. `SQLCancel` does not abort the shared explicit transaction or
+invalidate its session; session cleanup remains with the SDK.
+`SQLCancel` returning success means the local request was processed.
 
 Applications must keep bound buffers alive and avoid concurrent access to the
 same buffer during calls. Descriptor changes apply to subsequent calls, not to

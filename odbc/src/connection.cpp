@@ -18,7 +18,6 @@ namespace NYdb::NOdbc {
 void TConnection::DestroyYdbState() {
     QuerySession_.reset();
     Tx_.reset();
-    TransactionFailed_ = false;
     Ydb_.reset();
 }
 
@@ -128,11 +127,10 @@ SQLRETURN TConnection::Execute(TStatement& statement) {
     // The caller holds the statement operation lock and a shared lifecycle gate.
     std::unique_lock transaction(TransactionMutex_, std::defer_lock);
     const bool explicitTransaction = !GetAutocommit();
-    statement.StartExecution(explicitTransaction);
+    statement.StartExecution();
     Y_DEFER { statement.FinishExecution(); };
     if (explicitTransaction) {
         transaction.lock();
-        CheckTransaction();
     }
     return statement.ExecuteInternal();
 }
@@ -157,11 +155,9 @@ void TConnection::EndTranFromEnvironment(SQLSMALLINT completionType) {
 
 void TConnection::CloseStatementCursors() {
     // The exclusive lifecycle gate has drained statement/descriptor calls.
-    const auto generation = CursorGeneration_.fetch_add(1, std::memory_order_relaxed) + 1;
     for (const auto& child : GetChildren()) {
         if (const auto stmt = std::dynamic_pointer_cast<TStatement>(child)) {
             stmt->Close(true);
-            stmt->CursorGeneration_ = generation;
         }
     }
 }
@@ -174,24 +170,7 @@ void TConnection::InvalidatePreparedStatementMetadata() {
     }
 }
 
-void TConnection::CheckTransaction() const {
-    if (TransactionFailed_) {
-        throw TOdbcException("25S03", 0, "Transaction was rolled back; call SQL_ROLLBACK before continuing");
-    }
-}
-
-void TConnection::FailTransaction() {
-    TransactionFailed_ = true;
-    // Other statements may still hold their own state mutex under a shared gate.
-    CursorGeneration_.fetch_add(1, std::memory_order_relaxed);
-}
-
-void TConnection::QuarantineSession(NQuery::TSession session) {
-    Ydb_->QuarantineSession(std::move(session));
-}
-
 SQLRETURN TConnection::SetAutocommit(bool value) {
-    CheckTransaction();
     if (value) {
         CommitTx();
         QuerySession_.reset();
@@ -244,7 +223,6 @@ void TConnection::SetTx(const NQuery::TTransaction& tx) {
 }
 
 SQLRETURN TConnection::CommitTx() {
-    CheckTransaction();
     if (!Tx_) {
         return SQL_SUCCESS;
     }
@@ -256,15 +234,6 @@ SQLRETURN TConnection::CommitTx() {
 }
 
 SQLRETURN TConnection::RollbackTx() {
-    if (TransactionFailed_) {
-        // Cancellation already invalidated or quarantined this session. Never
-        // send another RPC to it or return an unconfirmed lease to the pool.
-        Tx_.reset();
-        QuerySession_.reset();
-        TransactionFailed_ = false;
-        CloseStatementCursors();
-        return SQL_SUCCESS;
-    }
     if (!Tx_) {
         return SQL_SUCCESS;
     }
