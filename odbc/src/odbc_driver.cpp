@@ -108,15 +108,8 @@ namespace {
         } else {
             using Parent = std::conditional_t<std::is_same_v<Handle, TConnection>, TEnvironment, TConnection>;
             return Call<Odbc::ECallMode::Ordinary, Parent>(parentHandle, [&](Parent* parent) {
-                std::shared_ptr<Handle> value;
-                if constexpr (std::is_same_v<Handle, TConnection>) {
-                    value = std::make_shared<TConnection>();
-                } else if constexpr (std::is_same_v<Handle, TStatement>) {
-                    value = std::make_shared<TStatement>(parent);
-                } else {
-                    value = std::make_shared<TDescriptor>(Odbc::EDescType::Explicit, parent);
-                }
-                value->SetParent(Odbc::PinHandle(parent));
+                auto value = std::make_shared<Handle>(
+                    std::static_pointer_cast<Parent>(Odbc::PinHandle(parent)));
                 try {
                     Odbc::RegisterHandle(value.get(), value);
                     if constexpr (std::is_same_v<Handle, TStatement>) {

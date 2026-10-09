@@ -63,11 +63,9 @@ using TRecordProperties = TScalarProperties<
 
 } // namespace
 
-TDescriptor::TDescriptor(EDescType type, TConnection* conn)
-    : Type_(type)
-    , Conn_(conn) {
-    SetLifecycle(conn->GetLifecycle());
-}
+TDescriptor::TDescriptor(std::shared_ptr<TConnection> conn, EDescType type)
+    : THandle(std::move(conn))
+    , Type_(type) {}
 
 void TDescriptor::Snapshot(TDescriptorState& state, uint64_t& generation) const {
     std::lock_guard lock(OperationMutex_);
@@ -321,10 +319,10 @@ SQLRETURN TDescriptor::Copy(SQLHDESC source, SQLHDESC target) {
     if (!src || !dst) {
         return SQL_INVALID_HANDLE;
     }
-    std::shared_lock sourceLifecycle(*src->GetLifecycle(), std::defer_lock);
+    auto sourceLifecycle = src->GetConnection().LockShared(std::defer_lock);
     std::shared_lock<std::shared_mutex> targetLifecycle;
-    if (dst->GetLifecycle() != src->GetLifecycle()) {
-        targetLifecycle = std::shared_lock(*dst->GetLifecycle(), std::defer_lock);
+    if (&dst->GetConnection() != &src->GetConnection()) {
+        targetLifecycle = dst->GetConnection().LockShared(std::defer_lock);
         std::lock(sourceLifecycle, targetLifecycle);
     } else {
         sourceLifecycle.lock();

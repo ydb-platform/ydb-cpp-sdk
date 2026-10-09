@@ -353,8 +353,7 @@ TEST(Concurrency, ParentFreeWaitsForChildPublicationAndUnwind) {
     ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &env), SQL_SUCCESS);
     auto parent = std::dynamic_pointer_cast<TEnvironment>(PinHandle(env));
     {
-        auto connection = std::make_shared<TConnection>();
-        connection->SetParent(parent);
+        auto connection = std::make_shared<TConnection>(parent);
         EXPECT_FALSE(parent->HasChildren());
         std::future<SQLRETURN> freeing;
         auto publication = parent->LockOperation();
@@ -366,8 +365,7 @@ TEST(Concurrency, ParentFreeWaitsForChildPublicationAndUnwind) {
         EXPECT_EQ(freeing.get(), SQL_ERROR);
         EXPECT_EQ(SqlState(env, SQL_HANDLE_ENV), "HY010");
         // Partial statement/alias publication must unwind without leaving registry children.
-        auto statement = std::make_shared<TStatement>(connection.get());
-        statement->SetParent(connection);
+        auto statement = std::make_shared<TStatement>(connection);
         RegisterHandle(statement.get(), statement);
         statement->RegisterDescriptors(statement);
         SQLHDESC descriptor = SQL_NULL_HDESC;

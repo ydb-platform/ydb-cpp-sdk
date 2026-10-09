@@ -24,7 +24,8 @@ using TMetadataArgument = std::optional<std::string>;
 
 class TStatement : public THandle {
 public:
-    TStatement(TConnection* conn);
+    explicit TStatement(std::shared_ptr<TConnection> conn);
+    TConnection& GetConnection() const noexcept { return static_cast<TConnection&>(*GetParent()); }
     void RegisterDescriptors(const std::shared_ptr<TStatement>& owner);
     void UnregisterDescriptors();
     void BeforeCall() override;
@@ -128,7 +129,6 @@ private:
         bool Complete = false;
     };
 
-    TConnection* Conn_;
     std::unique_ptr<ICursor> Cursor_;
     std::deque<TResultSet> RemainingResultSets_;
     std::optional<std::vector<TColumnMeta>> PreparedColumnMeta_;
@@ -183,7 +183,7 @@ private:
 
     void ResetForMetadata();
     struct TDescriptorAttribute {
-        TDescriptor* Descriptor;
+        TDescriptor& Descriptor;
         SQLSMALLINT Field;
     };
     std::optional<TDescriptorAttribute> ResolveDescriptorAttribute(SQLINTEGER attr);
