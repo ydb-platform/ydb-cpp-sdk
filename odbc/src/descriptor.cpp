@@ -113,12 +113,12 @@ const TDescRecord* TDescriptorState::FindRecord(SQLSMALLINT number) const noexce
 }
 
 void TDescriptor::RemoveRecord(SQLSMALLINT number) {
-    Changed();
     if (number > 0 && static_cast<size_t>(number) <= Records_.size()) {
         Records_[static_cast<size_t>(number - 1)] = {};
         while (!Records_.empty() && !Records_.back().Active) {
             Records_.pop_back();
         }
+        Changed();
     }
 }
 
