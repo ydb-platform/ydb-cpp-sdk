@@ -11,12 +11,10 @@
 
 #include "odbc_compat.h"
 
-#include <cassert>
 #include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
-#include <vector>
 
 namespace NYdb::NOdbc {
 
@@ -25,40 +23,22 @@ class TStatement;
 class TConnection : public THandle {
 private:
     std::shared_mutex Lifecycle_; // Shared by calls; exclusive for connection-state changes and child invalidation.
-    std::mutex TransactionMutex_; // Tx_, QuerySession_, TransactionFailed_; also protected by exclusive Lifecycle_.
-    std::atomic<uint64_t> CursorGeneration_ = 0;
-    bool TransactionFailed_ = false;
+    std::mutex TransactionMutex_; // Tx_, QuerySession_; also protected by exclusive Lifecycle_.
     struct TYdbState {
         // Declared first: constructed before clients, destroyed after them.
         TDriver Driver;
         NQuery::TQueryClient QueryClient;
         NScheme::TSchemeClient SchemeClient;
         NTable::TTableClient TableClient;
-        std::mutex QuarantineMutex_; // CanceledSessions_ only; lifecycle changes drain callers.
-        std::vector<NQuery::TSession> CanceledSessions_;
 
         explicit TYdbState(const TDriverConfig& config)
             : Driver(config)
             , QueryClient(Driver)
             , SchemeClient(Driver)
             , TableClient(Driver)
-        {
-            const auto limit = QueryClient.GetActiveSessionsLimit();
-            if (limit <= 0) {
-                throw TOdbcException("HY000", 0, "Query session pool must be bounded");
-            }
-            CanceledSessions_.reserve(static_cast<size_t>(limit));
-        }
-
-        void QuarantineSession(NQuery::TSession session) {
-            std::lock_guard lock(QuarantineMutex_);
-            // Each lease is retained once and still counts against the pool limit.
-            assert(CanceledSessions_.size() < CanceledSessions_.capacity());
-            CanceledSessions_.push_back(std::move(session));
-        }
+        {}
 
         ~TYdbState() {
-            // Stop before retained leases can return to the pool.
             Driver.Stop(true);
         }
     };
@@ -92,14 +72,10 @@ public:
     SQLRETURN Disconnect();
 
     void CloseStatementCursors();
-    uint64_t GetCursorGeneration() const { return CursorGeneration_.load(std::memory_order_relaxed); }
     // Test seam for holding transaction ordering without a server-side operation.
     std::unique_lock<std::mutex> LockTransaction() { return std::unique_lock(TransactionMutex_); }
     SQLRETURN Execute(TStatement& statement);
     void EndTranFromEnvironment(SQLSMALLINT completionType);
-    void CheckTransaction() const;
-    void FailTransaction();
-    void QuarantineSession(NQuery::TSession session);
 
     std::optional<NQuery::TQueryClient> GetClient();
     NQuery::TSession& GetOrCreateQuerySession();

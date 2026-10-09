@@ -80,9 +80,8 @@ public:
     SQLRETURN ParamData(SQLPOINTER* valuePtr);
     SQLRETURN PutData(SQLPOINTER data, SQLLEN strLenOrInd);
     SQLRETURN Cancel();
-    bool IsExecuting() const { return Executing_.load(std::memory_order_relaxed); }
-    bool IsCancelRequested() const { return CancelRequested_.load(std::memory_order_relaxed); }
-    bool HasExecutingSession();
+    bool IsExecuting() const { return ExecutionState_.load(std::memory_order_relaxed) != EExecutionState::Idle; }
+    bool IsCancelRequested() const { return ExecutionState_.load(std::memory_order_relaxed) == EExecutionState::CancelRequested; }
     SQLRETURN SetCursorName(const std::string& name);
     SQLRETURN GetCursorName(SQLCHAR* name, SQLSMALLINT bufferLength, SQLSMALLINT* nameLengthPtr);
 
@@ -98,6 +97,8 @@ public:
 
 private:
     friend class TConnection;
+
+    enum class EExecutionState : unsigned char { Idle, Executing, CancelRequested };
 
     struct TAttributes {
         SQLUINTEGER QueryTimeoutSec = 0;
@@ -152,14 +153,7 @@ private:
     uint64_t ParamGeneration_ = 0;
     uint64_t ImpParamGeneration_ = 0;
     uint64_t ImpRowGeneration_ = 0;
-    uint64_t CursorGeneration_ = 0;
-    bool TransactionExecution_ = false; // Execution-thread bookkeeping, under OperationMutex_.
-    bool CancelSessionInvalidated_ = false;
-    std::mutex CancelMutex_; // Publication of executing client/session and cancellation requests.
-    std::atomic<bool> CancelRequested_ = false;
-    std::atomic<bool> Executing_ = false;
-    std::optional<NQuery::TQueryClient> CancelClient_;
-    std::optional<NQuery::TSession> CancelSession_;
+    std::atomic<EExecutionState> ExecutionState_ = EExecutionState::Idle;
     SQLUSMALLINT NeedDataParam_ = 0;
     bool InAtExec_ = false;
     bool NeedDataTokenDelivered_ = false;
@@ -176,11 +170,11 @@ private:
     void SetImpRowDesc(const std::vector<TColumnMeta>& columns);
     TDescriptor& GetAppRowDesc() { return AppRowOwner_ ? *AppRowOwner_ : AppRowDesc_; }
     TDescriptor& GetAppParamDesc() { return AppParamOwner_ ? *AppParamOwner_ : AppParamDesc_; }
-    void RefreshBindings();
-    void StartExecution(bool transaction);
+    void RefreshRowBindings();
+    void RefreshParamBindings();
+    void StartExecution();
     void FinishExecution() noexcept;
-    void SetExecutingSession(const NQuery::TSession& session);
-    void ReleaseExecutingSession();
+    void CheckCancellation() const;
     std::optional<SQLRETURN> CancelExecuting();
     void CheckExecutionStatus(const TStatus& status);
     void SetCursor(std::unique_ptr<ICursor> cursor);

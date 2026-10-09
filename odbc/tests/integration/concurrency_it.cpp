@@ -7,20 +7,13 @@
 #include <barrier>
 #include <array>
 #include <chrono>
-#include <cstdlib>
 #include <future>
-#include <string_view>
 #include <thread>
 
 using namespace std::chrono_literals;
 using namespace NYdb::NOdbc;
 
 namespace {
-
-bool SupportsActiveAbort() {
-    const char* version = std::getenv("YDB_VERSION");
-    return !version || std::string_view(version) == "trunk";
-}
 
 class TConnectionHandles {
 public:
@@ -84,19 +77,15 @@ public:
 
     ~TLongQuery() { Execute(Observer_.Handle, ("DROP TABLE " + Table_).c_str()); }
 
-    bool Running(SQLHSTMT stmt) {
-        if (!SupportsActiveAbort()) {
-            auto owner = std::dynamic_pointer_cast<TStatement>(PinHandle(stmt));
-            return owner && owner->HasExecutingSession();
-        }
-        const auto observer = Observer_.Handle;
-        const std::string query = std::string("SELECT COUNT(*) FROM `.sys/query_sessions` WHERE Query = '")
+    bool Running() {
+        const std::string query = "SELECT COUNT(*) FROM `.sys/query_sessions` WHERE Query = '"
             + Query + "' AND State = 'EXECUTING'";
-        if (Execute(observer, query.c_str()) != SQL_SUCCESS || SQLFetch(observer) != SQL_SUCCESS) {
+        if (Execute(Observer_.Handle, query.c_str()) != SQL_SUCCESS
+            || SQLFetch(Observer_.Handle) != SQL_SUCCESS) {
             return false;
         }
         SQLINTEGER count = 0;
-        return SQLGetData(observer, 1, SQL_C_LONG, &count, sizeof(count), nullptr) == SQL_SUCCESS
+        return SQLGetData(Observer_.Handle, 1, SQL_C_LONG, &count, sizeof(count), nullptr) == SQL_SUCCESS
             && count > 0;
     }
 };
@@ -110,10 +99,9 @@ std::string SqlState(SQLHANDLE handle, SQLSMALLINT type = SQL_HANDLE_STMT) {
 void CancelActiveExecution(SQLHSTMT stmt, std::future<SQLRETURN>& execution) {
     auto cancellation = std::async(std::launch::async, [&] {
         auto owner = std::dynamic_pointer_cast<TStatement>(PinHandle(stmt));
-        EXPECT_TRUE(owner->HasExecutingSession());
+        EXPECT_TRUE(owner->IsExecuting());
         EXPECT_EQ(execution.wait_for(0s), std::future_status::timeout);
         const auto result = SQLCancel(stmt);
-        EXPECT_TRUE(owner->IsCancelRequested());
         return result;
     });
     EXPECT_EQ(cancellation.wait_for(1s), std::future_status::ready);
@@ -121,12 +109,9 @@ void CancelActiveExecution(SQLHSTMT stmt, std::future<SQLRETURN>& execution) {
 }
 
 void ExpectCanceledExecution(std::future<SQLRETURN>& execution, SQLHSTMT stmt) {
-    EXPECT_EQ(execution.wait_for(SupportsActiveAbort() ? 5s : 13s), std::future_status::ready);
+    EXPECT_EQ(execution.wait_for(13s), std::future_status::ready);
     const auto result = execution.get();
-    if (SupportsActiveAbort()) {
-        EXPECT_EQ(result, SQL_ERROR);
-        EXPECT_EQ(SqlState(stmt), "HY008");
-    } else if (result == SQL_ERROR) {
+    if (result == SQL_ERROR) {
         const auto state = SqlState(stmt);
         EXPECT_TRUE(state == "HY008" || state == "HYT00") << state;
     } else {
@@ -214,15 +199,6 @@ TEST(Concurrency, ParameterArraysReleaseCompletedSessions) {
     }
     EXPECT_TRUE(WaitUntil([&] { return owner->GetClient()->GetActiveSessionCount() == 0; }));
     EXPECT_EQ(Execute(setup.Handle, "DROP TABLE odbc_concurrency_params"), SQL_SUCCESS);
-    auto client = *owner->GetClient();
-    for (int i = 0; i < count; ++i) {
-        auto session = client.GetSession().ExtractValueSync();
-        ASSERT_TRUE(session.IsSuccess());
-        owner->QuarantineSession(session.GetSession());
-    }
-    EXPECT_EQ(client.GetActiveSessionCount(), count);
-    EXPECT_EQ(SQLDisconnect(connection.Dbc), SQL_SUCCESS);
-    EXPECT_TRUE(WaitUntil([&] { return client.GetActiveSessionCount() == 0; }));
 }
 
 TEST(Concurrency, ExplicitTransactionStatements) {
@@ -266,13 +242,14 @@ TEST(Concurrency, AutocommitProgressAndActiveCancel) {
     ASSERT_EQ(SQLGetStmtAttr(slow.Handle, SQL_ATTR_IMP_ROW_DESC,
                             &descriptor, sizeof(descriptor), nullptr), SQL_SUCCESS);
     auto execution = std::async(std::launch::async, [&] { return SQLExecute(slow.Handle); });
-    EXPECT_TRUE(WaitUntil([&] { return query.Running(slow.Handle); }));
+    EXPECT_TRUE(WaitUntil([&] { return query.Running(); }));
     EXPECT_EQ(SQLSetDescField(descriptor, 0, SQL_DESC_COUNT, nullptr, 0), SQL_SUCCESS);
     EXPECT_EQ(Execute(fast.Handle), SQL_SUCCESS);
     EXPECT_EQ(execution.wait_for(0s), std::future_status::timeout);
     EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_COMMIT), SQL_SUCCESS);
     CancelActiveExecution(slow.Handle, execution);
     ExpectCanceledExecution(execution, slow.Handle);
+    EXPECT_EQ(SQLFetch(slow.Handle), SQL_NO_DATA);
     EXPECT_EQ(SQLGetDescField(descriptor, 0, SQL_DESC_COUNT, &count, 0, nullptr), SQL_SUCCESS);
     EXPECT_EQ(count, 1);
     EXPECT_EQ(SQLFetch(fast.Handle), SQL_SUCCESS);
@@ -283,33 +260,44 @@ TEST(Concurrency, AutocommitProgressAndActiveCancel) {
     }
 }
 
-TEST(Concurrency, ActiveTransactionCancelRequiresRollback) {
+TEST(Concurrency, LocalCancelPreservesTransactionSession) {
     TConnectionHandles connection;
-    TStatementHandle slow(connection.Dbc), queued(connection.Dbc);
+    TStatementHandle statement(connection.Dbc), other(connection.Dbc);
+    ASSERT_EQ(SQLSetConnectAttr(connection.Dbc, SQL_ATTR_AUTOCOMMIT,
+                               reinterpret_cast<SQLPOINTER>(SQL_AUTOCOMMIT_OFF), 0), SQL_SUCCESS);
+    ASSERT_EQ(Execute(statement.Handle), SQL_SUCCESS);
+    auto owner = std::dynamic_pointer_cast<TConnection>(PinHandle(connection.Dbc));
+    const auto sessionId = owner->GetOrCreateQuerySession().GetId();
+    const auto transactionId = owner->GetTx()->GetId();
+    EXPECT_EQ(SQLCancel(statement.Handle), SQL_SUCCESS);
+    EXPECT_EQ(owner->GetOrCreateQuerySession().GetId(), sessionId);
+    ASSERT_TRUE(owner->GetTx().has_value());
+    EXPECT_EQ(owner->GetTx()->GetId(), transactionId);
+    EXPECT_EQ(Execute(other.Handle), SQL_SUCCESS);
+    EXPECT_EQ(Execute(statement.Handle), SQL_SUCCESS);
+    EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_COMMIT), SQL_SUCCESS);
+}
+
+TEST(Concurrency, ActiveLocalCancelPreservesTransactionSession) {
+    TConnectionHandles connection;
+    TStatementHandle statement(connection.Dbc);
     TLongQuery query;
     ASSERT_EQ(SQLSetConnectAttr(connection.Dbc, SQL_ATTR_AUTOCOMMIT,
                                reinterpret_cast<SQLPOINTER>(SQL_AUTOCOMMIT_OFF), 0), SQL_SUCCESS);
-    // Establish the transaction before testing cancellation of its shared session.
-    ASSERT_EQ(Execute(slow.Handle), SQL_SUCCESS);
-    auto connectionOwner = std::dynamic_pointer_cast<TConnection>(PinHandle(connection.Dbc));
-    const auto canceledSessionId = connectionOwner->GetOrCreateQuerySession().GetId();
-    auto execution = std::async(std::launch::async, [&] { return Execute(slow.Handle, query.Query.c_str()); });
-    EXPECT_TRUE(WaitUntil([&] { return query.Running(slow.Handle); }));
-    auto next = std::async(std::launch::async, [&] { return Execute(queued.Handle); });
-    auto owner = std::dynamic_pointer_cast<TStatement>(PinHandle(queued.Handle));
-    EXPECT_TRUE(WaitUntil([&] { return owner->IsExecuting(); }));
-    EXPECT_EQ(next.wait_for(50ms), std::future_status::timeout);
-    CancelActiveExecution(slow.Handle, execution);
-    ExpectCanceledExecution(execution, slow.Handle);
-    EXPECT_EQ(next.get(), SQL_ERROR);
-    EXPECT_EQ(SqlState(queued.Handle), "25S03");
-    EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_COMMIT), SQL_ERROR);
-    EXPECT_EQ(SqlState(connection.Dbc, SQL_HANDLE_DBC), "25S03");
-    EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_ROLLBACK), SQL_SUCCESS)
-        << SqlState(connection.Dbc, SQL_HANDLE_DBC);
-    EXPECT_EQ(Execute(queued.Handle), SQL_SUCCESS) << SqlState(queued.Handle);
-    EXPECT_NE(connectionOwner->GetOrCreateQuerySession().GetId(), canceledSessionId);
-    EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_COMMIT), SQL_SUCCESS);
+    ASSERT_EQ(Execute(statement.Handle), SQL_SUCCESS);
+    auto owner = std::dynamic_pointer_cast<TConnection>(PinHandle(connection.Dbc));
+    const auto sessionId = owner->GetOrCreateQuerySession().GetId();
+    const auto transactionId = owner->GetTx()->GetId();
+    auto execution = std::async(std::launch::async, [&] {
+        return Execute(statement.Handle, query.Query.c_str());
+    });
+    EXPECT_TRUE(WaitUntil([&] { return query.Running(); }));
+    CancelActiveExecution(statement.Handle, execution);
+    ExpectCanceledExecution(execution, statement.Handle);
+    EXPECT_EQ(SQLFetch(statement.Handle), SQL_NO_DATA);
+    EXPECT_EQ(owner->GetOrCreateQuerySession().GetId(), sessionId);
+    ASSERT_TRUE(owner->GetTx().has_value());
+    EXPECT_EQ(owner->GetTx()->GetId(), transactionId);
 }
 
 TEST(Concurrency, SameHandleAndCrossThreadHandoff) {
@@ -349,28 +337,15 @@ TEST(Concurrency, SameHandleAndCrossThreadHandoff) {
     EXPECT_EQ(SqlState(statement.Handle), "HYT00");
 }
 
-TEST(Concurrency, FailedTransactionRecoveryUsesFreshSession) {
+TEST(Concurrency, LocalCancelDoesNotRetainAutocommitSessions) {
     TConnectionHandles connection;
     TStatementHandle statement(connection.Dbc);
-    ASSERT_EQ(SQLSetConnectAttr(connection.Dbc, SQL_ATTR_AUTOCOMMIT,
-                               reinterpret_cast<SQLPOINTER>(SQL_AUTOCOMMIT_OFF), 0), SQL_SUCCESS);
-    ASSERT_EQ(Execute(statement.Handle), SQL_SUCCESS);
     auto owner = std::dynamic_pointer_cast<TConnection>(PinHandle(connection.Dbc));
-    const auto canceledSessionId = owner->GetOrCreateQuerySession().GetId();
-    // Model a server-side abort that removes the transaction but leaves its session alive.
-    {
-        auto tx = *owner->GetTx();
-        ASSERT_TRUE(tx.Rollback().ExtractValueSync().IsSuccess());
+    for (int i = 0; i < 60; ++i) {
+        ASSERT_EQ(Execute(statement.Handle), SQL_SUCCESS);
+        EXPECT_EQ(SQLCancel(statement.Handle), SQL_SUCCESS);
+        EXPECT_TRUE(WaitUntil([&] { return owner->GetClient()->GetActiveSessionCount() == 0; }));
     }
-    owner->QuarantineSession(owner->GetOrCreateQuerySession());
-    owner->FailTransaction();
-    EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_COMMIT), SQL_ERROR);
-    EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_ROLLBACK), SQL_SUCCESS)
-        << SqlState(connection.Dbc, SQL_HANDLE_DBC);
-    EXPECT_FALSE(owner->GetTx().has_value());
-    EXPECT_EQ(Execute(statement.Handle), SQL_SUCCESS) << SqlState(statement.Handle);
-    EXPECT_NE(owner->GetOrCreateQuerySession().GetId(), canceledSessionId);
-    EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_ROLLBACK), SQL_SUCCESS);
 }
 
 TEST(Concurrency, ParentFreeWaitsForChildPublicationAndUnwind) {
@@ -414,17 +389,29 @@ TEST(Concurrency, CancelQueuedTransactionDoesNotWaitOrAbortOtherStatements) {
     ASSERT_EQ(SQLSetConnectAttr(connection.Dbc, SQL_ATTR_AUTOCOMMIT,
                                reinterpret_cast<SQLPOINTER>(SQL_AUTOCOMMIT_OFF), 0), SQL_SUCCESS);
     auto owner = std::dynamic_pointer_cast<TConnection>(PinHandle(connection.Dbc));
+    ASSERT_EQ(Execute(statement.Handle), SQL_SUCCESS);
+    const auto sessionId = owner->GetOrCreateQuerySession().GetId();
+    const auto transactionId = owner->GetTx()->GetId();
     auto stmt = std::dynamic_pointer_cast<TStatement>(PinHandle(statement.Handle));
     auto transaction = owner->LockTransaction();
     auto execution = std::async(std::launch::async, [&] { return Execute(statement.Handle); });
     const bool started = WaitUntil([&] { return stmt->IsExecuting(); });
     EXPECT_TRUE(started);
     auto cancel = std::async(std::launch::async, [&] { return SQLCancel(statement.Handle); });
-    EXPECT_EQ(cancel.wait_for(1s), std::future_status::ready);
+    const auto ready = cancel.wait_for(1s);
+    EXPECT_EQ(ready, std::future_status::ready);
+    if (ready == std::future_status::ready) {
+        EXPECT_TRUE(stmt->IsExecuting());
+        EXPECT_TRUE(stmt->IsCancelRequested());
+        EXPECT_EQ(SQLCancel(statement.Handle), SQL_SUCCESS);
+    }
     transaction.unlock();
     EXPECT_EQ(cancel.get(), SQL_SUCCESS);
     EXPECT_EQ(execution.get(), SQL_ERROR);
     EXPECT_EQ(SqlState(statement.Handle), "HY008");
+    EXPECT_EQ(owner->GetOrCreateQuerySession().GetId(), sessionId);
+    ASSERT_TRUE(owner->GetTx().has_value());
+    EXPECT_EQ(owner->GetTx()->GetId(), transactionId);
     TStatementHandle other(connection.Dbc);
     EXPECT_EQ(Execute(other.Handle), SQL_SUCCESS);
     EXPECT_EQ(Execute(statement.Handle), SQL_SUCCESS);

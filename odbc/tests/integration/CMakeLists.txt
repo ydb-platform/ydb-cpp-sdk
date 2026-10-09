@@ -57,7 +57,6 @@ add_ydb_test(NAME odbc-concurrency_it GTEST
   TIMEOUT 30
   SOURCES concurrency_it.cpp
   INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../../src ${ODBC_INCLUDE_DIRS}
-    $<TARGET_PROPERTY:YDB-CPP-SDK::Query,INTERFACE_INCLUDE_DIRECTORIES>
   LINK_LIBRARIES ydb-odbc
   LABELS integration
 )
