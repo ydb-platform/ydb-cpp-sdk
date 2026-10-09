@@ -79,3 +79,14 @@ add_ydb_test(NAME odbc-cursor_ut GTEST
   LABELS
     unit
 )
+
+add_ydb_test(NAME odbc-descriptor_ut GTEST
+  SOURCES
+    descriptor_ut.cpp
+  INCLUDE_DIRS
+    ${YDB_ODBC_UNIT_INCLUDE_DIRS}
+  LINK_LIBRARIES
+    ydb-odbc
+  LABELS
+    unit
+)

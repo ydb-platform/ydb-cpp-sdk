@@ -2,6 +2,27 @@
 
 ODBC driver for YDB.
 
+## Concurrency
+
+Different connections and autocommit statements can execute concurrently. Calls
+on one handle are ordered, except cross-thread `SQLCancel`, which requests
+cancellation without waiting for execution. Explicit-transaction statements
+share one session and execute in order; connection reconfiguration, transaction
+completion and disconnect wait for active calls.
+
+Cancellation is local: it discards pending results and stops subsequent query
+attempts without interrupting an RPC already in flight. That RPC may finish or
+reach its configured timeout, and writes may still commit. Execution diagnostics
+are preserved. `SQLCancel` does not abort the shared explicit transaction or
+invalidate its session; session cleanup remains with the SDK.
+`SQLCancel` returning success means the local request was processed.
+
+Applications must keep bound buffers alive and avoid concurrent access to the
+same buffer during calls. Descriptor changes apply to subsequent calls, not to
+an operation's existing binding snapshot. Freeing a handle retires it while
+keeping already pinned calls safe. Applications must not reuse freed handles.
+`SQLFreeHandle` waits for an in-flight execution on that handle to finish.
+
 ## Requirements
 
 - CMake 3.22 or higher

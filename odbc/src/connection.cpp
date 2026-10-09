@@ -6,6 +6,8 @@
 #include <ydb-cpp-sdk/client/result/result.h>
 #include <ydb-cpp-sdk/client/types/status/status.h>
 
+#include <util/generic/scope.h>
+
 #include <string>
 #include <cstring>
 
@@ -13,13 +15,7 @@
 
 namespace NYdb::NOdbc {
 
-TConnection::~TConnection() {
-    DestroyYdbState();
-}
-
 void TConnection::DestroyYdbState() {
-    InvalidatePreparedStatementMetadata();
-    CloseStatementCursors();
     QuerySession_.reset();
     Tx_.reset();
     Ydb_.reset();
@@ -86,6 +82,8 @@ SQLRETURN TConnection::Connect(std::string_view serverName,
 }
 
 SQLRETURN TConnection::Disconnect() {
+    InvalidatePreparedStatementMetadata();
+    CloseStatementCursors();
     DestroyYdbState();
     DriverConfig_.reset();
     DbmsVersionCache_.reset();
@@ -125,28 +123,57 @@ std::optional<NScheme::TSchemeClient> TConnection::GetSchemeClient() {
     return Ydb_->SchemeClient;
 }
 
-std::unique_ptr<TStatement> TConnection::CreateStatement() {
-    return std::make_unique<TStatement>(this);
+SQLRETURN TConnection::Execute(TStatement& statement) {
+    // The caller holds the statement operation lock and a shared lifecycle gate.
+    std::unique_lock transaction(TransactionMutex_, std::defer_lock);
+    const bool explicitTransaction = !GetAutocommit();
+    statement.StartExecution();
+    Y_DEFER { statement.FinishExecution(); };
+    if (explicitTransaction) {
+        transaction.lock();
+    }
+    return statement.ExecuteInternal();
+}
+
+void TConnection::EndTranFromEnvironment(SQLSMALLINT completionType) {
+    auto check = LockShared();
+    if (IsRetired() || GetAutocommit()) {
+        return;
+    }
+    check.unlock();
+    auto lifecycle = LockExclusive();
+    auto operation = LockOperation();
+    if (IsRetired() || GetAutocommit()) {
+        return;
+    }
+    if (completionType == SQL_COMMIT) {
+        CommitTx();
+    } else {
+        RollbackTx();
+    }
 }
 
 void TConnection::CloseStatementCursors() {
-    for (TStatement* stmt : Statements_) {
-        stmt->Close(true);
+    // The exclusive lifecycle gate has drained statement/descriptor calls.
+    for (const auto& child : GetChildren()) {
+        if (const auto stmt = std::dynamic_pointer_cast<TStatement>(child)) {
+            stmt->Close(true);
+        }
     }
 }
 
 void TConnection::InvalidatePreparedStatementMetadata() {
-    for (TStatement* stmt : Statements_) {
-        stmt->InvalidatePreparedColumnMeta();
+    for (const auto& child : GetChildren()) {
+        if (const auto stmt = std::dynamic_pointer_cast<TStatement>(child)) {
+            stmt->InvalidatePreparedColumnMeta();
+        }
     }
 }
 
 SQLRETURN TConnection::SetAutocommit(bool value) {
-    if (value && Tx_) {
-        auto status = Tx_->Commit().ExtractValueSync();
-        NStatusHelpers::ThrowOnError(status);
-        Tx_.reset();
-        CloseStatementCursors();
+    if (value) {
+        CommitTx();
+        QuerySession_.reset();
     }
     return Attributes_.SetAutocommit(value);
 }
@@ -195,14 +222,6 @@ void TConnection::SetTx(const NQuery::TTransaction& tx) {
     Tx_ = tx;
 }
 
-void TConnection::ResetTx() {
-    Tx_.reset();
-}
-
-void TConnection::ResetQuerySession() {
-    QuerySession_.reset();
-}
-
 SQLRETURN TConnection::CommitTx() {
     if (!Tx_) {
         return SQL_SUCCESS;
@@ -223,17 +242,6 @@ SQLRETURN TConnection::RollbackTx() {
     Tx_.reset();
     CloseStatementCursors();
     return SQL_SUCCESS;
-}
-
-void TConnection::SetEnvironment(TEnvironment* env){
-    if (ParentEnv_){
-        throw std::logic_error("Connection already bound to environment");
-    }
-    ParentEnv_ = env;
-}
-
-TEnvironment* TConnection::GetEnvironment(){
-    return ParentEnv_;
 }
 
 const std::string& TConnection::GetDataSourceName() const {
@@ -306,6 +314,8 @@ void TConnection::RecreateYdbClients() {
     if (!DriverConfig_) {
         throw TOdbcException("08003", 0, "Connection configuration is not available");
     }
+    InvalidatePreparedStatementMetadata();
+    CloseStatementCursors();
     DestroyYdbState();
     DbmsVersionCache_.reset();
     Ydb_.emplace(*DriverConfig_);

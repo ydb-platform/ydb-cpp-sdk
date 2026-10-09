@@ -18,9 +18,9 @@ namespace {
     using Odbc::TEnvironment;
     using Odbc::TStatement;
 
-    template<Odbc::ECallMode Mode = Odbc::ECallMode::Ordinary, class Handle, class Fn>
+    template<Odbc::ECallMode Mode = Odbc::ECallMode::Ordinary, class Handle, bool Exclusive = false, class Fn>
     SQLRETURN Call(SQLHANDLE handle, Fn&& fn) {
-        return Odbc::CallOdbc<Mode, Handle>(handle, std::forward<Fn>(fn));
+        return Odbc::CallOdbc<Mode, Handle, Exclusive>(handle, std::forward<Fn>(fn));
     }
 
     template<class Char, bool PreserveNull = false>
@@ -55,9 +55,9 @@ namespace {
         return {value, length};
     }
 
-    template<class Handle, auto Method, class... Args>
+    template<class Handle, auto Method, bool Exclusive = false, class... Args>
     SQLRETURN Forward(SQLHANDLE handle, Args&&... args) {
-        return Call<Odbc::ECallMode::Ordinary, Handle>(handle, [&](Handle* value) {
+        return Call<Odbc::ECallMode::Ordinary, Handle, Exclusive>(handle, [&](Handle* value) {
             return Odbc::InvokeOdbc(Method, value, Resolve(args)...);
         });
     }
@@ -72,24 +72,24 @@ namespace {
 
     template<class Handle>
     SQLRETURN Free(SQLHANDLE handle) {
-        return Call<Odbc::ECallMode::Consuming, Handle>(handle, [](Handle* value) {
+        return Call<Odbc::ECallMode::Consuming, Handle, std::is_same_v<Handle, TConnection>>(handle, [](Handle* value) {
             if constexpr (std::is_same_v<Handle, TEnvironment>) {
-                if (!value->GetConnectionsSnapshot().empty()) {
+                if (value->HasChildren()) {
                     return value->AddError("HY010", 0, "Connection handles are still allocated");
                 }
             } else if constexpr (std::is_same_v<Handle, TConnection>) {
                 if (value->HasChildren()) {
                     return value->AddError("HY010", 0, "Statement or descriptor handles are still allocated");
                 }
-                if (auto* environment = value->GetEnvironment()) {
-                    environment->UnregisterConnection(value);
-                }
             } else if constexpr (std::is_same_v<Handle, TDescriptor>) {
                 if (value->GetDescType() != Odbc::EDescType::Explicit) {
                     return value->AddError("HY017", 0, "Invalid use of an automatically allocated descriptor handle");
                 }
+            } else if constexpr (std::is_same_v<Handle, TStatement>) {
+                value->UnregisterDescriptors();
             }
-            delete value;
+            value->Retire();
+            Odbc::UnregisterHandle(value);
             return static_cast<SQLRETURN>(SQL_SUCCESS);
         });
     }
@@ -97,26 +97,32 @@ namespace {
     template<class Handle>
     SQLRETURN Allocate(SQLHANDLE parentHandle, SQLHANDLE* output) {
         if constexpr (std::is_same_v<Handle, TEnvironment>) {
-            return Odbc::CallOdbcUnchecked(parentHandle, [&] {
-                *output = new TEnvironment();
-                static_cast<TEnvironment*>(*output)->SetLastReturnCode(SQL_SUCCESS);
+            try {
+                auto value = std::make_shared<TEnvironment>();
+                Odbc::RegisterHandle(value.get(), value);
+                *output = value.get();
                 return SQL_SUCCESS;
-            }, Odbc::ENullInputHandlePolicy::Allow);
+            } catch (...) {
+                return SQL_ERROR;
+            }
         } else {
             using Parent = std::conditional_t<std::is_same_v<Handle, TConnection>, TEnvironment, TConnection>;
             return Call<Odbc::ECallMode::Ordinary, Parent>(parentHandle, [&](Parent* parent) {
-                std::unique_ptr<Handle> value;
-                if constexpr (std::is_same_v<Handle, TConnection>) {
-                    value = std::make_unique<TConnection>();
-                    value->SetEnvironment(parent);
-                    parent->RegisterConnection(value.get());
-                } else if constexpr (std::is_same_v<Handle, TStatement>) {
-                    value = parent->CreateStatement();
-                } else {
-                    value = std::make_unique<TDescriptor>(Odbc::EDescType::Explicit, parent);
+                auto value = std::make_shared<Handle>(
+                    std::static_pointer_cast<Parent>(Odbc::PinHandle(parent)));
+                try {
+                    Odbc::RegisterHandle(value.get(), value);
+                    if constexpr (std::is_same_v<Handle, TStatement>) {
+                        value->RegisterDescriptors(value);
+                    }
+                } catch (...) {
+                    if constexpr (std::is_same_v<Handle, TStatement>) {
+                        value->UnregisterDescriptors();
+                    }
+                    Odbc::UnregisterHandle(value.get());
+                    throw;
                 }
-                *output = value.release();
-                static_cast<Handle*>(*output)->SetLastReturnCode(SQL_SUCCESS);
+                *output = value.get();
                 return SQL_SUCCESS;
             });
         }
@@ -140,6 +146,11 @@ extern "C" {
 #define ODBC_FORWARD(NAME, HANDLE, METHOD, SIGNATURE, ARGUMENTS) \
     SQLRETURN SQL_API NAME SIGNATURE {                           \
         return Forward<HANDLE, &METHOD> ARGUMENTS;               \
+    }
+
+#define ODBC_EXCLUSIVE(NAME, HANDLE, METHOD, SIGNATURE, ARGUMENTS) \
+    SQLRETURN SQL_API NAME SIGNATURE {                           \
+        return Forward<HANDLE, &METHOD, true> ARGUMENTS;           \
     }
 
 #define ODBC_PREPARE(NAME, CHAR, EXECUTE)                                      \
@@ -178,8 +189,8 @@ SQLRETURN SQL_API SQLSetEnvAttr(SQLHENV environmentHandle,
                                 SQLINTEGER attribute,
                                 SQLPOINTER value,
                                 SQLINTEGER stringLength) {
-    return Odbc::CallOdbcUnchecked(environmentHandle, [&] {
-        return static_cast<TEnvironment*>(environmentHandle)->SetAttribute(attribute, value, stringLength);
+    return Call<Odbc::ECallMode::Ordinary, TEnvironment>(environmentHandle, [&](auto* env) {
+        return env->SetAttribute(attribute, value, stringLength);
     });
 }
 
@@ -188,27 +199,27 @@ SQLRETURN SQL_API SQLGetEnvAttr(SQLHENV environmentHandle,
                                 SQLPOINTER value,
                                 SQLINTEGER bufferLength,
                                 SQLINTEGER* stringLengthPtr) {
-    return Odbc::CallOdbcUnchecked(environmentHandle, [&] {
-        return static_cast<TEnvironment*>(environmentHandle)->GetAttribute(
+    return Call<Odbc::ECallMode::Ordinary, TEnvironment>(environmentHandle, [&](auto* env) {
+        return env->GetAttribute(
             attribute, value, bufferLength, stringLengthPtr);
     });
 }
 
-ODBC_FORWARD(SQLDriverConnect, TConnection, TConnection::DriverConnect,
+ODBC_EXCLUSIVE(SQLDriverConnect, TConnection, TConnection::DriverConnect,
     (SQLHDBC connectionHandle, SQLHWND, SQLCHAR* inConnectionString,
      SQLSMALLINT stringLength1, SQLCHAR* outConnectionString, SQLSMALLINT bufferLength,
      SQLSMALLINT* stringLength2Ptr, SQLUSMALLINT),
     (connectionHandle, Text(inConnectionString, stringLength1), outConnectionString,
      bufferLength, stringLength2Ptr))
 
-ODBC_FORWARD(SQLConnect, TConnection, TConnection::Connect,
+ODBC_EXCLUSIVE(SQLConnect, TConnection, TConnection::Connect,
     (SQLHDBC connectionHandle, SQLCHAR* serverName, SQLSMALLINT nameLength1,
      SQLCHAR* userName, SQLSMALLINT nameLength2,
      SQLCHAR* authentication, SQLSMALLINT nameLength3),
     (connectionHandle, Text(serverName, nameLength1), Text(userName, nameLength2),
      Text(authentication, nameLength3)))
 
-ODBC_FORWARD(SQLDisconnect, TConnection, TConnection::Disconnect,
+ODBC_EXCLUSIVE(SQLDisconnect, TConnection, TConnection::Disconnect,
     (SQLHDBC connectionHandle), (connectionHandle))
 
 ODBC_PREPARE(SQLExecDirect, SQLCHAR, true)
@@ -271,20 +282,31 @@ SQLRETURN SQL_API SQLEndTran(SQLSMALLINT handleType, SQLHANDLE handle, SQLSMALLI
         return Forward<TEnvironment, &TEnvironment::EndTran>(handle, completionType);
     }
     if (handleType == SQL_HANDLE_DBC) {
-        return Call<Odbc::ECallMode::Ordinary, TConnection>(handle, [&](auto* connection) {
+        // Keep the same object alive across the shared-to-exclusive lock upgrade.
+        const auto owner = Odbc::PinHandle(handle);
+        if (!owner) {
+            return SQL_INVALID_HANDLE;
+        }
+        const auto preflight = Call<Odbc::ECallMode::Ordinary, TConnection>(handle, [&](auto* connection) {
+            if (completionType != SQL_COMMIT && completionType != SQL_ROLLBACK) {
+                throw Odbc::TOdbcException("HY012", 0, "Invalid transaction operation code");
+            }
+            return connection->GetAutocommit() ? SQL_SUCCESS : SQL_NO_DATA;
+        });
+        if (preflight != SQL_NO_DATA) {
+            return preflight;
+        }
+        return Call<Odbc::ECallMode::Ordinary, TConnection, true>(handle, [&](auto* connection) {
             if (completionType == SQL_COMMIT) {
                 return connection->CommitTx();
             }
-            if (completionType == SQL_ROLLBACK) {
-                return connection->RollbackTx();
-            }
-            throw Odbc::TOdbcException("HY012", 0, "Invalid transaction operation code");
+            return connection->RollbackTx();
         });
     }
     return SQL_INVALID_HANDLE;
 }
 
-ODBC_FORWARD(SQLSetConnectAttr, TConnection, TConnection::SetConnectAttr,
+ODBC_EXCLUSIVE(SQLSetConnectAttr, TConnection, TConnection::SetConnectAttr,
     (SQLHDBC connectionHandle, SQLINTEGER attribute, SQLPOINTER value,
      SQLINTEGER stringLength),
     (connectionHandle, attribute, value, stringLength))
@@ -411,8 +433,10 @@ ODBC_FORWARD(SQLParamData, TStatement, TStatement::ParamData,
 ODBC_FORWARD(SQLPutData, TStatement, TStatement::PutData,
     (SQLHSTMT statementHandle, SQLPOINTER data, SQLLEN strLenOrInd),
     (statementHandle, data, strLenOrInd))
-ODBC_FORWARD(SQLCancel, TStatement, TStatement::Cancel,
-    (SQLHSTMT statementHandle), (statementHandle))
+SQLRETURN SQL_API SQLCancel(SQLHSTMT statementHandle) {
+    auto stmt = std::dynamic_pointer_cast<TStatement>(Odbc::PinHandle(statementHandle));
+    return stmt ? stmt->Cancel() : SQL_INVALID_HANDLE;
+}
 
 ODBC_FORWARD(SQLNativeSql, TConnection, TConnection::NativeSql,
     (SQLHDBC connectionHandle, SQLCHAR* inNativeSql, SQLINTEGER textLength1,
@@ -481,12 +505,11 @@ ODBC_FORWARD(SQLSetDescRec, TDescriptor, TDescriptor::SetDescRec,
      stringLengthPtr, indicatorPtr))
 
 SQLRETURN SQL_API SQLCopyDesc(SQLHDESC sourceDesc, SQLHDESC targetDesc) {
-    return Call<Odbc::ECallMode::Ordinary, TDescriptor>(sourceDesc, [&](auto* src) {
-        return src->CopyDesc(NYdb::NOdbc::TDescriptor::FromHandle(targetDesc));
-    });
+    return TDescriptor::Copy(sourceDesc, targetDesc);
 }
 
 #undef ODBC_PREPARE
 #undef ODBC_FORWARD
+#undef ODBC_EXCLUSIVE
 
 }

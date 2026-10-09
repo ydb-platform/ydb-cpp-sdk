@@ -1,20 +1,15 @@
 #pragma once
 
-#include "utils/error_manager.h"
+#include "utils/handle.h"
 
 #include "odbc_compat.h"
-#include <unordered_set>
-#include <vector>
 
 namespace NYdb {
 namespace NOdbc {
 
-class TConnection;
-
-class TEnvironment : public TErrorManager {
+class TEnvironment : public THandle {
 private:
     SQLINTEGER OdbcVersion_;
-    std::unordered_set<TConnection*> Connections_;
 
 public:
     TEnvironment();
@@ -22,10 +17,6 @@ public:
 
     SQLRETURN SetAttribute(SQLINTEGER attribute, SQLPOINTER value, SQLINTEGER stringLength);
     SQLRETURN GetAttribute(SQLINTEGER attribute, SQLPOINTER value, SQLINTEGER bufferLength, SQLINTEGER* stringLengthPtr);
-
-    void RegisterConnection(TConnection*);
-    void UnregisterConnection(TConnection*);
-    std::vector<TConnection*> GetConnectionsSnapshot() const;
 
     SQLRETURN EndTran(SQLSMALLINT completionType);
 };

@@ -22,14 +22,16 @@ namespace NYdb::NOdbc {
 
 using TMetadataArgument = std::optional<std::string>;
 
-class TStatement : public TErrorManager {
+class TStatement : public THandle {
 public:
-    TStatement(TConnection* conn);
-    ~TStatement();
+    explicit TStatement(std::shared_ptr<TConnection> conn);
+    TConnection& GetConnection() const noexcept { return static_cast<TConnection&>(*GetParent()); }
+    void RegisterDescriptors(const std::shared_ptr<TStatement>& owner);
+    void UnregisterDescriptors();
+    void BeforeCall() override;
 
     SQLRETURN Prepare(const std::string& statementText);
     SQLRETURN Execute();
-    SQLRETURN ExecuteInternal();
     SQLRETURN MoreResults();
 
     SQLRETURN Fetch();
@@ -79,10 +81,11 @@ public:
     SQLRETURN ParamData(SQLPOINTER* valuePtr);
     SQLRETURN PutData(SQLPOINTER data, SQLLEN strLenOrInd);
     SQLRETURN Cancel();
+    bool IsExecuting() const { return ExecutionState_.load(std::memory_order_relaxed) != EExecutionState::Idle; }
+    bool IsCancelRequested() const { return ExecutionState_.load(std::memory_order_relaxed) == EExecutionState::CancelRequested; }
     SQLRETURN SetCursorName(const std::string& name);
     SQLRETURN GetCursorName(SQLCHAR* name, SQLSMALLINT bufferLength, SQLSMALLINT* nameLengthPtr);
 
-    void DetachDescriptor(TDescriptor* desc);
 
     SQLRETURN RowCount(SQLLEN* rowCount);
     SQLRETURN NumResultCols(SQLSMALLINT* colCount);
@@ -95,7 +98,8 @@ public:
 
 private:
     friend class TConnection;
-    friend class TDescriptor;
+
+    enum class EExecutionState : unsigned char { Idle, Executing, CancelRequested };
 
     struct TAttributes {
         SQLUINTEGER QueryTimeoutSec = 0;
@@ -125,7 +129,6 @@ private:
         bool Complete = false;
     };
 
-    TConnection* Conn_;
     std::unique_ptr<ICursor> Cursor_;
     std::deque<TResultSet> RemainingResultSets_;
     std::optional<std::vector<TColumnMeta>> PreparedColumnMeta_;
@@ -140,8 +143,17 @@ private:
     TDescriptor AppParamDesc_;
     TDescriptor ImpRowDesc_;
     TDescriptor ImpParamDesc_;
-    TDescriptor* CurrentAppRowDesc_;
-    TDescriptor* CurrentAppParamDesc_;
+    std::shared_ptr<TDescriptor> AppRowOwner_;
+    std::shared_ptr<TDescriptor> AppParamOwner_;
+    TDescriptorState RowBindings_;
+    TDescriptorState ParamBindings_;
+    TDescriptorState ImpParamBindings_;
+    TDescriptorState ImpRowBindings_;
+    uint64_t RowGeneration_ = 0;
+    uint64_t ParamGeneration_ = 0;
+    uint64_t ImpParamGeneration_ = 0;
+    uint64_t ImpRowGeneration_ = 0;
+    std::atomic<EExecutionState> ExecutionState_ = EExecutionState::Idle;
     SQLUSMALLINT NeedDataParam_ = 0;
     bool InAtExec_ = false;
     bool NeedDataTokenDelivered_ = false;
@@ -150,19 +162,28 @@ private:
 
     SQLRETURN BuildParams(NYdb::TParams& out, SQLULEN paramSet);
     SQLRETURN ExecuteParamSet(SQLULEN paramSet, std::optional<SQLLEN>& affectedRows);
+    SQLRETURN ExecuteInternal();
     SQLRETURN FillBoundColumns(SQLULEN row);
     std::vector<TBoundParam> GetBoundParams(SQLULEN paramSet) const;
     void EnsurePreparedColumnMeta();
     void InvalidatePreparedColumnMeta();
-    void DescriptorChanged(const TDescriptor* descriptor);
     void SetImpRowDesc(const std::vector<TColumnMeta>& columns);
+    TDescriptor& GetAppRowDesc() { return AppRowOwner_ ? *AppRowOwner_ : AppRowDesc_; }
+    TDescriptor& GetAppParamDesc() { return AppParamOwner_ ? *AppParamOwner_ : AppParamDesc_; }
+    void RefreshRowBindings();
+    void RefreshParamBindings();
+    void StartExecution();
+    void FinishExecution() noexcept;
+    void CheckCancellation() const;
+    std::optional<SQLRETURN> CancelExecuting();
+    void CheckExecutionStatus(const TStatus& status);
     void SetCursor(std::unique_ptr<ICursor> cursor);
     void ClearResults();
     void SetResults(const NQuery::TExecuteQueryResult& result);
 
     void ResetForMetadata();
     struct TDescriptorAttribute {
-        TDescriptor* Descriptor;
+        TDescriptor& Descriptor;
         SQLSMALLINT Field;
     };
     std::optional<TDescriptorAttribute> ResolveDescriptorAttribute(SQLINTEGER attr);

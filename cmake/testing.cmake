@@ -4,7 +4,7 @@ include(GoogleTest)
 
 function(add_ydb_test)
   set(opts GTEST)
-  set(oneval_args NAME WORKING_DIRECTORY OUTPUT_DIRECTORY)
+  set(oneval_args NAME WORKING_DIRECTORY OUTPUT_DIRECTORY TIMEOUT)
   set(multival_args INCLUDE_DIRS SOURCES LINK_LIBRARIES LABELS TEST_ARG ENV)
   cmake_parse_arguments(YDB_TEST
     "${opts}"
@@ -48,6 +48,10 @@ function(add_ydb_test)
   endif()
 
   if (YDB_TEST_GTEST)
+    set(timeout_property "")
+    if (YDB_TEST_TIMEOUT)
+      set(timeout_property TIMEOUT ${YDB_TEST_TIMEOUT})
+    endif()
     set(env_vars "")
     foreach(env_var IN LISTS YDB_TEST_ENV)
       list(APPEND env_vars "ENVIRONMENT")
@@ -58,6 +62,7 @@ function(add_ydb_test)
       WORKING_DIRECTORY ${YDB_TEST_WORKING_DIRECTORY}
       PROPERTIES
         ENVIRONMENT "YDB_TEST_ROOT=sdk_tests"
+        ${timeout_property}
         ${env_vars}
     )
 

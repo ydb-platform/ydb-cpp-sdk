@@ -2,7 +2,6 @@
 #include "connection.h"
 
  #include <exception>
- #include <stdexcept>
 
 namespace NYdb {
 namespace NOdbc {
@@ -61,24 +60,6 @@ SQLRETURN TEnvironment::GetAttribute(SQLINTEGER attribute, SQLPOINTER value, SQL
     }
 }
 
-void TEnvironment::RegisterConnection(TConnection* conn){
-    if (conn == nullptr){
-        throw std::invalid_argument("null connection");
-    }
-    Connections_.insert(conn);
-}
-
-void TEnvironment::UnregisterConnection(TConnection* conn){
-    if (conn == nullptr){
-        throw std::invalid_argument("null connection");
-    }
-    Connections_.erase(conn);
-}
-
-std::vector<TConnection*> TEnvironment::GetConnectionsSnapshot() const {
-    return std::vector<TConnection*>(Connections_.begin(), Connections_.end());
-}
-
 SQLRETURN TEnvironment::EndTran(SQLSMALLINT completionType){
     if (completionType != SQL_COMMIT && completionType != SQL_ROLLBACK){
         return AddError("HY012", 0, "Invalid transaction operation code");
@@ -86,16 +67,10 @@ SQLRETURN TEnvironment::EndTran(SQLSMALLINT completionType){
     bool hasFailures = false;
     int failedCount = 0;
     
-    for (auto* conn : Connections_) {
-        if (!conn || !conn->GetTx()) {
-            continue;
-        }
+    for (const auto& child : GetChildren()) {
+        const auto conn = std::static_pointer_cast<TConnection>(child);
         try {
-            if (completionType == SQL_COMMIT) {
-                conn->CommitTx();
-            } else {
-                conn->RollbackTx();
-            }
+            conn->EndTranFromEnvironment(completionType);
         } catch (const std::exception& ex) {
             hasFailures = true;
             ++failedCount;

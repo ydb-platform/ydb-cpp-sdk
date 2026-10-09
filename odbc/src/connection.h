@@ -1,9 +1,8 @@
 #pragma once
 
-#include "environment.h"
 #include "connection_attr.h"
 #include "connection_config.h"
-#include "utils/error_manager.h"
+#include "environment.h"
 
 #include <ydb-cpp-sdk/client/driver/driver.h>
 #include <ydb-cpp-sdk/client/query/client.h>
@@ -16,16 +15,15 @@
 #include <optional>
 #include <string>
 #include <string_view>
-#include <vector>
-#include <unordered_set>
 
 namespace NYdb::NOdbc {
 
 class TStatement;
-class TDescriptor;
 
-class TConnection : public TErrorManager {
+class TConnection : public THandle {
 private:
+    std::shared_mutex Lifecycle_; // Shared by calls; exclusive for connection-state changes and child invalidation.
+    std::mutex TransactionMutex_; // Tx_, QuerySession_; also protected by exclusive Lifecycle_.
     struct TYdbState {
         // Declared first: constructed before clients, destroyed after them.
         TDriver Driver;
@@ -53,12 +51,9 @@ private:
     std::string Database_;
     std::string ServerName_;
     std::string DataSourceName_;
-    TEnvironment* ParentEnv_ = nullptr;
 
     TConnectionAttributes Attributes_;
     mutable std::optional<std::string> DbmsVersionCache_;
-    std::unordered_set<TStatement*> Statements_;
-    std::unordered_set<TDescriptor*> Descriptors_;
 
     void DestroyYdbState();
     void ApplyResolvedSettings(TResolvedConnectionSettings&& settings);
@@ -66,7 +61,12 @@ private:
     void RebindToDatabase(std::string_view newDatabase);
     void InvalidatePreparedStatementMetadata();
 public:
-    ~TConnection();
+    explicit TConnection(std::shared_ptr<TEnvironment> parent = {}) : THandle(std::move(parent)) {}
+    TConnection& GetConnection() noexcept { return *this; }
+    template<class... Args>
+    auto LockShared(Args... args) { return std::shared_lock(Lifecycle_, args...); }
+    template<class... Args>
+    auto LockExclusive(Args... args) { return std::unique_lock(Lifecycle_, args...); }
 
     SQLRETURN Connect(std::string_view serverName,
                       std::string_view userName,
@@ -76,13 +76,11 @@ public:
                             SQLSMALLINT bufferLength, SQLSMALLINT* stringLength2Ptr);
     SQLRETURN Disconnect();
 
-    std::unique_ptr<TStatement> CreateStatement();
-    void RegisterStatement(TStatement* stmt) { Statements_.insert(stmt); }
-    void UnregisterStatement(TStatement* stmt) { Statements_.erase(stmt); }
-    void RegisterDescriptor(TDescriptor* desc) { Descriptors_.insert(desc); }
-    void UnregisterDescriptor(TDescriptor* desc) { Descriptors_.erase(desc); }
-    bool HasChildren() const noexcept { return !Statements_.empty() || !Descriptors_.empty(); }
     void CloseStatementCursors();
+    // Test seam for holding transaction ordering without a server-side operation.
+    std::unique_lock<std::mutex> LockTransaction() { return std::unique_lock(TransactionMutex_); }
+    SQLRETURN Execute(TStatement& statement);
+    void EndTranFromEnvironment(SQLSMALLINT completionType);
 
     std::optional<NQuery::TQueryClient> GetClient();
     NQuery::TSession& GetOrCreateQuerySession();
@@ -107,14 +105,9 @@ public:
 
     const std::optional<NQuery::TTransaction>& GetTx();
     void SetTx(const NQuery::TTransaction& tx);
-    void ResetTx();
-    void ResetQuerySession();
 
     SQLRETURN CommitTx();
     SQLRETURN RollbackTx();
-
-    void SetEnvironment(TEnvironment* env);
-    TEnvironment* GetEnvironment();
 
     SQLRETURN NativeSql(const std::string& inSql, SQLCHAR* outSql, SQLINTEGER outMax, SQLINTEGER* outLen);
 };
