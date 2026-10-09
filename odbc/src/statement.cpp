@@ -822,15 +822,17 @@ SQLRETURN TStatement::Cancel() {
     if (IsRetired()) {
         return SQL_INVALID_HANDLE;
     }
+    std::shared_lock<std::shared_mutex> lifecycle;
+    std::unique_lock<std::mutex> operation;
     try {
         if (const auto result = CancelExecuting()) {
             return *result;
         }
-        std::shared_lock lifecycle(*GetLifecycle(), std::try_to_lock);
+        lifecycle = std::shared_lock(*GetLifecycle(), std::try_to_lock);
         if (!lifecycle.owns_lock()) {
             return CancelExecuting().value_or(SQL_SUCCESS);
         }
-        std::unique_lock operation(OperationMutex_, std::try_to_lock);
+        operation = std::unique_lock(OperationMutex_, std::try_to_lock);
         if (!operation.owns_lock()) {
             return CancelExecuting().value_or(SQL_SUCCESS);
         }
@@ -849,6 +851,9 @@ SQLRETURN TStatement::Cancel() {
         SetLastReturnCode(SQL_SUCCESS);
         return SQL_SUCCESS;
     } catch (...) {
+        if (operation.owns_lock()) {
+            return RecordCurrentException(*this);
+        }
         // Cross-thread cancellation must not replace the executing call's diagnostics.
         return SQL_ERROR;
     }
