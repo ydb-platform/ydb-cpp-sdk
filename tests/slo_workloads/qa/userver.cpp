@@ -75,6 +75,7 @@ int main(int argc, char** argv) {
     Mode = argv[1];
     int result = 2;
     userver::engine::RunStandalone(2, [&] {
+        try {
         NYdb::TDriver driver(
             NYdb::TDriverConfig().SetEndpoint("127.0.0.1:9").SetDatabase("/probe"));
         std::string prefix = "/probe";
@@ -98,6 +99,11 @@ int main(int argc, char** argv) {
             : DoRun(options, pointers.size(), pointers.data());
         userver_slo::ShutdownTableClient();
         driver.Stop(true);
+        } catch (const std::exception& error) {
+            std::cerr << "CPP_USERVER_SETUP_ERROR " << error.what() << std::endl;
+            userver_slo::ShutdownTableClient();
+            result = 2;
+        }
     });
     std::cout << "CPP_USERVER mode=" << Mode << " calls=" << Calls.load()
               << " exit=" << result << std::endl;
