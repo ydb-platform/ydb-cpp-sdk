@@ -77,6 +77,7 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
 void TWriteJob::OnFinish() {
     Executor.Finish();
     Executor.Wait();
+    ErrorOccured.store(Executor.HasFailed());
 }
 
 // Implementation of TReadJob
@@ -150,6 +151,11 @@ void TReadJob::OnFinish() {
     Executor->Finish();
     std::uint32_t infly = Executor->Wait(WaitTimeout);
     if (infly) {
-        Cerr << "Warning: thread A finished while having " << infly << " infly requests." << Endl;
+        ErrorOccured.store(true);
+        Cerr << "Read drain timed out while having " << infly << " infly requests." << Endl;
+        Executor->Wait();
+    }
+    if (Executor->HasFailed()) {
+        ErrorOccured.store(true);
     }
 }

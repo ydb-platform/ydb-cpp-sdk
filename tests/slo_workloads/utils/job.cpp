@@ -47,6 +47,10 @@ void TThreadJob::Wait() {
 void TThreadJob::OnFinish() {
 }
 
+bool TThreadJob::HasFailed() const {
+    return ErrorOccured.load();
+}
+
 void TJobContainer::Add(TThreadJob* job) {
     Y_ABORT_UNLESS(job);
     Jobs.push_back(std::unique_ptr<TThreadJob>(job));
@@ -79,6 +83,15 @@ void TJobContainer::ShowProgress() {
     TFile logFile(LogFileName, OpenAlways | WrOnly | Seq | ForAppend);
     TFileOutput out(logFile);
     out << report;
+}
+
+bool TJobContainer::HasFailed() const {
+    for (const auto& job : Jobs) {
+        if (job->HasFailed()) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void SetUpInteraction() {

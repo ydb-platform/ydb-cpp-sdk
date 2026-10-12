@@ -210,8 +210,12 @@ void TExecutor::Wait() {
 }
 
 std::uint32_t TExecutor::Wait(TDuration waitTimeout) {
-    AllJobsFinished.WaitT(waitTimeout);
+    if (!AllJobsFinished.WaitT(waitTimeout)) {
+        Failed.fetch_add(1);
+        Cerr << "Operation drain timed out." << Endl;
+    }
     InputQueue->Stop();
+    TGuard<TAdaptiveLock> guard(Lock);
     return Infly;
 }
 
@@ -227,6 +231,10 @@ std::uint32_t TExecutor::StopAndWait(TDuration waitTimeout) {
 
 bool TExecutor::IsStopped() {
     return ShouldStop.load();
+}
+
+bool TExecutor::HasFailed() const {
+    return Failed.load() != 0;
 }
 
 void TExecutor::Finish() {
@@ -293,6 +301,7 @@ void TExecutor::CheckForFinish() {
 
 void TExecutor::CheckForError(const NYdb::TStatus& status) {
     if (!status.IsSuccess()) {
+        Failed.fetch_add(1);
         with_lock(ErrorLock) {
             auto it = Errors.find(status.GetStatus());
             if (it == Errors.end()) {

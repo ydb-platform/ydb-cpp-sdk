@@ -60,13 +60,6 @@ jobs:
         with:
           path: current
 
-      - name: Apply pending Native guard for supported Linux verification
-        working-directory: current
-        run: |
-          set -euo pipefail
-          git apply --check --index --unidiff-zero tests/slo_workloads/qa/native-guard.patch
-          git apply --index --unidiff-zero tests/slo_workloads/qa/native-guard.patch
-
       - name: Stage Docker ignore rules
         run: cp current/tests/slo_workloads/.dockerignore current/.dockerignore
 

@@ -14,6 +14,7 @@ public:
     virtual void Start(TInstant deadline);
     void Stop();
     void Wait();
+    bool HasFailed() const;
     virtual void OnFinish();
 
     virtual void ShowProgress(TStringBuilder& report) = 0;
@@ -40,6 +41,7 @@ public:
     void Start(TInstant deadline = TInstant());
     void Stop();
     void Wait();
+    bool HasFailed() const;
     void ShowProgress();
 
 private:

@@ -92,6 +92,7 @@ public:
     std::uint32_t StopAndWait(TDuration waitTimeout);
     std::uint32_t Wait(TDuration waitTimeout);
     bool IsStopped();
+    bool HasFailed() const;
     void Finish();
     void Report(TStringBuilder& out) const;
 

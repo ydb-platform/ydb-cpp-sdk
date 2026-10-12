@@ -81,4 +81,5 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
 void TGenerateInitialContentJob::OnFinish() {
     Executor.Finish();
     Executor.Wait();
+    ErrorOccured.store(Executor.HasFailed());
 }
