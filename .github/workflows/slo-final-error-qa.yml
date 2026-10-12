@@ -111,6 +111,7 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           context: current
           file: current/${{ matrix.sdk.dockerfile }}
+          target: workload
           platforms: linux/amd64
           tags: ydb-app-current
           load: true
@@ -119,10 +120,47 @@ jobs:
             SLO_BINARY=${{ matrix.sdk.binary }}
           cache-from: |
             type=gha,scope=final-error-${{ matrix.sdk.name }}
+            type=gha,scope=final-error-${{ matrix.sdk.dockerfile == 'tests/slo_workloads/Dockerfile.userver' && 'cpp-key-value-userver' || 'cpp-key-value' }}
             type=gha,scope=${{ matrix.sdk.cache_scope }}-release-test-clang
             type=gha,scope=${{ matrix.sdk.sdk_cache_scope }}-release-test-clang
             type=gha,scope=${{ matrix.sdk.ccache_scope }}-release-test-clang
           cache-to: type=gha,mode=max,scope=final-error-${{ matrix.sdk.name }}
+
+      - name: Build Native baseline verdict probe
+        if: matrix.sdk.name == 'cpp-key-value'
+        uses: docker/build-push-action@v6
+        env:
+          DOCKER_BUILD_SUMMARY: 'false'
+          DOCKER_BUILD_RECORD_UPLOAD: 'false'
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          context: current
+          file: current/tests/slo_workloads/qa/Dockerfile.native-probe
+          target: native-probe
+          platforms: linux/amd64
+          tags: cpp-final-error-native-probe
+          load: true
+          cache-from: type=gha,scope=final-error-cpp-key-value
+
+      - name: Capture Native baseline false-green process controls
+        if: matrix.sdk.name == 'cpp-key-value'
+        timeout-minutes: 3
+        shell: bash
+        run: |
+          set -euo pipefail
+          for mode in healthy recovered planned read write deadline preload error-then-success; do
+            name="sdk-final-error-native-${GITHUB_RUN_ID}-${mode}"
+            trap 'docker rm -f "$name" >/dev/null 2>&1 || true' EXIT
+            set +e
+            docker run --rm --network none --name "$name" cpp-final-error-native-probe "$mode"
+            rc=$?
+            set -e
+            printf 'CPP_BASELINE_PROCESS mode=%s exit=%s expected=0\n' "$mode" "$rc"
+            if [ "$rc" -ne 0 ]; then
+              exit 1
+            fi
+            trap - EXIT
+          done
 
       - name: Run actual workload process gate
         uses: ydb-platform/ydb-slo-action/init@1cd8fe8433514e8b1e21461d5babb5169fb6460e
