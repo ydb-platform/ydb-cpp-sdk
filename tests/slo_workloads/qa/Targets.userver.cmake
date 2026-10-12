@@ -7,10 +7,21 @@ execute_process(
   OUTPUT_VARIABLE _symbols
   COMMAND_ERROR_IS_FATAL ANY
 )
-string(REGEX MATCH "_ZN[^ \n]*11TableClient16ExecuteDataQuery[^ \n]*" _query "${_symbols}")
+execute_process(
+  COMMAND nm -u "${CMAKE_BINARY_DIR}/tests/slo_workloads/userver/key_value/CMakeFiles/slo-userver-key-value.dir/run.cpp.o"
+  OUTPUT_VARIABLE _run_symbols
+  COMMAND_ERROR_IS_FATAL ANY
+)
+execute_process(
+  COMMAND nm -u "${CMAKE_BINARY_DIR}/tests/slo_workloads/userver/key_value/CMakeFiles/slo-userver-key-value.dir/userver_table_client.cpp.o"
+  OUTPUT_VARIABLE _client_symbols
+  COMMAND_ERROR_IS_FATAL ANY
+)
+string(REGEX MATCH "_ZN[^ \n]*11TableClient16ExecuteDataQuery[^ \n]*" _query "${_run_symbols}")
+string(REGEX MATCH "_ZN[^ \n]*11TableClientC[12]E[^ \n]*" _ctor "${_client_symbols}")
 string(REGEX MATCH "_Z13GetTableStats[^ \n]*" _stats "${_symbols}")
 string(REGEX MATCH "_Z11CreateTable[^ \n]*" _create "${_symbols}")
-if(NOT _query OR NOT _stats OR NOT _create)
+if(NOT _query OR NOT _ctor OR NOT _stats OR NOT _create)
   message(FATAL_ERROR "Actual userver SDK boundary symbols not found")
 endif()
 
@@ -31,8 +42,11 @@ target_link_libraries(cpp-final-error-userver-probe PRIVATE
   slo-utils-base userver::ydb)
 target_compile_definitions(cpp-final-error-userver-probe PRIVATE
   QUERY_WRAP_SYMBOL="__wrap_${_query}"
+  CTOR_WRAP_SYMBOL="__wrap_${_ctor}"
+  CTOR_REAL_SYMBOL="__real_${_ctor}"
   STATS_WRAP_SYMBOL="__wrap_${_stats}"
   CREATE_WRAP_SYMBOL="__wrap_${_create}"
 )
 target_link_options(cpp-final-error-userver-probe PRIVATE
-  "-Wl,--wrap=${_query}" "-Wl,--wrap=${_stats}" "-Wl,--wrap=${_create}")
+  "-Wl,--wrap=${_query}" "-Wl,--wrap=${_ctor}"
+  "-Wl,--wrap=${_stats}" "-Wl,--wrap=${_create}")

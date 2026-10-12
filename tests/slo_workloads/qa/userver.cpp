@@ -4,6 +4,7 @@
 #include <userver/engine/run_standalone.hpp>
 #include <userver/ydb/exceptions.hpp>
 #include <userver/ydb/response.hpp>
+#include <ydb/impl/config.hpp>
 
 #include <atomic>
 #include <csignal>
@@ -16,6 +17,32 @@
 namespace {
 std::string Mode;
 std::atomic<unsigned> Calls{0};
+}
+
+void RealClientConstructor(
+    userver::ydb::TableClient*,
+    userver::ydb::impl::TableSettings,
+    userver::ydb::OperationSettings,
+    userver::dynamic_config::Source,
+    std::shared_ptr<userver::ydb::impl::Driver>) asm(CTOR_REAL_SYMBOL);
+
+void WrappedClientConstructor(
+    userver::ydb::TableClient*,
+    userver::ydb::impl::TableSettings,
+    userver::ydb::OperationSettings,
+    userver::dynamic_config::Source,
+    std::shared_ptr<userver::ydb::impl::Driver>) asm(CTOR_WRAP_SYMBOL);
+
+void WrappedClientConstructor(
+    userver::ydb::TableClient* client,
+    userver::ydb::impl::TableSettings settings,
+    userver::ydb::OperationSettings operations,
+    userver::dynamic_config::Source config,
+    std::shared_ptr<userver::ydb::impl::Driver> driver)
+{
+    settings.sync_start = false;
+    RealClientConstructor(
+        client, std::move(settings), std::move(operations), config, std::move(driver));
 }
 
 userver::ydb::ExecuteResponse WrappedQuery(
