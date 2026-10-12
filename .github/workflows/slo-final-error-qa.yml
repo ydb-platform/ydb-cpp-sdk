@@ -63,6 +63,13 @@ jobs:
       - name: Stage Docker ignore rules
         run: cp current/tests/slo_workloads/.dockerignore current/.dockerignore
 
+      - name: Apply pending userver guard for supported Linux verification
+        working-directory: current
+        run: |
+          set -euo pipefail
+          git apply --check --index --unidiff-zero tests/slo_workloads/qa/userver-guard.patch
+          git apply --index --unidiff-zero tests/slo_workloads/qa/userver-guard.patch
+
       - name: Install infrastructure tools
         shell: bash
         run: |
@@ -166,7 +173,7 @@ jobs:
             trap - EXIT
           done
 
-      - name: Build userver baseline verdict probe
+      - name: Build userver patched verdict probe
         if: matrix.sdk.name == 'cpp-key-value-userver'
         uses: docker/build-push-action@v6
         env:
@@ -182,21 +189,25 @@ jobs:
           load: true
           cache-from: type=gha,scope=final-error-cpp-key-value-userver
 
-      - name: Capture userver baseline false-green process controls
+      - name: Capture userver patched final-error process controls
         if: matrix.sdk.name == 'cpp-key-value-userver'
         timeout-minutes: 3
         shell: bash
         run: |
           set -euo pipefail
           for mode in healthy recovered planned read write deadline preload error-then-success; do
+            case "$mode" in
+              healthy|recovered|planned) expected=0 ;;
+              *) expected=1 ;;
+            esac
             name="sdk-final-error-userver-${GITHUB_RUN_ID}-${mode}"
             trap 'docker rm -f "$name" >/dev/null 2>&1 || true' EXIT
             set +e
             docker run --rm --network none --name "$name" cpp-final-error-userver-probe "$mode"
             rc=$?
             set -e
-            printf 'CPP_USERVER_BASELINE_PROCESS mode=%s exit=%s expected=0\n' "$mode" "$rc"
-            if [ "$rc" -ne 0 ]; then
+            printf 'CPP_USERVER_PATCHED_PROCESS mode=%s exit=%s expected=%s\n' "$mode" "$rc" "$expected"
+            if [ "$rc" -ne "$expected" ]; then
               exit 1
             fi
             trap - EXIT
