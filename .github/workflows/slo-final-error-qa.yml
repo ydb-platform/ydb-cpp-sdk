@@ -1,0 +1,139 @@
+name: SLO final-error QA
+
+on:
+  push:
+    branches:
+      - qa/slo-final-error-20261012/**
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  workload:
+    name: Gate (${{ matrix.sdk.name }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        sdk:
+          - name: cpp-key-value
+            dockerfile: tests/slo_workloads/Dockerfile
+            cache_scope: slo-key-value
+            sdk_cache_scope: slo-sdk
+            ccache_scope: slo
+            target: slo-key-value
+            binary: tests/slo_workloads/key_value/slo-key-value
+            command: --read-rps 100 --write-rps 25
+          - name: cpp-key-value-userver
+            dockerfile: tests/slo_workloads/Dockerfile.userver
+            cache_scope: slo-userver-key-value
+            sdk_cache_scope: slo-userver-sdk
+            ccache_scope: slo-userver
+            target: slo-userver-key-value
+            binary: tests/slo_workloads/userver/key_value/slo-userver-key-value
+            command: --read-rps 100 --write-rps 25
+          - name: cpp-topic
+            dockerfile: tests/slo_workloads/Dockerfile
+            cache_scope: slo-topic
+            sdk_cache_scope: slo-sdk
+            ccache_scope: slo
+            target: slo-topic
+            binary: tests/slo_workloads/topic/slo-topic
+            command: --writer-count 2 --reader-count 2 --partition-count 2
+          - name: cpp-topic-userver
+            dockerfile: tests/slo_workloads/Dockerfile.userver
+            cache_scope: slo-userver-topic
+            sdk_cache_scope: slo-userver-sdk
+            ccache_scope: slo-userver
+            target: slo-userver-topic
+            binary: tests/slo_workloads/userver/topic/slo-userver-topic
+            command: --writer-count 2 --reader-count 2 --partition-count 2
+    concurrency:
+      group: final-error-${{ github.ref }}-${{ matrix.sdk.name }}
+      cancel-in-progress: false
+    steps:
+      - name: Checkout tested revision
+        uses: actions/checkout@v5
+        with:
+          path: current
+
+      - name: Stage Docker ignore rules
+        run: cp current/tests/slo_workloads/.dockerignore current/.dockerignore
+
+      - name: Install infrastructure tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo curl -fLo /usr/local/bin/yq \
+            https://github.com/mikefarah/yq/releases/download/v4.48.2/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+          yq --version
+          sudo mkdir -p /usr/local/lib/docker/cli-plugins
+          sudo curl -fLo /usr/local/lib/docker/cli-plugins/docker-compose \
+            https://github.com/docker/compose/releases/download/v2.40.3/docker-compose-linux-x86_64
+          sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+          docker compose version
+
+      - name: Set up workload builder
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          version: v0.30.1
+
+      - name: Restore ccache
+        uses: actions/cache@v4
+        with:
+          path: ccache
+          key: final-error-${{ matrix.sdk.name }}-ccache-${{ github.run_id }}
+          restore-keys: |
+            final-error-${{ matrix.sdk.name }}-ccache-
+            ${{ matrix.sdk.cache_scope }}-ccache-release-test-clang-
+            ${{ matrix.sdk.ccache_scope }}-ccache-release-test-clang-
+
+      - name: Inject ccache into BuildKit
+        uses: reproducible-containers/buildkit-cache-dance@v3.1.2
+        with:
+          cache-map: |
+            {
+              "ccache": "/root/.ccache"
+            }
+          skip-extraction: false
+
+      - name: Build actual workload
+        uses: docker/build-push-action@v6
+        env:
+          DOCKER_BUILD_SUMMARY: 'false'
+          DOCKER_BUILD_RECORD_UPLOAD: 'false'
+        with:
+          builder: ${{ steps.buildx.outputs.name }}
+          context: current
+          file: current/${{ matrix.sdk.dockerfile }}
+          platforms: linux/amd64
+          tags: ydb-app-current
+          load: true
+          build-args: |
+            SLO_TARGET=${{ matrix.sdk.target }}
+            SLO_BINARY=${{ matrix.sdk.binary }}
+          cache-from: |
+            type=gha,scope=final-error-${{ matrix.sdk.name }}
+            type=gha,scope=${{ matrix.sdk.cache_scope }}-release-test-clang
+            type=gha,scope=${{ matrix.sdk.sdk_cache_scope }}-release-test-clang
+            type=gha,scope=${{ matrix.sdk.ccache_scope }}-release-test-clang
+          cache-to: type=gha,mode=max,scope=final-error-${{ matrix.sdk.name }}
+
+      - name: Run actual workload process gate
+        uses: ydb-platform/ydb-slo-action/init@1cd8fe8433514e8b1e21461d5babb5169fb6460e
+        env:
+          BUILDX_BUILDER: default
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workload_name: ${{ matrix.sdk.name }}
+          workload_duration: '60'
+          workload_current_ref: qa-${{ github.sha }}
+          workload_current_image: ydb-app-current
+          workload_current_command: ${{ matrix.sdk.command }}
+          fail_on_workload_error: 'true'
+          disable_compose_profiles: workload-baseline,chaos
