@@ -49,8 +49,6 @@ RUN --mount=type=cache,target=/root/.cache/cpm,sharing=locked \
 
 FROM sdk AS workload
 
-ENV SLO_QA_FINAL_ERROR=1
-
 COPY tests/slo_workloads/ tests/slo_workloads/
 
 ARG SLO_TARGET=slo-key-value

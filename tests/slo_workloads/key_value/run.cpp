@@ -2,7 +2,6 @@
 
 #include <ydb-cpp-sdk/client/table/table.h>
 #include <util/string/printf.h>
-#include <util/system/env.h>
 
 using namespace NYdb;
 using namespace NYdb::NTable;
@@ -122,9 +121,7 @@ SELECT * FROM `%s` WHERE `object_id_key` = $object_id_key AND `object_id` = $obj
                 .Build();
 
             auto resultFuture = session.ExecuteDataQuery(
-                query + (GetEnv("SLO_QA_FINAL_ERROR") == "1"
-                    ? "\nSELECT SLO_QA_CPP_FINAL_OPERATION();"
-                    : ""),
+                query,
                 TTxControl::BeginTx(TTxSettings::SerializableRW()).CommitTx(),
                 std::move(params),
                 TExecDataQuerySettings()

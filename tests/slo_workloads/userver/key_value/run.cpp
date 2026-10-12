@@ -10,7 +10,6 @@
 #include <userver/ydb/table.hpp>
 
 #include <util/string/printf.h>
-#include <util/system/env.h>
 #include <util/system/getpid.h>
 
 #include <algorithm>
@@ -227,9 +226,7 @@ DECLARE $object_id AS Uint32;
 
 SELECT * FROM `%s` WHERE `object_id_key` = $object_id_key AND `object_id` = $object_id;
 
-)", prefix.c_str(), TableName.c_str()) + (GetEnv("SLO_QA_FINAL_ERROR") == "1"
-            ? "\nSELECT SLO_QA_CPP_FINAL_OPERATION();"
-            : "");
+)", prefix.c_str(), TableName.c_str());
 
         jobTasks.push_back(userver::engine::AsyncNoTracing(
             [&ydbClient, &readStats, &readSucceeded, &readFailed,
