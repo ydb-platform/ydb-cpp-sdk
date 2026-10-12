@@ -186,6 +186,10 @@ std::shared_ptr<TStatUnit> TTopicRunContext::StartWrite() {
 
 void TTopicRunContext::FinishWrite(const std::shared_ptr<TStatUnit> &stat,
                                    bool success) {
+  if (success && GetEnv("SLO_QA_FINAL_ERROR") == "1") {
+    success = false;
+    Fail("SLO_QA_CPP_FINAL_OPERATION: final topic write");
+  }
   Impl_->WriteStats.FinishRequest(stat, MakeStatus(success));
 }
 
