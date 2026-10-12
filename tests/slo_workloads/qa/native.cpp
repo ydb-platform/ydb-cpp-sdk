@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace {
@@ -12,12 +13,12 @@ std::string Mode;
 std::atomic<unsigned> Calls{0};
 }
 
-extern "C" NYdb::TAsyncStatus WrappedOperation(
+NYdb::TAsyncStatus WrappedOperation(
     NYdb::NTable::TTableClient*,
     NYdb::NTable::TTableClient::TOperationFunc&&,
     const NYdb::NTable::TRetryOperationSettings&) asm(OPERATION_WRAP_SYMBOL);
 
-extern "C" NYdb::TAsyncStatus WrappedOperation(
+NYdb::TAsyncStatus WrappedOperation(
     NYdb::NTable::TTableClient*,
     NYdb::NTable::TTableClient::TOperationFunc&&,
     const NYdb::NTable::TRetryOperationSettings&)
@@ -37,19 +38,19 @@ extern "C" NYdb::TAsyncStatus WrappedOperation(
     if (failed) {
         issues.AddIssue(NYdb::NIssue::TIssue("CPP_PROBE_final_" + Mode));
     }
-    return NThreading::MakeFuture(NYdb::TStatus(status, issues));
+    return NThreading::MakeFuture(NYdb::TStatus(status, std::move(issues)));
 }
 
-extern "C" TTableStats WrappedStats(
+TTableStats WrappedStats(
     TDatabaseOptions&, const std::string&) asm(STATS_WRAP_SYMBOL);
 
-extern "C" TTableStats WrappedStats(TDatabaseOptions&, const std::string&) {
+TTableStats WrappedStats(TDatabaseOptions&, const std::string&) {
     return TTableStats{1, 1};
 }
 
-extern "C" int WrappedCreate(TDatabaseOptions&) asm(CREATE_WRAP_SYMBOL);
+int WrappedCreate(TDatabaseOptions&) asm(CREATE_WRAP_SYMBOL);
 
-extern "C" int WrappedCreate(TDatabaseOptions&) {
+int WrappedCreate(TDatabaseOptions&) {
     return EXIT_SUCCESS;
 }
 
