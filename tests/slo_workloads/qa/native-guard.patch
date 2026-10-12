@@ -1,0 +1,78 @@
+diff --git a/tests/slo_workloads/key_value/generate.cpp b/tests/slo_workloads/key_value/generate.cpp
+index 4e6b8bb..14b6545 100644
+--- a/tests/slo_workloads/key_value/generate.cpp
++++ b/tests/slo_workloads/key_value/generate.cpp
+@@ -83,0 +84 @@ void TGenerateInitialContentJob::OnFinish() {
++    ErrorOccured.store(Executor.HasFailed());
+diff --git a/tests/slo_workloads/key_value/key_value.cpp b/tests/slo_workloads/key_value/key_value.cpp
+index 23bd3ff..f477eff 100644
+--- a/tests/slo_workloads/key_value/key_value.cpp
++++ b/tests/slo_workloads/key_value/key_value.cpp
+@@ -52,0 +53 @@ int DoCreate(TDatabaseOptions& dbOptions, int argc, char** argv) {
++    result = jobs->HasFailed() ? EXIT_FAILURE : EXIT_SUCCESS;
+@@ -55 +56 @@ int DoCreate(TDatabaseOptions& dbOptions, int argc, char** argv) {
+-    return EXIT_SUCCESS;
++    return result;
+@@ -98,0 +100 @@ int DoRun(TDatabaseOptions& dbOptions, int argc, char** argv) {
++    int result = jobs->HasFailed() ? EXIT_FAILURE : EXIT_SUCCESS;
+@@ -101 +103 @@ int DoRun(TDatabaseOptions& dbOptions, int argc, char** argv) {
+-    return EXIT_SUCCESS;
++    return result;
+diff --git a/tests/slo_workloads/key_value/run.cpp b/tests/slo_workloads/key_value/run.cpp
+index 671947c..c93e87f 100644
+--- a/tests/slo_workloads/key_value/run.cpp
++++ b/tests/slo_workloads/key_value/run.cpp
+@@ -79,0 +80 @@ void TWriteJob::OnFinish() {
++    ErrorOccured.store(Executor.HasFailed());
+@@ -153 +154,6 @@ void TReadJob::OnFinish() {
+-        Cerr << "Warning: thread A finished while having " << infly << " infly requests." << Endl;
++        ErrorOccured.store(true);
++        Cerr << "Read drain timed out while having " << infly << " infly requests." << Endl;
++        Executor->Wait();
++    }
++    if (Executor->HasFailed()) {
++        ErrorOccured.store(true);
+diff --git a/tests/slo_workloads/utils/executor.cpp b/tests/slo_workloads/utils/executor.cpp
+index 2d7d77a..7b9a79f 100644
+--- a/tests/slo_workloads/utils/executor.cpp
++++ b/tests/slo_workloads/utils/executor.cpp
+@@ -231,0 +232,4 @@ bool TExecutor::IsStopped() {
++bool TExecutor::HasFailed() const {
++    return Failed.load() != 0;
++}
++
+@@ -295,0 +300 @@ void TExecutor::CheckForError(const NYdb::TStatus& status) {
++        Failed.fetch_add(1);
+diff --git a/tests/slo_workloads/utils/executor.h b/tests/slo_workloads/utils/executor.h
+index 637d791..a701a4c 100644
+--- a/tests/slo_workloads/utils/executor.h
++++ b/tests/slo_workloads/utils/executor.h
+@@ -94,0 +95 @@ public:
++    bool HasFailed() const;
+diff --git a/tests/slo_workloads/utils/job.cpp b/tests/slo_workloads/utils/job.cpp
+index cc627b2..2192e66 100644
+--- a/tests/slo_workloads/utils/job.cpp
++++ b/tests/slo_workloads/utils/job.cpp
+@@ -49,0 +50,4 @@ void TThreadJob::OnFinish() {
++bool TThreadJob::HasFailed() const {
++    return ErrorOccured.load();
++}
++
+@@ -83,0 +88,9 @@ void TJobContainer::ShowProgress() {
++bool TJobContainer::HasFailed() const {
++    for (const auto& job : Jobs) {
++        if (job->HasFailed()) {
++            return true;
++        }
++    }
++    return false;
++}
++
+diff --git a/tests/slo_workloads/utils/job.h b/tests/slo_workloads/utils/job.h
+index a57a790..8e8ce31 100644
+--- a/tests/slo_workloads/utils/job.h
++++ b/tests/slo_workloads/utils/job.h
+@@ -16,0 +17 @@ public:
++    bool HasFailed() const;
+@@ -42,0 +44 @@ public:
++    bool HasFailed() const;
