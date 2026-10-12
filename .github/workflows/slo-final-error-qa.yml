@@ -155,7 +155,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for mode in healthy recovered planned read write deadline preload error-then-success; do
+          for mode in healthy recovered planned read write deadline preload error-then-success drain; do
             expected=1
             case "$mode" in
               healthy|recovered|planned) expected=0 ;;

@@ -33,15 +33,23 @@ index 671947c..c93e87f 100644
 +    if (Executor->HasFailed()) {
 +        ErrorOccured.store(true);
 diff --git a/tests/slo_workloads/utils/executor.cpp b/tests/slo_workloads/utils/executor.cpp
-index 2d7d77a..7b9a79f 100644
+index 2d7d77a..e0de449 100644
 --- a/tests/slo_workloads/utils/executor.cpp
 +++ b/tests/slo_workloads/utils/executor.cpp
-@@ -231,0 +232,4 @@ bool TExecutor::IsStopped() {
+@@ -213 +213,4 @@ std::uint32_t TExecutor::Wait(TDuration waitTimeout) {
+-    AllJobsFinished.WaitT(waitTimeout);
++    if (!AllJobsFinished.WaitT(waitTimeout)) {
++        Failed.fetch_add(1);
++        Cerr << "Operation drain timed out." << Endl;
++    }
+@@ -214,0 +218 @@ std::uint32_t TExecutor::Wait(TDuration waitTimeout) {
++    TGuard<TAdaptiveLock> guard(Lock);
+@@ -231,0 +236,4 @@ bool TExecutor::IsStopped() {
 +bool TExecutor::HasFailed() const {
 +    return Failed.load() != 0;
 +}
 +
-@@ -295,0 +300 @@ void TExecutor::CheckForError(const NYdb::TStatus& status) {
+@@ -295,0 +304 @@ void TExecutor::CheckForError(const NYdb::TStatus& status) {
 +        Failed.fetch_add(1);
 diff --git a/tests/slo_workloads/utils/executor.h b/tests/slo_workloads/utils/executor.h
 index 637d791..a701a4c 100644

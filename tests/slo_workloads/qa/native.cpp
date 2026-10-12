@@ -11,6 +11,8 @@
 namespace {
 std::string Mode;
 std::atomic<unsigned> Calls{0};
+TManualEvent OperationStarted;
+auto PendingStatus = NThreading::NewPromise<NYdb::TStatus>();
 }
 
 NYdb::TAsyncStatus WrappedOperation(
@@ -24,6 +26,10 @@ NYdb::TAsyncStatus WrappedOperation(
     const NYdb::NTable::TRetryOperationSettings&)
 {
     auto call = Calls.fetch_add(1);
+    if (Mode == "drain") {
+        OperationStarted.Signal();
+        return PendingStatus.GetFuture();
+    }
     bool failed = Mode != "healthy" && Mode != "recovered" && Mode != "planned";
     if (Mode == "planned" && call == 0) {
         std::raise(SIGINT);
@@ -77,9 +83,37 @@ int main(int argc, char** argv) {
     for (auto& arg : args) {
         pointers.push_back(arg.data());
     }
-    int result = Mode == "preload"
-        ? DoCreate(options, pointers.size(), pointers.data())
-        : DoRun(options, pointers.size(), pointers.data());
+    int result;
+    if (Mode == "drain") {
+        TCommonOptions common{options};
+        common.MaxInputThreads = 1;
+        common.MaxInfly = 1;
+        common.DontPushMetrics = true;
+        TStat stats(std::nullopt, "read");
+        stats.Start();
+        {
+            TExecutor executor(common, stats);
+            executor.Start(TInstant::Now() + TDuration::Seconds(60));
+            executor.Execute([](NYdb::NTable::TSession) {
+                return NThreading::MakeFuture(NYdb::TStatus(
+                    NYdb::EStatus::SUCCESS, NYdb::NIssue::TIssues()));
+            });
+            executor.Finish();
+            bool started = OperationStarted.WaitT(TDuration::Seconds(5));
+            auto infly = executor.Wait(TDuration::Zero());
+            PendingStatus.SetValue(NYdb::TStatus(
+                NYdb::EStatus::SUCCESS, NYdb::NIssue::TIssues()));
+            executor.Wait();
+            result = !started || infly != 1
+                ? 2
+                : (executor.HasFailed() ? EXIT_FAILURE : EXIT_SUCCESS);
+        }
+        stats.Finish();
+    } else {
+        result = Mode == "preload"
+            ? DoCreate(options, pointers.size(), pointers.data())
+            : DoRun(options, pointers.size(), pointers.data());
+    }
     driver.Stop(true);
     std::cout << "CPP_NATIVE mode=" << Mode << " calls=" << Calls.load()
               << " exit=" << result << std::endl;

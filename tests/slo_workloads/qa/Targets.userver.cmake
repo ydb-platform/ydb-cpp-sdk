@@ -28,7 +28,7 @@ target_include_directories(cpp-final-error-userver-probe PRIVATE
   "${CMAKE_SOURCE_DIR}" "$ENV{USERVER_SOURCE_DIR}/ydb/src")
 target_compile_features(cpp-final-error-userver-probe PRIVATE cxx_std_20)
 target_link_libraries(cpp-final-error-userver-probe PRIVATE
-  slo-utils-base userver::ydb userver::core)
+  slo-utils-base userver::ydb)
 target_compile_definitions(cpp-final-error-userver-probe PRIVATE
   QUERY_WRAP_SYMBOL="__wrap_${_query}"
   STATS_WRAP_SYMBOL="__wrap_${_stats}"
