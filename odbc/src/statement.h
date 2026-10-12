@@ -195,11 +195,13 @@ private:
                                   bool catalogPatternsAllowed,
                                   bool schemaPatternsAllowed) const;
 
-    NQuery::TExecuteQueryResult ExecuteQuery(
+protected:
+    virtual NQuery::TExecuteQueryResult ExecuteQuery(
         NQuery::TSession& session,
         const NYdb::TParams& params,
         SQLULEN paramSet);
 
+private:
     NYdb::NRetry::TRetryOperationSettings MakeAutocommitRetrySettings();
     std::vector<NScheme::TSchemeEntry> GetMetadataEntries(const TMetadataArgument& tableName,
                                                           bool patternsAllowed);
