@@ -63,13 +63,6 @@ jobs:
       - name: Stage Docker ignore rules
         run: cp current/tests/slo_workloads/.dockerignore current/.dockerignore
 
-      - name: Apply pending userver guard for supported Linux verification
-        working-directory: current
-        run: |
-          set -euo pipefail
-          git apply --check --index --unidiff-zero tests/slo_workloads/qa/userver-guard.patch
-          git apply --index --unidiff-zero tests/slo_workloads/qa/userver-guard.patch
-
       - name: Install infrastructure tools
         shell: bash
         run: |

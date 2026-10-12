@@ -152,73 +152,78 @@ int DoMain(
         // and don't need the engine, but workload queries use
         // userver::ydb::TableClient which requires the engine to be running.
         userver::engine::RunStandalone(4, [&] {
-            userver_slo::InitTableClient(
-                config.GetEndpoint(),
-                prefix,
-                credentials_provider_factory,
-                token,
-                prefer_local_dc
-            );
+            try {
+                userver_slo::InitTableClient(
+                    config.GetEndpoint(),
+                    prefix,
+                    credentials_provider_factory,
+                    token,
+                    prefer_local_dc
+                );
 
-            switch (command) {
-                case ECommandType::Create:
-                    Cout << "Launching create command..." << Endl;
-                    result = create(dbOptions, argc, argv);
-                    break;
-                case ECommandType::Run:
-                    Cout << "Launching run command..." << Endl;
-                    result = run(dbOptions, argc, argv);
-                    break;
-                case ECommandType::Cleanup:
-                    Cout << "Launching cleanup command..." << Endl;
-                    result = cleanup(dbOptions, argc);
-                    break;
-                case ECommandType::All: {
-                    Cout << "Launching full lifecycle: create -> run -> cleanup" << Endl;
-                    // Forward leftover argv to the run phase so options
-                    // like --read-rps / --write-rps take effect. argv[0]
-                    // here is the first run-phase option (no subcommand
-                    // keyword was supplied), so prepend a synthetic
-                    // program name for ParseOptionsRun.
-                    char programName[] = "slo";
-                    std::vector<char*> runArgv;
-                    runArgv.reserve(argc + 2);
-                    runArgv.push_back(programName);
-                    for (int i = 0; i < argc; ++i) {
-                        runArgv.push_back(argv[i]);
-                    }
-                    runArgv.push_back(nullptr);
-                    int fakeArgc = 1;
-                    char* fakeArgv[] = { programName, nullptr };
+                switch (command) {
+                    case ECommandType::Create:
+                        Cout << "Launching create command..." << Endl;
+                        result = create(dbOptions, argc, argv);
+                        break;
+                    case ECommandType::Run:
+                        Cout << "Launching run command..." << Endl;
+                        result = run(dbOptions, argc, argv);
+                        break;
+                    case ECommandType::Cleanup:
+                        Cout << "Launching cleanup command..." << Endl;
+                        result = cleanup(dbOptions, argc);
+                        break;
+                    case ECommandType::All: {
+                        Cout << "Launching full lifecycle: create -> run -> cleanup" << Endl;
+                        // Forward leftover argv to the run phase so options
+                        // like --read-rps / --write-rps take effect. argv[0]
+                        // here is the first run-phase option (no subcommand
+                        // keyword was supplied), so prepend a synthetic
+                        // program name for ParseOptionsRun.
+                        char programName[] = "slo";
+                        std::vector<char*> runArgv;
+                        runArgv.reserve(argc + 2);
+                        runArgv.push_back(programName);
+                        for (int i = 0; i < argc; ++i) {
+                            runArgv.push_back(argv[i]);
+                        }
+                        runArgv.push_back(nullptr);
+                        int fakeArgc = 1;
+                        char* fakeArgv[] = { programName, nullptr };
 
-                    Cout << "[all] Launching create command..." << Endl;
-                    result = forwardAllArgsToCreate
-                        ? create(dbOptions, static_cast<int>(runArgv.size() - 1), runArgv.data())
-                        : create(dbOptions, fakeArgc, fakeArgv);
-                    if (!result) {
-                        Cout << "[all] Launching run command..." << Endl;
-                        result = run(dbOptions, static_cast<int>(runArgv.size() - 1), runArgv.data());
+                        Cout << "[all] Launching create command..." << Endl;
+                        result = forwardAllArgsToCreate
+                            ? create(dbOptions, static_cast<int>(runArgv.size() - 1), runArgv.data())
+                            : create(dbOptions, fakeArgc, fakeArgv);
+                        if (!result) {
+                            Cout << "[all] Launching run command..." << Endl;
+                            result = run(dbOptions, static_cast<int>(runArgv.size() - 1), runArgv.data());
+                        }
+                        Cout << "[all] Launching cleanup command..." << Endl;
+                        int cleanupRc = cleanup(dbOptions, fakeArgc);
+                        // Cleanup runs while chaos-monkey is still killing
+                        // nodes, so a DropTable failure here is expected noise
+                        // and must not mask a successful run. Surface the
+                        // run's status; only fall back to cleanup status when
+                        // run itself failed.
+                        if (cleanupRc && !result) {
+                            Cerr << "[all] Warning: cleanup failed (exit " << cleanupRc
+                                << ") but run succeeded; ignoring cleanup exit code." << Endl;
+                        } else if (cleanupRc) {
+                            Cerr << "[all] Warning: cleanup failed (exit " << cleanupRc
+                                << "); preserving earlier run failure." << Endl;
+                        }
+                        break;
                     }
-                    Cout << "[all] Launching cleanup command..." << Endl;
-                    int cleanupRc = cleanup(dbOptions, fakeArgc);
-                    // Cleanup runs while chaos-monkey is still killing
-                    // nodes, so a DropTable failure here is expected noise
-                    // and must not mask a successful run. Surface the
-                    // run's status; only fall back to cleanup status when
-                    // run itself failed.
-                    if (cleanupRc && !result) {
-                        Cerr << "[all] Warning: cleanup failed (exit " << cleanupRc
-                            << ") but run succeeded; ignoring cleanup exit code." << Endl;
-                    } else if (cleanupRc) {
-                        Cerr << "[all] Warning: cleanup failed (exit " << cleanupRc
-                            << "); preserving earlier run failure." << Endl;
-                    }
-                    break;
+                    default:
+                        Cerr << "Unknown command" << Endl;
+                        result = EXIT_FAILURE;
+                        break;
                 }
-                default:
-                    Cerr << "Unknown command" << Endl;
-                    result = EXIT_FAILURE;
-                    break;
+            } catch (const std::exception& e) {
+                Cerr << "Command error: " << e.what() << Endl;
+                result = EXIT_FAILURE;
             }
             // Destroy userver clients while the engine is still running.
             userver_slo::ShutdownTableClient();

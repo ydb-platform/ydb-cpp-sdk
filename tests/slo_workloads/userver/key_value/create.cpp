@@ -56,6 +56,7 @@ int DoCreate(TDatabaseOptions& dbOptions, int argc, char** argv) {
 
     auto& ydbClient = userver_slo::GetTableClient();
 
+    std::atomic<std::uint64_t> failed{0};
     userver::engine::AsyncNoTracing([&]() {
         TStat stats(
             opts.DontPushMetrics ? std::nullopt : std::make_optional(opts.MetricsPushUrl),
@@ -74,11 +75,9 @@ int DoCreate(TDatabaseOptions& dbOptions, int argc, char** argv) {
         userver::engine::Semaphore semaphore{
             static_cast<userver::engine::Semaphore::Counter>(opts.MaxInfly)};
 
-        std::vector<userver::engine::TaskWithResult<void>> tasks;
-
         std::atomic<std::uint64_t> succeeded{0};
-        std::atomic<std::uint64_t> failed{0};
         std::atomic<std::uint64_t> total{0};
+        std::vector<userver::engine::TaskWithResult<void>> tasks;
 
         const TString query = Sprintf(R"(
 --!syntax_v1
@@ -115,11 +114,15 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
                         stats.FinishRequest(stat, TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues()));
                         succeeded.fetch_add(1);
                     } catch (const uydb::YdbResponseError& e) {
+                        if (failed.fetch_add(1) == 0) {
+                            Cerr << "Final preload error: " << e.what() << Endl;
+                        }
                         stats.FinishRequest(stat, TStatus(e.GetStatus().GetStatus(), NYdb::NIssue::TIssues()));
-                        failed.fetch_add(1);
-                    } catch (const std::exception&) {
+                    } catch (const std::exception& e) {
+                        if (failed.fetch_add(1) == 0) {
+                            Cerr << "Final preload error: " << e.what() << Endl;
+                        }
                         stats.FinishRequest(stat, TStatus(EStatus::CLIENT_INTERNAL_ERROR, NYdb::NIssue::TIssues()));
-                        failed.fetch_add(1);
                     }
                     semaphore.unlock_shared();
                 }));
@@ -138,7 +141,7 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
         stats.PrintStatistics(report);
         report << "========================================" << Endl;
         Cout << report;
-    }).Wait();
+    }).Get();
 
-    return EXIT_SUCCESS;
+    return failed.load() ? EXIT_FAILURE : EXIT_SUCCESS;
 }

@@ -109,7 +109,14 @@ void PruneFinishedTasks(std::vector<userver::engine::TaskWithResult<void>>& task
     tasks.erase(
         std::remove_if(tasks.begin(), tasks.end(),
             [](userver::engine::TaskWithResult<void>& task) {
-                return !task.IsValid() || task.IsFinished();
+                if (!task.IsValid()) {
+                    return true;
+                }
+                if (task.IsFinished()) {
+                    task.Get();
+                    return true;
+                }
+                return false;
             }),
         tasks.end());
 }
@@ -129,11 +136,15 @@ void ExecuteQuery(
         stats.FinishRequest(stat, TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues()));
         succeeded.fetch_add(1);
     } catch (const uydb::YdbResponseError& e) {
+        if (failed.fetch_add(1) == 0) {
+            Cerr << "Final query error: " << e.what() << Endl;
+        }
         stats.FinishRequest(stat, TStatus(e.GetStatus().GetStatus(), NYdb::NIssue::TIssues()));
-        failed.fetch_add(1);
-    } catch (const std::exception&) {
+    } catch (const std::exception& e) {
+        if (failed.fetch_add(1) == 0) {
+            Cerr << "Final query error: " << e.what() << Endl;
+        }
         stats.FinishRequest(stat, TStatus(EStatus::CLIENT_INTERNAL_ERROR, NYdb::NIssue::TIssues()));
-        failed.fetch_add(1);
     }
 }
 
@@ -226,8 +237,8 @@ SELECT * FROM `%s` WHERE `object_id_key` = $object_id_key AND `object_id` = $obj
                 TUserverRpsProvider rpsProvider(readRps);
                 rpsProvider.Reset();
 
-                std::vector<userver::engine::TaskWithResult<void>> tasks;
                 std::atomic<std::uint32_t> inflight{0};
+                std::vector<userver::engine::TaskWithResult<void>> tasks;
 
                 while (!ShouldStop.load() && TInstant::Now() < deadline) {
                     PollSignals();
@@ -305,8 +316,8 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
 
                 TKeyValueGenerator generator(writeCommon, maxId);
 
-                std::vector<userver::engine::TaskWithResult<void>> tasks;
                 std::atomic<std::uint32_t> inflight{0};
+                std::vector<userver::engine::TaskWithResult<void>> tasks;
 
                 while (!ShouldStop.load() && TInstant::Now() < deadline) {
                     PollSignals();
@@ -349,8 +360,15 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
         ));
     }
 
+    bool jobFailed = false;
     for (auto& task : jobTasks) {
-        task.Wait();
+        try {
+            task.Get();
+        } catch (const std::exception& e) {
+            Cerr << "Workload task error: " << e.what() << Endl;
+            jobFailed = true;
+            ShouldStop.store(true);
+        }
     }
 
     if (ShouldStop.load()) {
@@ -363,7 +381,8 @@ UPSERT INTO `%s` SELECT * FROM AS_TABLE($items);
 
     GlobalReporter = nullptr;
 
-    return EXIT_SUCCESS;
+    return jobFailed || readFailed.load() || writeFailed.load()
+        ? EXIT_FAILURE : EXIT_SUCCESS;
 }
 
 int DoCleanup(TDatabaseOptions& dbOptions, int argc) {
