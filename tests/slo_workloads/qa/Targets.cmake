@@ -22,6 +22,7 @@ endif()
 
 add_executable(cpp-final-error-probe
   /probe/native.cpp
+  "${CMAKE_BINARY_DIR}/tests/slo_workloads/key_value/__vcs_version__.c"
   tests/slo_workloads/key_value/create.cpp
   tests/slo_workloads/key_value/drop.cpp
   tests/slo_workloads/key_value/generate.cpp
