@@ -77,7 +77,7 @@ class TDescriptor : public THandle, private TDescriptorState {
         TScalarProperty<SQL_DESC_ROWS_PROCESSED_PTR, &THeader::RowsProcessedPtr>>;
 
 public:
-    explicit TDescriptor(std::shared_ptr<TConnection> conn, EDescType type = EDescType::Explicit);
+    explicit TDescriptor(TConnection* conn, EDescType type = EDescType::Explicit);
 
     EDescType GetDescType() const noexcept { return Type_; }
     TConnection& GetConnection() const noexcept { return static_cast<TConnection&>(*GetParent()); }

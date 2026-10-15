@@ -9,8 +9,8 @@ namespace {
 
 class TOdbcDescriptor : public ::testing::Test {
 protected:
-    std::shared_ptr<TConnection> Connection_ = std::make_shared<TConnection>();
-    TDescriptor Descriptor_{Connection_};
+    TConnection Connection_;
+    TDescriptor Descriptor_{&Connection_};
     std::unique_lock<std::mutex> Lock_ = Descriptor_.LockOperation();
 };
 
@@ -57,7 +57,7 @@ TEST_F(TOdbcDescriptor, RejectedFieldsLeaveDescriptorUnchanged) {
 }
 
 TEST_F(TOdbcDescriptor, FetchUsesLatestColumnBinding) {
-    TStatement statement(Connection_);
+    TStatement statement(&Connection_);
     ASSERT_EQ(statement.GetTypeInfo(SQL_INTEGER), SQL_SUCCESS);
     SQLINTEGER first = 111, second = 222;
     ASSERT_EQ(statement.BindCol(2, SQL_C_LONG, &first, sizeof(first), nullptr), SQL_SUCCESS);
@@ -68,13 +68,13 @@ TEST_F(TOdbcDescriptor, FetchUsesLatestColumnBinding) {
 }
 
 TEST(OdbcStatement, NoOpUnbindPreservesDescriptorGenerations) {
-    auto connection = std::make_shared<TConnection>();
-    TStatement statement(connection);
+    TConnection connection;
+    TStatement statement(&connection);
     SQLINTEGER value = 0;
     ASSERT_EQ(statement.BindCol(1, SQL_C_LONG, &value, sizeof(value), nullptr), SQL_SUCCESS);
     SQLHDESC handle = SQL_NULL_HDESC;
     ASSERT_EQ(statement.GetStmtAttr(SQL_ATTR_APP_ROW_DESC, &handle, 0, nullptr), SQL_SUCCESS);
-    auto& descriptor = *static_cast<TDescriptor*>(handle);
+    auto& descriptor = *CheckedHandle<TDescriptor>(handle);
     TDescriptorState before, after;
     uint64_t generation = 0, nextGeneration = 0;
     descriptor.Snapshot(before, generation);
@@ -92,27 +92,42 @@ TEST(OdbcStatement, NoOpUnbindPreservesDescriptorGenerations) {
     EXPECT_EQ(after.GetRecordCount(), 0);
 }
 
-TEST(OdbcStatement, CancelRecordsLocalErrors) {
-    class TFailingStatement : public TStatement {
-    public:
-        using TStatement::TStatement;
-        void BeforeCall() override {
-            throw TOdbcException("HY001", 0, "Test failure");
-        }
-    };
-    auto connection = std::make_shared<TConnection>();
-    TFailingStatement statement(connection);
-    EXPECT_EQ(statement.Cancel(), SQL_ERROR);
-    SQLRETURN result = SQL_SUCCESS;
+TEST(OdbcStatement, CancelClearsNeedDataAndAllowsReuse) {
+    TConnection connection;
+    TStatement statement(&connection);
+    ASSERT_EQ(statement.Prepare("SELECT ?"), SQL_SUCCESS);
+    char token = 0;
+    SQLLEN indicator = SQL_DATA_AT_EXEC;
+    ASSERT_EQ(statement.BindParameter(1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR,
+        16, 0, &token, 0, &indicator), SQL_SUCCESS);
+    ASSERT_EQ(statement.Execute(), SQL_NEED_DATA);
+    EXPECT_TRUE(statement.NeedsData());
+    char data[] = "cancelled";
+    EXPECT_THROW(statement.PutData(data, SQL_NTS), TOdbcException);
+    ASSERT_EQ(statement.Cancel(), SQL_SUCCESS);
+    EXPECT_FALSE(statement.NeedsData());
+    ASSERT_EQ(statement.Execute(), SQL_NEED_DATA);
+    SQLPOINTER value = nullptr;
+    ASSERT_EQ(statement.ParamData(&value), SQL_NEED_DATA);
+    EXPECT_EQ(value, &token);
+    ASSERT_EQ(statement.PutData(data, SQL_NTS), SQL_SUCCESS);
+
+    ASSERT_EQ(statement.Cancel(), SQL_SUCCESS);
+    EXPECT_FALSE(statement.NeedsData());
+    EXPECT_EQ(statement.ParamData(&value), SQL_NO_DATA);
+    SQLRETURN result = SQL_ERROR;
     ASSERT_EQ(statement.GetDiagField(0, SQL_DIAG_RETURNCODE, &result, 0, nullptr), SQL_SUCCESS);
-    EXPECT_EQ(result, SQL_ERROR);
-    SQLCHAR state[6] = {};
-    ASSERT_EQ(statement.GetDiagRec(1, state, nullptr, nullptr, 0, nullptr), SQL_SUCCESS);
-    EXPECT_STREQ(reinterpret_cast<char*>(state), "HY001");
+    EXPECT_EQ(result, SQL_SUCCESS);
+
+    ASSERT_EQ(statement.Execute(), SQL_NEED_DATA);
+    EXPECT_TRUE(statement.NeedsData());
+    ASSERT_EQ(statement.ParamData(&value), SQL_NEED_DATA);
+    EXPECT_EQ(value, &token);
+    EXPECT_EQ(statement.Cancel(), SQL_SUCCESS);
 }
 
 TEST_F(TOdbcDescriptor, ExecuteUsesLatestParameterBinding) {
-    TStatement statement(Connection_);
+    TStatement statement(&Connection_);
     ASSERT_EQ(statement.Prepare("SELECT ?"), SQL_SUCCESS);
     char first = 0, second = 0;
     SQLLEN indicator = SQL_DATA_AT_EXEC;

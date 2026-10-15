@@ -12,27 +12,15 @@ TEST(EnvironmentApi, AllocEnvInvalidType) {
     ASSERT_TRUE(rc == SQL_ERROR || rc == SQL_INVALID_HANDLE);
 }
 
-TEST(EnvironmentApi, FreeInvalidEnvHandle) {
-#ifdef ODBC_TEST_IODBC
-    GTEST_SKIP() << "iODBC traps instead of rejecting a dangling environment handle";
-#endif
+TEST(EnvironmentApi, FreeEnvWithLiveConnection) {
     SQLHENV env;
-    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &env), SQL_SUCCESS);
-    ASSERT_EQ(SQLFreeHandle(SQL_HANDLE_ENV, env), SQL_SUCCESS);
-    SQLRETURN rc = SQLFreeHandle(SQL_HANDLE_ENV, env);
-    ASSERT_TRUE(rc == SQL_SUCCESS || rc == SQL_INVALID_HANDLE || rc == SQL_ERROR);
-}
-
-TEST(EnvironmentApi, DoubleFreeEnv) {
-#ifdef ODBC_TEST_IODBC
-    GTEST_SKIP() << "iODBC traps when an environment handle is freed twice";
-#endif
-    SQLHENV env;
-    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &env), SQL_SUCCESS);
-    ASSERT_EQ(SQLFreeHandle(SQL_HANDLE_ENV, env), SQL_SUCCESS);
-    // Second free may return error or success depending on implementation
-    // but should not crash
-    SQLFreeHandle(SQL_HANDLE_ENV, env);
+    SQLHDBC dbc;
+    AllocEnv(&env);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_DBC, env, &dbc), SQL_SUCCESS);
+    EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_ENV, env), SQL_ERROR);
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(env, SQL_HANDLE_ENV), "HY010"));
+    EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_DBC, dbc), SQL_SUCCESS);
+    EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_ENV, env), SQL_SUCCESS);
 }
 
 TEST(EnvironmentApi, SetOdbcVersion) {
@@ -215,13 +203,15 @@ TEST(EnvironmentApi, EndTranPartialFailureReturnsInfo) {
     ASSERT_TRUE(rc == SQL_SUCCESS || rc == SQL_SUCCESS_WITH_INFO || rc == SQL_ERROR)
         << GetOdbcError(env, SQL_HANDLE_ENV);
 
-    SQLFreeHandle(SQL_HANDLE_STMT, stmt1);
-    SQLFreeHandle(SQL_HANDLE_STMT, stmt2);
-    SQLDisconnect(dbc1);
-    SQLDisconnect(dbc2);
-    SQLFreeHandle(SQL_HANDLE_DBC, dbc1);
-    SQLFreeHandle(SQL_HANDLE_DBC, dbc2);
-    SQLFreeHandle(SQL_HANDLE_ENV, env);
+    CHECK_ODBC_OK(SQLEndTran(SQL_HANDLE_DBC, dbc1, SQL_ROLLBACK), dbc1, SQL_HANDLE_DBC);
+    CHECK_ODBC_OK(SQLEndTran(SQL_HANDLE_DBC, dbc2, SQL_ROLLBACK), dbc2, SQL_HANDLE_DBC);
+    EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_STMT, stmt1), SQL_SUCCESS);
+    EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_STMT, stmt2), SQL_SUCCESS);
+    EXPECT_EQ(SQLDisconnect(dbc1), SQL_SUCCESS);
+    EXPECT_EQ(SQLDisconnect(dbc2), SQL_SUCCESS);
+    EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_DBC, dbc1), SQL_SUCCESS);
+    EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_DBC, dbc2), SQL_SUCCESS);
+    EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_ENV, env), SQL_SUCCESS);
 }
 
 TEST(EnvironmentApi, GetDiagRecEnv) {

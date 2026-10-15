@@ -2,9 +2,9 @@
 
 #include "error_manager.h"
 
-#include <atomic>
+#include <util/generic/scope.h>
+
 #include <functional>
-#include <memory>
 #include <mutex>
 #include <shared_mutex>
 #include <type_traits>
@@ -14,18 +14,21 @@
 namespace NYdb::NOdbc {
 
 class TEnvironment;
+class TConnection;
+class TStatement;
 
 enum class ECallMode : unsigned char { Ordinary, Diagnostic, Consuming };
 
 class THandle : public TErrorManager {
 public:
-    explicit THandle(std::shared_ptr<THandle> parent = {}) : Parent_(std::move(parent)) {}
-    virtual void BeforeCall() {}
-    const std::shared_ptr<THandle>& GetParent() const { return Parent_; }
-    bool HasChildren() const;
-    std::vector<std::shared_ptr<THandle>> GetChildren() const;
-    bool IsRetired() const { return Retired_.load(std::memory_order_relaxed); }
-    void Retire() { Retired_.store(true, std::memory_order_relaxed); }
+    explicit THandle(THandle* parent = nullptr) : Parent_(parent) {}
+    THandle* GetParent() const { return Parent_; }
+    // The caller holds this parent's operation lock for child-list access.
+    void AddChild(THandle* child);
+    void RemoveChild(THandle* child);
+    bool HasChildren() const { return !Children_.empty(); }
+    const std::vector<THandle*>& GetChildren() const { return Children_; }
+    std::vector<THandle*> ReleaseChildren() { return std::exchange(Children_, {}); }
     std::unique_lock<std::mutex> LockOperation() const { return std::unique_lock(OperationMutex_); }
 
 protected:
@@ -34,13 +37,15 @@ protected:
     mutable std::mutex OperationMutex_;
 
 private:
-    const std::shared_ptr<THandle> Parent_;
-    std::atomic<bool> Retired_ = false;
+    THandle* const Parent_;
+    std::vector<THandle*> Children_;
 };
 
-void RegisterHandle(SQLHANDLE handle, std::shared_ptr<THandle> owner);
-std::shared_ptr<THandle> PinHandle(SQLHANDLE handle);
-void UnregisterHandle(SQLHANDLE handle);
+template<class Handle>
+Handle* CheckedHandle(SQLHANDLE handle) {
+    // Applications must keep handles alive until all uses have completed.
+    return dynamic_cast<Handle*>(static_cast<THandle*>(handle));
+}
 
 template <class Fn, class... Args>
 SQLRETURN InvokeOdbc(Fn&& fn, Args&&... args) {
@@ -54,9 +59,14 @@ SQLRETURN InvokeOdbc(Fn&& fn, Args&&... args) {
 
 template <ECallMode Mode, typename Handle, bool Exclusive = false, class Fn>
 SQLRETURN CallOdbc(SQLHANDLE handlePtr, Fn&& func) {
-    auto owner = std::dynamic_pointer_cast<Handle>(PinHandle(handlePtr));
+    auto* owner = CheckedHandle<Handle>(handlePtr);
     if (!owner) {
         return SQL_INVALID_HANDLE;
+    }
+    // ENV traversal and DBC removal acquire parent ownership in the same order.
+    std::unique_lock<std::mutex> parent;
+    if constexpr (Mode == ECallMode::Consuming && std::is_same_v<Handle, TConnection>) {
+        parent = owner->GetParent()->LockOperation();
     }
     std::conditional_t<Exclusive, std::unique_lock<std::shared_mutex>,
         std::shared_lock<std::shared_mutex>> connection;
@@ -67,18 +77,35 @@ SQLRETURN CallOdbc(SQLHANDLE handlePtr, Fn&& func) {
             connection = owner->GetConnection().LockShared();
         }
     }
-    auto lock = owner->LockOperation();
-    if (owner->IsRetired()) {
-        return SQL_INVALID_HANDLE;
+    if constexpr (Mode == ECallMode::Consuming
+                  && !std::is_same_v<Handle, TEnvironment>
+                  && !std::is_same_v<Handle, TConnection>) {
+        parent = owner->GetParent()->LockOperation();
     }
+    auto lock = owner->LockOperation();
+    if constexpr (Mode == ECallMode::Ordinary && std::is_same_v<Handle, TStatement>) {
+        owner->StartExecution();
+    }
+    bool executionFinished = false;
+    Y_DEFER {
+        if (!executionFinished) {
+            if constexpr (Mode == ECallMode::Ordinary && std::is_same_v<Handle, TStatement>) {
+                owner->FinishExecution();
+            }
+        }
+    };
     if constexpr (Mode != ECallMode::Diagnostic) {
         owner->ClearErrors();
     }
     try {
-        if constexpr (Mode == ECallMode::Ordinary) {
-            owner->BeforeCall();
+        SQLRETURN ret = InvokeOdbc(std::forward<Fn>(func), owner);
+        if constexpr (Mode == ECallMode::Ordinary && std::is_same_v<Handle, TStatement>) {
+            const bool canceled = owner->FinishExecution();
+            executionFinished = true;
+            if (canceled && ret == SQL_NEED_DATA) {
+                ret = owner->AddError("HY008", 0, "Operation canceled");
+            }
         }
-        const SQLRETURN ret = InvokeOdbc(std::forward<Fn>(func), owner.get());
         if constexpr (Mode == ECallMode::Ordinary) {
             owner->SetLastReturnCode(ret);
         }
