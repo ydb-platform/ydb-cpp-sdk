@@ -11,7 +11,6 @@
 
 #include "odbc_compat.h"
 
-#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -61,7 +60,7 @@ private:
     void RebindToDatabase(std::string_view newDatabase);
     void InvalidatePreparedStatementMetadata();
 public:
-    explicit TConnection(std::shared_ptr<TEnvironment> parent = {}) : THandle(std::move(parent)) {}
+    explicit TConnection(TEnvironment* parent = nullptr) : THandle(parent) {}
     TConnection& GetConnection() noexcept { return *this; }
     template<class... Args>
     auto LockShared(Args... args) { return std::shared_lock(Lifecycle_, args...); }
@@ -75,6 +74,7 @@ public:
     SQLRETURN DriverConnect(std::string_view connectionString, SQLCHAR* outConnectionString,
                             SQLSMALLINT bufferLength, SQLSMALLINT* stringLength2Ptr);
     SQLRETURN Disconnect();
+    bool IsConnected() const { return Ydb_.has_value(); }
 
     void CloseStatementCursors();
     // Test seam for holding transaction ordering without a server-side operation.
