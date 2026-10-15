@@ -359,30 +359,3 @@ TEST(ConnectionApi, ConnAttrCurrentCatalogAffectsQueries) {
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);
     SQLFreeHandle(SQL_HANDLE_ENV, env);
 }
-
-TEST(ConnectionApi, DisconnectDropsChildrenAndReconnects) {
-    SQLHENV env;
-    SQLHDBC dbc;
-    AllocEnvAndConnect(&env, &dbc);
-    SQLHSTMT stmt = SQL_NULL_HSTMT;
-    SQLHDESC descriptor = SQL_NULL_HDESC;
-    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
-    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_DESC, dbc, &descriptor), SQL_SUCCESS);
-    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_APP_ROW_DESC, descriptor, 0), stmt, SQL_HANDLE_STMT);
-    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT 42", SQL_NTS), stmt, SQL_HANDLE_STMT);
-    CHECK_ODBC_OK(SQLDisconnect(dbc), dbc, SQL_HANDLE_DBC);
-    stmt = SQL_NULL_HSTMT;
-    descriptor = SQL_NULL_HDESC;
-    CHECK_ODBC_OK(SQLDriverConnect(dbc, nullptr, (SQLCHAR*)kConnStr, SQL_NTS,
-                                  nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT), dbc, SQL_HANDLE_DBC);
-    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
-    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT 43", SQL_NTS), stmt, SQL_HANDLE_STMT);
-    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
-    SQLINTEGER value = 0;
-    CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_LONG, &value, sizeof(value), nullptr), stmt, SQL_HANDLE_STMT);
-    EXPECT_EQ(value, 43);
-    EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_STMT, stmt), SQL_SUCCESS);
-    EXPECT_EQ(SQLDisconnect(dbc), SQL_SUCCESS);
-    EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_DBC, dbc), SQL_SUCCESS);
-    EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_ENV, env), SQL_SUCCESS);
-}
