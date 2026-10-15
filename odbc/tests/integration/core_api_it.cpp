@@ -690,12 +690,15 @@ TEST(CoreApi, SQLParamDataPutData) {
         (SQLCHAR*)"CREATE TABLE test_at_exec (id Int32, val Text, PRIMARY KEY (id))", SQL_NTS),
         stmt, SQL_HANDLE_STMT);
     SQLFreeStmt(stmt, SQL_CLOSE);
-    CHECK_ODBC_OK(SQLPrepare(stmt, (SQLCHAR*)"UPSERT INTO test_at_exec (id, val) VALUES (1, ?)", SQL_NTS),
+    CHECK_ODBC_OK(SQLPrepare(stmt, (SQLCHAR*)"UPSERT INTO test_at_exec (id, val) VALUES (1, ? || ?)", SQL_NTS),
                   stmt, SQL_HANDLE_STMT);
     SQLLEN atExec = SQL_DATA_AT_EXEC;
     SQLPOINTER parameterToken = &atExec;
     CHECK_ODBC_OK(SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 32, 0,
                                    parameterToken, 0, &atExec), stmt, SQL_HANDLE_STMT);
+    SQLINTEGER secondToken = 0;
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 32, 0,
+                                   &secondToken, 0, &atExec), stmt, SQL_HANDLE_STMT);
     ASSERT_EQ(SQLExecute(stmt), SQL_NEED_DATA);
     SQLPOINTER token = nullptr;
     ASSERT_EQ(SQLParamData(stmt, &token), SQL_NEED_DATA);
@@ -705,9 +708,20 @@ TEST(CoreApi, SQLParamDataPutData) {
     const char part2[] = "lo";
     CHECK_ODBC_OK(SQLPutData(stmt, (SQLPOINTER)part2, sizeof(part2) - 1), stmt, SQL_HANDLE_STMT);
     CHECK_ODBC_OK(SQLPutData(stmt, (SQLPOINTER)"", 0), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLParamData(stmt, &token), SQL_NEED_DATA);
+    EXPECT_EQ(token, &secondToken);
+    CHECK_ODBC_OK(SQLPutData(stmt, (SQLPOINTER)" wor", 4), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLPutData(stmt, (SQLPOINTER)"ld", 2), stmt, SQL_HANDLE_STMT);
     CHECK_ODBC_OK(SQLParamData(stmt, &token), stmt, SQL_HANDLE_STMT);
     EXPECT_EQ(SQLExecute(stmt), SQL_NEED_DATA);
     CHECK_ODBC_OK(SQLCancel(stmt), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLFreeStmt(stmt, SQL_RESET_PARAMS), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT val FROM test_at_exec WHERE id = 1", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    char actual[16] = {};
+    CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_CHAR, actual, sizeof(actual), nullptr), stmt, SQL_HANDLE_STMT);
+    EXPECT_STREQ(actual, "hello world");
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);

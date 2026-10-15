@@ -63,8 +63,8 @@ using TRecordProperties = TScalarProperties<
 
 } // namespace
 
-TDescriptor::TDescriptor(std::shared_ptr<TConnection> conn, EDescType type)
-    : THandle(std::move(conn))
+TDescriptor::TDescriptor(TConnection* conn, EDescType type)
+    : THandle(conn)
     , Type_(type) {}
 
 void TDescriptor::Snapshot(TDescriptorState& state, uint64_t& generation) const {
@@ -314,8 +314,8 @@ SQLRETURN TDescriptor::SetDescRec(SQLSMALLINT recNumber, SQLSMALLINT type, SQLSM
 }
 
 SQLRETURN TDescriptor::Copy(SQLHDESC source, SQLHDESC target) {
-    auto src = std::dynamic_pointer_cast<TDescriptor>(PinHandle(source));
-    auto dst = std::dynamic_pointer_cast<TDescriptor>(PinHandle(target));
+    auto* src = CheckedHandle<TDescriptor>(source);
+    auto* dst = CheckedHandle<TDescriptor>(target);
     if (!src || !dst) {
         return SQL_INVALID_HANDLE;
     }
@@ -333,9 +333,6 @@ SQLRETURN TDescriptor::Copy(SQLHDESC source, SQLHDESC target) {
         std::lock(sourceLock, targetLock);
     } else {
         sourceLock.lock();
-    }
-    if (src->IsRetired() || dst->IsRetired()) {
-        return SQL_INVALID_HANDLE;
     }
     src->ClearErrors();
     try {

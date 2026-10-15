@@ -82,8 +82,21 @@ SQLRETURN TConnection::Connect(std::string_view serverName,
 }
 
 SQLRETURN TConnection::Disconnect() {
-    InvalidatePreparedStatementMetadata();
-    CloseStatementCursors();
+    if (!IsConnected()) {
+        return AddError("08003", 0, "Connection not open");
+    }
+    for (auto* child : GetChildren()) {
+        if (const auto* statement = dynamic_cast<TStatement*>(child); statement && statement->NeedsData()) {
+            return AddError("HY010", 0, "Statement still needs parameter data");
+        }
+    }
+    if (Tx_) {
+        return AddError("25000", 0, "Transaction must be committed or rolled back before disconnecting");
+    }
+    // The exclusive lifecycle gate has drained all child calls.
+    for (auto* child : ReleaseChildren()) {
+        delete child;
+    }
     DestroyYdbState();
     DriverConfig_.reset();
     DbmsVersionCache_.reset();
@@ -127,8 +140,6 @@ SQLRETURN TConnection::Execute(TStatement& statement) {
     // The caller holds the statement operation lock and a shared lifecycle gate.
     std::unique_lock transaction(TransactionMutex_, std::defer_lock);
     const bool explicitTransaction = !GetAutocommit();
-    statement.StartExecution();
-    Y_DEFER { statement.FinishExecution(); };
     if (explicitTransaction) {
         transaction.lock();
     }
@@ -137,13 +148,13 @@ SQLRETURN TConnection::Execute(TStatement& statement) {
 
 void TConnection::EndTranFromEnvironment(SQLSMALLINT completionType) {
     auto check = LockShared();
-    if (IsRetired() || GetAutocommit()) {
+    if (GetAutocommit()) {
         return;
     }
     check.unlock();
     auto lifecycle = LockExclusive();
     auto operation = LockOperation();
-    if (IsRetired() || GetAutocommit()) {
+    if (GetAutocommit()) {
         return;
     }
     if (completionType == SQL_COMMIT) {
@@ -155,16 +166,16 @@ void TConnection::EndTranFromEnvironment(SQLSMALLINT completionType) {
 
 void TConnection::CloseStatementCursors() {
     // The exclusive lifecycle gate has drained statement/descriptor calls.
-    for (const auto& child : GetChildren()) {
-        if (const auto stmt = std::dynamic_pointer_cast<TStatement>(child)) {
+    for (auto* child : GetChildren()) {
+        if (auto* stmt = dynamic_cast<TStatement*>(child)) {
             stmt->Close(true);
         }
     }
 }
 
 void TConnection::InvalidatePreparedStatementMetadata() {
-    for (const auto& child : GetChildren()) {
-        if (const auto stmt = std::dynamic_pointer_cast<TStatement>(child)) {
+    for (auto* child : GetChildren()) {
+        if (auto* stmt = dynamic_cast<TStatement*>(child)) {
             stmt->InvalidatePreparedColumnMeta();
         }
     }
@@ -238,7 +249,9 @@ SQLRETURN TConnection::RollbackTx() {
         return SQL_SUCCESS;
     }
     auto status = Tx_->Rollback().ExtractValueSync();
-    NStatusHelpers::ThrowOnError(status);
+    if (status.GetStatus() != EStatus::NOT_FOUND) {
+        NStatusHelpers::ThrowOnError(status);
+    }
     Tx_.reset();
     CloseStatementCursors();
     return SQL_SUCCESS;

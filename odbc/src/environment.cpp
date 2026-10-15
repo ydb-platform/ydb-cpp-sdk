@@ -64,24 +64,21 @@ SQLRETURN TEnvironment::EndTran(SQLSMALLINT completionType){
     if (completionType != SQL_COMMIT && completionType != SQL_ROLLBACK){
         return AddError("HY012", 0, "Invalid transaction operation code");
     }
-    bool hasFailures = false;
     int failedCount = 0;
     
-    for (const auto& child : GetChildren()) {
-        const auto conn = std::static_pointer_cast<TConnection>(child);
+    for (auto* child : GetChildren()) {
+        auto* conn = static_cast<TConnection*>(child);
         try {
             conn->EndTranFromEnvironment(completionType);
         } catch (const std::exception& ex) {
-            hasFailures = true;
             ++failedCount;
             AddError("HY000", 0, ex.what());
         } catch (...) {
-            hasFailures = true;
             ++failedCount;
             AddError("HY000", 0, "Unknown error during ENV-level transaction completion");
         }
     }
-    if (hasFailures) {
+    if (failedCount != 0) {
         AddError("HY000", 0,
             "SQLEndTran(SQL_HANDLE_ENV): " + std::to_string(failedCount) + " connection(s) failed");
         return SQL_ERROR;

@@ -89,3 +89,41 @@ TEST(DescriptorApi, ExplicitDescAllocCopy) {
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);
     SQLFreeHandle(SQL_HANDLE_ENV, env);
 }
+
+TEST(DescriptorApi, FreeBoundDescriptorsRestoresOriginals) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    SQLHDESC originalArd = SQL_NULL_HDESC, originalApd = SQL_NULL_HDESC;
+    CHECK_ODBC_OK(SQLGetStmtAttr(stmt, SQL_ATTR_APP_ROW_DESC, &originalArd, sizeof(originalArd), nullptr), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLGetStmtAttr(stmt, SQL_ATTR_APP_PARAM_DESC, &originalApd, sizeof(originalApd), nullptr), stmt, SQL_HANDLE_STMT);
+    SQLINTEGER value = 0, parameter = 37;
+    CHECK_ODBC_OK(SQLBindCol(stmt, 1, SQL_C_LONG, &value, sizeof(value), nullptr), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER,
+                                  0, 0, &parameter, sizeof(parameter), nullptr), stmt, SQL_HANDLE_STMT);
+    SQLHDESC descriptor = SQL_NULL_HDESC;
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_DESC, dbc, &descriptor), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_APP_ROW_DESC, descriptor, 0), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_APP_PARAM_DESC, descriptor, 0), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFreeHandle(SQL_HANDLE_DESC, descriptor), SQL_SUCCESS);
+    SQLHDESC restored = SQL_NULL_HDESC;
+    CHECK_ODBC_OK(SQLGetStmtAttr(stmt, SQL_ATTR_APP_ROW_DESC, &restored, sizeof(restored), nullptr), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(restored, originalArd);
+    CHECK_ODBC_OK(SQLGetStmtAttr(stmt, SQL_ATTR_APP_PARAM_DESC, &restored, sizeof(restored), nullptr), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(restored, originalApd);
+    CHECK_ODBC_OK(SQLPrepare(stmt, (SQLCHAR*)"SELECT ? AS value", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    EXPECT_EQ(value, parameter);
+    SQLSMALLINT count = 0;
+    CHECK_ODBC_OK(SQLNumParams(stmt, &count), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(count, 1);
+    CHECK_ODBC_OK(SQLNumResultCols(stmt, &count), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(count, 1);
+    EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_STMT, stmt), SQL_SUCCESS);
+    EXPECT_EQ(SQLDisconnect(dbc), SQL_SUCCESS);
+    EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_DBC, dbc), SQL_SUCCESS);
+    EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_ENV, env), SQL_SUCCESS);
+}

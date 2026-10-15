@@ -10,6 +10,7 @@
 #include "odbc_compat.h"
 
 #include <optional>
+#include <memory>
 
 namespace {
     namespace Odbc = NYdb::NOdbc;
@@ -72,12 +73,18 @@ namespace {
 
     template<class Handle>
     SQLRETURN Free(SQLHANDLE handle) {
-        return Call<Odbc::ECallMode::Consuming, Handle, std::is_same_v<Handle, TConnection>>(handle, [](Handle* value) {
+        // Destruction must follow release of the handle's operation lock.
+        std::unique_ptr<Handle> consumed;
+        return Call<Odbc::ECallMode::Consuming, Handle,
+                    std::is_same_v<Handle, TConnection> || std::is_same_v<Handle, TDescriptor>>(handle, [&](Handle* value) {
             if constexpr (std::is_same_v<Handle, TEnvironment>) {
                 if (value->HasChildren()) {
                     return value->AddError("HY010", 0, "Connection handles are still allocated");
                 }
             } else if constexpr (std::is_same_v<Handle, TConnection>) {
+                if (value->IsConnected()) {
+                    return value->AddError("HY010", 0, "Connection must be disconnected before freeing");
+                }
                 if (value->HasChildren()) {
                     return value->AddError("HY010", 0, "Statement or descriptor handles are still allocated");
                 }
@@ -85,11 +92,20 @@ namespace {
                 if (value->GetDescType() != Odbc::EDescType::Explicit) {
                     return value->AddError("HY017", 0, "Invalid use of an automatically allocated descriptor handle");
                 }
+                for (auto* child : value->GetConnection().GetChildren()) {
+                    if (auto* statement = dynamic_cast<TStatement*>(child)) {
+                        statement->ResetDescriptor(*value);
+                    }
+                }
             } else if constexpr (std::is_same_v<Handle, TStatement>) {
-                value->UnregisterDescriptors();
+                if (value->NeedsData()) {
+                    return value->AddError("HY010", 0, "Statement still needs parameter data");
+                }
             }
-            value->Retire();
-            Odbc::UnregisterHandle(value);
+            if (auto* parent = value->GetParent()) {
+                parent->RemoveChild(value);
+            }
+            consumed.reset(value);
             return static_cast<SQLRETURN>(SQL_SUCCESS);
         });
     }
@@ -97,32 +113,29 @@ namespace {
     template<class Handle>
     SQLRETURN Allocate(SQLHANDLE parentHandle, SQLHANDLE* output) {
         if constexpr (std::is_same_v<Handle, TEnvironment>) {
+            if (!output) {
+                return SQL_ERROR;
+            }
             try {
-                auto value = std::make_shared<TEnvironment>();
-                Odbc::RegisterHandle(value.get(), value);
-                *output = value.get();
+                *output = static_cast<Odbc::THandle*>(new TEnvironment());
                 return SQL_SUCCESS;
             } catch (...) {
                 return SQL_ERROR;
             }
         } else {
             using Parent = std::conditional_t<std::is_same_v<Handle, TConnection>, TEnvironment, TConnection>;
-            return Call<Odbc::ECallMode::Ordinary, Parent>(parentHandle, [&](Parent* parent) {
-                auto value = std::make_shared<Handle>(
-                    std::static_pointer_cast<Parent>(Odbc::PinHandle(parent)));
-                try {
-                    Odbc::RegisterHandle(value.get(), value);
-                    if constexpr (std::is_same_v<Handle, TStatement>) {
-                        value->RegisterDescriptors(value);
-                    }
-                } catch (...) {
-                    if constexpr (std::is_same_v<Handle, TStatement>) {
-                        value->UnregisterDescriptors();
-                    }
-                    Odbc::UnregisterHandle(value.get());
-                    throw;
+            return Call<Odbc::ECallMode::Ordinary, Parent>(parentHandle, [&](Parent* parent) -> SQLRETURN {
+                if (!output) {
+                    return parent->AddError("HY009", 0, "Output handle pointer is null");
                 }
-                *output = value.get();
+                if constexpr (std::is_same_v<Parent, TConnection>) {
+                    if (!parent->IsConnected()) {
+                        return parent->AddError("08003", 0, "Connection not open");
+                    }
+                }
+                auto value = std::make_unique<Handle>(parent);
+                parent->AddChild(value.get());
+                *output = static_cast<Odbc::THandle*>(value.release());
                 return SQL_SUCCESS;
             });
         }
@@ -162,8 +175,8 @@ extern "C" {
 SQLRETURN SQL_API SQLAllocHandle(SQLSMALLINT handleType, 
                                  SQLHANDLE inputHandle,
                                  SQLHANDLE* outputHandle) {
-    if (!outputHandle) {
-        return SQL_INVALID_HANDLE;
+    if (outputHandle) {
+        *outputHandle = SQL_NULL_HANDLE;
     }
 
     switch (handleType) {
@@ -181,7 +194,7 @@ SQLRETURN SQL_API SQLFreeHandle(SQLSMALLINT handleType, SQLHANDLE handle) {
         case SQL_HANDLE_DBC: return Free<TConnection>(handle);
         case SQL_HANDLE_STMT: return Free<TStatement>(handle);
         case SQL_HANDLE_DESC: return Free<TDescriptor>(handle);
-        default: return SQL_ERROR;
+        default: return SQL_INVALID_HANDLE;
     }
 }
 
@@ -282,11 +295,6 @@ SQLRETURN SQL_API SQLEndTran(SQLSMALLINT handleType, SQLHANDLE handle, SQLSMALLI
         return Forward<TEnvironment, &TEnvironment::EndTran>(handle, completionType);
     }
     if (handleType == SQL_HANDLE_DBC) {
-        // Keep the same object alive across the shared-to-exclusive lock upgrade.
-        const auto owner = Odbc::PinHandle(handle);
-        if (!owner) {
-            return SQL_INVALID_HANDLE;
-        }
         const auto preflight = Call<Odbc::ECallMode::Ordinary, TConnection>(handle, [&](auto* connection) {
             if (completionType != SQL_COMMIT && completionType != SQL_ROLLBACK) {
                 throw Odbc::TOdbcException("HY012", 0, "Invalid transaction operation code");
@@ -434,7 +442,7 @@ ODBC_FORWARD(SQLPutData, TStatement, TStatement::PutData,
     (SQLHSTMT statementHandle, SQLPOINTER data, SQLLEN strLenOrInd),
     (statementHandle, data, strLenOrInd))
 SQLRETURN SQL_API SQLCancel(SQLHSTMT statementHandle) {
-    auto stmt = std::dynamic_pointer_cast<TStatement>(Odbc::PinHandle(statementHandle));
+    auto* stmt = Odbc::CheckedHandle<TStatement>(statementHandle);
     return stmt ? stmt->Cancel() : SQL_INVALID_HANDLE;
 }
 

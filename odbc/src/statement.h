@@ -24,11 +24,9 @@ using TMetadataArgument = std::optional<std::string>;
 
 class TStatement : public THandle {
 public:
-    explicit TStatement(std::shared_ptr<TConnection> conn);
+    explicit TStatement(TConnection* conn);
     TConnection& GetConnection() const noexcept { return static_cast<TConnection&>(*GetParent()); }
-    void RegisterDescriptors(const std::shared_ptr<TStatement>& owner);
-    void UnregisterDescriptors();
-    void BeforeCall() override;
+    void ResetDescriptor(TDescriptor& descriptor);
 
     SQLRETURN Prepare(const std::string& statementText);
     SQLRETURN Execute();
@@ -81,6 +79,7 @@ public:
     SQLRETURN ParamData(SQLPOINTER* valuePtr);
     SQLRETURN PutData(SQLPOINTER data, SQLLEN strLenOrInd);
     SQLRETURN Cancel();
+    bool NeedsData() const { return InAtExec_; }
     bool IsExecuting() const { return ExecutionState_.load(std::memory_order_relaxed) != EExecutionState::Idle; }
     bool IsCancelRequested() const { return ExecutionState_.load(std::memory_order_relaxed) == EExecutionState::CancelRequested; }
     SQLRETURN SetCursorName(const std::string& name);
@@ -98,6 +97,8 @@ public:
 
 private:
     friend class TConnection;
+    template <ECallMode Mode, typename Handle, bool Exclusive, class Fn>
+    friend SQLRETURN CallOdbc(SQLHANDLE handlePtr, Fn&& func);
 
     enum class EExecutionState : unsigned char { Idle, Executing, CancelRequested };
 
@@ -143,8 +144,8 @@ private:
     TDescriptor AppParamDesc_;
     TDescriptor ImpRowDesc_;
     TDescriptor ImpParamDesc_;
-    std::shared_ptr<TDescriptor> AppRowOwner_;
-    std::shared_ptr<TDescriptor> AppParamOwner_;
+    TDescriptor* AppRowDescPtr_ = nullptr;
+    TDescriptor* AppParamDescPtr_ = nullptr;
     TDescriptorState RowBindings_;
     TDescriptorState ParamBindings_;
     TDescriptorState ImpParamBindings_;
@@ -156,7 +157,6 @@ private:
     std::atomic<EExecutionState> ExecutionState_ = EExecutionState::Idle;
     SQLUSMALLINT NeedDataParam_ = 0;
     bool InAtExec_ = false;
-    bool NeedDataTokenDelivered_ = false;
     std::vector<TAtExecValue> AtExecValues_; // indexed by parameter number
     std::vector<SQLLEN> GetDataOffsets_;
 
@@ -168,14 +168,15 @@ private:
     void EnsurePreparedColumnMeta();
     void InvalidatePreparedColumnMeta();
     void SetImpRowDesc(const std::vector<TColumnMeta>& columns);
-    TDescriptor& GetAppRowDesc() { return AppRowOwner_ ? *AppRowOwner_ : AppRowDesc_; }
-    TDescriptor& GetAppParamDesc() { return AppParamOwner_ ? *AppParamOwner_ : AppParamDesc_; }
+    void SetAppDescriptor(SQLINTEGER attr, TDescriptor* descriptor);
+    TDescriptor& GetAppRowDesc() { return AppRowDescPtr_ ? *AppRowDescPtr_ : AppRowDesc_; }
+    TDescriptor& GetAppParamDesc() { return AppParamDescPtr_ ? *AppParamDescPtr_ : AppParamDesc_; }
     void RefreshRowBindings();
     void RefreshParamBindings();
     void StartExecution();
-    void FinishExecution() noexcept;
+    bool FinishExecution() noexcept;
     void CheckCancellation() const;
-    std::optional<SQLRETURN> CancelExecuting();
+    bool CancelExecuting();
     void CheckExecutionStatus(const TStatus& status);
     void SetCursor(std::unique_ptr<ICursor> cursor);
     void ClearResults();

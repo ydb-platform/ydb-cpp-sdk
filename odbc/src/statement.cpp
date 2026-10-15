@@ -68,36 +68,33 @@ namespace {
 
 }
 
-TStatement::TStatement(std::shared_ptr<TConnection> conn)
+TStatement::TStatement(TConnection* conn)
     : THandle(conn)
     , AppRowDesc_(conn, EDescType::AppRow)
     , AppParamDesc_(conn, EDescType::AppParam)
     , ImpRowDesc_(conn, EDescType::ImpRow)
     , ImpParamDesc_(conn, EDescType::ImpParam) {}
 
-void TStatement::RegisterDescriptors(const std::shared_ptr<TStatement>& owner) {
-    for (auto* desc : {&AppRowDesc_, &AppParamDesc_, &ImpRowDesc_, &ImpParamDesc_}) {
-        RegisterHandle(desc, std::shared_ptr<THandle>(owner, desc));
+void TStatement::ResetDescriptor(TDescriptor& descriptor) {
+    if (AppRowDescPtr_ == &descriptor) {
+        SetAppDescriptor(SQL_ATTR_APP_ROW_DESC, nullptr);
+    }
+    if (AppParamDescPtr_ == &descriptor) {
+        SetAppDescriptor(SQL_ATTR_APP_PARAM_DESC, nullptr);
     }
 }
 
-void TStatement::UnregisterDescriptors() {
-    for (auto* desc : {&AppRowDesc_, &AppParamDesc_, &ImpRowDesc_, &ImpParamDesc_}) {
-        desc->Retire();
-        UnregisterHandle(desc);
-    }
-}
-
-void TStatement::BeforeCall() {
-    if (AppRowOwner_ && AppRowOwner_->IsRetired()) {
-        AppRowOwner_.reset();
-        RowGeneration_ = 0;
-    }
-    if (AppParamOwner_ && AppParamOwner_->IsRetired()) {
-        AppParamOwner_.reset();
-        ParamGeneration_ = 0;
-        AtExecValues_.clear();
-        InvalidatePreparedColumnMeta();
+void TStatement::SetAppDescriptor(SQLINTEGER attr, TDescriptor* descriptor) {
+    auto& current = attr == SQL_ATTR_APP_ROW_DESC ? AppRowDescPtr_ : AppParamDescPtr_;
+    if (current != descriptor) {
+        current = descriptor;
+        if (attr == SQL_ATTR_APP_ROW_DESC) {
+            RowGeneration_ = 0;
+        } else {
+            ParamGeneration_ = 0;
+            AtExecValues_.clear();
+            InvalidatePreparedColumnMeta();
+        }
     }
 }
 
@@ -159,9 +156,8 @@ SQLRETURN TStatement::Execute() {
         if (ParamBindings_.GetArraySize() > 1) {
             return AddError("HYC00", 0, "Data-at-execution parameter arrays are not supported");
         }
-        NeedDataParam_ = next;
+        NeedDataParam_ = 0;
         InAtExec_ = true;
-        NeedDataTokenDelivered_ = false;
         return SQL_NEED_DATA;
     }
     InAtExec_ = false;
@@ -289,7 +285,6 @@ SQLRETURN TStatement::ExecuteParamSet(
     }
     InAtExec_ = false;
     NeedDataParam_ = 0;
-    NeedDataTokenDelivered_ = false;
     AtExecValues_.clear();
     return SQL_SUCCESS;
 }
@@ -756,18 +751,16 @@ SQLRETURN TStatement::ParamData(SQLPOINTER* valuePtr) {
         return SQL_NO_DATA;
     }
     RefreshParamBindings();
-    if (NeedDataParam_ != 0 && NeedDataTokenDelivered_) {
+    if (NeedDataParam_ != 0) {
         if (AtExecValues_.size() <= NeedDataParam_) {
             AtExecValues_.resize(NeedDataParam_ + 1);
         }
         AtExecValues_[NeedDataParam_].Complete = true;
         NeedDataParam_ = 0;
-        NeedDataTokenDelivered_ = false;
     }
     const SQLUSMALLINT next = FindNextNeedDataParam();
     if (next != 0) {
         NeedDataParam_ = next;
-        NeedDataTokenDelivered_ = true;
         *valuePtr = ParamBindings_.FindRecord(static_cast<SQLSMALLINT>(next))->DataPtr;
         return SQL_NEED_DATA;
     }
@@ -783,7 +776,7 @@ SQLRETURN TStatement::PutData(SQLPOINTER data, SQLLEN strLenOrInd) {
     RefreshParamBindings();
     const TDescRecord* param = ParamBindings_.FindRecord(
         static_cast<SQLSMALLINT>(NeedDataParam_));
-    if (!param || !NeedDataTokenDelivered_) {
+    if (!param) {
         throw TOdbcException("HY010", 0, "Function sequence error");
     }
     if (AtExecValues_.size() <= NeedDataParam_) {
@@ -817,33 +810,25 @@ SQLRETURN TStatement::PutData(SQLPOINTER data, SQLLEN strLenOrInd) {
 }
 
 SQLRETURN TStatement::Cancel() {
-    if (IsRetired()) {
-        return SQL_INVALID_HANDLE;
-    }
     std::shared_lock<std::shared_mutex> lifecycle;
     std::unique_lock<std::mutex> operation;
     try {
-        if (const auto result = CancelExecuting()) {
-            return *result;
+        if (CancelExecuting()) {
+            return SQL_SUCCESS;
         }
         lifecycle = GetConnection().LockShared(std::try_to_lock);
         if (!lifecycle.owns_lock()) {
-            return CancelExecuting().value_or(SQL_SUCCESS);
+            return CancelExecuting() ? SQL_SUCCESS : SQL_ERROR;
         }
         operation = std::unique_lock(OperationMutex_, std::try_to_lock);
         if (!operation.owns_lock()) {
-            return CancelExecuting().value_or(SQL_SUCCESS);
-        }
-        if (IsRetired()) {
-            return SQL_INVALID_HANDLE;
+            return CancelExecuting() ? SQL_SUCCESS : SQL_ERROR;
         }
         ClearErrors();
-        BeforeCall();
         if (Cursor_ || !RemainingResultSets_.empty() || InAtExec_) {
             ClearResults();
             InAtExec_ = false;
             NeedDataParam_ = 0;
-            NeedDataTokenDelivered_ = false;
             AtExecValues_.clear();
         }
         SetLastReturnCode(SQL_SUCCESS);
@@ -875,16 +860,13 @@ void TStatement::CheckExecutionStatus(const TStatus& status) {
     }
 }
 
-std::optional<SQLRETURN> TStatement::CancelExecuting() {
+bool TStatement::CancelExecuting() {
     auto expected = EExecutionState::Executing;
-    if (ExecutionState_.compare_exchange_strong(expected, EExecutionState::CancelRequested,
-            std::memory_order_relaxed) || expected == EExecutionState::CancelRequested) {
-        return SQL_SUCCESS;
-    }
-    return std::nullopt;
+    return ExecutionState_.compare_exchange_strong(expected, EExecutionState::CancelRequested,
+        std::memory_order_relaxed) || expected == EExecutionState::CancelRequested;
 }
 
-void TStatement::FinishExecution() noexcept {
+bool TStatement::FinishExecution() noexcept {
     const bool requested = ExecutionState_.exchange(EExecutionState::Idle, std::memory_order_relaxed)
         == EExecutionState::CancelRequested;
     if (requested) {
@@ -894,7 +876,11 @@ void TStatement::FinishExecution() noexcept {
             // Disposal already cleared the cursor; don't replace the original diagnostics.
             InvalidatePreparedColumnMeta();
         }
+        InAtExec_ = false;
+        NeedDataParam_ = 0;
+        AtExecValues_.clear();
     }
+    return requested;
 }
 
 SQLRETURN TStatement::SetCursorName(const std::string& name) {
@@ -1021,8 +1007,6 @@ void TStatement::EnsurePreparedColumnMeta() {
     }
 
     std::optional<std::vector<TColumnMeta>> columns;
-    StartExecution();
-    Y_DEFER { FinishExecution(); };
     const NYdb::TStatus execStatus = client->RetryQuerySync(
         [this, &queryText, &params, &columns, queryTimeoutSec](
             NQuery::TSession session) -> NYdb::TStatus {
@@ -1144,27 +1128,28 @@ SQLRETURN TStatement::SetStmtAttr(
     SQLINTEGER attr,
     SQLPOINTER value,
     SQLINTEGER /*stringLength*/) {
+    if (InAtExec_) {
+        return AddError("HY010", 0, "Function sequence error");
+    }
     if (attr == SQL_ATTR_APP_ROW_DESC || attr == SQL_ATTR_APP_PARAM_DESC) {
-        auto owner = std::dynamic_pointer_cast<TDescriptor>(PinHandle(value));
-        if (value && (!owner || owner->IsRetired())) {
+        auto* descriptor = CheckedHandle<TDescriptor>(value);
+        if (value && !descriptor) {
             return AddError("HY024", 0, "Invalid descriptor handle");
         }
-        if (owner && (owner->GetDescType() != EDescType::Explicit
-                      || &owner->GetConnection() != &GetConnection())) {
+        auto& original = attr == SQL_ATTR_APP_ROW_DESC ? AppRowDesc_ : AppParamDesc_;
+        if (descriptor == &original) {
+            descriptor = nullptr;
+        } else if (descriptor && descriptor->GetDescType() != EDescType::Explicit) {
+            return AddError("HY017", 0, "Cannot assign an automatically allocated descriptor");
+        }
+        if (descriptor && &descriptor->GetConnection() != &GetConnection()) {
             return AddError("HY024", 0, "Descriptor belongs to another connection");
         }
-        auto& current = attr == SQL_ATTR_APP_ROW_DESC ? AppRowOwner_ : AppParamOwner_;
-        if (current != owner) {
-            current = std::move(owner);
-            if (attr == SQL_ATTR_APP_ROW_DESC) {
-                RowGeneration_ = 0;
-            } else {
-                ParamGeneration_ = 0;
-                AtExecValues_.clear();
-                InvalidatePreparedColumnMeta();
-            }
-        }
+        SetAppDescriptor(attr, descriptor);
         return SQL_SUCCESS;
+    }
+    if (attr == SQL_ATTR_IMP_ROW_DESC || attr == SQL_ATTR_IMP_PARAM_DESC) {
+        return AddError("HY017", 0, "Cannot assign an implementation descriptor");
     }
     if ((attr == SQL_ATTR_PARAMSET_SIZE || attr == SQL_ATTR_ROW_ARRAY_SIZE)
         && ReadIntegerAttr<SQLULEN>(value) == 0) {
@@ -1298,16 +1283,16 @@ SQLRETURN TStatement::GetStmtAttr(
     }
     switch (attr) {
         case SQL_ATTR_APP_ROW_DESC:
-            *reinterpret_cast<SQLHDESC*>(value) = &GetAppRowDesc();
+            *reinterpret_cast<SQLHDESC*>(value) = static_cast<THandle*>(&GetAppRowDesc());
             return SQL_SUCCESS;
         case SQL_ATTR_APP_PARAM_DESC:
-            *reinterpret_cast<SQLHDESC*>(value) = &GetAppParamDesc();
+            *reinterpret_cast<SQLHDESC*>(value) = static_cast<THandle*>(&GetAppParamDesc());
             return SQL_SUCCESS;
         case SQL_ATTR_IMP_ROW_DESC:
-            *reinterpret_cast<SQLHDESC*>(value) = &ImpRowDesc_;
+            *reinterpret_cast<SQLHDESC*>(value) = static_cast<THandle*>(&ImpRowDesc_);
             return SQL_SUCCESS;
         case SQL_ATTR_IMP_PARAM_DESC:
-            *reinterpret_cast<SQLHDESC*>(value) = &ImpParamDesc_;
+            *reinterpret_cast<SQLHDESC*>(value) = static_cast<THandle*>(&ImpParamDesc_);
             return SQL_SUCCESS;
         default:
             break;
