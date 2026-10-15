@@ -25,3 +25,14 @@ AuthMode=Anonymous
 
 add_subdirectory(integration)
 add_subdirectory(unit)
+
+# Internal headers need SDK compiler settings, but the driver already embeds
+# the SDK: linking it again would register SDK globals twice.
+foreach(target IN ITEMS odbc-concurrency_it odbc-descriptor_ut)
+  target_include_directories(${target} PRIVATE
+    $<TARGET_PROPERTY:YDB-CPP-SDK::Query,INTERFACE_INCLUDE_DIRECTORIES>)
+  target_compile_options(${target} PRIVATE
+    $<TARGET_PROPERTY:YDB-CPP-SDK::Query,INTERFACE_COMPILE_OPTIONS>)
+  target_compile_definitions(${target} PRIVATE
+    $<TARGET_PROPERTY:YDB-CPP-SDK::Query,INTERFACE_COMPILE_DEFINITIONS>)
+endforeach()

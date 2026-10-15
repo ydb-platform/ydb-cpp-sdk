@@ -55,6 +55,7 @@ TEST(TransactionApi, AutocommitOffRollback) {
     CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT value FROM test_rollback WHERE id = 1", SQL_NTS),
                   stmt, SQL_HANDLE_STMT);
     ASSERT_EQ(SQLFetch(stmt), SQL_NO_DATA);
+    CHECK_ODBC_OK(SQLEndTran(SQL_HANDLE_DBC, dbc, SQL_ROLLBACK), dbc, SQL_HANDLE_DBC);
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);
@@ -84,6 +85,7 @@ TEST(TransactionApi, AutocommitOffCommit) {
     SQLINTEGER value;
     ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_LONG, &value, 0, nullptr), SQL_SUCCESS);
     ASSERT_EQ(value, 200);
+    CHECK_ODBC_OK(SQLEndTran(SQL_HANDLE_DBC, dbc, SQL_ROLLBACK), dbc, SQL_HANDLE_DBC);
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);
@@ -116,6 +118,7 @@ TEST(TransactionApi, MultipleStatementsInManualTransaction) {
     SQLINTEGER count;
     ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_LONG, &count, 0, nullptr), SQL_SUCCESS);
     ASSERT_EQ(count, 5);
+    CHECK_ODBC_OK(SQLEndTran(SQL_HANDLE_DBC, dbc, SQL_ROLLBACK), dbc, SQL_HANDLE_DBC);
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);

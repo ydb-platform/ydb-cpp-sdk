@@ -536,10 +536,21 @@ TEST(StatementApi, FreeStmtResetParams) {
     ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
     
     SQLINTEGER param = 42;
-    SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, &param, 0, nullptr);
+    CHECK_ODBC_OK(SQLPrepare(stmt, (SQLCHAR*)"SELECT ?", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(BindIntParam(stmt, 1, &param), stmt, SQL_HANDLE_STMT);
     
     CHECK_ODBC_OK(SQLFreeStmt(stmt, SQL_RESET_PARAMS), stmt, SQL_HANDLE_STMT);
-    
+    for (SQLINTEGER attr : {SQL_ATTR_APP_PARAM_DESC, SQL_ATTR_IMP_PARAM_DESC}) {
+        SQLHDESC desc = SQL_NULL_HDESC;
+        CHECK_ODBC_OK(SQLGetStmtAttr(stmt, attr, &desc, sizeof(desc), nullptr), stmt, SQL_HANDLE_STMT);
+        SQLSMALLINT count = -1;
+        CHECK_ODBC_OK(SQLGetDescField(desc, 0, SQL_DESC_COUNT, &count, 0, nullptr), desc, SQL_HANDLE_DESC);
+        EXPECT_EQ(count, 0);
+    }
+    CHECK_ODBC_OK(BindIntParam(stmt, 1, &param), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(FetchIntResult(stmt), param);
+
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);

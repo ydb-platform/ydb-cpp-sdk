@@ -83,6 +83,10 @@ class TScalarProperties {
     }
 
 public:
+    static bool CanSet(SQLINTEGER id) {
+        return ((TProperties::Writable && id == TProperties::Id) || ...);
+    }
+
     template<typename TObject>
     static std::optional<SQLRETURN> Get(
         SQLINTEGER id,
