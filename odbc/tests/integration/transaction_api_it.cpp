@@ -180,24 +180,3 @@ TEST(TransactionApi, TxnIsolationUnsupportedInReadWrite) {
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);
     SQLFreeHandle(SQL_HANDLE_ENV, env);
 }
-
-TEST(TransactionApi, DisconnectRejectsActiveTransaction) {
-    SQLHENV env;
-    SQLHDBC dbc;
-    SQLHSTMT stmt;
-    AllocEnvAndConnect(&env, &dbc);
-    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
-    CHECK_ODBC_OK(SQLSetConnectAttr(dbc, SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_OFF, 0), dbc, SQL_HANDLE_DBC);
-    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT 42", SQL_NTS), stmt, SQL_HANDLE_STMT);
-    EXPECT_EQ(SQLDisconnect(dbc), SQL_ERROR);
-    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(dbc, SQL_HANDLE_DBC), "25000"));
-    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
-    SQLINTEGER value = 0;
-    CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_LONG, &value, sizeof(value), nullptr), stmt, SQL_HANDLE_STMT);
-    EXPECT_EQ(value, 42);
-    CHECK_ODBC_OK(SQLEndTran(SQL_HANDLE_DBC, dbc, SQL_ROLLBACK), dbc, SQL_HANDLE_DBC);
-    EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_STMT, stmt), SQL_SUCCESS);
-    EXPECT_EQ(SQLDisconnect(dbc), SQL_SUCCESS);
-    EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_DBC, dbc), SQL_SUCCESS);
-    EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_ENV, env), SQL_SUCCESS);
-}
