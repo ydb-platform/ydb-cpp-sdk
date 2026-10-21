@@ -274,7 +274,7 @@ SQLRETURN TStatement::ExecuteParamSet(
 
         NStatusHelpers::ThrowOnError(execStatus);
     } else {
-        NQuery::TSession& session = GetConnection().GetOrCreateQuerySession();
+        auto session = GetConnection().GetOrCreateTx(*this).GetSession();
         CheckCancellation();
         NQuery::TExecuteQueryResult result = ExecuteQuery(session, params, paramSet);
         NStatusHelpers::ThrowOnError(result);
@@ -365,12 +365,6 @@ NQuery::TExecuteQueryResult TStatement::ExecuteQuery(
             NQuery::TTxControl::BeginTx(txSettings).CommitTx(),
             params,
             execSettings).ExtractValueSync();
-    }
-    if (!GetConnection().GetTx()) {
-        auto beginTxResult = session.BeginTransaction(txSettings).ExtractValueSync();
-        NStatusHelpers::ThrowOnError(beginTxResult);
-        GetConnection().SetTx(beginTxResult.GetTransaction());
-        CheckCancellation();
     }
     return session.ExecuteQuery(
         queryText,

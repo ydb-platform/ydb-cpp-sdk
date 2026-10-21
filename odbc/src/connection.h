@@ -22,7 +22,7 @@ class TStatement;
 class TConnection : public THandle {
 private:
     std::shared_mutex Lifecycle_; // Shared by calls; exclusive for connection-state changes and child invalidation.
-    std::mutex TransactionMutex_; // Tx_, QuerySession_; also protected by exclusive Lifecycle_.
+    std::mutex TransactionMutex_; // Tx_; also protected by exclusive Lifecycle_.
     struct TYdbState {
         // Declared first: constructed before clients, destroyed after them.
         TDriver Driver;
@@ -45,7 +45,6 @@ private:
     std::optional<TYdbState> Ydb_;
     std::optional<TDriverConfig> DriverConfig_;
     std::optional<NQuery::TTransaction> Tx_;
-    std::optional<NQuery::TSession> QuerySession_;
 
     std::string Database_;
     std::string ServerName_;
@@ -59,6 +58,7 @@ private:
     void RecreateYdbClients();
     void RebindToDatabase(std::string_view newDatabase);
     void InvalidatePreparedStatementMetadata();
+    SQLRETURN EndTx(bool commit);
 public:
     explicit TConnection(TEnvironment* parent = nullptr) : THandle(parent) {}
     TConnection& GetConnection() noexcept { return *this; }
@@ -83,7 +83,7 @@ public:
     void EndTranFromEnvironment(SQLSMALLINT completionType);
 
     std::optional<NQuery::TQueryClient> GetClient();
-    NQuery::TSession& GetOrCreateQuerySession();
+    NQuery::TTransaction& GetOrCreateTx(TStatement& statement);
     std::optional<NTable::TTableClient> GetTableClient();
     std::optional<NScheme::TSchemeClient> GetSchemeClient();
 
@@ -104,10 +104,9 @@ public:
     bool IsDataSourceReadOnly() const;
 
     const std::optional<NQuery::TTransaction>& GetTx();
-    void SetTx(const NQuery::TTransaction& tx);
 
-    SQLRETURN CommitTx();
-    SQLRETURN RollbackTx();
+    SQLRETURN CommitTx() { return EndTx(true); }
+    SQLRETURN RollbackTx() { return EndTx(false); }
 
     SQLRETURN NativeSql(const std::string& inSql, SQLCHAR* outSql, SQLINTEGER outMax, SQLINTEGER* outLen);
 };
