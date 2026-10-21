@@ -4,6 +4,8 @@ _ydb_sdk_add_library(client-ydb_query)
 
 # Work around LLVM 20 ThinLTO codegen crashes in transaction precommit.
 set_target_properties(client-ydb_query PROPERTIES INTERPROCEDURAL_OPTIMIZATION FALSE)
+target_compile_options(client-ydb_query PRIVATE
+  "$<$<COMPILE_LANG_AND_ID:CXX,Clang,AppleClang,GNU>:-fno-lto>")
 
 target_link_libraries(client-ydb_query PUBLIC
   yutil
