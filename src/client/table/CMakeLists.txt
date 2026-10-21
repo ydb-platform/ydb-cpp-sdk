@@ -3,6 +3,9 @@ add_subdirectory(query_stats)
 
 _ydb_sdk_add_library(client-ydb_table)
 
+# Work around LLVM 20 ThinLTO codegen crashes in table coroutine templates.
+set_target_properties(client-ydb_table PROPERTIES INTERPROCEDURAL_OPTIMIZATION FALSE)
+
 target_link_libraries(client-ydb_table PUBLIC
   yutil
   enum_serialization_runtime
