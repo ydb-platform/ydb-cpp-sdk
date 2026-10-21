@@ -16,7 +16,6 @@
 namespace NYdb::NOdbc {
 
 void TConnection::DestroyYdbState() {
-    QuerySession_.reset();
     Tx_.reset();
     Ydb_.reset();
 }
@@ -106,13 +105,21 @@ SQLRETURN TConnection::Disconnect() {
     return SQL_SUCCESS;
 }
 
-NQuery::TSession& TConnection::GetOrCreateQuerySession() {
-    if (!QuerySession_) {
-        auto sessionResult = Ydb_->QueryClient.GetSession().ExtractValueSync();
-        NStatusHelpers::ThrowOnError(sessionResult);
-        QuerySession_.emplace(std::move(sessionResult.GetSession()));
+NQuery::TTransaction& TConnection::GetOrCreateTx(TStatement& statement) {
+    if (!Tx_) {
+        // Retry only transaction creation; never replay statements in an existing transaction.
+        auto status = Ydb_->QueryClient.RetryQuerySync([&](NQuery::TSession session) {
+            statement.CheckCancellation();
+            auto result = session.BeginTransaction(MakeTxSettings()).ExtractValueSync();
+            statement.CheckExecutionStatus(result);
+            if (result.IsSuccess()) {
+                Tx_.emplace(result.GetTransaction());
+            }
+            return TStatus(result);
+        });
+        NStatusHelpers::ThrowOnError(status);
     }
-    return *QuerySession_;
+    return *Tx_;
 }
 
 std::optional<NQuery::TQueryClient> TConnection::GetClient() {
@@ -184,7 +191,6 @@ void TConnection::InvalidatePreparedStatementMetadata() {
 SQLRETURN TConnection::SetAutocommit(bool value) {
     if (value) {
         CommitTx();
-        QuerySession_.reset();
     }
     return Attributes_.SetAutocommit(value);
 }
@@ -229,31 +235,26 @@ const std::optional<NQuery::TTransaction>& TConnection::GetTx() {
     return Tx_;
 }
 
-void TConnection::SetTx(const NQuery::TTransaction& tx) {
-    Tx_ = tx;
-}
-
-SQLRETURN TConnection::CommitTx() {
+SQLRETURN TConnection::EndTx(bool commit) {
     if (!Tx_) {
         return SQL_SUCCESS;
     }
-    auto status = Tx_->Commit().ExtractValueSync();
+    auto status = commit ? TStatus(Tx_->Commit().ExtractValueSync()) : Tx_->Rollback().ExtractValueSync();
+    const bool missing = status.GetStatus() == EStatus::NOT_FOUND || status.GetStatus() == EStatus::BAD_SESSION
+        || status.GetStatus() == EStatus::SESSION_EXPIRED;
+    // Keep uncertain or still-active transactions available for rollback.
+    if (status.IsSuccess() || missing || status.GetStatus() == EStatus::ABORTED) {
+        Tx_.reset();
+        CloseStatementCursors();
+    }
+    if (missing) {
+        if (commit) {
+            throw TOdbcException("25S01", static_cast<SQLINTEGER>(status.GetStatus()),
+                                "Transaction no longer exists: " + status.GetIssues().ToString());
+        }
+        return SQL_SUCCESS;
+    }
     NStatusHelpers::ThrowOnError(status);
-    Tx_.reset();
-    CloseStatementCursors();
-    return SQL_SUCCESS;
-}
-
-SQLRETURN TConnection::RollbackTx() {
-    if (!Tx_) {
-        return SQL_SUCCESS;
-    }
-    auto status = Tx_->Rollback().ExtractValueSync();
-    if (status.GetStatus() != EStatus::NOT_FOUND) {
-        NStatusHelpers::ThrowOnError(status);
-    }
-    Tx_.reset();
-    CloseStatementCursors();
     return SQL_SUCCESS;
 }
 

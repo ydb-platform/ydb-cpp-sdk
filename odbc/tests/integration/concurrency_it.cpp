@@ -349,15 +349,64 @@ TEST(Concurrency, LocalCancelPreservesTransactionSession) {
                                reinterpret_cast<SQLPOINTER>(SQL_AUTOCOMMIT_OFF), 0), SQL_SUCCESS);
     ASSERT_EQ(Execute(statement.Handle), SQL_SUCCESS);
     auto owner = CheckedHandle<TConnection>(connection.Dbc);
-    const auto sessionId = owner->GetOrCreateQuerySession().GetId();
+    const auto sessionId = owner->GetTx()->GetSession().GetId();
     const auto transactionId = owner->GetTx()->GetId();
     EXPECT_EQ(SQLCancel(statement.Handle), SQL_SUCCESS);
-    EXPECT_EQ(owner->GetOrCreateQuerySession().GetId(), sessionId);
+    EXPECT_EQ(owner->GetTx()->GetSession().GetId(), sessionId);
     ASSERT_TRUE(owner->GetTx().has_value());
     EXPECT_EQ(owner->GetTx()->GetId(), transactionId);
     EXPECT_EQ(Execute(other.Handle), SQL_SUCCESS);
     EXPECT_EQ(Execute(statement.Handle), SQL_SUCCESS);
     EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_COMMIT), SQL_SUCCESS);
+}
+
+TEST(Concurrency, FailedTransactionCompletionReleasesSession) {
+    TConnectionHandles connection;
+    TStatementHandle statement(connection.Dbc);
+    auto* owner = CheckedHandle<TConnection>(connection.Dbc);
+    ASSERT_EQ(SQLSetConnectAttr(connection.Dbc, SQL_ATTR_AUTOCOMMIT,
+                               reinterpret_cast<SQLPOINTER>(SQL_AUTOCOMMIT_OFF), 0), SQL_SUCCESS);
+    for (bool deleteSession : {false, true}) {
+        for (auto completion : {SQL_COMMIT, SQL_ROLLBACK}) {
+            SCOPED_TRACE(::testing::Message() << "deleteSession=" << deleteSession << " completion=" << completion);
+            ASSERT_EQ(Execute(statement.Handle), SQL_SUCCESS);
+            const auto sessionId = owner->GetTx()->GetSession().GetId();
+            if (deleteSession) {
+                ASSERT_TRUE(owner->GetClient()->DeleteSession(sessionId).ExtractValueSync().IsSuccess());
+                if (completion == SQL_COMMIT) {
+                    ASSERT_EQ(Execute(statement.Handle), SQL_ERROR);
+                    EXPECT_EQ(SqlState(statement.Handle), "08003");
+                }
+            } else {
+                auto tx = *owner->GetTx();
+                ASSERT_TRUE(tx.Rollback().ExtractValueSync().IsSuccess());
+            }
+            EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, completion),
+                      completion == SQL_COMMIT ? SQL_ERROR : SQL_SUCCESS);
+            if (completion == SQL_COMMIT) {
+                EXPECT_EQ(SqlState(connection.Dbc, SQL_HANDLE_DBC), "25S01");
+            }
+            ASSERT_FALSE(owner->GetTx());
+            EXPECT_TRUE(WaitUntil([&] { return owner->GetClient()->GetActiveSessionCount() == 0; }));
+            EXPECT_EQ(SQLFetch(statement.Handle), SQL_NO_DATA);
+            ASSERT_EQ(Execute(statement.Handle), SQL_SUCCESS) << SqlState(statement.Handle);
+            EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_ROLLBACK), SQL_SUCCESS);
+        }
+    }
+    for (auto status : {NYdb::EStatus::OVERLOADED, NYdb::EStatus::UNDETERMINED}) {
+        ASSERT_EQ(Execute(statement.Handle), SQL_SUCCESS);
+        auto tx = *owner->GetTx();
+        tx.AddPrecommitCallback([status] {
+            return NThreading::MakeFuture(NYdb::TStatus(status, NYdb::NIssue::TIssues()));
+        });
+        EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_COMMIT), SQL_ERROR);
+        EXPECT_EQ(SqlState(connection.Dbc, SQL_HANDLE_DBC),
+                  status == NYdb::EStatus::UNDETERMINED ? "40003" : "HY000");
+        ASSERT_TRUE(owner->GetTx());
+        EXPECT_EQ(owner->GetTx()->GetId(), tx.GetId());
+        EXPECT_EQ(SQLFetch(statement.Handle), SQL_SUCCESS);
+        EXPECT_EQ(SQLEndTran(SQL_HANDLE_DBC, connection.Dbc, SQL_ROLLBACK), SQL_SUCCESS);
+    }
 }
 
 TEST(Concurrency, ActiveLocalCancelPreservesTransactionSession) {
@@ -369,7 +418,7 @@ TEST(Concurrency, ActiveLocalCancelPreservesTransactionSession) {
     ASSERT_EQ(SQLSetConnectAttr(connection.Dbc, SQL_ATTR_AUTOCOMMIT,
                                reinterpret_cast<SQLPOINTER>(SQL_AUTOCOMMIT_OFF), 0), SQL_SUCCESS);
     ASSERT_EQ(Execute(statement.Handle), SQL_SUCCESS);
-    const auto sessionId = owner->GetOrCreateQuerySession().GetId();
+    const auto sessionId = owner->GetTx()->GetSession().GetId();
     const auto transactionId = owner->GetTx()->GetId();
     paused->PauseNextExecution();
     auto execution = std::async(std::launch::async, [&] {
@@ -382,7 +431,7 @@ TEST(Concurrency, ActiveLocalCancelPreservesTransactionSession) {
     EXPECT_EQ(execution.wait_for(5s), std::future_status::ready);
     EXPECT_EQ(execution.get(), SQL_SUCCESS) << SqlState(statement.Handle);
     EXPECT_EQ(SQLFetch(statement.Handle), SQL_NO_DATA);
-    EXPECT_EQ(owner->GetOrCreateQuerySession().GetId(), sessionId);
+    EXPECT_EQ(owner->GetTx()->GetSession().GetId(), sessionId);
     ASSERT_TRUE(owner->GetTx().has_value());
     EXPECT_EQ(owner->GetTx()->GetId(), transactionId);
     EXPECT_EQ(Execute(statement.Handle), SQL_SUCCESS);
@@ -468,7 +517,7 @@ TEST(Concurrency, CancelQueuedTransactionDoesNotWaitOrAbortOtherStatements) {
                                reinterpret_cast<SQLPOINTER>(SQL_AUTOCOMMIT_OFF), 0), SQL_SUCCESS);
     auto owner = CheckedHandle<TConnection>(connection.Dbc);
     ASSERT_EQ(Execute(statement.Handle), SQL_SUCCESS);
-    const auto sessionId = owner->GetOrCreateQuerySession().GetId();
+    const auto sessionId = owner->GetTx()->GetSession().GetId();
     const auto transactionId = owner->GetTx()->GetId();
     auto stmt = CheckedHandle<TStatement>(statement.Handle);
     auto transaction = owner->LockTransaction();
@@ -487,7 +536,7 @@ TEST(Concurrency, CancelQueuedTransactionDoesNotWaitOrAbortOtherStatements) {
     EXPECT_EQ(cancel.get(), SQL_SUCCESS);
     EXPECT_EQ(execution.get(), SQL_ERROR);
     EXPECT_EQ(SqlState(statement.Handle), "HY008");
-    EXPECT_EQ(owner->GetOrCreateQuerySession().GetId(), sessionId);
+    EXPECT_EQ(owner->GetTx()->GetSession().GetId(), sessionId);
     ASSERT_TRUE(owner->GetTx().has_value());
     EXPECT_EQ(owner->GetTx()->GetId(), transactionId);
     TStatementHandle other(connection.Dbc);
