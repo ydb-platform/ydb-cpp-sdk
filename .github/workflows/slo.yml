@@ -284,8 +284,8 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ matrix.sdk.cache_scope }}-${{ matrix.sdk.preset }}-baseline
 
       - name: Run SLO Tests
-        # Pin Topic compatibility until ydb-slo-action#81 is merged.
-        uses: ydb-platform/ydb-slo-action/init@bb5f9d47f928d2284c94fb0916e93e380a2fa5f2
+        # Pin legacy telemetry fixes until ydb-slo-action#81 is merged.
+        uses: ydb-platform/ydb-slo-action/init@e136720bca3783a0bd2d14e78ac591275573c0b3
         timeout-minutes: 30
         env:
           BUILDX_BUILDER: default
