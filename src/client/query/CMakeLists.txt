@@ -2,6 +2,9 @@ add_subdirectory(impl)
 
 _ydb_sdk_add_library(client-ydb_query)
 
+# Work around LLVM 20 ThinLTO codegen crashes in transaction precommit.
+set_target_properties(client-ydb_query PROPERTIES INTERPROCEDURAL_OPTIMIZATION FALSE)
+
 target_link_libraries(client-ydb_query PUBLIC
   yutil
   impl-internal-make_request

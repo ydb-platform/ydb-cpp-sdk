@@ -1,5 +1,8 @@
 _ydb_sdk_add_library(client-ydb_query-impl)
 
+# Work around LLVM 20 ThinLTO codegen crashes in StreamExecuteQuery.
+set_target_properties(client-ydb_query-impl PROPERTIES INTERPROCEDURAL_OPTIMIZATION FALSE)
+
 target_link_libraries(client-ydb_query-impl PUBLIC
   yutil
   api-grpc

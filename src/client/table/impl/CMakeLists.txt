@@ -1,5 +1,8 @@
 _ydb_sdk_add_library(client-ydb_table-impl)
 
+# Work around LLVM 20 ThinLTO codegen crashes in transaction coroutines.
+set_target_properties(client-ydb_table-impl PROPERTIES INTERPROCEDURAL_OPTIMIZATION FALSE)
+
 target_link_libraries(client-ydb_table-impl
   PUBLIC
     yutil

@@ -366,6 +366,7 @@ function(_ydb_sdk_collect_package_target PackageName Tgt)
       if (resolved_srcs)
         get_target_property(tgt_compile_defs ${Tgt} COMPILE_DEFINITIONS)
         get_target_property(tgt_compile_opts ${Tgt} COMPILE_OPTIONS)
+        get_target_property(tgt_ipo ${Tgt} INTERPROCEDURAL_OPTIMIZATION)
         foreach(resolved_src IN LISTS resolved_srcs)
           get_source_file_property(_file_simd_flags ${resolved_src} COMPILE_FLAGS)
           if (_file_simd_flags STREQUAL "NOTFOUND")
@@ -391,6 +392,12 @@ function(_ydb_sdk_collect_package_target PackageName Tgt)
 
           if (tgt_compile_opts)
             _ydb_sdk_apply_source_compile_opts(${resolved_src} "${tgt_compile_opts}")
+          endif()
+
+          # Package libraries recompile target sources, so preserve their LTO exclusion.
+          if (tgt_ipo STREQUAL "FALSE")
+            set_property(SOURCE "${resolved_src}" APPEND PROPERTY COMPILE_OPTIONS
+              "$<$<COMPILE_LANG_AND_ID:CXX,Clang,AppleClang,GNU>:-fno-lto>")
           endif()
 
           if (_file_simd_flags)
