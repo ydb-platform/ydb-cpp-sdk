@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="php" tests="95" failures="30" errors="0" skip="7" time="8.4145">
-<testsuite name="php.ext.pdo.tests" tests="85" failures="25" errors="0" skip="6" time="7.2334">
-<testcase name='ext/pdo/tests/bug_34630.phpt (PDO Common: Bug #34630 (inserting streams as LOBs))' time='0.1067'>
+<testsuites name="php" tests="95" failures="30" errors="0" skip="7" time="8.1036">
+<testsuite name="php.ext.pdo.tests" tests="85" failures="25" errors="0" skip="6" time="6.8792">
+<testcase name='ext/pdo/tests/bug_34630.phpt (PDO Common: Bug #34630 (inserting streams as LOBs))' time='0.0996'>
 <failure type='FAILED' message=''>001- array(1) {
 002-   [0]=&gt;
 003-   array(2) {
@@ -18,9 +18,9 @@
 005+   thrown in /work/source/ext/pdo/tests/bug_34630.php on line 30
 </failure>
 </testcase>
-<testcase name='ext/pdo/tests/bug_34687.phpt (PDO Common: Bug #34687 (query doesn&#039;t return error information))' time='0.0553'>
+<testcase name='ext/pdo/tests/bug_34687.phpt (PDO Common: Bug #34687 (query doesn&#039;t return error information))' time='0.0484'>
 </testcase>
-<testcase name='ext/pdo/tests/bug_35671.phpt (PDO Common: Bug #35671 (binding by name breakage))' time='0.0565'>
+<testcase name='ext/pdo/tests/bug_35671.phpt (PDO Common: Bug #35671 (binding by name breakage))' time='0.0512'>
 <failure type='FAILED' message=''>001- array(1) {
 002-   [0]=&gt;
 003-   array(3) {
@@ -39,14 +39,14 @@
 005+   thrown in /work/source/ext/pdo/tests/bug_35671.php on line 17
 </failure>
 </testcase>
-<testcase name='ext/pdo/tests/bug_36428.phpt (PDO Common: Bug #36428 (Incorrect error message for PDO::fetchAll()))' time='0.1283'>
+<testcase name='ext/pdo/tests/bug_36428.phpt (PDO Common: Bug #36428 (Incorrect error message for PDO::fetchAll()))' time='0.0767'>
 </testcase>
-<testcase name='ext/pdo/tests/bug_36798.phpt (PDO Common: Bug #36798 (Error parsing named parameters with queries containing high-ascii chars))' time='0.0543'>
+<testcase name='ext/pdo/tests/bug_36798.phpt (PDO Common: Bug #36798 (Error parsing named parameters with queries containing high-ascii chars))' time='0.0480'>
 <skipped>not for pdo_odbc</skipped>
 </testcase>
-<testcase name='ext/pdo/tests/bug_38253.phpt (PDO Common: Bug #38253 (PDO produces segfault with default fetch mode))' time='0.0741'>
+<testcase name='ext/pdo/tests/bug_38253.phpt (PDO Common: Bug #38253 (PDO produces segfault with default fetch mode))' time='0.0710'>
 </testcase>
-<testcase name='ext/pdo/tests/bug_38394.phpt (PDO Common: Bug #38394 (Prepared statement error stops subsequent statements))' time='0.1166'>
+<testcase name='ext/pdo/tests/bug_38394.phpt (PDO Common: Bug #38394 (Prepared statement error stops subsequent statements))' time='0.1026'>
 <failure type='FAILED' message=''>001- array(2) {
 002-   [0]=&gt;
 003-   array(3) {
@@ -73,7 +73,7 @@
      }
 </failure>
 </testcase>
-<testcase name='ext/pdo/tests/bug_39398.phpt (PDO Common: Bug #39398 (Booleans are not automatically translated to integers))' time='0.0711'>
+<testcase name='ext/pdo/tests/bug_39398.phpt (PDO Common: Bug #39398 (Booleans are not automatically translated to integers))' time='0.0615'>
 <failure type='FAILED' message=''>001- array(1) {
 002-   [0]=&gt;
 003-   array(1) {
@@ -85,7 +85,7 @@
      }
 </failure>
 </testcase>
-<testcase name='ext/pdo/tests/bug_39656.phpt (PDO Common: Bug #39656 (Crash when calling fetch() on a PDO statement object after closeCursor()))' time='0.0771'>
+<testcase name='ext/pdo/tests/bug_39656.phpt (PDO Common: Bug #39656 (Crash when calling fetch() on a PDO statement object after closeCursor()))' time='0.0689'>
 <failure type='FAILED' message=''>001- array(4) {
 002-   [&quot;id&quot;]=&gt;
 003-   string(1) &quot;1&quot;
@@ -105,31 +105,31 @@
 005+   thrown in /work/source/ext/pdo/tests/bug_39656.php on line 15
 </failure>
 </testcase>
-<testcase name='ext/pdo/tests/bug_40285.phpt (PDO Common: Bug #40285 (The prepare parser goes into an infinite loop on &#039;: or &quot;:))' time='0.0800'>
+<testcase name='ext/pdo/tests/bug_40285.phpt (PDO Common: Bug #40285 (The prepare parser goes into an infinite loop on &#039;: or &quot;:))' time='0.0701'>
 </testcase>
-<testcase name='ext/pdo/tests/bug_42917.phpt (PDO Common: Bug #42917 (PDO::FETCH_KEY_PAIR doesn&#039;t work with setFetchMode))' time='0.1469'>
+<testcase name='ext/pdo/tests/bug_42917.phpt (PDO Common: Bug #42917 (PDO::FETCH_KEY_PAIR doesn&#039;t work with setFetchMode))' time='0.1362'>
 </testcase>
-<testcase name='ext/pdo/tests/bug_43130.phpt (PDO Common: Bug #43130 (Bound parameters cannot have - in their name))' time='0.0173'>
+<testcase name='ext/pdo/tests/bug_43130.phpt (PDO Common: Bug #43130 (Bound parameters cannot have - in their name))' time='0.0128'>
 <skipped>not relevant for odbc driver</skipped>
 </testcase>
-<testcase name='ext/pdo/tests/bug_43139.phpt (PDO Common: Bug #43139 (PDO ignore ATTR_DEFAULT_FETCH_MODE in some cases with fetchAll()))' time='0.0647'>
+<testcase name='ext/pdo/tests/bug_43139.phpt (PDO Common: Bug #43139 (PDO ignore ATTR_DEFAULT_FETCH_MODE in some cases with fetchAll()))' time='0.0520'>
 </testcase>
-<testcase name='ext/pdo/tests/bug_43663.phpt (PDO Common: Bug #43663 (__call on classes derived from PDO))' time='0.0493'>
+<testcase name='ext/pdo/tests/bug_43663.phpt (PDO Common: Bug #43663 (__call on classes derived from PDO))' time='0.0429'>
 </testcase>
-<testcase name='ext/pdo/tests/bug_44159.phpt (PDO Common: Bug #44159 (Crash: $pdo-&gt;setAttribute(PDO::STATEMENT_ATTR_CLASS, NULL)))' time='0.0478'>
+<testcase name='ext/pdo/tests/bug_44159.phpt (PDO Common: Bug #44159 (Crash: $pdo-&gt;setAttribute(PDO::STATEMENT_ATTR_CLASS, NULL)))' time='0.0418'>
 </testcase>
-<testcase name='ext/pdo/tests/bug_44173.phpt (PDO Common: Bug #44173 (PDO-&gt;query() parameter parsing/checking needs an update))' time='0.0690'>
+<testcase name='ext/pdo/tests/bug_44173.phpt (PDO Common: Bug #44173 (PDO-&gt;query() parameter parsing/checking needs an update))' time='0.0633'>
 </testcase>
-<testcase name='ext/pdo/tests/bug_44409.phpt (PDO Common: Bug #44409 (PDO::FETCH_SERIALIZE calls __construct()))' time='0.0847'>
+<testcase name='ext/pdo/tests/bug_44409.phpt (PDO Common: Bug #44409 (PDO::FETCH_SERIALIZE calls __construct()))' time='0.1255'>
 </testcase>
-<testcase name='ext/pdo/tests/bug_44861.phpt (PDO Common: Bug #44861 (scrollable cursor don&#039;t work with pgsql))' time='0.0154'>
+<testcase name='ext/pdo/tests/bug_44861.phpt (PDO Common: Bug #44861 (scrollable cursor don&#039;t work with pgsql))' time='0.0124'>
 <skipped>Scrollable cursors not supported</skipped>
 </testcase>
-<testcase name='ext/pdo/tests/bug_50458.phpt (PDO Common: Bug #50458 (PDO::FETCH_FUNC fails with Closures))' time='0.0843'>
+<testcase name='ext/pdo/tests/bug_50458.phpt (PDO Common: Bug #50458 (PDO::FETCH_FUNC fails with Closures))' time='0.0752'>
 </testcase>
-<testcase name='ext/pdo/tests/bug_52098.phpt (PDO Common: Bug #52098 Own PDOStatement implementation ignore __call())' time='0.0924'>
+<testcase name='ext/pdo/tests/bug_52098.phpt (PDO Common: Bug #52098 Own PDOStatement implementation ignore __call())' time='0.0894'>
 </testcase>
-<testcase name='ext/pdo/tests/bug_60665.phpt (PDO Common: Bug #60665 (call to empty() on NULL result using PDO::FETCH_LAZY returns false))' time='0.0563'>
+<testcase name='ext/pdo/tests/bug_60665.phpt (PDO Common: Bug #60665 (call to empty() on NULL result using PDO::FETCH_LAZY returns false))' time='0.0469'>
 <failure type='FAILED' message=''>--
      bool(true)
      bool(true)
@@ -141,9 +141,9 @@
      bool(true)
 </failure>
 </testcase>
-<testcase name='ext/pdo/tests/bug_61292.phpt (PDO Common: Bug #61292 (Segfault while calling a method on an overloaded PDO object))' time='0.0419'>
+<testcase name='ext/pdo/tests/bug_61292.phpt (PDO Common: Bug #61292 (Segfault while calling a method on an overloaded PDO object))' time='0.0352'>
 </testcase>
-<testcase name='ext/pdo/tests/bug_64172.phpt (PDO Common: Bug #64172 errorInfo is not properly cleaned up)' time='0.0900'>
+<testcase name='ext/pdo/tests/bug_64172.phpt (PDO Common: Bug #64172 errorInfo is not properly cleaned up)' time='0.0916'>
 <failure type='FAILED' message=''>--
      
      Warning: PDO::query(): SQLSTATE[%s]: %s
@@ -170,7 +170,7 @@
 --
 </failure>
 </testcase>
-<testcase name='ext/pdo/tests/bug_65946.phpt (PDO Common: Bug #65946 (pdo_sql_parser.c permanently converts values bound to strings))' time='0.0696'>
+<testcase name='ext/pdo/tests/bug_65946.phpt (PDO Common: Bug #65946 (pdo_sql_parser.c permanently converts values bound to strings))' time='0.0645'>
 <failure type='FAILED' message=''>001- array(1) {
 001+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/bug_65946.php on line 28
 002+ array(4) {
@@ -203,9 +203,9 @@
      }
 </failure>
 </testcase>
-<testcase name='ext/pdo/tests/bug_69356.phpt (PDO Common: Bug #69356 (PDOStatement::debugDumpParams() truncates query))' time='0.1075'>
+<testcase name='ext/pdo/tests/bug_69356.phpt (PDO Common: Bug #69356 (PDOStatement::debugDumpParams() truncates query))' time='0.0922'>
 </testcase>
-<testcase name='ext/pdo/tests/bug_71447.phpt (PDO Common: Bug #71447 (Quotes inside comments not properly handled))' time='0.0912'>
+<testcase name='ext/pdo/tests/bug_71447.phpt (PDO Common: Bug #71447 (Quotes inside comments not properly handled))' time='0.0945'>
 <failure type='FAILED' message=''>--
      string(10) &quot;&quot;abc&quot;:8002&quot;
      string(10) &quot;&quot;abc&quot;:8003&quot;
@@ -220,7 +220,7 @@
 011+ bool(false)
 </failure>
 </testcase>
-<testcase name='ext/pdo/tests/bug_71885.phpt (PDO Common: FR #71885 (Allow escaping question mark placeholders))' time='0.1236'>
+<testcase name='ext/pdo/tests/bug_71885.phpt (PDO Common: FR #71885 (Allow escaping question mark placeholders))' time='0.1055'>
 <failure type='FAILED' message=''>001- bool(true)
 002- bool(true)
 003- bool(true)
@@ -229,11 +229,11 @@
 003+ bool(false)
 </failure>
 </testcase>
-<testcase name='ext/pdo/tests/bug_72368.phpt (PDO Common: Bug #72368 (PdoStatement-&gt;execute() fails but does not throw an exception))' time='0.1129'>
+<testcase name='ext/pdo/tests/bug_72368.phpt (PDO Common: Bug #72368 (PdoStatement-&gt;execute() fails but does not throw an exception))' time='0.0924'>
 </testcase>
-<testcase name='ext/pdo/tests/bug_72788.phpt (PDO Common: Bug #72788 (Invalid memory access when using persistent PDO connection))' time='0.0475'>
+<testcase name='ext/pdo/tests/bug_72788.phpt (PDO Common: Bug #72788 (Invalid memory access when using persistent PDO connection))' time='0.0391'>
 </testcase>
-<testcase name='ext/pdo/tests/bug_73234.phpt (PDO Common: Bug #73234 (Emulated statements let value dictate parameter type))' time='0.1148'>
+<testcase name='ext/pdo/tests/bug_73234.phpt (PDO Common: Bug #73234 (Emulated statements let value dictate parameter type))' time='0.1048'>
 <failure type='FAILED' message=''>001- array(2) {
 002-   [0]=&gt;
 003-   array(1) {
@@ -252,18 +252,18 @@
      }
 </failure>
 </testcase>
-<testcase name='ext/pdo/tests/bug_77849.phpt (PDO Common: Bug #77849 (Unexpected segfault attempting to use cloned PDO object))' time='0.0537'>
+<testcase name='ext/pdo/tests/bug_77849.phpt (PDO Common: Bug #77849 (Unexpected segfault attempting to use cloned PDO object))' time='0.0464'>
 </testcase>
-<testcase name='ext/pdo/tests/bug_77849_2.phpt (PDO Common: Bug #77849 (inconsistent state of cloned statament object))' time='0.0153'>
+<testcase name='ext/pdo/tests/bug_77849_2.phpt (PDO Common: Bug #77849 (inconsistent state of cloned statament object))' time='0.0114'>
 </testcase>
-<testcase name='ext/pdo/tests/bug_79106.phpt (Bug #79106 (PDO may fetch wrong column indexes with PDO::FETCH_BOTH))' time='0.1037'>
+<testcase name='ext/pdo/tests/bug_79106.phpt (Bug #79106 (PDO may fetch wrong column indexes with PDO::FETCH_BOTH))' time='0.0887'>
 </testcase>
-<testcase name='ext/pdo/tests/bug_79106_collision.phpt (Bug #79106 (PDO may fetch wrong column indexes with PDO::FETCH_BOTH) - collision)' time='0.0533'>
+<testcase name='ext/pdo/tests/bug_79106_collision.phpt (Bug #79106 (PDO may fetch wrong column indexes with PDO::FETCH_BOTH) - collision)' time='0.0451'>
 </testcase>
-<testcase name='ext/pdo/tests/debug_emulated_prepares.phpt (PDO Common: PDOStatement::debugDumpParams() with emulated prepares)' time='0.0556'>
+<testcase name='ext/pdo/tests/debug_emulated_prepares.phpt (PDO Common: PDOStatement::debugDumpParams() with emulated prepares)' time='0.0491'>
 <skipped>driver cannot emulate prepared statements</skipped>
 </testcase>
-<testcase name='ext/pdo/tests/gh8626.phpt (GH-8626: PDOStatement-&gt;execute() failed, then execute successfully, errorInfo() information is incorrect)' time='0.1112'>
+<testcase name='ext/pdo/tests/gh8626.phpt (GH-8626: PDOStatement-&gt;execute() failed, then execute successfully, errorInfo() information is incorrect)' time='0.1079'>
 <failure type='FAILED' message=''>--
        [2]=&gt;
        string(%d) &quot;%s%w%S&quot;
@@ -286,37 +286,37 @@
      ===DONE===
 </failure>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_001.phpt (PDO Common: PDO::FETCH_ASSOC)' time='0.1089'>
+<testcase name='ext/pdo/tests/pdo_001.phpt (PDO Common: PDO::FETCH_ASSOC)' time='0.1002'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_002.phpt (PDO Common: PDO::FETCH_NUM)' time='0.1086'>
+<testcase name='ext/pdo/tests/pdo_002.phpt (PDO Common: PDO::FETCH_NUM)' time='0.0998'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_003.phpt (PDO Common: PDO::FETCH_BOTH)' time='0.1008'>
+<testcase name='ext/pdo/tests/pdo_003.phpt (PDO Common: PDO::FETCH_BOTH)' time='0.0991'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_004.phpt (PDO Common: PDO::FETCH_OBJ)' time='0.1194'>
+<testcase name='ext/pdo/tests/pdo_004.phpt (PDO Common: PDO::FETCH_OBJ)' time='0.1178'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_005.phpt (PDO Common: PDO::FETCH_CLASS)' time='0.1147'>
+<testcase name='ext/pdo/tests/pdo_005.phpt (PDO Common: PDO::FETCH_CLASS)' time='0.1039'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_006.phpt (PDO Common: PDO::FETCH_GROUP)' time='0.1059'>
+<testcase name='ext/pdo/tests/pdo_006.phpt (PDO Common: PDO::FETCH_GROUP)' time='0.1086'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_007.phpt (PDO Common: PDO::FETCH_UNIQUE)' time='0.1070'>
+<testcase name='ext/pdo/tests/pdo_007.phpt (PDO Common: PDO::FETCH_UNIQUE)' time='0.1088'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_008.phpt (PDO Common: PDO::FETCH_UNIQUE conflict)' time='0.1000'>
+<testcase name='ext/pdo/tests/pdo_008.phpt (PDO Common: PDO::FETCH_UNIQUE conflict)' time='0.1089'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_009.phpt (PDO Common: PDO::FETCH_CLASSTYPE)' time='0.1851'>
+<testcase name='ext/pdo/tests/pdo_009.phpt (PDO Common: PDO::FETCH_CLASSTYPE)' time='0.2341'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_010.phpt (PDO Common: PDO::FETCH_CLASSTYPE and GROUP/UNIQUE)' time='0.2350'>
+<testcase name='ext/pdo/tests/pdo_010.phpt (PDO Common: PDO::FETCH_CLASSTYPE and GROUP/UNIQUE)' time='0.1980'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_011.phpt (PDO Common: PDO::FETCH_FUNC and statement overloading)' time='0.1271'>
+<testcase name='ext/pdo/tests/pdo_011.phpt (PDO Common: PDO::FETCH_FUNC and statement overloading)' time='0.1486'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_012.phpt (PDO Common: PDOStatement::setFetchMode)' time='0.1070'>
+<testcase name='ext/pdo/tests/pdo_012.phpt (PDO Common: PDOStatement::setFetchMode)' time='0.1073'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_013.phpt (PDO Common: PDOStatement iterator)' time='0.1070'>
+<testcase name='ext/pdo/tests/pdo_013.phpt (PDO Common: PDOStatement iterator)' time='0.0979'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_014.phpt (PDO Common: PDOStatement SPL iterator)' time='0.0952'>
+<testcase name='ext/pdo/tests/pdo_014.phpt (PDO Common: PDOStatement SPL iterator)' time='0.1089'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_015.phpt (PDO Common: PDO::FETCH_COLUMN)' time='0.1062'>
+<testcase name='ext/pdo/tests/pdo_015.phpt (PDO Common: PDO::FETCH_COLUMN)' time='0.1105'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_016.phpt (PDO Common: PDO::FETCH_BOUND)' time='0.1681'>
+<testcase name='ext/pdo/tests/pdo_016.phpt (PDO Common: PDO::FETCH_BOUND)' time='0.1661'>
 <failure type='FAILED' message=''>--
        [0]=&gt;
        string(7) &quot;String0&quot;
@@ -450,7 +450,7 @@
 --
 </failure>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_016a.phpt (PDO Common: PDO::FETCH_BOUND w/o :)' time='0.1681'>
+<testcase name='ext/pdo/tests/pdo_016a.phpt (PDO Common: PDO::FETCH_BOUND w/o :)' time='0.1620'>
 <failure type='FAILED' message=''>--
        [0]=&gt;
        string(7) &quot;String0&quot;
@@ -584,9 +584,9 @@
 --
 </failure>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_017.phpt (PDO Common: transactions)' time='0.1837'>
+<testcase name='ext/pdo/tests/pdo_017.phpt (PDO Common: transactions)' time='0.1809'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_018.phpt (PDO Common: serializing)' time='0.0705'>
+<testcase name='ext/pdo/tests/pdo_018.phpt (PDO Common: serializing)' time='0.0656'>
 <failure type='FAILED' message=''>--
      Deprecated: %s implements the Serializable interface, which is deprecated. Implement __serialize() and __unserialize() instead (or in addition, if support for old PHP versions is necessary) in %s on line %d
      
@@ -734,11 +734,11 @@
 032+   thrown in /work/source/ext/pdo/tests/pdo_018.php on line 77
 </failure>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_019.phpt (PDO Common: fetch() and while())' time='0.1270'>
+<testcase name='ext/pdo/tests/pdo_019.phpt (PDO Common: fetch() and while())' time='0.1480'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_020.phpt (PDO Common: PDOStatement::columnCount)' time='0.1521'>
+<testcase name='ext/pdo/tests/pdo_020.phpt (PDO Common: PDOStatement::columnCount)' time='0.1308'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_021.phpt (PDO Common: PDOStatement::execute with parameters)' time='0.1293'>
+<testcase name='ext/pdo/tests/pdo_021.phpt (PDO Common: PDOStatement::execute with parameters)' time='0.0776'>
 <failure type='FAILED' message=''>001- There are 6 rows in the table.
 002- There are 12 rows in the table.
 001+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_021.php on line 27
@@ -768,11 +768,11 @@
 025+ There are 0 rows in the table.
 </failure>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_022.phpt (PDO Common: PDOStatement::getColumnMeta)' time='0.1293'>
+<testcase name='ext/pdo/tests/pdo_022.phpt (PDO Common: PDOStatement::getColumnMeta)' time='0.1250'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_023.phpt (PDO Common: extending PDO)' time='0.0886'>
+<testcase name='ext/pdo/tests/pdo_023.phpt (PDO Common: extending PDO)' time='0.0941'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_024.phpt (PDO Common: assert that bindParam does not modify parameter)' time='0.0688'>
+<testcase name='ext/pdo/tests/pdo_024.phpt (PDO Common: assert that bindParam does not modify parameter)' time='0.0706'>
 <failure type='FAILED' message=''>     bind: success
 002- bool(true)
 003- NULL
@@ -782,7 +782,7 @@
 005+ bool(false)
 </failure>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_025.phpt (PDO Common: PDO::FETCH_INTO)' time='0.0690'>
+<testcase name='ext/pdo/tests/pdo_025.phpt (PDO Common: PDO::FETCH_INTO)' time='0.0701'>
 <failure type='FAILED' message=''>001- object(Test)#%d (3) {
 002-   [&quot;id&quot;]=&gt;
 003-   string(2) &quot;10&quot;
@@ -850,7 +850,7 @@
 054-   thrown in %spdo_025.php on line %d
 </failure>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_026.phpt (PDO Common: extending PDO (2))' time='0.0663'>
+<testcase name='ext/pdo/tests/pdo_026.phpt (PDO Common: extending PDO (2))' time='0.0740'>
 <failure type='FAILED' message=''>     string(11) &quot;PDODatabase&quot;
      string(12) &quot;PDOStatement&quot;
 003+ 
@@ -892,9 +892,9 @@
      PDODatabase::__destruct()
 </failure>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_027.phpt (PDO Common: PDO::FETCH_LAZY)' time='0.0978'>
+<testcase name='ext/pdo/tests/pdo_027.phpt (PDO Common: PDO::FETCH_LAZY)' time='0.0971'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_028.phpt (PDO Common: bindValue)' time='0.0714'>
+<testcase name='ext/pdo/tests/pdo_028.phpt (PDO Common: bindValue)' time='0.0616'>
 <failure type='FAILED' message=''>001- array(1) {
 002-   [0]=&gt;
 003-   array(4) {
@@ -912,7 +912,7 @@
      }
 </failure>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_029.phpt (PDO Common: extending PDO (3))' time='0.0691'>
+<testcase name='ext/pdo/tests/pdo_029.phpt (PDO Common: extending PDO (3))' time='0.0600'>
 <failure type='FAILED' message=''>     string(11) &quot;PDODatabase&quot;
      string(12) &quot;PDOStatement&quot;
 003+ 
@@ -957,7 +957,7 @@
      PDODatabase::__destruct()
 </failure>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_030.phpt (PDO Common: extending PDO (4))' time='0.0699'>
+<testcase name='ext/pdo/tests/pdo_030.phpt (PDO Common: extending PDO (4))' time='0.0713'>
 <failure type='FAILED' message=''>     string(11) &quot;PDODatabase&quot;
      string(12) &quot;PDOStatement&quot;
 003+ 
@@ -1002,7 +1002,7 @@
      PDODatabase::__destruct()
 </failure>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_031.phpt (PDO Common: PDOStatement SPL iterator)' time='0.0694'>
+<testcase name='ext/pdo/tests/pdo_031.phpt (PDO Common: PDOStatement SPL iterator)' time='0.1223'>
 <failure type='FAILED' message=''>001+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_031.php on line 17
 002+ 
 003+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_031.php on line 17
@@ -1024,12 +1024,12 @@
      ===DONE===
 </failure>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_032.phpt (PDO Common: PDO::ATTR_CASE)' time='0.1221'>
+<testcase name='ext/pdo/tests/pdo_032.phpt (PDO Common: PDO::ATTR_CASE)' time='0.1069'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_033.phpt (PDO Common: PDO::quote())' time='0.0195'>
+<testcase name='ext/pdo/tests/pdo_033.phpt (PDO Common: PDO::quote())' time='0.0127'>
 <skipped>odbc driver doesn&#039;t have escape API, use prepared statements</skipped>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_034.phpt (PDO Common: PDO::FETCH_KEY_PAIR fetch mode test)' time='0.1399'>
+<testcase name='ext/pdo/tests/pdo_034.phpt (PDO Common: PDO::FETCH_KEY_PAIR fetch mode test)' time='0.1361'>
 <failure type='FAILED' message=''>--
      
      Warning: PDOStatement::fetch(): SQLSTATE[HY000]: General error%spdo_034.php on line %d
@@ -1056,32 +1056,32 @@
 029+   thrown in /work/source/ext/pdo/tests/pdo_034.php on line 15
 </failure>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_035.phpt (PDO Common: PDORow + get_parent_class())' time='0.0847'>
+<testcase name='ext/pdo/tests/pdo_035.phpt (PDO Common: PDORow + get_parent_class())' time='0.0776'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_036.phpt (Testing PDORow and PDOStatement instances with Reflection)' time='0.0155'>
+<testcase name='ext/pdo/tests/pdo_036.phpt (Testing PDORow and PDOStatement instances with Reflection)' time='0.0126'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_037.phpt (Crash when calling a method of a class that inherits PDOStatement)' time='0.0149'>
+<testcase name='ext/pdo/tests/pdo_037.phpt (Crash when calling a method of a class that inherits PDOStatement)' time='0.0114'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_038.phpt (PDOStatement::fetchColumn() invalid column index)' time='0.0529'>
+<testcase name='ext/pdo/tests/pdo_038.phpt (PDOStatement::fetchColumn() invalid column index)' time='0.0480'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_039.phpt (PDO Common: errorCode())' time='0.0926'>
+<testcase name='ext/pdo/tests/pdo_039.phpt (PDO Common: errorCode())' time='0.0808'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_drivers_basic.phpt (Test normal operation of PDO::getAvailableDrivers / pdo_drivers)' time='0.0151'>
+<testcase name='ext/pdo/tests/pdo_drivers_basic.phpt (Test normal operation of PDO::getAvailableDrivers / pdo_drivers)' time='0.0121'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_dsn_containing_credentials.phpt (PDO Common: Pass credentials in dsn instead of constructor params)' time='0.0145'>
+<testcase name='ext/pdo/tests/pdo_dsn_containing_credentials.phpt (PDO Common: Pass credentials in dsn instead of constructor params)' time='0.0117'>
 <skipped>not supported</skipped>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_quote_empty_string.phpt (PDO::quote() must accept empty string for drivers which support this feature)' time='0.0483'>
+<testcase name='ext/pdo/tests/pdo_quote_empty_string.phpt (PDO::quote() must accept empty string for drivers which support this feature)' time='0.0424'>
 </testcase>
-<testcase name='ext/pdo/tests/pdo_uninitialized.phpt (Uninitialized PDO objects)' time='0.0154'>
+<testcase name='ext/pdo/tests/pdo_uninitialized.phpt (Uninitialized PDO objects)' time='0.0115'>
 </testcase>
-<testcase name='ext/pdo/tests/pdorow.phpt (Trying instantiate a PDORow object manually)' time='0.0141'>
+<testcase name='ext/pdo/tests/pdorow.phpt (Trying instantiate a PDORow object manually)' time='0.0115'>
 </testcase>
-<testcase name='ext/pdo/tests/pecl_bug_5217.phpt (PDO Common: PECL Bug #5217 (serialize/unserialize safety))' time='0.0482'>
+<testcase name='ext/pdo/tests/pecl_bug_5217.phpt (PDO Common: PECL Bug #5217 (serialize/unserialize safety))' time='0.0409'>
 </testcase>
-<testcase name='ext/pdo/tests/pecl_bug_5772.phpt (PDO Common: PECL Bug #5772 (PDO::FETCH_FUNC breaks on mixed case func name))' time='0.0723'>
+<testcase name='ext/pdo/tests/pecl_bug_5772.phpt (PDO Common: PECL Bug #5772 (PDO::FETCH_FUNC breaks on mixed case func name))' time='0.0751'>
 </testcase>
-<testcase name='ext/pdo/tests/pecl_bug_5809.phpt (PDO Common: PECL Bug #5809 (PDOStatement::execute(array()) changes param))' time='0.0816'>
+<testcase name='ext/pdo/tests/pecl_bug_5809.phpt (PDO Common: PECL Bug #5809 (PDOStatement::execute(array()) changes param))' time='0.0819'>
 <failure type='FAILED' message=''>--
        [0]=&gt;
        int(1)
@@ -1094,42 +1094,42 @@
 --
 </failure>
 </testcase>
-<testcase name='ext/pdo/tests/sensitive_parameter.phpt (Test that sensitive parameters are marked sensitive.)' time='0.0156'>
+<testcase name='ext/pdo/tests/sensitive_parameter.phpt (Test that sensitive parameters are marked sensitive.)' time='0.0117'>
 </testcase>
 </testsuite>
-<testsuite name="php.ext.pdo.odbc.tests" tests="10" failures="5" errors="0" skip="1" time="1.1811">
-<testcase name='ext/pdo_odbc/tests/autocommit.phpt (PDO ODBC auto commit mode)' time='0.1353'>
+<testsuite name="php.ext.pdo.odbc.tests" tests="10" failures="5" errors="0" skip="1" time="1.2244">
+<testcase name='ext/pdo_odbc/tests/autocommit.phpt (PDO ODBC auto commit mode)' time='0.1376'>
 </testcase>
-<testcase name='ext/pdo_odbc/tests/autocommit_change_mode.phpt (PDO ODBC auto commit mode)' time='0.0488'>
+<testcase name='ext/pdo_odbc/tests/autocommit_change_mode.phpt (PDO ODBC auto commit mode)' time='0.0414'>
 </testcase>
-<testcase name='ext/pdo_odbc/tests/bug44643.phpt (Bug #44643 (bound parameters ignore explicit type definitions))' time='0.0536'>
+<testcase name='ext/pdo_odbc/tests/bug44643.phpt (Bug #44643 (bound parameters ignore explicit type definitions))' time='0.0419'>
 <failure type='FAILED' message=''>001- bool(true)
 001+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo_odbc/tests/bug44643.php on line 10
 002+ bool(false)
 </failure>
 </testcase>
-<testcase name='ext/pdo_odbc/tests/bug67465.phpt (Bug #67465 (NULL Pointer dereference in odbc_handle_preparer))' time='0.0578'>
+<testcase name='ext/pdo_odbc/tests/bug67465.phpt (Bug #67465 (NULL Pointer dereference in odbc_handle_preparer))' time='0.0421'>
 </testcase>
-<testcase name='ext/pdo_odbc/tests/bug80783.phpt (Bug #80783 (PDO ODBC truncates BLOB records at every 256th byte))' time='0.0759'>
+<testcase name='ext/pdo_odbc/tests/bug80783.phpt (Bug #80783 (PDO ODBC truncates BLOB records at every 256th byte))' time='0.0725'>
 <failure type='FAILED' message=''>001- bool(true)
 001+ bool(false)
 </failure>
 </testcase>
-<testcase name='ext/pdo_odbc/tests/bug80783a.phpt (Bug #80783 (PDO ODBC truncates BLOB records at every 256th byte))' time='0.0514'>
+<testcase name='ext/pdo_odbc/tests/bug80783a.phpt (Bug #80783 (PDO ODBC truncates BLOB records at every 256th byte))' time='0.0408'>
 <skipped>Fails with unixODBC</skipped>
 </testcase>
-<testcase name='ext/pdo_odbc/tests/get_attribute_server.phpt (PDO ODBC getAttribute SERVER_INFO and SERVER_VERSION)' time='0.0526'>
+<testcase name='ext/pdo_odbc/tests/get_attribute_server.phpt (PDO ODBC getAttribute SERVER_INFO and SERVER_VERSION)' time='0.0460'>
 </testcase>
-<testcase name='ext/pdo_odbc/tests/gh9372.phpt (Bug GH-9372 (HY010 when binding overlong parameter))' time='0.0705'>
+<testcase name='ext/pdo_odbc/tests/gh9372.phpt (Bug GH-9372 (HY010 when binding overlong parameter))' time='0.0655'>
 <failure type='FAILED' message=''>001- 
 001+ string(175) &quot;SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263)&quot;
 002+ string(175) &quot;SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263)&quot;
 </failure>
 </testcase>
-<testcase name='ext/pdo_odbc/tests/long_columns.phpt (PDO ODBC &quot;long&quot; columns)' time='0.5681'>
+<testcase name='ext/pdo_odbc/tests/long_columns.phpt (PDO ODBC &quot;long&quot; columns)' time='0.6726'>
 <failure type='FAILED' message=''></failure>
 </testcase>
-<testcase name='ext/pdo_odbc/tests/max_columns.phpt (PDO ODBC varying character with max/no length)' time='0.0671'>
+<testcase name='ext/pdo_odbc/tests/max_columns.phpt (PDO ODBC varying character with max/no length)' time='0.0640'>
 <failure type='FAILED' message=''>001- Finished
 001+ Fatal error: Uncaught PDOException: SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo_odbc/tests/max_columns.php:21
 002+ Stack trace:

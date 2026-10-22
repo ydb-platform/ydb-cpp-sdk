@@ -9,7 +9,7 @@ ok 2 - use ODBCTEST;
 # Using DBMS_NAME 'YDB'
 # Using DBMS_VER '25.2.1.24'
 # Using DRIVER_NAME 'ydb-odbc'
-# Using DRIVER_VER '3.22.0'
+# Using DRIVER_VER '3.24.0'
 # odbc_has_unicode 1
 ok 3 - ReadOnly set
 ok 4 - ReadOnly cleared

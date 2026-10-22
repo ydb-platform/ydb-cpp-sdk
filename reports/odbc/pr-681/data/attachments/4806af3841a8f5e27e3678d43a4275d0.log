@@ -3,35 +3,35 @@ Get:1 http://security.ubuntu.com/ubuntu noble-security InRelease [126 kB]
 Get:2 http://archive.ubuntu.com/ubuntu noble InRelease [256 kB]
 Get:3 http://security.ubuntu.com/ubuntu noble-security/main amd64 Packages [1411 kB]
 Get:4 http://archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
-Get:5 http://security.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [2122 kB]
-Get:6 http://archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
-Get:7 http://archive.ubuntu.com/ubuntu noble/multiverse amd64 Packages [331 kB]
-Get:8 http://security.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [55.6 kB]
-Get:9 http://security.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1549 kB]
-Get:10 http://archive.ubuntu.com/ubuntu noble/restricted amd64 Packages [117 kB]
-Get:11 http://archive.ubuntu.com/ubuntu noble/main amd64 Packages [1808 kB]
-Get:12 http://archive.ubuntu.com/ubuntu noble/universe amd64 Packages [19.3 MB]
-Get:13 http://archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [61.7 kB]
-Get:14 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1733 kB]
-Get:15 http://archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [2231 kB]
-Get:16 http://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [2171 kB]
-Get:17 http://archive.ubuntu.com/ubuntu noble-backports/multiverse amd64 Packages [669 B]
-Get:18 http://archive.ubuntu.com/ubuntu noble-backports/main amd64 Packages [49.0 kB]
-Get:19 http://archive.ubuntu.com/ubuntu noble-backports/universe amd64 Packages [36.0 kB]
-Fetched 33.6 MB in 4s (9581 kB/s)
+Get:5 http://archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+Get:6 http://security.ubuntu.com/ubuntu noble-security/restricted amd64 Packages [2122 kB]
+Get:7 http://archive.ubuntu.com/ubuntu noble/restricted amd64 Packages [117 kB]
+Get:8 http://archive.ubuntu.com/ubuntu noble/multiverse amd64 Packages [331 kB]
+Get:9 http://archive.ubuntu.com/ubuntu noble/universe amd64 Packages [19.3 MB]
+Get:10 http://security.ubuntu.com/ubuntu noble-security/multiverse amd64 Packages [55.6 kB]
+Get:11 http://security.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1549 kB]
+Get:12 http://archive.ubuntu.com/ubuntu noble/main amd64 Packages [1808 kB]
+Get:13 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1733 kB]
+Get:14 http://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [2171 kB]
+Get:15 http://archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [61.7 kB]
+Get:16 http://archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [2231 kB]
+Get:17 http://archive.ubuntu.com/ubuntu noble-backports/main amd64 Packages [49.0 kB]
+Get:18 http://archive.ubuntu.com/ubuntu noble-backports/universe amd64 Packages [36.0 kB]
+Get:19 http://archive.ubuntu.com/ubuntu noble-backports/multiverse amd64 Packages [669 B]
+Fetched 33.6 MB in 3s (10.5 MB/s)
 Reading package lists...
-$ dpkg-deb -f /packages/ydb-odbc_3.22.0_amd64.deb Package
+$ dpkg-deb -f /packages/ydb-odbc_3.24.0_amd64.deb Package
 ydb-odbc
-$ dpkg-deb -f /packages/ydb-odbc_3.22.0_amd64.deb Architecture
+$ dpkg-deb -f /packages/ydb-odbc_3.24.0_amd64.deb Architecture
 amd64
-$ dpkg-deb -f /packages/ydb-odbc_3.22.0_amd64.deb Depends
+$ dpkg-deb -f /packages/ydb-odbc_3.24.0_amd64.deb Depends
 odbcinst, libabsl20220623t64 (>= 0~20220623.0-1), libbrotli1 (>= 1.1.0), libbz2-1.0, libc6 (>= 2.38), libdouble-conversion3 (>= 2.0.0), libgcc-s1 (>= 4.3), libgrpc++1.51t64 (>= 1.51.1), libgrpc29t64 (>= 1.51.1), libidn12 (>= 1.13), liblz4-1 (>= 0.0~r130), libodbcinst2 (>= 2.3.1), libprotobuf32t64 (>= 3.21.12), libsnappy1v5 (>= 1.1.10), libssl3t64 (>= 3.0.0), libstdc++6 (>= 13.1), libzstd1 (>= 1.5.5), zlib1g (>= 1:1.2.2)
 $ odbcinst -i -d -f /tmp/unrelated.ini
 odbcinst: Driver installed. Usage count increased to 1. 
     Target directory is /etc
-$ dpkg-deb --raw-extract /packages/ydb-odbc_3.22.0_amd64.deb /tmp/ydb-odbc-old
-$ dpkg-deb -f /packages/ydb-odbc_3.22.0_amd64.deb Version
-3.22.0
+$ dpkg-deb --raw-extract /packages/ydb-odbc_3.24.0_amd64.deb /tmp/ydb-odbc-old
+$ dpkg-deb -f /packages/ydb-odbc_3.24.0_amd64.deb Version
+3.24.0
 $ dpkg-deb --build /tmp/ydb-odbc-old /tmp/ydb-odbc-old.deb
 dpkg-deb: building package 'ydb-odbc' in '/tmp/ydb-odbc-old.deb'.
 $ apt-get install -y /tmp/ydb-odbc-old.deb
@@ -48,8 +48,8 @@ The following NEW packages will be installed:
   libre2-10 libsnappy1v5 ydb-odbc
 0 upgraded, 12 newly installed, 0 to remove and 32 not upgraded.
 Need to get 5976 kB/10.2 MB of archives.
-After this operation, 46.3 MB of additional disk space will be used.
-Get:1 /tmp/ydb-odbc-old.deb ydb-odbc amd64 3.22.0~integration1 [4200 kB]
+After this operation, 46.6 MB of additional disk space will be used.
+Get:1 /tmp/ydb-odbc-old.deb ydb-odbc amd64 3.24.0~integration1 [4253 kB]
 Get:2 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libabsl20220623t64 amd64 20220623.1-3.1ubuntu3.2 [423 kB]
 Get:3 http://archive.ubuntu.com/ubuntu noble/main amd64 libbrotli1 amd64 1.1.0-2build2 [331 kB]
 Get:4 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libcares2 amd64 1.27.0-1.0ubuntu1.1 [74.2 kB]
@@ -62,7 +62,7 @@ Get:10 http://archive.ubuntu.com/ubuntu noble/universe amd64 libgrpc++1.51t64 am
 Get:11 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 libidn12 amd64 1.42-1ubuntu0.1 [56.1 kB]
 Get:12 http://archive.ubuntu.com/ubuntu noble/main amd64 libsnappy1v5 amd64 1.1.10-1build1 [28.6 kB]
 debconf: delaying package configuration, since apt-utils is not installed
-Fetched 5976 kB in 44s (136 kB/s)
+Fetched 5976 kB in 2s (3448 kB/s)
 Selecting previously unselected package libabsl20220623t64:amd64.
 (Reading database ... 
 (Reading database ... 5%
@@ -120,7 +120,7 @@ Preparing to unpack .../10-libsnappy1v5_1.1.10-1build1_amd64.deb ...
 Unpacking libsnappy1v5:amd64 (1.1.10-1build1) ...
 Selecting previously unselected package ydb-odbc.
 Preparing to unpack .../11-ydb-odbc-old.deb ...
-Unpacking ydb-odbc (3.22.0~integration1) ...
+Unpacking ydb-odbc (3.24.0~integration1) ...
 Setting up libprotobuf32t64:amd64 (3.21.12-8.2ubuntu0.4) ...
 Setting up libdouble-conversion3:amd64 (3.3.0-1build1) ...
 Setting up libre2-10:amd64 (20230301-3build1) ...
@@ -132,7 +132,7 @@ Setting up libabsl20220623t64:amd64 (20220623.1-3.1ubuntu3.2) ...
 Setting up libprotoc32t64:amd64 (3.21.12-8.2ubuntu0.4) ...
 Setting up libgrpc29t64:amd64 (1.51.1-4.1build5) ...
 Setting up libgrpc++1.51t64:amd64 (1.51.1-4.1build5) ...
-Setting up ydb-odbc (3.22.0~integration1) ...
+Setting up ydb-odbc (3.24.0~integration1) ...
 odbcinst: Driver installed. Usage count increased to 1. 
     Target directory is /etc
 Processing triggers for libc-bin (2.39-0ubuntu8.8) ...

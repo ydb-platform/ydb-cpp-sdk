@@ -2,6 +2,6 @@ ok 1 - use ODBCTEST;
 ok 2 - got DBMS name: YDB
 ok 3 - got DBMS version: 25.2.1.24
 ok 4 - got DRIVER name: ydb-odbc
-ok 5 - got DRIVER version 3.22.0
+ok 5 - got DRIVER version 3.24.0
 # Not Microsoft SQL Server
 1..5
