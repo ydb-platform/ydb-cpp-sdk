@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite name="tst_QSqlDatabase" timestamp="2026&#x002D;10&#x002D;22T10:02:52" hostname="runnervmxehtw" tests="64" failures="0" errors="0" skipped="42" time="0.841">
+<testsuite name="tst_QSqlDatabase" timestamp="2026&#x002D;10&#x002D;22T12:48:12" hostname="runnervmxehtw" tests="64" failures="0" errors="0" skipped="42" time="0.877">
   <properties>
     <property name="QTestVersion" value="6.4.2"/>
     <property name="QtVersion" value="6.4.2"/>
     <property name="QtBuild" value="Qt 6.4.2 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 13.2.0)"/>
   </properties>
-  <testcase name="initTestCase" classname="tst_QSqlDatabase" time="0.165">
+  <testcase name="initTestCase" classname="tst_QSqlDatabase" time="0.172">
     <system-out>
       <![CDATA[Opening: "0_QODBC@YDB_qt"]]>
     </system-out>
@@ -73,20 +73,20 @@
   <testcase name="eventNotificationSQLite" classname="tst_QSqlDatabase" time="0.000">
     <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
   </testcase>
-  <testcase name="bigIntField(0_QODBC@YDB_qt)" classname="tst_QSqlDatabase" time="0.038"/>
+  <testcase name="bigIntField(0_QODBC@YDB_qt)" classname="tst_QSqlDatabase" time="0.041"/>
   <testcase name="getConnectionName(0_QODBC@YDB_qt)" classname="tst_QSqlDatabase" time="0.000">
     <system-err>
       <![CDATA[QSqlDatabasePrivate::addDatabase: duplicate connection name 'clonedDatabase', old connection removed.]]>
     </system-err>
   </testcase>
-  <testcase name="alterTable(0_QODBC@YDB_qt)" classname="tst_QSqlDatabase" time="0.033"/>
-  <testcase name="caseSensivity(0_QODBC@YDB_qt)" classname="tst_QSqlDatabase" time="0.042"/>
+  <testcase name="alterTable(0_QODBC@YDB_qt)" classname="tst_QSqlDatabase" time="0.027"/>
+  <testcase name="caseSensivity(0_QODBC@YDB_qt)" classname="tst_QSqlDatabase" time="0.038"/>
   <testcase name="noEscapedFieldNamesInRecord(0_QODBC@YDB_qt)" classname="tst_QSqlDatabase" time="0.006"/>
   <testcase name="whitespaceInIdentifiers(0_QODBC@YDB_qt)" classname="tst_QSqlDatabase" time="0.000">
     <skipped message="DBMS does not support whitespaces in identifiers"/>
   </testcase>
-  <testcase name="formatValueTrimStrings(0_QODBC@YDB_qt)" classname="tst_QSqlDatabase" time="0.058"/>
-  <testcase name="precisionPolicy(0_QODBC@YDB_qt)" classname="tst_QSqlDatabase" time="0.048"/>
+  <testcase name="formatValueTrimStrings(0_QODBC@YDB_qt)" classname="tst_QSqlDatabase" time="0.060"/>
+  <testcase name="precisionPolicy(0_QODBC@YDB_qt)" classname="tst_QSqlDatabase" time="0.052"/>
   <testcase name="infinityAndNan(0_QODBC@YDB_qt)" classname="tst_QSqlDatabase" time="0.000">
     <skipped message="checking for infinity/nan currently only works for PostgreSQL"/>
   </testcase>
@@ -139,13 +139,13 @@
   <testcase name="ibase_procWithReturnValues" classname="tst_QSqlDatabase" time="0.000">
     <skipped message="No database drivers of type QIBASE are available in this Qt configuration"/>
   </testcase>
-  <testcase name="odbc_reopenDatabase(0_QODBC@YDB_qt)" classname="tst_QSqlDatabase" time="0.016"/>
+  <testcase name="odbc_reopenDatabase(0_QODBC@YDB_qt)" classname="tst_QSqlDatabase" time="0.018"/>
   <testcase name="odbc_uniqueidentifier(0_QODBC@YDB_qt)" classname="tst_QSqlDatabase" time="0.000">
     <skipped message="SQL Server (ODBC) specific test"/>
   </testcase>
-  <testcase name="odbc_uintfield(0_QODBC@YDB_qt)" classname="tst_QSqlDatabase" time="0.033"/>
+  <testcase name="odbc_uintfield(0_QODBC@YDB_qt)" classname="tst_QSqlDatabase" time="0.034"/>
   <testcase name="odbc_bindBoolean(0_QODBC@YDB_qt)" classname="tst_QSqlDatabase" time="0.039"/>
-  <testcase name="odbc_testqGetString(0_QODBC@YDB_qt)" classname="tst_QSqlDatabase" time="0.053"/>
+  <testcase name="odbc_testqGetString(0_QODBC@YDB_qt)" classname="tst_QSqlDatabase" time="0.059"/>
   <testcase name="oci_serverDetach" classname="tst_QSqlDatabase" time="0.000">
     <skipped message="No database drivers of type QOCI are available in this Qt configuration"/>
   </testcase>
@@ -161,7 +161,7 @@
   <testcase name="sqlite_bindAndFetchUInt" classname="tst_QSqlDatabase" time="0.000">
     <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
   </testcase>
-  <testcase name="sqlStatementUseIsNull_189093(0_QODBC@YDB_qt)" classname="tst_QSqlDatabase" time="0.007"/>
+  <testcase name="sqlStatementUseIsNull_189093(0_QODBC@YDB_qt)" classname="tst_QSqlDatabase" time="0.008"/>
   <testcase name="sqlite_enable_cache_mode" classname="tst_QSqlDatabase" time="0.000">
     <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
   </testcase>
@@ -174,6 +174,6 @@
   <testcase name="sqlite_check_json1" classname="tst_QSqlDatabase" time="0.000">
     <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
   </testcase>
-  <testcase name="transaction(0_QODBC@YDB_qt)" classname="tst_QSqlDatabase" time="0.064"/>
-  <testcase name="cleanupTestCase" classname="tst_QSqlDatabase" time="0.113"/>
+  <testcase name="transaction(0_QODBC@YDB_qt)" classname="tst_QSqlDatabase" time="0.074"/>
+  <testcase name="cleanupTestCase" classname="tst_QSqlDatabase" time="0.123"/>
 </testsuite>

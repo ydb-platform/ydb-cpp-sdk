@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite name="tst_QSqlQueryModel" timestamp="2026&#x002D;10&#x002D;22T10:02:30" hostname="runnervmxehtw" tests="13" failures="0" errors="0" skipped="0" time="1.522">
+<testsuite name="tst_QSqlQueryModel" timestamp="2026&#x002D;10&#x002D;22T12:58:53" hostname="runnervmxehtw" tests="13" failures="0" errors="0" skipped="0" time="1.751">
   <properties>
     <property name="QTestVersion" value="6.4.2"/>
     <property name="QtVersion" value="6.4.2"/>
     <property name="QtBuild" value="Qt 6.4.2 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 13.2.0)"/>
   </properties>
-  <testcase name="initTestCase" classname="tst_QSqlQueryModel" time="0.466">
+  <testcase name="initTestCase" classname="tst_QSqlQueryModel" time="0.596">
     <system-out>
       <![CDATA[Opening: "0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous"]]>
     </system-out>
@@ -14,16 +14,16 @@
       <![CDATA[Populating test tables, this can take quite a while... ZZZzzz...]]>
     </system-err>
   </testcase>
-  <testcase name="insertColumn(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQueryModel" time="0.007"/>
+  <testcase name="insertColumn(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQueryModel" time="0.008"/>
   <testcase name="removeColumn(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQueryModel" time="0.001"/>
   <testcase name="record(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQueryModel" time="0.001"/>
   <testcase name="setHeaderData(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQueryModel" time="0.001"/>
-  <testcase name="fetchMore(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQueryModel" time="0.011"/>
-  <testcase name="withSortFilterProxyModel(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQueryModel" time="0.969"/>
-  <testcase name="setQuerySignalEmission(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQueryModel" time="0.008"/>
-  <testcase name="setQueryWithNoRowsInResultSet(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQueryModel" time="0.006"/>
+  <testcase name="fetchMore(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQueryModel" time="0.010"/>
+  <testcase name="withSortFilterProxyModel(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQueryModel" time="1.069"/>
+  <testcase name="setQuerySignalEmission(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQueryModel" time="0.010"/>
+  <testcase name="setQueryWithNoRowsInResultSet(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQueryModel" time="0.007"/>
   <testcase name="nestedResets(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQueryModel" time="0.000"/>
   <testcase name="task_180617(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQueryModel" time="0.007"/>
   <testcase name="task_QTBUG_4963_setHeaderDataWithProxyModel" classname="tst_QSqlQueryModel" time="0.000"/>
-  <testcase name="cleanupTestCase" classname="tst_QSqlQueryModel" time="0.045"/>
+  <testcase name="cleanupTestCase" classname="tst_QSqlQueryModel" time="0.041"/>
 </testsuite>

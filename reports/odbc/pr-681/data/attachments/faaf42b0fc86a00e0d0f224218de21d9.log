@@ -5,10 +5,10 @@
 # ***** error handler called *****
 # Table dropped
 ok 1 - create test table
-# simple tests raise = 1, array_context = 1
+# simple tests array_context = 1, raise = 1
 #   all param arrays the same size
 #     Autocommit: 1
-# insert tuple = ARRAY(0x5590e0e46b58), raise = 1, array_context = 1, error = 0, commit = '', affected = 5, sts = 5
+# insert commit = '', affected = 5, tuple = ARRAY(0x563898647c10), array_context = 1, raise = 1, error = 0, sts = 5
 ok 2 - no error in execute_array eval
 ok 3 - execute_array returned 5 rows executed
 ok 4 - total affected 5
@@ -39,7 +39,7 @@ ok 21 - row 3 p2 data
 ok 22 - row 4 p1 data
 ok 23 - row 4 p2 data
 #     Autocommit: 0
-# insert tuple = ARRAY(0x5590e0ed7c70), raise = 1, array_context = 1, commit = 1, error = 0, affected = 5, sts = 5
+# insert sts = 5, error = 0, raise = 1, tuple = ARRAY(0x5638985a0c90), array_context = 1, affected = 5, commit = 1
 ok 24 - no error in execute_array eval
 ok 25 - execute_array returned 5 rows executed
 not ok 26 - total affected 4
@@ -94,7 +94,7 @@ ok 43 - row 3 p2 data
 ok 44 - row 4 p1 data
 ok 45 - row 4 p2 data
 #   Not all param arrays the same size
-# insert tuple = ARRAY(0x5590e0e469a8), raise = 1, array_context = 1, affected = 5, error = 0, commit = 0, sts = 5
+# insert sts = 5, error = 0, raise = 1, array_context = 1, tuple = ARRAY(0x5638986481e0), affected = 5, commit = 0
 ok 46 - no error in execute_array eval
 ok 47 - execute_array returned 5 rows executed
 ok 48 - total affected 5
@@ -125,7 +125,7 @@ ok 65 - row 3 p2 data
 ok 66 - row 4 p1 data
 ok 67 - row 4 p2 data
 #   Not all param arrays the same size with bind on execute_array
-# insert tuple = ARRAY(0x5590e0ed4828), raise = 1, array_context = 1, commit = 0, error = 0, affected = 5, params = ARRAY(0x5590e0ed45a0), sts = 5
+# insert affected = 5, commit = 0, params = ARRAY(0x56389863c588), sts = 5, error = 0, raise = 1, array_context = 1, tuple = ARRAY(0x56389865bb08)
 ok 68 - no error in execute_array eval
 ok 69 - execute_array returned 5 rows executed
 ok 70 - total affected 5
@@ -156,7 +156,7 @@ ok 87 - row 3 p2 data
 ok 88 - row 4 p1 data
 ok 89 - row 4 p2 data
 #   no parameters
-# insert raise = 1, tuple = ARRAY(0x5590e0ed86a8), array_context = 1, sts = '0E0', params = ARRAY(0x5590e0f01988), affected = 0, commit = 0, error = 0
+# insert error = 0, sts = '0E0', tuple = ARRAY(0x56389863c6a8), array_context = 1, raise = 1, commit = 0, params = ARRAY(0x56389865afe0), affected = 0
 ok 90 - no error in execute_array eval
 ok 91 - execute_array returned '0E0' rows executed
 ok 92 - total affected 0
@@ -168,7 +168,7 @@ ok 96 - status arrays same size
 # simple tests raise = 1, array_context = 0
 #   all param arrays the same size
 #     Autocommit: 1
-# insert affected = 5, error = 0, commit = '', sts = 5, tuple = ARRAY(0x5590e0ee1090), array_context = 0, raise = 1
+# insert commit = '', affected = 5, array_context = 0, tuple = ARRAY(0x56389862ebd0), raise = 1, error = 0, sts = 5
 ok 97 - no error in execute_array eval
 ok 98 - execute_array returned 5 rows executed
 ok 99 - no error captured
@@ -198,7 +198,7 @@ ok 115 - row 3 p2 data
 ok 116 - row 4 p1 data
 ok 117 - row 4 p2 data
 #     Autocommit: 0
-# insert sts = 5, affected = 5, error = 0, commit = 1, array_context = 0, raise = 1, tuple = ARRAY(0x5590e0ed4690)
+# insert commit = 1, affected = 5, array_context = 0, tuple = ARRAY(0x5638986485a0), raise = 1, error = 0, sts = 5
 ok 118 - no error in execute_array eval
 ok 119 - execute_array returned 5 rows executed
 ok 120 - no error captured
@@ -248,7 +248,7 @@ ok 136 - row 3 p2 data
 ok 137 - row 4 p1 data
 ok 138 - row 4 p2 data
 #   Not all param arrays the same size
-# insert array_context = 0, sts = 5, affected = 5, error = 0, commit = 0, raise = 1, tuple = ARRAY(0x5590e0e46dc8)
+# insert commit = 0, affected = 5, array_context = 0, tuple = ARRAY(0x56389866de48), raise = 1, error = 0, sts = 5
 ok 139 - no error in execute_array eval
 ok 140 - execute_array returned 5 rows executed
 ok 141 - no error captured
@@ -278,7 +278,7 @@ ok 157 - row 3 p2 data
 ok 158 - row 4 p1 data
 ok 159 - row 4 p2 data
 #   Not all param arrays the same size with bind on execute_array
-# insert error = 0, commit = 0, affected = 5, params = ARRAY(0x5590e0ee13d8), sts = 5, array_context = 0, tuple = ARRAY(0x5590e0f149c0), raise = 1
+# insert params = ARRAY(0x56389866e5f8), commit = 0, affected = 5, array_context = 0, tuple = ARRAY(0x56389862f320), raise = 1, error = 0, sts = 5
 ok 160 - no error in execute_array eval
 ok 161 - execute_array returned 5 rows executed
 ok 162 - no error captured
@@ -308,7 +308,7 @@ ok 178 - row 3 p2 data
 ok 179 - row 4 p1 data
 ok 180 - row 4 p2 data
 #   no parameters
-# insert array_context = 0, sts = '0E0', params = ARRAY(0x5590e0f19010), affected = 0, commit = 0, error = 0, raise = 1, tuple = ARRAY(0x5590e0ef7b68)
+# insert array_context = 0, tuple = ARRAY(0x56389862f470), raise = 1, error = 0, sts = '0E0', params = ARRAY(0x56389866ddd0), commit = 0, affected = 0
 ok 181 - no error in execute_array eval
 ok 182 - execute_array returned '0E0' rows executed
 ok 183 - no error captured
@@ -316,9 +316,9 @@ ok 184 - 0E0 rows in tuple_status
 # $ArrayTupleStatus = [];
 ok 185 - tuple status is an array
 ok 186 - status arrays same size
-# error tests raise = 1, array_context = 1
+# error tests array_context = 1, raise = 1
 # Last row in error
-# insert raise = 1, array_context = 1, tuple = ARRAY(0x5590e0f229d0), sts = undef, commit = 0, error = 1, affected = undef
+# insert raise = 1, array_context = 1, tuple = ARRAY(0x563898673250), sts = undef, error = 1, affected = undef, commit = 0
 # ***** error handler called *****
 ok 187 - error in execute_array eval
 ok 188 - error captured
@@ -349,7 +349,7 @@ ok 200 - row 2 p2 data
 ok 201 - row 3 p1 data
 ok 202 - row 3 p2 data
 # 2nd last row in error
-# insert array_context = 1, raise = 1, tuple = ARRAY(0x5590e0f235e8), sts = undef, affected = undef, error = 1, commit = 0
+# insert commit = 0, affected = undef, error = 1, sts = undef, tuple = ARRAY(0x56389867c390), array_context = 1, raise = 1
 # ***** error handler called *****
 ok 203 - error in execute_array eval
 ok 204 - error captured
@@ -379,9 +379,9 @@ ok 215 - row 2 p1 data
 ok 216 - row 2 p2 data
 ok 217 - row 3 p1 data
 ok 218 - row 3 p2 data
-# error tests array_context = 0, raise = 1
+# error tests raise = 1, array_context = 0
 # Last row in error
-# insert error = 1, commit = 0, affected = undef, sts = undef, tuple = ARRAY(0x5590e0f24be8), raise = 1, array_context = 0
+# insert commit = 0, affected = undef, error = 1, sts = undef, array_context = 0, tuple = ARRAY(0x56389867c3c0), raise = 1
 # ***** error handler called *****
 ok 219 - error in execute_array eval
 ok 220 - error captured
@@ -412,7 +412,7 @@ ok 232 - row 2 p2 data
 ok 233 - row 3 p1 data
 ok 234 - row 3 p2 data
 # 2nd last row in error
-# insert tuple = ARRAY(0x5590e0f24d68), array_context = 0, raise = 1, affected = undef, error = 1, commit = 0, sts = undef
+# insert affected = undef, commit = 0, raise = 1, array_context = 0, tuple = ARRAY(0x563898683660), sts = undef, error = 1
 # ***** error handler called *****
 ok 235 - error in execute_array eval
 ok 236 - error captured
@@ -444,7 +444,7 @@ ok 249 - row 3 p1 data
 ok 250 - row 3 p2 data
 # error tests array_context = 1, raise = 0
 # Last row in error
-# insert array_context = 1, raise = 0, tuple = ARRAY(0x5590e0f2a050), sts = undef, affected = undef, error = 1, commit = 0
+# insert commit = 0, affected = undef, error = 1, sts = undef, tuple = ARRAY(0x5638986883f8), array_context = 1, raise = 0
 # ***** error handler called *****
 ok 251 - no error in execute_array eval
 ok 252 - execute_array returned undef rows executed
@@ -476,7 +476,7 @@ ok 265 - row 2 p2 data
 ok 266 - row 3 p1 data
 ok 267 - row 3 p2 data
 # 2nd last row in error
-# insert sts = undef, commit = 0, error = 1, affected = undef, raise = 0, array_context = 1, tuple = ARRAY(0x5590e0f2b2b8)
+# insert array_context = 1, tuple = ARRAY(0x563898684470), raise = 0, error = 1, sts = undef, commit = 0, affected = undef
 # ***** error handler called *****
 ok 268 - no error in execute_array eval
 ok 269 - execute_array returned undef rows executed
@@ -509,7 +509,7 @@ ok 283 - row 3 p1 data
 ok 284 - row 3 p2 data
 # error tests array_context = 0, raise = 0
 # Last row in error
-# insert affected = undef, error = 1, commit = 0, sts = undef, tuple = ARRAY(0x5590e0f2b708), array_context = 0, raise = 0
+# insert affected = undef, commit = 0, sts = undef, error = 1, raise = 0, tuple = ARRAY(0x563898688320), array_context = 0
 # ***** error handler called *****
 ok 285 - no error in execute_array eval
 ok 286 - execute_array returned undef rows executed
@@ -540,7 +540,7 @@ ok 298 - row 2 p2 data
 ok 299 - row 3 p1 data
 ok 300 - row 3 p2 data
 # 2nd last row in error
-# insert array_context = 0, raise = 0, tuple = ARRAY(0x5590e0f2bc18), sts = undef, affected = undef, commit = 0, error = 1
+# insert affected = undef, commit = 0, raise = 0, tuple = ARRAY(0x563898686928), array_context = 0, sts = undef, error = 1
 # ***** error handler called *****
 ok 301 - no error in execute_array eval
 ok 302 - execute_array returned undef rows executed
@@ -571,7 +571,7 @@ ok 314 - row 2 p2 data
 ok 315 - row 3 p1 data
 ok 316 - row 3 p2 data
 # row_size via execute_for_fetch
-# insert raise = 1, tuple = ARRAY(0x5590e0f31690), fetch = CODE(0x5590e0e025c0), sts = 5, commit = 0, error = 0, affected = 5, array_context = 1
+# insert commit = 0, affected = 5, error = 0, sts = 5, array_context = 1, tuple = ARRAY(0x56389868de20), fetch = CODE(0x56389855bfc0), raise = 1
 # fetch_sub 0
 # fetch_sub 1
 # fetch_sub 2
@@ -601,7 +601,7 @@ ok 328 - row 4 tuple status
 # row_size via select
 ok 329 - execute on second table
 ok 330 - second statement is in executed state
-# insert requires_mas = 1, raise = 1, tuple = ARRAY(0x5590e0f35200), sts = 5, fetch = DBI::st=HASH(0x5590e0f31948), error = 0, commit = 0, affected = 5, array_context = 1
+# insert fetch = DBI::st=HASH(0x56389868e480), raise = 1, tuple = ARRAY(0x563898694860), array_context = 1, sts = 5, error = 0, affected = 5, requires_mas = 1, commit = 0
 ok 331 - no error in execute_array eval
 ok 332 - execute_array returned 5 rows executed
 ok 333 - total affected 5
@@ -632,7 +632,7 @@ ok 350 - row 3 p2 data
 ok 351 - row 4 p1 data
 ok 352 - row 4 p2 data
 # update test
-# insert raise = 1, tuple = ARRAY(0x5590e0f34dc8), array_context = 1, sts = 5, fetch = CODE(0x5590e0e025c0), affected = 5, commit = 0, error = 0
+# insert affected = 5, commit = 0, fetch = CODE(0x56389855bfc0), raise = 1, tuple = ARRAY(0x56389868e930), array_context = 1, sts = 5, error = 0
 # fetch_sub 0
 # fetch_sub 1
 # fetch_sub 2
@@ -669,7 +669,7 @@ ok 371 - row 3 p1 data
 ok 372 - row 3 p2 data
 ok 373 - row 4 p1 data
 ok 374 - row 4 p2 data
-# insert tuple = ARRAY(0x5590e0f31ca8), raise = 1, array_context = 1, error = 0, commit = 0, affected = 5, sts = 5
+# insert sts = 5, error = 0, raise = 1, tuple = ARRAY(0x5638986948f0), array_context = 1, affected = 5, commit = 0
 ok 375 - no error in execute_array eval
 ok 376 - execute_array returned 5 rows executed
 ok 377 - total affected 5
@@ -699,7 +699,7 @@ ok 393 - row 3 p1 data
 ok 394 - row 3 p2 data
 ok 395 - row 4 p1 data
 ok 396 - row 4 p2 data
-# insert array_context = 1, raise = 1, tuple = ARRAY(0x5590e0f35080), sts = 5, affected = 4, error = 0, commit = 0
+# insert commit = 0, affected = 4, error = 0, sts = 5, array_context = 1, tuple = ARRAY(0x56389868e480), raise = 1
 ok 397 - no error in execute_array eval
 ok 398 - execute_array returned 5 rows executed
 ok 399 - total affected 4
@@ -729,7 +729,7 @@ ok 415 - row 3 p1 data
 ok 416 - row 3 p2 data
 ok 417 - row 4 p1 data
 ok 418 - row 4 p2 data
-# insert commit = 0, error = 0, affected = 5, sts = 2, tuple = ARRAY(0x5590e0f3afb0), raise = 1, array_context = 1
+# insert array_context = 1, tuple = ARRAY(0x56389869a7f8), raise = 1, error = 0, sts = 2, commit = 0, affected = 5
 ok 419 - no error in execute_array eval
 ok 420 - execute_array returned 2 rows executed
 ok 421 - total affected 5
@@ -755,7 +755,7 @@ ok 436 - row 4 p1 data
 ok 437 - row 4 p2 data
 # error tests array_context = 1, raise = 1, notuplestatus = 1
 # Last row in error
-# insert tuple = ARRAY(0x5590e0f42858), raise = 1, commit = 0, error = 1, affected = undef, notuplestatus = 1, sts = undef, array_context = 1
+# insert affected = undef, commit = 0, raise = 1, array_context = 1, tuple = ARRAY(0x56389869ef30), sts = undef, notuplestatus = 1, error = 1
 # ***** error handler called *****
 ok 438 - error in execute_array eval
 ok 439 - error captured
@@ -768,7 +768,7 @@ ok 445 - row 2 p2 data
 ok 446 - row 3 p1 data
 ok 447 - row 3 p2 data
 # 2nd last row in error
-# insert array_context = 1, commit = 0, error = 1, notuplestatus = 1, affected = undef, sts = undef, tuple = ARRAY(0x5590e0f41fa0), raise = 1
+# insert affected = undef, commit = 0, raise = 1, tuple = ARRAY(0x56389869ed08), array_context = 1, sts = undef, error = 1, notuplestatus = 1
 # ***** error handler called *****
 ok 448 - error in execute_array eval
 ok 449 - error captured
@@ -780,9 +780,9 @@ ok 454 - row 2 p1 data
 ok 455 - row 2 p2 data
 ok 456 - row 3 p1 data
 ok 457 - row 3 p2 data
-# error tests notuplestatus = 1, array_context = 0, raise = 1
+# error tests raise = 1, array_context = 0, notuplestatus = 1
 # Last row in error
-# insert array_context = 0, sts = undef, commit = 0, error = 1, notuplestatus = 1, affected = undef, raise = 1, tuple = ARRAY(0x5590e0f42300)
+# insert commit = 0, affected = undef, tuple = ARRAY(0x563898694b90), array_context = 0, raise = 1, error = 1, notuplestatus = 1, sts = undef
 # ***** error handler called *****
 ok 458 - error in execute_array eval
 ok 459 - error captured
@@ -795,7 +795,7 @@ ok 465 - row 2 p2 data
 ok 466 - row 3 p1 data
 ok 467 - row 3 p2 data
 # 2nd last row in error
-# insert raise = 1, tuple = ARRAY(0x5590e0f51d10), array_context = 0, sts = undef, error = 1, commit = 0, notuplestatus = 1, affected = undef
+# insert commit = 0, affected = undef, notuplestatus = 1, error = 1, sts = undef, array_context = 0, tuple = ARRAY(0x5638986a1e48), raise = 1
 # ***** error handler called *****
 ok 468 - error in execute_array eval
 ok 469 - error captured
@@ -809,7 +809,7 @@ ok 476 - row 3 p1 data
 ok 477 - row 3 p2 data
 # error tests notuplestatus = 1, array_context = 1, raise = 0
 # Last row in error
-# insert sts = undef, notuplestatus = 1, affected = undef, error = 1, commit = 0, array_context = 1, raise = 0, tuple = ARRAY(0x5590e0f47ec0)
+# insert commit = 0, affected = undef, error = 1, notuplestatus = 1, sts = undef, array_context = 1, tuple = ARRAY(0x5638986a5108), raise = 0
 # ***** error handler called *****
 ok 478 - no error in execute_array eval
 ok 479 - execute_array returned undef rows executed
@@ -823,7 +823,7 @@ ok 486 - row 2 p2 data
 ok 487 - row 3 p1 data
 ok 488 - row 3 p2 data
 # 2nd last row in error
-# insert tuple = ARRAY(0x5590e0f52838), raise = 0, error = 1, commit = 0, affected = undef, notuplestatus = 1, sts = undef, array_context = 1
+# insert commit = 0, affected = undef, array_context = 1, tuple = ARRAY(0x5638986a5030), raise = 0, notuplestatus = 1, error = 1, sts = undef
 # ***** error handler called *****
 ok 489 - no error in execute_array eval
 ok 490 - execute_array returned undef rows executed
@@ -836,9 +836,9 @@ ok 496 - row 2 p1 data
 ok 497 - row 2 p2 data
 ok 498 - row 3 p1 data
 ok 499 - row 3 p2 data
-# error tests notuplestatus = 1, array_context = 0, raise = 0
+# error tests array_context = 0, raise = 0, notuplestatus = 1
 # Last row in error
-# insert array_context = 0, affected = undef, notuplestatus = 1, commit = 0, error = 1, sts = undef, tuple = ARRAY(0x5590e0f64f68), raise = 0
+# insert tuple = ARRAY(0x5638986a5078), array_context = 0, raise = 0, error = 1, notuplestatus = 1, sts = undef, commit = 0, affected = undef
 # ***** error handler called *****
 ok 500 - no error in execute_array eval
 ok 501 - execute_array returned undef rows executed
@@ -851,7 +851,7 @@ ok 507 - row 2 p2 data
 ok 508 - row 3 p1 data
 ok 509 - row 3 p2 data
 # 2nd last row in error
-# insert tuple = ARRAY(0x5590e0f64b30), raise = 0, notuplestatus = 1, affected = undef, error = 1, commit = 0, sts = undef, array_context = 0
+# insert notuplestatus = 1, error = 1, sts = undef, array_context = 0, tuple = ARRAY(0x5638986c02b0), raise = 0, commit = 0, affected = undef
 # ***** error handler called *****
 ok 510 - no error in execute_array eval
 ok 511 - execute_array returned undef rows executed

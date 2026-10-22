@@ -3,56 +3,56 @@ Common Test starting (cwd is /work/source)
 
 
 
-CWD set to: "/results/native/ct/ct_run.nonode@nohost.2026-10-22_09.57.09"
+CWD set to: "/results/native/ct/ct_run.nonode@nohost.2026-10-22_12.58.27"
 
 TEST INFO: 4 test(s), 108 case(s) in 4 suite(s)
 
 Testing lib.odbc.odbc_start_SUITE: Starting test, 4 test cases
 
 ----------------------------------------------------
-2026-10-22 09:57:09.287
+2026-10-22 12:58:27.250
 ODBCINI = "/etc/odbc.ini"
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:09.312
+2026-10-22 12:58:27.277
 ODBCINI = "/etc/odbc.ini"
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:09.337
+2026-10-22 12:58:27.302
 ODBCINI = "/etc/odbc.ini"
 
 
-=INFO REPORT==== 22-Oct-2026::09:57:09.367194 ===
+=INFO REPORT==== 22-Oct-2026::12:58:27.337127 ===
     application: odbc
     exited: stopped
     type: temporary
 
-=INFO REPORT==== 22-Oct-2026::09:57:09.391646 ===
+=INFO REPORT==== 22-Oct-2026::12:58:27.364899 ===
     application: odbc
     exited: stopped
     type: transient
 
-=INFO REPORT==== 22-Oct-2026::09:57:09.415023 ===
+=INFO REPORT==== 22-Oct-2026::12:58:27.392960 ===
     application: odbc
     exited: stopped
     type: permanent
 
 
 ----------------------------------------------------
-2026-10-22 09:57:09.439
+2026-10-22 12:58:27.417
 ODBCINI = "/etc/odbc.ini"
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:09.441
+2026-10-22 12:58:27.420
 Driver error reason: "[unixODBC][Driver Manager]Data source name not found and no default driver specified SQLSTATE IS: IM002 Connection to database failed."
 
-=INFO REPORT==== 22-Oct-2026::09:57:09.441642 ===
+=INFO REPORT==== 22-Oct-2026::12:58:27.419990 ===
     application: odbc
     exited: stopped
     type: temporary
@@ -62,13 +62,13 @@ Testing lib.odbc.odbc_start_SUITE: TEST COMPLETE, 4 ok, 0 failed of 4 test cases
 Testing lib.odbc.odbc_connect_SUITE: Starting test, 20 test cases
 
 ----------------------------------------------------
-2026-10-22 09:57:10.772
+2026-10-22 12:58:28.751
 ODBCINI = "/etc/odbc.ini"
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:10.929
+2026-10-22 12:58:28.911
 ODBCINI = "/etc/odbc.ini"
 
 
@@ -78,11 +78,11 @@ odbc_connect_SUITE:commit failed on line 176
 Reason: {badmatch,{updated,0}}
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-=ERROR REPORT==== 22-Oct-2026::09:57:11.044459 ===
+=ERROR REPORT==== 22-Oct-2026::12:58:29.035847 ===
 ** Generic server <0.196.0> terminating 
-** Last message in was {'DOWN',#Ref<0.670129732.1548484609.60256>,process,
+** Last message in was {'DOWN',#Ref<0.3962525047.1039663105.30939>,process,
                            <0.194.0>,
-                           {#Ref<0.670129732.1548484609.60204>,77415,
+                           {#Ref<0.3962525047.1039663105.30887>,80609,
                             {'EXIT',
                                 {{badmatch,{updated,0}},
                                  [{odbc_connect_SUITE,commit,1,
@@ -107,7 +107,7 @@ Reason: {badmatch,{updated,0}}
 ** Reason for termination ==
 ** {stopped,
        {'EXIT',<0.194.0>,
-           {#Ref<0.670129732.1548484609.60204>,77415,
+           {#Ref<0.3962525047.1039663105.30887>,80609,
             {'EXIT',
                 {{badmatch,{updated,0}},
                  [{odbc_connect_SUITE,commit,1,
@@ -123,14 +123,14 @@ Reason: {badmatch,{updated,0}}
              {test_server,run_test_case_eval,1223}],
             []}}}
 
-=CRASH REPORT==== 22-Oct-2026::09:57:11.045210 ===
+=CRASH REPORT==== 22-Oct-2026::12:58:29.036589 ===
   crasher:
     initial call: odbc:init/1
     pid: <0.196.0>
     registered_name: []
     exception exit: {stopped,
                         {'EXIT',<0.194.0>,
-                            {#Ref<0.670129732.1548484609.60204>,77415,
+                            {#Ref<0.3962525047.1039663105.30887>,80609,
                              {'EXIT',
                                  {{badmatch,{updated,0}},
                                   [{odbc_connect_SUITE,commit,1,
@@ -158,15 +158,15 @@ Reason: {badmatch,{updated,0}}
     status: running
     heap_size: 10958
     stack_size: 28
-    reductions: 19737
+    reductions: 19731
   neighbours:
 
-=SUPERVISOR REPORT==== 22-Oct-2026::09:57:11.047879 ===
+=SUPERVISOR REPORT==== 22-Oct-2026::12:58:29.039814 ===
     supervisor: {local,odbc_sup}
     errorContext: child_terminated
     reason: {stopped,
                 {'EXIT',<0.194.0>,
-                    {#Ref<0.670129732.1548484609.60204>,77415,
+                    {#Ref<0.3962525047.1039663105.30887>,80609,
                      {'EXIT',
                          {{badmatch,{updated,0}},
                           [{odbc_connect_SUITE,commit,1,
@@ -193,7 +193,7 @@ Reason: {badmatch,{updated,0}}
 Testing lib.odbc.odbc_connect_SUITE: *** FAILED test case 2 of 20 ***
 
 ----------------------------------------------------
-2026-10-22 09:57:11.067
+2026-10-22 12:58:29.058
 ODBCINI = "/etc/odbc.ini"
 
 
@@ -203,11 +203,11 @@ odbc_connect_SUITE:rollback failed on line 215
 Reason: {badmatch,{updated,0}}
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-=ERROR REPORT==== 22-Oct-2026::09:57:11.173955 ===
+=ERROR REPORT==== 22-Oct-2026::12:58:29.224260 ===
 ** Generic server <0.202.0> terminating 
-** Last message in was {'DOWN',#Ref<0.670129732.1548484609.60521>,process,
+** Last message in was {'DOWN',#Ref<0.3962525047.1039663105.31193>,process,
                            <0.200.0>,
-                           {#Ref<0.670129732.1548484609.60469>,72877,
+                           {#Ref<0.3962525047.1039663105.31141>,128449,
                             {'EXIT',
                                 {{badmatch,{updated,0}},
                                  [{odbc_connect_SUITE,rollback,1,
@@ -232,7 +232,7 @@ Reason: {badmatch,{updated,0}}
 ** Reason for termination ==
 ** {stopped,
        {'EXIT',<0.200.0>,
-           {#Ref<0.670129732.1548484609.60469>,72877,
+           {#Ref<0.3962525047.1039663105.31141>,128449,
             {'EXIT',
                 {{badmatch,{updated,0}},
                  [{odbc_connect_SUITE,rollback,1,
@@ -248,14 +248,14 @@ Reason: {badmatch,{updated,0}}
              {test_server,run_test_case_eval,1223}],
             []}}}
 
-=CRASH REPORT==== 22-Oct-2026::09:57:11.174698 ===
+=CRASH REPORT==== 22-Oct-2026::12:58:29.225047 ===
   crasher:
     initial call: odbc:init/1
     pid: <0.202.0>
     registered_name: []
     exception exit: {stopped,
                         {'EXIT',<0.200.0>,
-                            {#Ref<0.670129732.1548484609.60469>,72877,
+                            {#Ref<0.3962525047.1039663105.31141>,128449,
                              {'EXIT',
                                  {{badmatch,{updated,0}},
                                   [{odbc_connect_SUITE,rollback,1,
@@ -283,15 +283,15 @@ Reason: {badmatch,{updated,0}}
     status: running
     heap_size: 987
     stack_size: 28
-    reductions: 18900
+    reductions: 18904
   neighbours:
 
-=SUPERVISOR REPORT==== 22-Oct-2026::09:57:11.175234 ===
+=SUPERVISOR REPORT==== 22-Oct-2026::12:58:29.225713 ===
     supervisor: {local,odbc_sup}
     errorContext: child_terminated
     reason: {stopped,
                 {'EXIT',<0.200.0>,
-                    {#Ref<0.670129732.1548484609.60469>,72877,
+                    {#Ref<0.3962525047.1039663105.31141>,128449,
                      {'EXIT',
                          {{badmatch,{updated,0}},
                           [{odbc_connect_SUITE,rollback,1,
@@ -318,24 +318,24 @@ Reason: {badmatch,{updated,0}}
 Testing lib.odbc.odbc_connect_SUITE: *** FAILED test case 3 of 20 ***
 
 ----------------------------------------------------
-2026-10-22 09:57:11.197
+2026-10-22 12:58:29.247
 ODBCINI = "/etc/odbc.ini"
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:11.273
+2026-10-22 12:58:29.330
 ODBCINI = "/etc/odbc.ini"
 
 
 Testing lib.odbc.odbc_connect_SUITE: *** SKIPPED test case 5 of 20 ***
 
 ----------------------------------------------------
-2026-10-22 09:57:11.324
+2026-10-22 12:58:29.387
 ODBCINI = "/etc/odbc.ini"
 
 
-=ERROR REPORT==== 22-Oct-2026::09:57:11.344243 ===
+=ERROR REPORT==== 22-Oct-2026::12:58:29.411694 ===
 ** Generic server <0.217.0> terminating 
 ** Last message in was {'EXIT',#Port<0.105>,killed}
 ** When Server state == {state,#Port<0.105>,undefined,<0.215.0>,undefined,on,
@@ -345,7 +345,7 @@ ODBCINI = "/etc/odbc.ini"
 ** Reason for termination ==
 ** killed
 
-=CRASH REPORT==== 22-Oct-2026::09:57:11.344535 ===
+=CRASH REPORT==== 22-Oct-2026::12:58:29.411959 ===
   crasher:
     initial call: odbc:init/1
     pid: <0.217.0>
@@ -361,10 +361,10 @@ ODBCINI = "/etc/odbc.ini"
     status: running
     heap_size: 2586
     stack_size: 28
-    reductions: 8510
+    reductions: 8505
   neighbours:
 
-=SUPERVISOR REPORT==== 22-Oct-2026::09:57:11.344728 ===
+=SUPERVISOR REPORT==== 22-Oct-2026::12:58:29.412152 ===
     supervisor: {local,odbc_sup}
     errorContext: child_terminated
     reason: killed
@@ -378,11 +378,11 @@ ODBCINI = "/etc/odbc.ini"
 
 
 ----------------------------------------------------
-2026-10-22 09:57:21.398
+2026-10-22 12:58:39.468
 ODBCINI = "/etc/odbc.ini"
 
 
-=SUPERVISOR REPORT==== 22-Oct-2026::09:57:21.418479 ===
+=SUPERVISOR REPORT==== 22-Oct-2026::12:58:39.492710 ===
     supervisor: {local,odbc_sup}
     errorContext: child_terminated
     reason: killed
@@ -396,25 +396,25 @@ ODBCINI = "/etc/odbc.ini"
 
 
 ----------------------------------------------------
-2026-10-22 09:57:21.993
+2026-10-22 12:58:40.072
 ODBCINI = "/etc/odbc.ini"
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:22.066
+2026-10-22 12:58:40.148
 ODBCINI = "/etc/odbc.ini"
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:22.138
+2026-10-22 12:58:40.226
 ODBCINI = "/etc/odbc.ini"
 
 
-=ERROR REPORT==== 22-Oct-2026::09:57:22.156868 ===
+=ERROR REPORT==== 22-Oct-2026::12:58:40.250411 ===
 ** Generic server <0.244.0> terminating 
-** Last message in was {'DOWN',#Ref<0.670129732.1548484610.59017>,process,
+** Last message in was {'DOWN',#Ref<0.3962525047.1039663106.32807>,process,
                                <0.243.0>,error}
 ** When Server state == {state,#Port<0.153>,undefined,<0.243.0>,undefined,on,
                                false,false,on,connected,undefined,0,
@@ -423,7 +423,7 @@ ODBCINI = "/etc/odbc.ini"
 ** Reason for termination ==
 ** {stopped,{'EXIT',<0.243.0>,error}}
 
-=CRASH REPORT==== 22-Oct-2026::09:57:22.157176 ===
+=CRASH REPORT==== 22-Oct-2026::12:58:40.250816 ===
   crasher:
     initial call: odbc:init/1
     pid: <0.244.0>
@@ -439,10 +439,10 @@ ODBCINI = "/etc/odbc.ini"
     status: running
     heap_size: 4185
     stack_size: 28
-    reductions: 8911
+    reductions: 8988
   neighbours:
 
-=SUPERVISOR REPORT==== 22-Oct-2026::09:57:22.157417 ===
+=SUPERVISOR REPORT==== 22-Oct-2026::12:58:40.251090 ===
     supervisor: {local,odbc_sup}
     errorContext: child_terminated
     reason: {stopped,{'EXIT',<0.243.0>,error}}
@@ -456,13 +456,13 @@ ODBCINI = "/etc/odbc.ini"
 
 
 ----------------------------------------------------
-2026-10-22 09:57:22.233
+2026-10-22 12:58:40.332
 ODBCINI = "/etc/odbc.ini"
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:22.287
+2026-10-22 12:58:40.389
 ODBCINI = "/etc/odbc.ini"
 
 
@@ -472,11 +472,11 @@ odbc_connect_SUITE:timeout failed on line 453
 Reason: {badmatch,{updated,0}}
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-=ERROR REPORT==== 22-Oct-2026::09:57:22.395388 ===
+=ERROR REPORT==== 22-Oct-2026::12:58:40.506643 ===
 ** Generic server <0.258.0> terminating 
-** Last message in was {'DOWN',#Ref<0.670129732.1548484610.59296>,process,
+** Last message in was {'DOWN',#Ref<0.3962525047.1039663106.33358>,process,
                            <0.256.0>,
-                           {#Ref<0.670129732.1548484610.59259>,73611,
+                           {#Ref<0.3962525047.1039663106.33308>,79207,
                             {'EXIT',
                                 {{badmatch,{updated,0}},
                                  [{odbc_connect_SUITE,timeout,1,
@@ -501,7 +501,7 @@ Reason: {badmatch,{updated,0}}
 ** Reason for termination ==
 ** {stopped,
        {'EXIT',<0.256.0>,
-           {#Ref<0.670129732.1548484610.59259>,73611,
+           {#Ref<0.3962525047.1039663106.33308>,79207,
             {'EXIT',
                 {{badmatch,{updated,0}},
                  [{odbc_connect_SUITE,timeout,1,
@@ -517,14 +517,14 @@ Reason: {badmatch,{updated,0}}
              {test_server,run_test_case_eval,1223}],
             []}}}
 
-=CRASH REPORT==== 22-Oct-2026::09:57:22.396129 ===
+=CRASH REPORT==== 22-Oct-2026::12:58:40.507249 ===
   crasher:
     initial call: odbc:init/1
     pid: <0.258.0>
     registered_name: []
     exception exit: {stopped,
                         {'EXIT',<0.256.0>,
-                            {#Ref<0.670129732.1548484610.59259>,73611,
+                            {#Ref<0.3962525047.1039663106.33308>,79207,
                              {'EXIT',
                                  {{badmatch,{updated,0}},
                                   [{odbc_connect_SUITE,timeout,1,
@@ -550,17 +550,17 @@ Reason: {badmatch,{updated,0}}
     dictionary: []
     trap_exit: true
     status: running
-    heap_size: 10958
+    heap_size: 987
     stack_size: 28
-    reductions: 19729
+    reductions: 18892
   neighbours:
 
-=SUPERVISOR REPORT==== 22-Oct-2026::09:57:22.396504 ===
+=SUPERVISOR REPORT==== 22-Oct-2026::12:58:40.507647 ===
     supervisor: {local,odbc_sup}
     errorContext: child_terminated
     reason: {stopped,
                 {'EXIT',<0.256.0>,
-                    {#Ref<0.670129732.1548484610.59259>,73611,
+                    {#Ref<0.3962525047.1039663106.33308>,79207,
                      {'EXIT',
                          {{badmatch,{updated,0}},
                           [{odbc_connect_SUITE,timeout,1,
@@ -587,7 +587,7 @@ Reason: {badmatch,{updated,0}}
 Testing lib.odbc.odbc_connect_SUITE: *** FAILED test case 12 of 20 ***
 
 ----------------------------------------------------
-2026-10-22 09:57:22.418
+2026-10-22 12:58:40.530
 ODBCINI = "/etc/odbc.ini"
 
 
@@ -597,11 +597,11 @@ odbc_connect_SUITE:many_timeouts failed on line 534
 Reason: {badmatch,{updated,0}}
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-=ERROR REPORT==== 22-Oct-2026::09:57:22.527123 ===
+=ERROR REPORT==== 22-Oct-2026::12:58:40.650992 ===
 ** Generic server <0.264.0> terminating 
-** Last message in was {'DOWN',#Ref<0.670129732.1548484609.62041>,process,
+** Last message in was {'DOWN',#Ref<0.3962525047.1039663106.33571>,process,
                            <0.262.0>,
-                           {#Ref<0.670129732.1548484609.61993>,74002,
+                           {#Ref<0.3962525047.1039663106.33519>,82546,
                             {'EXIT',
                                 {{badmatch,{updated,0}},
                                  [{odbc_connect_SUITE,many_timeouts,1,
@@ -626,7 +626,7 @@ Reason: {badmatch,{updated,0}}
 ** Reason for termination ==
 ** {stopped,
        {'EXIT',<0.262.0>,
-           {#Ref<0.670129732.1548484609.61993>,74002,
+           {#Ref<0.3962525047.1039663106.33519>,82546,
             {'EXIT',
                 {{badmatch,{updated,0}},
                  [{odbc_connect_SUITE,many_timeouts,1,
@@ -642,14 +642,14 @@ Reason: {badmatch,{updated,0}}
              {test_server,run_test_case_eval,1223}],
             []}}}
 
-=CRASH REPORT==== 22-Oct-2026::09:57:22.527883 ===
+=CRASH REPORT==== 22-Oct-2026::12:58:40.651767 ===
   crasher:
     initial call: odbc:init/1
     pid: <0.264.0>
     registered_name: []
     exception exit: {stopped,
                         {'EXIT',<0.262.0>,
-                            {#Ref<0.670129732.1548484609.61993>,74002,
+                            {#Ref<0.3962525047.1039663106.33519>,82546,
                              {'EXIT',
                                  {{badmatch,{updated,0}},
                                   [{odbc_connect_SUITE,many_timeouts,1,
@@ -675,17 +675,17 @@ Reason: {badmatch,{updated,0}}
     dictionary: []
     trap_exit: true
     status: running
-    heap_size: 10958
+    heap_size: 610
     stack_size: 28
-    reductions: 19831
+    reductions: 18757
   neighbours:
 
-=SUPERVISOR REPORT==== 22-Oct-2026::09:57:22.528307 ===
+=SUPERVISOR REPORT==== 22-Oct-2026::12:58:40.652164 ===
     supervisor: {local,odbc_sup}
     errorContext: child_terminated
     reason: {stopped,
                 {'EXIT',<0.262.0>,
-                    {#Ref<0.670129732.1548484609.61993>,74002,
+                    {#Ref<0.3962525047.1039663106.33519>,82546,
                      {'EXIT',
                          {{badmatch,{updated,0}},
                           [{odbc_connect_SUITE,many_timeouts,1,
@@ -712,7 +712,7 @@ Reason: {badmatch,{updated,0}}
 Testing lib.odbc.odbc_connect_SUITE: *** FAILED test case 13 of 20 ***
 
 ----------------------------------------------------
-2026-10-22 09:57:22.550
+2026-10-22 12:58:40.674
 ODBCINI = "/etc/odbc.ini"
 
 
@@ -722,11 +722,11 @@ odbc_connect_SUITE:timeout_reset failed on line 591
 Reason: {badmatch,{updated,0}}
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-=ERROR REPORT==== 22-Oct-2026::09:57:22.658148 ===
+=ERROR REPORT==== 22-Oct-2026::12:58:40.793722 ===
 ** Generic server <0.270.0> terminating 
-** Last message in was {'DOWN',#Ref<0.670129732.1548484610.59429>,process,
+** Last message in was {'DOWN',#Ref<0.3962525047.1039663106.33677>,process,
                            <0.268.0>,
-                           {#Ref<0.670129732.1548484609.62237>,74319,
+                           {#Ref<0.3962525047.1039663105.32178>,80640,
                             {'EXIT',
                                 {{badmatch,{updated,0}},
                                  [{odbc_connect_SUITE,timeout_reset,1,
@@ -751,7 +751,7 @@ Reason: {badmatch,{updated,0}}
 ** Reason for termination ==
 ** {stopped,
        {'EXIT',<0.268.0>,
-           {#Ref<0.670129732.1548484609.62237>,74319,
+           {#Ref<0.3962525047.1039663105.32178>,80640,
             {'EXIT',
                 {{badmatch,{updated,0}},
                  [{odbc_connect_SUITE,timeout_reset,1,
@@ -767,14 +767,14 @@ Reason: {badmatch,{updated,0}}
              {test_server,run_test_case_eval,1223}],
             []}}}
 
-=CRASH REPORT==== 22-Oct-2026::09:57:22.658922 ===
+=CRASH REPORT==== 22-Oct-2026::12:58:40.794406 ===
   crasher:
     initial call: odbc:init/1
     pid: <0.270.0>
     registered_name: []
     exception exit: {stopped,
                         {'EXIT',<0.268.0>,
-                            {#Ref<0.670129732.1548484609.62237>,74319,
+                            {#Ref<0.3962525047.1039663105.32178>,80640,
                              {'EXIT',
                                  {{badmatch,{updated,0}},
                                   [{odbc_connect_SUITE,timeout_reset,1,
@@ -800,17 +800,17 @@ Reason: {badmatch,{updated,0}}
     dictionary: []
     trap_exit: true
     status: running
-    heap_size: 10958
+    heap_size: 610
     stack_size: 28
-    reductions: 19831
+    reductions: 18757
   neighbours:
 
-=SUPERVISOR REPORT==== 22-Oct-2026::09:57:22.659476 ===
+=SUPERVISOR REPORT==== 22-Oct-2026::12:58:40.794820 ===
     supervisor: {local,odbc_sup}
     errorContext: child_terminated
     reason: {stopped,
                 {'EXIT',<0.268.0>,
-                    {#Ref<0.670129732.1548484609.62237>,74319,
+                    {#Ref<0.3962525047.1039663105.32178>,80640,
                      {'EXIT',
                          {{badmatch,{updated,0}},
                           [{odbc_connect_SUITE,timeout_reset,1,
@@ -837,7 +837,7 @@ Reason: {badmatch,{updated,0}}
 Testing lib.odbc.odbc_connect_SUITE: *** FAILED test case 14 of 20 ***
 
 ----------------------------------------------------
-2026-10-22 09:57:22.682
+2026-10-22 12:58:40.817
 ODBCINI = "/etc/odbc.ini"
 
 
@@ -847,11 +847,11 @@ odbc_connect_SUITE:disconnect_on_timeout failed on line 687
 Reason: {badmatch,{updated,0}}
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-=ERROR REPORT==== 22-Oct-2026::09:57:22.804048 ===
+=ERROR REPORT==== 22-Oct-2026::12:58:40.939171 ===
 ** Generic server <0.276.0> terminating 
-** Last message in was {'DOWN',#Ref<0.670129732.1548484609.62360>,process,
+** Last message in was {'DOWN',#Ref<0.3962525047.1039663105.32289>,process,
                            <0.274.0>,
-                           {#Ref<0.670129732.1548484610.59569>,87675,
+                           {#Ref<0.3962525047.1039663106.33841>,82118,
                             {'EXIT',
                                 {{badmatch,{updated,0}},
                                  [{odbc_connect_SUITE,disconnect_on_timeout,
@@ -877,7 +877,7 @@ Reason: {badmatch,{updated,0}}
 ** Reason for termination ==
 ** {stopped,
        {'EXIT',<0.274.0>,
-           {#Ref<0.670129732.1548484610.59569>,87675,
+           {#Ref<0.3962525047.1039663106.33841>,82118,
             {'EXIT',
                 {{badmatch,{updated,0}},
                  [{odbc_connect_SUITE,disconnect_on_timeout,1,
@@ -893,14 +893,14 @@ Reason: {badmatch,{updated,0}}
              {test_server,run_test_case_eval,1223}],
             []}}}
 
-=CRASH REPORT==== 22-Oct-2026::09:57:22.804637 ===
+=CRASH REPORT==== 22-Oct-2026::12:58:40.939872 ===
   crasher:
     initial call: odbc:init/1
     pid: <0.276.0>
     registered_name: []
     exception exit: {stopped,
                         {'EXIT',<0.274.0>,
-                            {#Ref<0.670129732.1548484610.59569>,87675,
+                            {#Ref<0.3962525047.1039663106.33841>,82118,
                              {'EXIT',
                                  {{badmatch,{updated,0}},
                                   [{odbc_connect_SUITE,disconnect_on_timeout,
@@ -929,15 +929,15 @@ Reason: {badmatch,{updated,0}}
     status: running
     heap_size: 610
     stack_size: 28
-    reductions: 18989
+    reductions: 18988
   neighbours:
 
-=SUPERVISOR REPORT==== 22-Oct-2026::09:57:22.805068 ===
+=SUPERVISOR REPORT==== 22-Oct-2026::12:58:40.940356 ===
     supervisor: {local,odbc_sup}
     errorContext: child_terminated
     reason: {stopped,
                 {'EXIT',<0.274.0>,
-                    {#Ref<0.670129732.1548484610.59569>,87675,
+                    {#Ref<0.3962525047.1039663106.33841>,82118,
                      {'EXIT',
                          {{badmatch,{updated,0}},
                           [{odbc_connect_SUITE,disconnect_on_timeout,1,
@@ -964,33 +964,33 @@ Reason: {badmatch,{updated,0}}
 Testing lib.odbc.odbc_connect_SUITE: *** FAILED test case 15 of 20 ***
 
 ----------------------------------------------------
-2026-10-22 09:57:22.827
+2026-10-22 12:58:40.962
 ODBCINI = "/etc/odbc.ini"
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:22.947
+2026-10-22 12:58:41.107
 ODBCINI = "/etc/odbc.ini"
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:23.030
+2026-10-22 12:58:41.201
 Expected: {selected,["id"],[{1}]}
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:23.030
+2026-10-22 12:58:41.201
 Got: {selected,["id"],[{1}]}
 
 
-=ERROR REPORT==== 22-Oct-2026::09:57:23.064143 ===
+=ERROR REPORT==== 22-Oct-2026::12:58:41.241209 ===
 ** Generic server <0.288.0> terminating 
-** Last message in was {'DOWN',#Ref<0.670129732.1548484609.62784>,process,
+** Last message in was {'DOWN',#Ref<0.3962525047.1039663105.32518>,process,
                            <0.286.0>,
-                           {#Ref<0.670129732.1548484609.62732>,83260,
+                           {#Ref<0.3962525047.1039663105.32466>,94675,
                             {selected,["id"],[]},
                             [{odbc_connect_SUITE,disable_scrollable_cursors}],
                             []}}
@@ -1000,19 +1000,19 @@ Got: {selected,["id"],[{1}]}
                                #Port<0.268>,#Port<0.269>}
 ** Reason for termination ==
 ** {stopped,{'EXIT',<0.286.0>,
-                    {#Ref<0.670129732.1548484609.62732>,83260,
+                    {#Ref<0.3962525047.1039663105.32466>,94675,
                      {selected,["id"],[]},
                      [{odbc_connect_SUITE,disable_scrollable_cursors}],
                      []}}}
 
-=CRASH REPORT==== 22-Oct-2026::09:57:23.064547 ===
+=CRASH REPORT==== 22-Oct-2026::12:58:41.241706 ===
   crasher:
     initial call: odbc:init/1
     pid: <0.288.0>
     registered_name: []
     exception exit: {stopped,
                         {'EXIT',<0.286.0>,
-                            {#Ref<0.670129732.1548484609.62732>,83260,
+                            {#Ref<0.3962525047.1039663105.32466>,94675,
                              {selected,["id"],[]},
                              [{odbc_connect_SUITE,disable_scrollable_cursors}],
                              []}}}
@@ -1026,15 +1026,15 @@ Got: {selected,["id"],[{1}]}
     status: running
     heap_size: 6772
     stack_size: 28
-    reductions: 11195
+    reductions: 11191
   neighbours:
 
-=SUPERVISOR REPORT==== 22-Oct-2026::09:57:23.064854 ===
+=SUPERVISOR REPORT==== 22-Oct-2026::12:58:41.242086 ===
     supervisor: {local,odbc_sup}
     errorContext: child_terminated
     reason: {stopped,
                 {'EXIT',<0.286.0>,
-                    {#Ref<0.670129732.1548484609.62732>,83260,
+                    {#Ref<0.3962525047.1039663105.32466>,94675,
                      {selected,["id"],[]},
                      [{odbc_connect_SUITE,disable_scrollable_cursors}],
                      []}}}
@@ -1048,15 +1048,15 @@ Got: {selected,["id"],[{1}]}
 
 
 ----------------------------------------------------
-2026-10-22 09:57:23.087
+2026-10-22 12:58:41.263
 ODBCINI = "/etc/odbc.ini"
 
 
-=ERROR REPORT==== 22-Oct-2026::09:57:23.222828 ===
+=ERROR REPORT==== 22-Oct-2026::12:58:41.412309 ===
 ** Generic server <0.294.0> terminating 
-** Last message in was {'DOWN',#Ref<0.670129732.1548484610.59795>,process,
+** Last message in was {'DOWN',#Ref<0.3962525047.1039663106.34159>,process,
                                <0.292.0>,
-                               {#Ref<0.670129732.1548484610.59743>,101062,
+                               {#Ref<0.3962525047.1039663105.32720>,110640,
                                 {selected,["id","data"],[[1,"bar"]]},
                                 [{odbc_connect_SUITE,return_rows_as_lists}],
                                 []}}
@@ -1066,19 +1066,19 @@ ODBCINI = "/etc/odbc.ini"
                                #Port<0.286>,#Port<0.287>}
 ** Reason for termination ==
 ** {stopped,{'EXIT',<0.292.0>,
-                    {#Ref<0.670129732.1548484610.59743>,101062,
+                    {#Ref<0.3962525047.1039663105.32720>,110640,
                      {selected,["id","data"],[[1,"bar"]]},
                      [{odbc_connect_SUITE,return_rows_as_lists}],
                      []}}}
 
-=CRASH REPORT==== 22-Oct-2026::09:57:23.223233 ===
+=CRASH REPORT==== 22-Oct-2026::12:58:41.412767 ===
   crasher:
     initial call: odbc:init/1
     pid: <0.294.0>
     registered_name: []
     exception exit: {stopped,
                         {'EXIT',<0.292.0>,
-                            {#Ref<0.670129732.1548484610.59743>,101062,
+                            {#Ref<0.3962525047.1039663105.32720>,110640,
                              {selected,["id","data"],[[1,"bar"]]},
                              [{odbc_connect_SUITE,return_rows_as_lists}],
                              []}}}
@@ -1095,11 +1095,11 @@ ODBCINI = "/etc/odbc.ini"
     reductions: 11721
   neighbours:
 
-=SUPERVISOR REPORT==== 22-Oct-2026::09:57:23.223529 ===
+=SUPERVISOR REPORT==== 22-Oct-2026::12:58:41.413078 ===
     supervisor: {local,odbc_sup}
     errorContext: child_terminated
     reason: {stopped,{'EXIT',<0.292.0>,
-                             {#Ref<0.670129732.1548484610.59743>,101062,
+                             {#Ref<0.3962525047.1039663105.32720>,110640,
                               {selected,["id","data"],[[1,"bar"]]},
                               [{odbc_connect_SUITE,return_rows_as_lists}],
                               []}}}
@@ -1113,11 +1113,11 @@ ODBCINI = "/etc/odbc.ini"
 
 
 ----------------------------------------------------
-2026-10-22 09:57:23.246
+2026-10-22 12:58:41.435
 ODBCINI = "/etc/odbc.ini"
 
 
-=ERROR REPORT==== 22-Oct-2026::09:57:23.266105 ===
+=ERROR REPORT==== 22-Oct-2026::12:58:41.459001 ===
 ** Generic server <0.300.0> terminating 
 ** Last message in was {<0.298.0>,foobar,10}
 ** When Server state == {state,#Port<0.303>,undefined,<0.298.0>,undefined,on,
@@ -1135,7 +1135,7 @@ ODBCINI = "/etc/odbc.ini"
     {test_server,run_test_case_eval1,6,[{file,"test_server.erl"},{line,1291}]},
     {test_server,run_test_case_eval,9,[{file,"test_server.erl"},{line,1223}]}]
 
-=CRASH REPORT==== 22-Oct-2026::09:57:23.266456 ===
+=CRASH REPORT==== 22-Oct-2026::12:58:41.459462 ===
   crasher:
     initial call: odbc:init/1
     pid: <0.300.0>
@@ -1151,10 +1151,10 @@ ODBCINI = "/etc/odbc.ini"
     status: running
     heap_size: 233
     stack_size: 28
-    reductions: 12399
+    reductions: 12379
   neighbours:
 
-=SUPERVISOR REPORT==== 22-Oct-2026::09:57:23.266753 ===
+=SUPERVISOR REPORT==== 22-Oct-2026::12:58:41.459868 ===
     supervisor: {local,odbc_sup}
     errorContext: child_terminated
     reason: {'API_violation_connection_colsed',foobar}
@@ -1166,7 +1166,7 @@ ODBCINI = "/etc/odbc.ini"
                {shutdown,7000},
                {child_type,worker}]
 
-=ERROR REPORT==== 22-Oct-2026::09:57:23.285842 ===
+=ERROR REPORT==== 22-Oct-2026::12:58:41.484481 ===
 ** Generic server <0.302.0> terminating 
 ** Last message in was {'$gen_cast',{<0.298.0>,foobar,10}}
 ** When Server state == {state,#Port<0.309>,undefined,<0.298.0>,undefined,on,
@@ -1176,7 +1176,7 @@ ODBCINI = "/etc/odbc.ini"
 ** Reason for termination ==
 ** {'API_violation_connection_colsed',{<0.298.0>,foobar,10}}
 
-=CRASH REPORT==== 22-Oct-2026::09:57:23.286159 ===
+=CRASH REPORT==== 22-Oct-2026::12:58:41.484810 ===
   crasher:
     initial call: odbc:init/1
     pid: <0.302.0>
@@ -1192,10 +1192,10 @@ ODBCINI = "/etc/odbc.ini"
     status: running
     heap_size: 2586
     stack_size: 28
-    reductions: 8924
+    reductions: 8919
   neighbours:
 
-=SUPERVISOR REPORT==== 22-Oct-2026::09:57:23.286378 ===
+=SUPERVISOR REPORT==== 22-Oct-2026::12:58:41.485143 ===
     supervisor: {local,odbc_sup}
     errorContext: child_terminated
     reason: {'API_violation_connection_colsed',{<0.298.0>,foobar,10}}
@@ -1207,14 +1207,14 @@ ODBCINI = "/etc/odbc.ini"
                {shutdown,7000},
                {child_type,worker}]
 
-=ERROR REPORT==== 22-Oct-2026::09:57:23.305312 ===
+=ERROR REPORT==== 22-Oct-2026::12:58:41.508544 ===
 ODBC: received unexpected info: foobar
 
-=ERROR REPORT==== 22-Oct-2026::09:57:23.343358 ===
+=ERROR REPORT==== 22-Oct-2026::12:58:41.551648 ===
 ** Generic server <0.304.0> terminating 
-** Last message in was {'DOWN',#Ref<0.670129732.1548484610.60041>,process,
+** Last message in was {'DOWN',#Ref<0.3962525047.1039663106.34361>,process,
                                <0.298.0>,
-                               {#Ref<0.670129732.1548484610.59967>,69119,
+                               {#Ref<0.3962525047.1039663106.34267>,83935,
                                 {status,waiting},
                                 [{odbc_connect_SUITE,api_missuse}],
                                 []}}
@@ -1224,19 +1224,19 @@ ODBC: received unexpected info: foobar
                                #Port<0.316>,#Port<0.317>}
 ** Reason for termination ==
 ** {stopped,{'EXIT',<0.298.0>,
-                    {#Ref<0.670129732.1548484610.59967>,69119,
+                    {#Ref<0.3962525047.1039663106.34267>,83935,
                      {status,waiting},
                      [{odbc_connect_SUITE,api_missuse}],
                      []}}}
 
-=CRASH REPORT==== 22-Oct-2026::09:57:23.343731 ===
+=CRASH REPORT==== 22-Oct-2026::12:58:41.551998 ===
   crasher:
     initial call: odbc:init/1
     pid: <0.304.0>
     registered_name: []
     exception exit: {stopped,{'EXIT',<0.298.0>,
-                                     {#Ref<0.670129732.1548484610.59967>,
-                                      69119,
+                                     {#Ref<0.3962525047.1039663106.34267>,
+                                      83935,
                                       {status,waiting},
                                       [{odbc_connect_SUITE,api_missuse}],
                                       []}}}
@@ -1250,14 +1250,14 @@ ODBC: received unexpected info: foobar
     status: running
     heap_size: 4185
     stack_size: 28
-    reductions: 12158
+    reductions: 12157
   neighbours:
 
-=SUPERVISOR REPORT==== 22-Oct-2026::09:57:23.344253 ===
+=SUPERVISOR REPORT==== 22-Oct-2026::12:58:41.552397 ===
     supervisor: {local,odbc_sup}
     errorContext: child_terminated
     reason: {stopped,{'EXIT',<0.298.0>,
-                             {#Ref<0.670129732.1548484610.59967>,69119,
+                             {#Ref<0.3962525047.1039663106.34267>,83935,
                               {status,waiting},
                               [{odbc_connect_SUITE,api_missuse}],
                               []}}}
@@ -1271,11 +1271,11 @@ ODBC: received unexpected info: foobar
 
 
 ----------------------------------------------------
-2026-10-22 09:57:23.366
+2026-10-22 12:58:41.575
 ODBCINI = "/etc/odbc.ini"
 
 
-=INFO REPORT==== 22-Oct-2026::09:57:23.498649 ===
+=INFO REPORT==== 22-Oct-2026::12:58:41.718664 ===
     application: odbc
     exited: stopped
     type: temporary
@@ -1286,91 +1286,91 @@ Testing lib.odbc.odbc_query_SUITE: Starting test, 44 test cases
 Testing lib.odbc.odbc_query_SUITE: *** SKIPPED test case 1 of 44 ***
 
 ----------------------------------------------------
-2026-10-22 09:57:24.865
+2026-10-22 12:58:43.090
 Correct row count Count: 1
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:24.883
+2026-10-22 12:58:43.108
 Correct row count Count: 1
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:24.891
+2026-10-22 12:58:43.117
 Correct row count Count: 1
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:25.004
+2026-10-22 12:58:43.239
 Correct row count Count: 1
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:25.019
+2026-10-22 12:58:43.254
 Correct row count Count: 1
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:25.161
+2026-10-22 12:58:43.404
 Correct row count Count: 1
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:25.177
+2026-10-22 12:58:43.420
 Correct row count Count: 1
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:25.295
+2026-10-22 12:58:43.552
 Correct row count Count: 1
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:25.310
+2026-10-22 12:58:43.569
 Correct row count Count: 1
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:25.427
+2026-10-22 12:58:43.743
 Correct row count Count: 1
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:25.444
+2026-10-22 12:58:43.760
 Correct row count Count: 1
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:25.586
+2026-10-22 12:58:43.912
 Correct row count Count: 1
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:26.284
-Driver error "General error: <main>: Error: Scheme operation failed, status: ExecComplete, reason: Check failed: path: '/local/nonodeAtnohost', error: path exist, request accepts it (id: [OwnerId: 72075186232723360, LocalPathId: 36], type: EPathTypeTable, state: EPathStateNoChanges)\n SQLSTATE IS: HY000"
+2026-10-22 12:58:44.722
+Driver error "General error: <main>: Error: Scheme operation failed, status: ExecComplete, reason: Check failed: path: '/local/nonodeAtnohost', error: path exist, request accepts it (id: [OwnerId: 72075186232723360, LocalPathId: 59], type: EPathTypeTable, state: EPathStateNoChanges)\n SQLSTATE IS: HY000"
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:26.396
+2026-10-22 12:58:44.846
 Driver error "Base table or view not found: <main>: Error: Type annotation, code: 1030\n    <main>:1:12: Error: At function: KiDropTable!\n        <main>:1:12: Error: Cannot find table 'db.[/local/nonodeAtnohost]' because it does not exist or you do not have access permissions. Please check correctness of table path and user permissions., code: 2003\n SQLSTATE IS: 42S02"
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:26.518
+2026-10-22 12:58:44.982
 Driver error "Integrity constraint violation: <main>: Error: Conflict with existing key., code: 2012\n SQLSTATE IS: 23000"
 
 
@@ -1383,157 +1383,157 @@ Reason: {badmatch,[{selected,["id","data"],[{1,"foobar"},{2,"foo"}]}...}
 Testing lib.odbc.odbc_query_SUITE: *** FAILED test case 18 of 44 ***
 
 ----------------------------------------------------
-2026-10-22 09:57:27.327
+2026-10-22 12:58:45.769
 Driver error "Integrity constraint violation: <main>: Error: Conflict with existing key., code: 2012\n SQLSTATE IS: 23000"
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:27.346
+2026-10-22 12:58:45.788
 Driver error "Integrity constraint violation: <main>: Error: Conflict with existing key., code: 2012\n SQLSTATE IS: 23000"
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:27.537
+2026-10-22 12:58:45.984
 Correct row count Count: 2
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:27.659
+2026-10-22 12:58:46.112
 Correct row count Count: 2
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:27.784
+2026-10-22 12:58:46.255
 Correct row count Count: 2
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:27.913
+2026-10-22 12:58:46.387
 Correct row count Count: 2
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:28.057
+2026-10-22 12:58:46.541
 Correct row count Count: 2
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:28.108
+2026-10-22 12:58:46.591
 Correct row count Count: 1
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:28.279
+2026-10-22 12:58:46.721
 Correct row count Count: 2
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:28.372
+2026-10-22 12:58:46.770
 Correct row count Count: 1
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:28.531
+2026-10-22 12:58:46.928
 Correct row count Count: 2
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:28.676
+2026-10-22 12:58:47.064
 Correct row count Count: 2
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:28.805
+2026-10-22 12:58:47.205
 Correct row count Count: 2
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:28.945
+2026-10-22 12:58:47.354
 Correct row count Count: 2
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:29.096
+2026-10-22 12:58:47.514
 Correct row count Count: 2
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:29.220
+2026-10-22 12:58:47.646
 Correct row count Count: 2
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:29.346
+2026-10-22 12:58:47.780
 Correct row count Count: 2
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:29.472
+2026-10-22 12:58:47.915
 Correct row count Count: 2
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:29.602
+2026-10-22 12:58:48.053
 Correct row count Count: 3
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:29.618
+2026-10-22 12:58:48.068
 Correct row count Count: 2
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:29.744
+2026-10-22 12:58:48.203
 Correct row count Count: 3
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:29.755
+2026-10-22 12:58:48.213
 Correct row count Count: 2
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:29.884
+2026-10-22 12:58:48.355
 Correct row count Count: 3
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:30.021
+2026-10-22 12:58:48.493
 Correct row count Count: 3
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:30.150
+2026-10-22 12:58:48.628
 Correct row count Count: 3
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:30.161
+2026-10-22 12:58:48.639
 Correct row count Count: 2
 
 
@@ -1561,13 +1561,13 @@ Reason: {badmatch,{ok,[{"myint1",sql_smallint},{"myint2",sql_integer...}
 Testing lib.odbc.odbc_query_SUITE: *** FAILED test case 43 of 44 ***
 
 ----------------------------------------------------
-2026-10-22 09:57:30.766
+2026-10-22 12:58:49.290
 Correct row count Count: 3
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:30.774
+2026-10-22 12:58:49.298
 Incorrect row count Expected 0 Got 1
 
 
@@ -1578,7 +1578,7 @@ Reason: {badmatch,false}
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 Testing lib.odbc.odbc_query_SUITE: *** FAILED test case 44 of 44 ***
-=INFO REPORT==== 22-Oct-2026::09:57:30.837135 ===
+=INFO REPORT==== 22-Oct-2026::12:58:49.383847 ===
     application: odbc
     exited: stopped
     type: temporary
@@ -1636,7 +1636,7 @@ Reason: {badmatch,{error,"General error: <main>:1:39: Error: mismatc...}
 Testing lib.odbc.odbc_data_type_SUITE: *** FAILED test case 16 of 40 ***
 
 ----------------------------------------------------
-2026-10-22 09:57:33.738
+2026-10-22 12:58:52.448
 UnicodeIn: [<<195,150,195,132,195,133,195,132,195,150,195,133,195,164,195,182,
               195,165>>,
             <<"testasdf">>,<<"Row 3">>,<<"Row 4">>,<<"Row 5">>,<<"Row 6">>,
@@ -1646,7 +1646,7 @@ UnicodeIn: [<<195,150,195,132,195,133,195,132,195,150,195,133,195,164,195,182,
 
 
 ----------------------------------------------------
-2026-10-22 09:57:33.808
+2026-10-22 12:58:52.504
 UnicodeOut: [{<<195,150,195,132,195,133,195,132,195,150,195,133,195,164,195,
                 182,195,165>>},
              {<<"testasdf">>},
@@ -1664,14 +1664,14 @@ UnicodeOut: [{<<195,150,195,132,195,133,195,132,195,150,195,133,195,164,195,
 
 
 ----------------------------------------------------
-2026-10-22 09:57:33.808
+2026-10-22 12:58:52.504
 Result: ["ÖÄÅÄÖÅäöå","testasdf","Row 3","Row 4","Row 5","Row 6","Row 7",
          "Row 8","Row 9","Row 10","Row 11","Row 12"] 
 
 
 
 ----------------------------------------------------
-2026-10-22 09:57:33.905
+2026-10-22 12:58:52.607
 UnicodeIn (utf 16): [<<214,0,196,0,197,0,196,0,214,0,197,0,228,0,246,0,229,0>>,
                      <<116,0,101,0,115,0,116,0,97,0,115,0,100,0,102,0>>,
                      <<82,0,111,0,119,0,32,0,51,0>>,
@@ -1688,7 +1688,7 @@ UnicodeIn (utf 16): [<<214,0,196,0,197,0,196,0,214,0,197,0,228,0,246,0,229,0>>,
 
 
 ----------------------------------------------------
-2026-10-22 09:57:33.980
+2026-10-22 12:58:52.666
 UnicodeOut: [{<<195,150,195,132,195,133,195,132,195,150,195,133,195,164,195,
                 182,195,165>>},
              {<<"testasdf">>},
@@ -1706,7 +1706,7 @@ UnicodeOut: [{<<195,150,195,132,195,133,195,132,195,150,195,133,195,164,195,
 
 
 ----------------------------------------------------
-2026-10-22 09:57:33.980
+2026-10-22 12:58:52.666
 Result: [[38595,33987,34243,33987,38595,34243,42179,46787,42435],
          [25972,29811,29537,26212],
          {incomplete,[28498,8311],<<"3">>},
@@ -1730,7 +1730,7 @@ Reason: {function_clause,[{string,...},{...}|...]}
 Testing lib.odbc.odbc_data_type_SUITE: *** FAILED test case 18 of 40 ***
 
 ----------------------------------------------------
-2026-10-22 09:57:34.076
+2026-10-22 12:58:52.772
 UnicodeIn (utf 16): [<<214,0,196,0,197,0,196,0,214,0,197,0,228,0,246,0,229,0>>,
                      <<116,0,101,0,115,0,116,0,97,0,115,0,100,0,102,0>>,
                      <<82,0,111,0,119,0,32,0,51,0>>,
@@ -1747,7 +1747,7 @@ UnicodeIn (utf 16): [<<214,0,196,0,197,0,196,0,214,0,197,0,228,0,246,0,229,0>>,
 
 
 ----------------------------------------------------
-2026-10-22 09:57:34.147
+2026-10-22 12:58:52.838
 UnicodeOut: [{<<195,150,195,132,195,133,195,132,195,150,195,133,195,164,195,
                 182,195,165>>},
              {<<"testasdf">>},
@@ -1765,7 +1765,7 @@ UnicodeOut: [{<<195,150,195,132,195,133,195,132,195,150,195,133,195,164,195,
 
 
 ----------------------------------------------------
-2026-10-22 09:57:34.147
+2026-10-22 12:58:52.838
 Result: [[38595,33987,34243,33987,38595,34243,42179,46787,42435],
          [25972,29811,29537,26212],
          {incomplete,[28498,8311],<<"3">>},
@@ -1801,7 +1801,7 @@ Reason: {badmatch,{updated,1}}
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 Testing lib.odbc.odbc_data_type_SUITE: *** FAILED test case 31 of 40 ***
-=INFO REPORT==== 22-Oct-2026::09:57:37.416798 ===
+=INFO REPORT==== 22-Oct-2026::12:58:56.299159 ===
     application: odbc
     exited: stopped
     type: temporary
