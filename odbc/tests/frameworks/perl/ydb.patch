@@ -1,0 +1,267 @@
+--- a/t/09multi.t
++++ b/t/09multi.t
+@@ -59,6 +59,7 @@
+    };
+ 
+    if ($@) {
++      diag($@);
+       skip("Multiple statements not supported using " . $dbh->get_info(17) . "\n", 4);
+    }
+ 
+--- a/t/12blob.t
++++ b/t/12blob.t
+@@ -74,7 +74,7 @@
+         if (!$type_name);
+ 
+     #diag("Using type $type_name");
+-    eval { $dbh->do(qq/create table DBD_ODBC_drop_me(a $type_name)/); };
++    eval { $dbh->do(qq/create table DBD_ODBC_drop_me(a $type_name, ydb_fixture_id Int32, PRIMARY KEY (ydb_fixture_id))/); };
+     $ev = $@;
+     diag($ev) if $ev;
+     ok(!$ev, "table DBD_ODBC_drop_me created");
+@@ -103,7 +103,7 @@
+         is($pds, $putdata_start, "retrieved putdata_start = set value");
+     }
+ 
+-    my $sth = $dbh->prepare(q/insert into DBD_ODBC_drop_me values(?)/);
++    my $sth = $dbh->prepare(q/insert into DBD_ODBC_drop_me (a) values(?)/);
+     ok($sth, "prepare for insert");
+   SKIP: {
+         skip "prepare failed", 3 unless $sth;
+--- a/t/40UnicodeRoundTrip.t
++++ b/t/40UnicodeRoundTrip.t
+@@ -75,6 +75,9 @@
+ 		($len,$fromdual,$skipempty)=('LEN','',0);
+ 	} elsif ($dbname=~/Oracle/i) {
+ 		($len,$fromdual,$skipempty)=('LENGTH','FROM DUAL',1);
++	} elsif ($dbname eq 'YDB') {
++        ($len,$fromdual,$skipempty)=('Unicode::GetLength','',0);
++        $dbh->{odbc_ignore_named_placeholders}=1;
+ 	} elsif ($dbname=~/PostgreSQL/i) {
+ 		($len,$fromdual,$skipempty)=('LENGTH','',0);
+     } elsif ($dbname=~/SQLite/i) {
+--- a/t/41Unicode.t
++++ b/t/41Unicode.t
+@@ -67,6 +67,8 @@
+ 		($NVARCHAR)=('NVARCHAR(1000)');
+ 	} elsif ($dbname=~/Oracle/i) {
+ 		($NVARCHAR)=('NVARCHAR2(1000)');
++	} elsif ($dbname eq 'YDB') {
++        ($NVARCHAR)=('Utf8');
+ 	} elsif ($dbname=~/PostgreSQL/i) {
+ 		($NVARCHAR)=('VARCHAR(1000)');
+ 	} elsif ($dbname=~/ACCESS/i) {
+@@ -94,10 +96,11 @@
+ CREATE TABLE
+ 	PERL_DBD_TABLE1
+ 	(
+-		i INTEGER NOT NULL PRIMARY KEY,
++		i INTEGER NOT NULL,
+ 		nva $NVARCHAR,
+ 		nvb $NVARCHAR,
+-		nvc $NVARCHAR
++		nvc $NVARCHAR,
++        PRIMARY KEY (i)
+ 	)
+ __SQL__
+ 
+--- a/t/82_table_info.t
++++ b/t/82_table_info.t
+@@ -37,7 +37,7 @@
+ $dbh->{RaiseError} = 1;
+ $dbh->{PrintError} = 0;
+ 
+-$dbh->do(q/create table PERL_DBD_DROP_ME (a char(10))/);
++$dbh->do(q/create table PERL_DBD_DROP_ME (a Utf8, PRIMARY KEY (a))/);
+ 
+ if ($dbh->get_info($GetInfoType{SQL_CATALOG_NAME}) ne 'N') {
+ 
+--- a/t/ExecuteArray.pm
++++ b/t/ExecuteArray.pm
+@@ -70,20 +70,20 @@
+     my ($self, $dbh) = @_;
+ 
+     eval {
+-        $dbh->do(qq/create table $table (a integer not null primary key, b char(20))/);
++        $dbh->do(qq/create table $table (a integer not null, b Utf8, PRIMARY KEY (a))/);
+     };
+     if ($@) {
+         diag("Failed to create test table $table - $@");
+         return 0;
+     }
+     eval {
+-        $dbh->do(qq/create table $table2 (a integer not null primary key, b char(20))/);
++        $dbh->do(qq/create table $table2 (a integer not null, b Utf8, PRIMARY KEY (a))/);
+     };
+     if ($@) {
+         diag("Failed to create test table $table2 - $@");
+         return 0;
+     }
+-    my $sth = $dbh->prepare(qq/insert into $table2 values(?,?)/);
++    my $sth = $dbh->prepare(qq/insert into $table2 (a, b) values(Unwrap(CAST(? AS Int32)),?)/);
+     for (my $row = 0; $row < @p1; $row++) {
+         $sth->execute($p1[$row], $p2[$row]);
+     }
+@@ -291,7 +291,7 @@
+         clear_table($dbh, $table);
+         $dbh->begin_work if !$commit;
+ 
+-        my $sth = $dbh->prepare(qq/insert into $table values(?,?)/);
++        my $sth = $dbh->prepare(qq/insert into $table (a, b) values(Unwrap(CAST(? AS Int32)),?)/);
+         $sth->bind_param_array(1, \@p1);
+         $sth->bind_param_array(2, \@p2);
+         $self->insert($dbh, $sth,
+@@ -302,7 +302,7 @@
+ 
+     note "  Not all param arrays the same size";
+     clear_table($dbh, $table);
+-    my $sth = $dbh->prepare(qq/insert into $table values(?,?)/);
++    my $sth = $dbh->prepare(qq/insert into $table (a, b) values(Unwrap(CAST(? AS Int32)),?)/);
+ 
+     $sth->bind_param_array(1, \@p1);
+     $sth->bind_param_array(2, [qw(one)]);
+@@ -313,7 +313,7 @@
+ 
+     note "  Not all param arrays the same size with bind on execute_array";
+     clear_table($dbh, $table);
+-    $sth = $dbh->prepare(qq/insert into $table values(?,?)/);
++    $sth = $dbh->prepare(qq/insert into $table (a, b) values(Unwrap(CAST(? AS Int32)),?)/);
+ 
+     $self->insert($dbh, $sth, {commit => 0, error => 0,
+                                raise => 1, sts => 5, affected => 5,
+@@ -323,7 +323,7 @@
+ 
+     note "  no parameters";
+     clear_table($dbh, $table);
+-    $sth = $dbh->prepare(qq/insert into $table values(?,?)/);
++    $sth = $dbh->prepare(qq/insert into $table (a, b) values(Unwrap(CAST(? AS Int32)),?)/);
+ 
+     $self->insert($dbh, $sth, {commit => 0, error => 0,
+                                raise => 1, sts => '0E0', affected => 0,
+@@ -356,7 +356,7 @@
+         note("Last row in error");
+ 
+         clear_table($dbh, $table);
+-        my $sth = $dbh->prepare(qq/insert into $table values(?,?)/);
++        my $sth = $dbh->prepare(qq/insert into $table (a, b) values(Unwrap(CAST(? AS Int32)),?)/);
+         my @pe1 = @p1;
+         $pe1[-1] = 1;
+         $sth->bind_param_array(1, \@pe1);
+@@ -370,7 +370,7 @@
+     {
+         note("2nd last row in error");
+         clear_table($dbh, $table);
+-        my $sth = $dbh->prepare(qq/insert into $table values(?,?)/);
++        my $sth = $dbh->prepare(qq/insert into $table (a, b) values(Unwrap(CAST(? AS Int32)),?)/);
+         my @pe1 = @p1;
+         $pe1[-2] = 1;
+         $sth->bind_param_array(1, \@pe1);
+@@ -404,7 +404,7 @@
+     # returning rows
+     $fetch_row = 0;             # reset fetch_sub to start with first row
+     clear_table($dbh, $table);
+-    my $sth = $dbh->prepare(qq/insert into $table values(?,?)/);
++    my $sth = $dbh->prepare(qq/insert into $table (a, b) values(Unwrap(CAST(? AS Int32)),?)/);
+     $self->insert($dbh, $sth,
+                   {commit => 0, error => 0, sts => 5, affected => 5,
+                    tuple => [1, 1, 1, 1, 1], %$ref,
+@@ -421,7 +421,7 @@
+     # execute_array.
+     note("row_size via select");
+     clear_table($dbh, $table);
+-    $sth = $dbh->prepare(qq/insert into $table values(?,?)/);
++    $sth = $dbh->prepare(qq/insert into $table (a, b) values(Unwrap(CAST(? AS Int32)),?)/);
+     my $sth2 = $dbh->prepare(qq/select * from $table2/);
+     # some drivers issue warnings when mas fails and this causes
+     # Test::NoWarnings to output something when we already found
+@@ -452,7 +452,7 @@
+     # populate the first table with the default 5 rows using a ArrayTupleFetch
+     $fetch_row = 0;
+     clear_table($dbh, $table);
+-    my $sth = $dbh->prepare(qq/insert into $table values(?,?)/);
++    my $sth = $dbh->prepare(qq/insert into $table (a, b) values(Unwrap(CAST(? AS Int32)),?)/);
+     $self->insert($dbh, $sth,
+                   {commit => 0, error => 0, sts => 5, affected => 5,
+                    tuple => [1, 1, 1, 1, 1], %$ref,
+@@ -460,7 +460,7 @@
+     check_data($dbh, \@p1, \@p2);
+ 
+     # update all rows b column to 'fred' checking rows affected is 5
+-    $sth = $dbh->prepare(qq/update $table set b = ? where a = ?/);
++    $sth = $dbh->prepare(qq/update $table set b = ? where a = CAST(? AS Int32)/);
+     # NOTE, this also checks you can pass a scalar to bind_param_array
+     $sth->bind_param_array(1, 'fred');
+     $sth->bind_param_array(2, \@p1);
+@@ -470,7 +470,7 @@
+     check_data($dbh, \@p1, [qw(fred fred fred fred fred)]);
+ 
+     # update 4 rows column b to 'dave' checking rows affected is 4
+-    $sth = $dbh->prepare(qq/update $table set b = ? where a = ?/);
++    $sth = $dbh->prepare(qq/update $table set b = ? where a = CAST(? AS Int32)/);
+     # NOTE, this also checks you can pass a scalar to bind_param_array
+     $sth->bind_param_array(1, 'dave');
+     my @pe1 = @p1;
+--- a/t/ODBCTEST.pm
++++ b/t/ODBCTEST.pm
+@@ -114,12 +114,12 @@
+                }
+            }
+            if ($f eq 'COL_A') {
+-               $fields .= " NOT NULL PRIMARY KEY ";
++               $fields .= " NOT NULL ";
+            }
+            # print "-- $fields\n";
+        }
+        # diag("Using fields: $fields\n");
+-       my $sql = "CREATE TABLE $table_name ($fields)";
++       my $sql = "CREATE TABLE $table_name ($fields, PRIMARY KEY (COL_A))";
+        #diag($sql);
+        $dbh->do($sql) or
+            diag("Failed to create table - ", $dbh->errstr);
+--- a/t/rt_101579.t
++++ b/t/rt_101579.t
+@@ -46,7 +46,7 @@
+ }
+ $dbh->{RaiseError} = 0;
+ 
+-$dbh->do(q/create table PERL_DBD_RT_101579 (a varchar(500), val numeric(9,2))/)
++$dbh->do(q/create table PERL_DBD_RT_101579 (a Utf8, val Decimal(9,2), PRIMARY KEY (a))/)
+     or BAIL_OUT("Failed to create test table " . $dbh->errstr);
+ 
+ my @vals = (8295.60, 181161.80, 6514.15);
+--- a/t/rt_81911.t
++++ b/t/rt_81911.t
+@@ -42,11 +42,11 @@
+ }
+ $dbh->{RaiseError} = 0;
+ 
+-$dbh->do(q/create table PERL_DBD_RT_81911 (a int)/)
++$dbh->do(q/create table PERL_DBD_RT_81911 (a int, ydb_fixture_id Int32, PRIMARY KEY (ydb_fixture_id))/)
+     or BAIL_OUT("Failed to create test table " . $dbh->errstr);
+ 
+ # insert one row and check
+-my $s = $dbh->prepare(q/insert into PERL_DBD_RT_81911 values(?)/)
++my $s = $dbh->prepare(q/insert into PERL_DBD_RT_81911 (a, ydb_fixture_id) SELECT v AS a, v AS ydb_fixture_id FROM (SELECT Unwrap(CAST(? AS Int32)) AS v)/)
+     or BAIL_OUT("Failed to prepare insert " . $dbh->errstr);
+ 
+ my $affected = $s->execute(1) or BAIL_OUT("Failed to execute insert " . $dbh->errstr);
+@@ -61,7 +61,7 @@
+ is($s->odbc_rows, $affected, "execute and odbc_rows agree on insert 2 ");
+ 
+ # test update with no rows affected
+-$s = $dbh->prepare(q/update PERL_DBD_RT_81911 set a = 1 where a = ?/)
++$s = $dbh->prepare(q/update PERL_DBD_RT_81911 set a = 1 where a = CAST(? AS Int32)/)
+     or BAIL_OUT("Failed to prepare update " . $dbh->errstr);
+ $affected = $s->execute(3) or BAIL_OUT("Failed to execute update " . $dbh->errstr);
+ 
+--- a/t/sql_type_cast.t
++++ b/t/sql_type_cast.t
+@@ -95,7 +95,7 @@
+ };
+ 
+ eval {
+-    $dbh->do('create table PERL_DBD_drop_me (a varchar(10))');
++    $dbh->do('create table PERL_DBD_drop_me (a Utf8, PRIMARY KEY (a))');
+ };
+ $ev = $@;
+ #2

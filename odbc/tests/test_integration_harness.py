@@ -11,10 +11,10 @@ class HarnessTests(unittest.TestCase):
         root = Path(context.name) / "frameworks"; shutil.copytree(FRAMEWORKS, root)
         path = root / "registry.yaml"; data = yaml.safe_load(path.read_text())
         change(data, root); path.write_text(yaml.safe_dump(data, sort_keys=False)); return path
-    def validate(self, tests, expected, test_rc=0):
+    def validate(self, tests, expected, test_rc=0, inventory=None, **inventory_fields):
         context = tempfile.TemporaryDirectory(); self.addCleanup(context.cleanup)
         root = Path(context.name); native, allure = root / "native", root / "allure"
-        native.mkdir(); allure.mkdir(); (native / "results.json").write_text(json.dumps({"tests": tests}))
+        native.mkdir(); allure.mkdir(); (native / "results.json").write_text(json.dumps({"tests": tests, "inventory": inventory if inventory is not None else [t["id"] for t in tests], **inventory_fields}))
         for index in range(len(tests)): (allure / f"{index}-result.json").write_text("{}")
         with mock.patch.object(harness, "RESULTS", root):
             return harness.validate_results({"id": "sample", "expected": expected},
@@ -45,7 +45,7 @@ class HarnessTests(unittest.TestCase):
             framework(data)["source"]["sha256"] = "0" * 64
         def add_classification(data, outcome, reason, consumer, pattern):
             data.setdefault("classifications", []).append({
-                "outcome": outcome, "reason": reason, "tests": {consumer: [pattern]},
+                "outcome": outcome, "reason": reason, "match": "raw assertion", "tests": {consumer: [pattern]},
             })
         def broad_failure(data, _):
             consumer = discovered(data)
@@ -76,15 +76,15 @@ class HarnessTests(unittest.TestCase):
                                ([{"id": "sample.case", "status": "skipped"}], "status")):
             self.assertTrue(any(message in error for error in self.validate(tests, required)))
         fixed_failure = {"required": ["sample.case"],
-                         "unsupported": {"sample.case": "known failure"}}
+                         "unsupported": {"sample.case": {"reason": "unsupported feature", "match": "raw assertion"}}}
         self.assertFalse(self.validate(
             [{"id": "sample.case", "status": "failed", "message": "raw assertion"}],
             fixed_failure, test_rc=1))
         discovered = {
             "discovered": True,
             "required": ["sample.*.*"],
-            "unsupported": {"sample.legacy.knownFailure": "known failure"},
-            "skipped": {"sample.upstream.disabled": "upstream gate"},
+            "unsupported": {"sample.legacy.knownFailure": {"reason": "unsupported feature", "match": "failed assertion"}},
+            "skipped": {"sample.upstream.disabled": {"reason": "upstream gate", "match": "disabled upstream"}},
         }
         tests = [
             {"id": "sample.core.passes", "status": "passed"},
@@ -99,14 +99,14 @@ class HarnessTests(unittest.TestCase):
                             for error in self.validate(passing_failure, discovered)))
         stale = dict(discovered)
         stale["unsupported"] = dict(discovered["unsupported"])
-        stale["unsupported"]["sample.removed.case"] = "stale"
+        stale["unsupported"]["sample.removed.case"] = {"reason": "stale", "match": "never"}
         self.assertTrue(any("pattern matched no tests" in error
                             for error in self.validate(tests, stale, test_rc=1)))
         ambiguous = {
             "discovered": True,
             "required": ["sample.*"],
-            "unsupported": {"sample.*.knownFailure": "known failure"},
-            "skipped": {"sample.legacy.*": "upstream gate"},
+            "unsupported": {"sample.*.knownFailure": {"reason": "unsupported feature", "match": "failure"}},
+            "skipped": {"sample.legacy.*": {"reason": "upstream gate", "match": "failure"}},
         }
         self.assertTrue(any("ambiguous expected result" in error for error in self.validate(
             [{"id": "sample.legacy.knownFailure", "status": "failed", "message": "failure"}],
@@ -114,6 +114,32 @@ class HarnessTests(unittest.TestCase):
         self.assertTrue(any("although every reported test passed" in error for error in self.validate(
             [{"id": "sample.core.passes", "status": "passed"}],
             {"discovered": True, "required": ["sample.*"]}, test_rc=2)))
+        for status, diagnostic, phase in [("failed", "fixture is broken", "test"),
+                                           ("broken", "failed assertion", "test"),
+                                           ("failed", "failed assertion", "setup")]:
+            changed = [dict(t) for t in tests]
+            changed[2].update(status=status, message=diagnostic, phase=phase)
+            self.assertTrue(self.validate(changed, discovered, test_rc=1))
+        for problems in ([{"kind": "failure", "message": "failed assertion"},
+                          {"kind": "failure", "message": "unrelated defect"}],
+                         [{"kind": "error", "message": "failed assertion"}]):
+            changed = [dict(t) for t in tests]
+            changed[2]["problems"] = problems
+            self.assertTrue(self.validate(changed, discovered, test_rc=1))
+        self.assertTrue(self.validate(tests, discovered, test_rc=-9))
+        self.assertTrue(self.validate(tests, discovered, inventory=[t["id"] for t in tests] + ["sample.missing.row"]))
+        rows = {
+            "sample.function@pass": {"id": "sample.function@pass", "parent_id": "sample.function", "status": "passed"},
+            "sample.function@fail": {"id": "sample.function@fail", "parent_id": "sample.function", "status": "failed", "message": "real defect"},
+        }
+        self.assertTrue(harness.validate_classified_results(rows, {"required": ["sample.*"]}))
+        self.assertEqual(harness.matching_ids(rows, "sample.function"), set(rows))
+        planned = dict(inventory=["sample.function"], inventory_kind="parents",
+                       inventory_rows={"sample.function": 2})
+        complete = [dict(test, status="passed") for test in rows.values()]
+        expected = {"discovered": True, "required": ["sample.*"]}
+        self.assertFalse(self.validate(complete, expected, **planned))
+        self.assertTrue(any("data rows" in error for error in self.validate(complete[:1], expected, **planned)))
         self.assertEqual(harness.glob_ids(
             {"sample.one.alpha", "sample.two.beta", "sample.three.gamma"},
             "sample.{one,two}.{alpha,beta}"),
@@ -131,9 +157,7 @@ class HarnessTests(unittest.TestCase):
             "message": "raw assertion", "trace": "raw stack", "start": 1, "stop": 2,
         }]}))
         config = {"classifications": [
-            {"outcome": "unsupported", "reason": "manually classified reason",
-             "tests": {"sample": ["sample.suite.knownFailure"]}},
-            {"outcome": "unsupported", "reason": "second reason",
+            {"outcome": "unsupported", "reason": "manually classified reason", "match": "raw assertion",
              "tests": {"sample": ["sample.suite.knownFailure"]}},
         ]}
         expected = {"discovered": True, "required": ["sample.*.*"]}
@@ -150,9 +174,9 @@ class HarnessTests(unittest.TestCase):
         harness.convert_allure(native, allure, metadata)
         result = json.loads(next(allure.glob("*-result.json")).read_text())
         self.assertEqual(result["statusDetails"]["message"],
-                         "Expected unsupported: manually classified reason; second reason")
+                         "Expected unsupported: manually classified reason\nReported FAILED: raw assertion")
         self.assertTrue(result["statusDetails"]["known"])
-        self.assertIn("Reported FAILED: raw assertion", result["statusDetails"]["trace"])
+        self.assertEqual(json.loads(native.read_text())["tests"][0]["message"], "raw assertion")
         self.assertIn("raw stack", result["statusDetails"]["trace"])
         self.assertIn({"name": "originalStatus", "value": "failed"}, result["labels"])
     def test_allure_ids_include_connection_mode(self):
@@ -176,6 +200,31 @@ class HarnessTests(unittest.TestCase):
         self.assertEqual(len({identity[0] for identity in identities}), 2)
         self.assertEqual(len({identity[1] for identity in identities}), 2)
         self.assertEqual(len({identity[2] for identity in identities}), 2)
+    def test_aggregation_preserves_attachments_and_rejects_mixed_packages(self):
+        context = tempfile.TemporaryDirectory(); self.addCleanup(context.cleanup)
+        root = Path(context.name); source = root / "input"; source.mkdir()
+        for run_id in ("sample-dsn", "sample-connection_string"):
+            artifact = source / run_id
+            (artifact / "native").mkdir(parents=True)
+            (artifact / "allure").mkdir()
+            (artifact / "native/results.json").write_text(json.dumps({"tests": [{"id": run_id, "status": "passed"}]}))
+            metadata = {"run_id": run_id, "driver_commit": "commit", "package_sha256": "package", "ydb_image": "ydb"}
+            (artifact / "metadata.json").write_text(json.dumps(metadata))
+            (artifact / "validation.json").write_text(json.dumps({"ok": True, "test_count": 1, "counts": {"passed": 1}}))
+            attachment = run_id + ".txt"
+            (artifact / "allure" / attachment).write_text("raw diagnostic")
+            (artifact / "allure" / (run_id + "-result.json")).write_text(json.dumps({"attachments": [{"source": attachment}]}))
+        runs = [{"run_id": path.name} for path in source.iterdir()]
+        with mock.patch.object(harness, "load_registry", return_value={}), mock.patch.object(harness, "consumer_runs", return_value=runs):
+            self.assertEqual(harness.aggregate(source, root / "good"), 0)
+            self.assertTrue((root / "good/allure-results/sample-dsn.txt").is_file())
+            path = source / "sample-dsn/metadata.json"
+            value = json.loads(path.read_text()); value["package_sha256"] = "another-package"
+            path.write_text(json.dumps(value))
+            self.assertEqual(harness.aggregate(source, root / "mixed"), 1)
+            shutil.rmtree(source / "sample-dsn")
+            self.assertEqual(harness.aggregate(source, root / "missing"), 1)
+
     def test_qt_fixture_patch_is_reviewable(self):
         patch = (FRAMEWORKS / "qt" / "ydb.patch").read_text()
         lock = yaml.safe_load((FRAMEWORKS / "qt" / "upstream.lock").read_text())

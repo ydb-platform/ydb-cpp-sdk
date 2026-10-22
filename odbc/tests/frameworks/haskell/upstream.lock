@@ -1,0 +1,6 @@
+kind: archive
+url: https://codeload.github.com/hdbc/hdbc-odbc/tar.gz/059a78a797f0ed3c0b3097b73f644e2012dc7efc
+revision: 059a78a797f0ed3c0b3097b73f644e2012dc7efc
+sha256: 646894391a7a6cd69a871b58e98802d815b9f42370f6020525a4814229f5e453
+license: BSD-3-Clause
+ci_only: true

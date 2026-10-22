@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+from collections import Counter
 import fnmatch
 import hashlib
 import json
@@ -51,6 +52,10 @@ def load_classifications(data, consumers):
                 f"classification {index}: invalid outcome")
         require(isinstance(reason, str) and reason.strip(),
                 f"classification {index}: reason must be a non-empty string")
+        match = group.get("match")
+        require(isinstance(match, str) and match.strip(),
+                f"classification {index}: a diagnostic match is required")
+        re.compile(match)
         require(isinstance(tests, dict) and tests,
                 f"classification {index}: tests must be a non-empty consumer mapping")
         for consumer, patterns in tests.items():
@@ -59,13 +64,10 @@ def load_classifications(data, consumers):
                     and all(isinstance(pattern, str) and pattern for pattern in patterns),
                     f"classification {index}: {consumer} patterns must be non-empty strings")
             for pattern in patterns:
-                reasons = grouped[consumer][outcome].setdefault(pattern, [])
-                if reason not in reasons:
-                    reasons.append(reason)
-    return {consumer: {outcome: {pattern: "; ".join(reasons)
-                                 for pattern, reasons in patterns.items()}
-                       for outcome, patterns in outcomes.items()}
-            for consumer, outcomes in grouped.items()}
+                require(pattern not in grouped[consumer][outcome],
+                        f"duplicate classification: {consumer}: {pattern}")
+                grouped[consumer][outcome][pattern] = {"reason": reason, "match": match}
+    return grouped
 def load_registry(path=REGISTRY):
     data = read_yaml(path); require(isinstance(data, dict) and data.get("schema_version") == 2,
                                     "unsupported registry schema")
@@ -89,7 +91,8 @@ def load_registry(path=REGISTRY):
                 f"{consumer}: runtime_version must be a command list")
         require(IMAGE_RE.match(str(item.get("runtime_image", ""))),
                 f"{consumer}: runtime image must be digest-pinned")
-        require((adapter / "Dockerfile").is_file(), f"{consumer}: missing Dockerfile")
+        require((path.parent / item.get("dockerfile", f"{consumer}/Dockerfile")).is_file(),
+                f"{consumer}: missing Dockerfile")
         runner, tests = adapter / "run-tests", item.get("tests", [])
         require(item["kind"] == "package" or tests or runner.is_file(),
                 f"{consumer}: tests or run-tests are required")
@@ -116,8 +119,9 @@ def load_registry(path=REGISTRY):
                 f"{consumer}: required tests contain invalid or duplicate patterns")
         require(isinstance(unsupported, dict), f"{consumer}: unsupported tests must be a mapping")
         require(isinstance(skipped, dict), f"{consumer}: skipped tests must be a mapping")
-        require(all(isinstance(pattern, str) and pattern and isinstance(reason, str) and reason.strip()
-                    for patterns in (unsupported, skipped) for pattern, reason in patterns.items()),
+        require(all(isinstance(pattern, str) and pattern and isinstance(rule, dict)
+                    and rule.get("reason") and rule.get("match")
+                    for patterns in (unsupported, skipped) for pattern, rule in patterns.items()),
                 f"{consumer}: expected-result patterns and reasons must be non-empty strings")
         require(not (set(unsupported) & set(skipped)),
                 f"{consumer}: duplicate or unexplained expectations")
@@ -149,7 +153,7 @@ def consumer_runs(data):
             yield {"consumer": consumer["id"], "mode": mode, "run_id": run_id,
                    "display_name": consumer["display_name"],
                    "runtime_image": consumer["runtime_image"]}
-def command(args, *, env=None, capture=False, user=None, check=True, input_text=None):
+def command(args, *, env=None, capture=False, user=None, check=True, input_text=None, timeout=None):
     options = {"env": env, "text": True, "check": check}
     if input_text is not None: options["input"] = input_text
     if capture: options.update(stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -158,7 +162,7 @@ def command(args, *, env=None, capture=False, user=None, check=True, input_text=
         def demote():
             os.setgroups([]); os.setgid(account.pw_gid); os.setuid(account.pw_uid)
         options["preexec_fn"] = demote
-    return subprocess.run([str(value) for value in args], **options)
+    return subprocess.run([str(value) for value in args], timeout=timeout, **options)
 def append_result(output, test_id, name, status, start, stop, message="", log=None):
     document = json.loads(output.read_text()) if output.exists() else {"schema_version": 1, "tests": []}
     result = {"id": test_id, "name": name, "status": status, "start": start, "stop": stop}
@@ -198,7 +202,7 @@ def safe_extract(archive, destination):
         stream.extractall(destination)
     for path in sorted(destination.rglob("*"), reverse=True):
         if not path.is_symlink():
-            path.chmod(0o555 if path.is_dir() else 0o444)
+            path.chmod(0o555 if path.is_dir() or path.stat().st_mode & 0o111 else 0o444)
     destination.chmod(0o555)
 def prepare_source(consumer):
     source = consumer["source"]
@@ -300,10 +304,14 @@ def declarative_suite(consumer, env, native):
     return int(any(failures))
 def launch_consumer(consumer, mode, runtime, package, results):
     package, adapter = package.resolve(), ROOT / consumer
-    require(package.is_file() and (adapter / "Dockerfile").is_file(), "package or adapter is missing")
+    item = next(item for item in load_registry()["consumers"] if item["id"] == consumer)
+    dockerfile = ROOT / item.get("dockerfile", f"{consumer}/Dockerfile")
+    require(runtime == item["runtime_image"], "runtime image differs from registry")
+    require(package.is_file() and dockerfile.is_file(), "package or adapter is missing")
     results.mkdir(parents=True, exist_ok=True); results = results.resolve(); results.chmod(0o777)
     image_name = f"ydb-odbc-{consumer}:{os.getenv('GITHUB_RUN_ID', 'local')}-{os.getenv('GITHUB_RUN_ATTEMPT', '1')}"
-    command(["docker", "build", "--build-arg", f"RUNTIME_IMAGE={runtime}", "-t", image_name, adapter])
+    command(["docker", "build", "--build-arg", f"RUNTIME_IMAGE={runtime}",
+             "-f", dockerfile, "-t", image_name, ROOT], timeout=1800)
     args = ["docker", "run", "--rm", "--network", "host", "--user", "0:0",
             "-v", f"{ROOT}:/harness:ro", "-v", f"{package.parent}:/packages:ro",
             "-v", f"{results}:/results", "-e", f"ODBC_PACKAGE_BASENAME={package.name}",
@@ -317,12 +325,17 @@ def launch_consumer(consumer, mode, runtime, package, results):
 def convert_allure(native, output, metadata):
     tests = json.loads(native.read_text())["tests"]; output.mkdir(exist_ok=True)
     for old in output.glob("*-result.json"): old.unlink()
+    attachment_files = {}
     for test in tests:
         result_id = str(uuid.uuid5(uuid.NAMESPACE_URL, f"ydb-odbc:{metadata['consumer']}:{test['id']}"))
         attachments = []
         for index, attachment in enumerate(test.get("attachments", [])):
             source = native.parent / attachment["path"]; require(source.is_file(), f"missing attachment for {test['id']}: {source}")
-            target = f"{result_id}-{index}-attachment{source.suffix or '.txt'}"; shutil.copyfile(source, output / target)
+            target = attachment_files.get(source)
+            if target is None:
+                attachment_id = uuid.uuid5(uuid.NAMESPACE_URL, f"ydb-odbc:{metadata['run_id']}:{attachment['path']}")
+                target = f"{attachment_id}-attachment{source.suffix or '.txt'}"
+                shutil.copyfile(source, output / target); attachment_files[source] = target
             attachments.append({"name": attachment.get("name", source.name),
                                 "source": target, "type": attachment.get("type", "text/plain")})
         result = {
@@ -333,7 +346,7 @@ def convert_allure(native, output, metadata):
             "labels": [{"name": key, "value": str(metadata[value])} for key, value in
                        (("suite", "consumer"), ("language", "language"), ("tier", "tier"), ("driverCommit", "driver_commit"),
                         ("runtimeVersion", "runtime_version"), ("ydbImage", "ydb_image"),
-                        ("connectionMode", "connection_mode"))] + ([{"name": "originalStatus", "value": test["original_status"]}] if test.get("original_status") else []),
+                        ("connectionMode", "connection_mode"))] + ([{"name": "originalStatus", "value": test["status"]}] if test.get("expected") else []),
             "parameters": [{"name": key, "value": str(metadata[value])} for key, value in
                            (("endpoint", "endpoint"), ("database", "database"),
                             ("packageSha256", "package_sha256"),
@@ -341,82 +354,83 @@ def convert_allure(native, output, metadata):
                             ("upstreamSha256", "upstream_sha256"))],
             "attachments": attachments,
         }
-        if test.get("message") or test.get("trace"): result["statusDetails"] = {key: test[key] for key in ("message", "trace") if test.get(key)} | ({"known": True} if test.get("original_status") in {"broken", "failed"} else {})
+        if test.get("expected"):
+            result["labels"].append({"name": "expectedOutcome", "value": test["expected"]})
+        if test.get("message") or test.get("trace"): result["statusDetails"] = {key: test[key] for key in ("message", "trace") if test.get(key)} | ({"known": True} if test.get("expected") else {})
+        if test.get("expected"):
+            result.setdefault("statusDetails", {})["message"] = (
+                f"Expected {test['expected']}: {test['expected_reason']}\nReported {test['status'].upper()}: "
+                + test.get("message", ""))
         (output / f"{result_id}-result.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
     properties = {key: metadata[key] for key in
                   ("consumer", "connection_mode", "run_id", "runtime_version", "driver_commit", "package_sha256",
                    "ydb_image", "endpoint", "database", "upstream_revision", "upstream_sha256")}
     (output / "environment.properties").write_text("".join(f"{key}={value}\n" for key, value in sorted(properties.items())))
+def matching_ids(actual, pattern):
+    return {test_id for test_id, test in actual.items()
+            if glob_ids({test_id, test.get("parent_id", test_id)}, pattern)}
+
+def expected_result(test, expectations):
+    matches = [(outcome, rule) for outcome in ("unsupported", "skipped")
+               for pattern, rule in expectations.get(outcome, {}).items()
+               if glob_ids({test["id"], test.get("parent_id", test["id"])}, pattern)]
+    if len(matches) != 1:
+        return None
+    outcome, rule = matches[0]
+    # Setup errors, crashes and missing results can never be expected.
+    status = "skipped" if outcome == "skipped" else "failed"
+    if test.get("status") != status or test.get("phase", "test") != "test":
+        return None
+    problems = test.get("problems") or [{"message": test.get("message", ""),
+                                        "trace": test.get("trace", "")}]
+    if not all(problem.get("kind", status) in ({"failure", "failed"} if status == "failed" else {"skipped"})
+               and re.search(rule["match"], "\n".join(str(problem.get(key, ""))
+                       for key in ("message", "trace", "location"))) for problem in problems):
+        return None
+    return outcome, rule["reason"]
+
 def validate_classified_results(actual, expectations):
     errors = []
-    patterns = {
-        "required": expectations.get("required", []),
-        "unsupported": expectations.get("unsupported", {}),
-        "skipped": expectations.get("skipped", {}),
-    }
-    matches = {classification: {pattern: glob_ids(actual, pattern) for pattern in values}
-               for classification, values in patterns.items()}
-    for classification, classified in matches.items():
+    patterns = {"required": expectations.get("required", []),
+                "unsupported": expectations.get("unsupported", {}),
+                "skipped": expectations.get("skipped", {})}
+    matches = {outcome: {pattern: matching_ids(actual, pattern) for pattern in values}
+               for outcome, values in patterns.items()}
+    for outcome, classified in matches.items():
         for pattern, test_ids in classified.items():
-            if not test_ids and (expectations.get("discovered") or classification != "required"):
-                errors.append(f"{classification} expectation pattern matched no tests: {pattern}")
+            if not test_ids and (expectations.get("discovered") or outcome != "required"):
+                errors.append(f"{outcome} expectation pattern matched no tests: {pattern}")
     for test_id, test in actual.items():
-        exceptions = [(classification, pattern)
-                      for classification in ("unsupported", "skipped")
-                      for pattern, test_ids in matches[classification].items() if test_id in test_ids]
-        outcomes = {classification for classification, _ in exceptions}
-        if len(outcomes) > 1:
-            labels = ", ".join(f"{classification}:{pattern}" for classification, pattern in exceptions)
-            errors.append(f"{test_id}: ambiguous expected result: {labels}")
-            continue
-        if exceptions:
-            classification = exceptions[0][0]
-        elif any(test_id in test_ids for test_ids in matches["required"].values()):
-            classification = "required"
-        else:
+        exceptions = [(outcome, pattern) for outcome in ("unsupported", "skipped")
+                      for pattern, ids in matches[outcome].items() if test_id in ids]
+        if len(exceptions) > 1:
+            errors.append(f"{test_id}: ambiguous expected result: {exceptions}")
+        elif exceptions:
+            outcome = exceptions[0][0]
+            if not expected_result(test, expectations):
+                errors.append(f"{test_id}: unexpected status or diagnostic for {outcome}: "
+                              f"{test.get('status')}: {test.get('message', '')}")
+        elif not any(test_id in ids for ids in matches["required"].values()):
             errors.append(f"{test_id}: missing result expectation")
-            continue
-        allowed = ({"passed"} if classification == "required" else {"skipped"}
-                   if classification == "skipped" else {"broken", "failed", "skipped"})
-        if test.get("status") not in allowed:
-            errors.append(f"{test_id}: unexpected status {test.get('status')} for {classification}")
-        if classification != "required" and not test.get("message"):
-            errors.append(f"{test_id}: expected {classification} result has no reason")
+        elif test.get("status") != "passed":
+            errors.append(f"{test_id}: unexpected status {test.get('status')}: {test.get('message', '')}")
     return errors
+
 def annotate_expected_results(consumer, native):
     document = json.loads(native.read_text())
-    expectations = consumer["expected"]
     for test in document.get("tests", []):
-        if not isinstance(test, dict) or not test.get("id"):
-            continue
-        matches = [(classification, reason)
-                   for classification in ("unsupported", "skipped")
-                   for pattern, reason in expectations.get(classification, {}).items()
-                   if glob_ids({test["id"]}, pattern)]
-        outcomes = {classification for classification, _ in matches}
-        if len(outcomes) != 1:
-            continue
-        classification = matches[0][0]
-        reasons = list(dict.fromkeys(reason for _, reason in matches))
-        status = test.get("status")
-        allowed = {"skipped"} if classification == "skipped" else {"broken", "failed", "skipped"}
-        if status not in allowed:
-            continue
-        details = []
-        if test.get("message"):
-            details.append(f"Reported {status.upper()}: {test['message']}")
-        if test.get("trace"):
-            details.append(test["trace"])
-        if details:
-            test["trace"] = "\n\n".join(details)
-        test["original_status"] = status
-        prefix = "Expected upstream skip" if classification == "skipped" else "Expected unsupported"
-        test["message"] = f"{prefix}: {'; '.join(reasons)}"
+        test.pop("expected", None); test.pop("expected_reason", None)
+        match = expected_result(test, consumer["expected"])
+        if match:
+            test["expected"], test["expected_reason"] = match
+    # The original message, trace and status are never replaced.
     native.write_text(json.dumps(document, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
 def validate_results(consumer, native, allure, test_rc=0):
-    errors, tests = [], []
+    errors, tests, document = [], [], {}
     try:
-        tests = json.loads(native.read_text())["tests"]
+        document = json.loads(native.read_text())
+        tests = document["tests"]
         require(isinstance(tests, list) and tests, "test suite is empty")
     except (OSError, KeyError, json.JSONDecodeError, HarnessError) as error:
         errors = [f"invalid results: {error}"]
@@ -426,6 +440,21 @@ def validate_results(consumer, native, allure, test_rc=0):
         if not test_id or test_id in actual: errors.append(f"missing or duplicate test id: {test_id}")
         else: actual[test_id] = test
     expectations = consumer["expected"]; required = set(expectations["required"])
+    if expectations.get("discovered") and not any(key.endswith(".infrastructure") for key in actual):
+        inventory = document.get("inventory", [])
+        if not inventory or len(inventory) != len(set(inventory)):
+            errors.append("missing or duplicate discovered inventory")
+        reported = {test.get("parent_id", test_id) for test_id, test in actual.items()} if document.get("inventory_kind") == "parents" else set(actual)
+        if set(inventory) != reported:
+            errors.append(f"inventory/result mismatch: missing={sorted(set(inventory) - reported)}, "
+                          f"unexpected={sorted(reported - set(inventory))}")
+        if document.get("inventory_kind") == "parents":
+            rows = document.get("inventory_rows", {})
+            if set(rows) != set(inventory): errors.append("missing data-row inventory")
+            counts = Counter(test.get("parent_id", test_id) for test_id, test in actual.items())
+            for parent, count in rows.items():
+                if counts[parent] != count:
+                    errors.append(f"{parent}: expected {count} data rows, reported {counts[parent]}")
     infrastructure = [test for test_id, test in actual.items() if test_id.endswith(".infrastructure")]
     if expectations.get("discovered") and infrastructure:
         for test in infrastructure:
@@ -435,22 +464,33 @@ def validate_results(consumer, native, allure, test_rc=0):
     if not expectations.get("discovered"):
         for test_id in sorted(required - set(actual)): errors.append(f"missing test: {test_id}")
         for test_id in sorted(set(actual) - required): errors.append(f"unexpected test: {test_id}")
+    if test_rc < 0 or test_rc > 1: errors.append(f"test command exited abnormally: {test_rc}")
     if test_rc and tests and all(test.get("status") == "passed" for test in tests
                                  if isinstance(test, dict)):
         errors.append(f"test command exited {test_rc} although every reported test passed")
     if len(list(allure.glob("*-result.json"))) != len(tests): errors.append("Allure/native result count differs")
     validation = {"consumer": consumer["id"], "connection_mode": os.environ.get("ODBC_TEST_MODE", "all"),
-                  "ok": not errors, "test_count": len(tests), "errors": errors}
+                  "ok": not errors, "test_count": len(tests), "errors": errors,
+                  "counts": {name: sum((expected_result(test, expectations) or
+                                               ("unexpected_skip" if test.get("status") == "skipped" else test.get("status"),))[0] == name
+                                       for test in actual.values())
+                             for name in ("passed", "unsupported", "skipped", "unexpected_skip", "failed", "broken")}}
+
     (RESULTS / "validation.json").write_text(json.dumps(validation, indent=2, sort_keys=True) + "\n")
     for error in errors: print(f"result error: {error}", file=sys.stderr)
     return errors
 def run_consumer(consumer_id, mode):
+    os.environ["ODBC_TEST_MODE"] = mode
     data = load_registry(); consumer = next((x for x in data["consumers"] if x["id"] == consumer_id), None)
     require(consumer, f"unknown consumer: {consumer_id}")
     allowed_modes = consumer.get("modes") or ["all"]
     require(mode in allowed_modes, f"{consumer_id}: invalid connection mode: {mode}")
     adapter, package = ROOT / consumer_id, Path("/packages") / os.environ["ODBC_PACKAGE_BASENAME"]
     native, allure, home = RESULTS / "native", RESULTS / "allure", WORK / "home"
+    for path in (native, allure):
+        if path.exists(): shutil.rmtree(path)
+    for path in (RESULTS / "metadata.json", RESULTS / "validation.json"):
+        path.unlink(missing_ok=True)
     for path in (RESULTS, native, allure, WORK, home):
         path.mkdir(parents=True, exist_ok=True); path.chmod(0o777)
     version, package_hash = inspect_package(package); endpoint, database = os.environ["YDB_ENDPOINT"], os.environ["YDB_DATABASE"]
@@ -462,8 +502,11 @@ def run_consumer(consumer_id, mode):
         "driver_commit": os.environ["DRIVER_COMMIT"], "package_sha256": package_hash,
         "package_version": version, "ydb_image": os.environ["YDB_TEST_IMAGE"],
         "endpoint": endpoint, "database": database,
+        "runtime_packages_sha256": hashlib.sha256(Path("/runtime-packages.txt").read_bytes()).hexdigest() if Path("/runtime-packages.txt").exists() else "unknown",
         "source_kind": "system" if consumer["source"] == "system" else "archive",
         "upstream_revision": "unknown", "upstream_sha256": "unknown",
+        "test_sources_sha256": hashlib.sha256((adapter / "test-sources.lock").read_bytes()).hexdigest() if (adapter / "test-sources.lock").exists() else "none",
+        "fixture_sha256": hashlib.sha256(b"".join(path.read_bytes() for path in sorted(adapter.glob("*.patch")))).hexdigest(),
     }
     test_rc, error = 0, None
     try:
@@ -491,7 +534,7 @@ def run_consumer(consumer_id, mode):
         elif consumer.get("tests"):
             test_rc = declarative_suite(consumer, env, native)
         else:
-            test_rc = command([adapter / "run-tests"], env=env, user=run_user, check=False).returncode
+            test_rc = command([adapter / "run-tests"], env=env, user=run_user, check=False, timeout=1800).returncode
     except Exception as exception:  # preserve infrastructure failures as test output
         error = str(exception)
     (RESULTS / "metadata.json").write_text(json.dumps(metadata, indent=2, sort_keys=True) + "\n")
@@ -508,30 +551,52 @@ def run_consumer(consumer_id, mode):
         print(f"result finalization failed: {exception}", file=sys.stderr); return 1
     return int(bool(error or validation_errors))
 def aggregate(source, output):
-    expected = {item["run_id"] for item in consumer_runs(load_registry())}; output.mkdir(parents=True, exist_ok=True)
+    expected = {item["run_id"] for item in consumer_runs(load_registry())}
     native_out, allure_out = output / "native", output / "allure-results"
-    native_out.mkdir(exist_ok=True); allure_out.mkdir(exist_ok=True)
-    found, rows, errors = set(), [], []
+    native_out.mkdir(parents=True, exist_ok=True); allure_out.mkdir(exist_ok=True)
+    found, rows, errors, provenance = set(), [], [], None
     for metadata_path in source.rglob("metadata.json"):
         root = metadata_path.parent
         try:
             metadata = json.loads(metadata_path.read_text())
             validation = json.loads((root / "validation.json").read_text())
             run_id = metadata["run_id"]
+            require(run_id in expected, f"unexpected result artifact: {run_id}")
             require(run_id not in found, f"duplicate artifact: {run_id}"); found.add(run_id)
+            results = json.loads((root / "native/results.json").read_text())["tests"]
+            require(len(results) == validation["test_count"], f"{run_id}: native/validation count differs")
+            require(len(list((root / "allure").glob("*-result.json"))) == len(results),
+                    f"{run_id}: Allure/native count differs")
+            identity = tuple(metadata[key] for key in ("driver_commit", "package_sha256", "ydb_image"))
+            require(all(identity), f"{run_id}: incomplete provenance")
+            if provenance is None: provenance = identity
+            require(identity == provenance, f"{run_id}: mismatched artifact provenance")
+            require(not os.getenv("DRIVER_COMMIT") or identity[0] == os.environ["DRIVER_COMMIT"],
+                    f"{run_id}: wrong driver commit")
+            require(not os.getenv("ODBC_PACKAGE_SHA256") or identity[1] == os.environ["ODBC_PACKAGE_SHA256"],
+                    f"{run_id}: wrong package checksum")
             shutil.copytree(root / "native", native_out / run_id, dirs_exist_ok=True)
             for path in (metadata_path, root / "validation.json"): shutil.copy2(path, native_out / run_id / path.name)
-            for artifact in (root / "allure").iterdir(): shutil.copy2(artifact, allure_out / f"{run_id}-{artifact.name}")
-            require(validation.get("ok"), f"{run_id}: result validation failed")
-            rows.append((run_id, validation["test_count"], "passed"))
+            for artifact in (root / "allure").iterdir():
+                if artifact.name == "environment.properties": continue
+                target = allure_out / artifact.name
+                require(not target.exists(), f"duplicate Allure artifact: {artifact.name}")
+                shutil.copy2(artifact, target)
+            for path in (root / "allure").glob("*-result.json"):
+                for attachment in json.loads(path.read_text()).get("attachments", []):
+                    require((allure_out / attachment["source"]).is_file(), f"missing Allure attachment: {attachment['source']}")
+            counts = validation.get("counts", {})
+            rows.append((run_id, validation["test_count"], counts, "passed" if validation.get("ok") else "FAILED"))
+            if not validation.get("ok"):
+                errors.append(f"{run_id}: unexpected test outcomes; see native/{run_id}/validation.json")
         except (OSError, KeyError, json.JSONDecodeError, HarnessError) as error:
             errors.append(f"invalid artifact at {root}: {error}")
     if expected - found: errors.append(f"missing result artifacts: {', '.join(sorted(expected - found))}")
-    if found - expected: errors.append(f"unexpected result artifacts: {', '.join(sorted(found - expected))}")
-    lines = ["## ODBC integration results", "", "| Consumer | Tests | Status |",
-             "| --- | ---: | --- |"]
-    lines += [f"| {name} | {count} | {status} |" for name, count, status in sorted(rows)]
-    if errors: lines += ["", "### Aggregation errors", ""] + [f"- {error}" for error in errors]
+    lines = ["## ODBC integration results", "", "| Consumer | Tests | Passed | Unsupported | Expected skips | Unexpected | Status |",
+             "| --- | ---: | ---: | ---: | ---: | ---: | --- |"]
+    lines += [f"| {name} | {count} | {counts.get('passed', 0)} | {counts.get('unsupported', 0)} | "
+              f"{counts.get('skipped', 0)} | {sum(counts.get(key, 0) for key in ('failed','broken','unexpected_skip'))} | {status} |" for name, count, counts, status in sorted(rows)]
+    if errors: lines += ["", "### Validation failures", ""] + [f"- {error}" for error in errors]
     summary = "\n".join(lines) + "\n"; (output / "summary.md").write_text(summary); print(summary)
     return int(bool(errors))
 def main():
