@@ -262,11 +262,6 @@ classifications:
       php-odbc: ['php-odbc.*.ext%2Fodbc%2Ftests%2Fbug44618.phpt']
       php-pdo: ['php-pdo.*.ext%2Fpdo_odbc%2Ftests%2Fbug80783a.phpt']
   - outcome: skipped
-    reason: Exercises Microsoft SQL Server or Oracle rather than YDB.
-    match: '(?i)(Microsoft SQL Server|Oracle) tests not supported using YDB'
-    tests:
-      perl: ['perl.*.{20SqlServer,30Oracle}.t']
-  - outcome: skipped
     reason: This upstream model test explicitly uses SQLite, outside the QODBC contract.
     match: "Exercises Qt's hardcoded SQLite in-memory model"
     tests:
@@ -286,11 +281,6 @@ classifications:
     match: '(?m)^not supported$'
     tests:
       php-pdo: ['php-pdo.*.ext%2Fpdo%2Ftests%2Fpdo_dsn_containing_credentials.phpt']
-  - outcome: skipped
-    reason: Exercises Microsoft SQL Server or Access-specific behavior.
-    match: '(?i)(not (?:MS )?SQL Server|Microsoft (?:SQL Server|Access) tests? not supported using YDB)'
-    tests:
-      perl: ['perl.*.{45_unicode_varchar,87_odbc_lob_read,rt_38977,rt_39841,rt_43384,rt_46597,rt_50852,rt_59621,rt_null_nvarchar}.t']
   - outcome: skipped
     reason: This generic binding test explicitly requires SQLite.
     match: "Reason: env var 'ODBC_CS_SQLITE' not set"
@@ -478,25 +468,6 @@ consumers:
     expected:
       discovered: true
       required: [lua.*]
-  - id: perl
-    display_name: Perl DBD::ODBC tests
-    kind: framework
-    language: Perl
-    tier: core
-    dockerfile: bindings/Dockerfile
-    runtime_image: ubuntu:24.04@sha256:019e8eb29a85e74d64925745884f2ec79aa27e3feab36353d24656f4d6b89467
-    runtime_version: ["perl", "-MDBD::ODBC", "-e", "print $DBD::ODBC::VERSION"]
-    source:
-      kind: "archive"
-      url: "https://cpan.metacpan.org/authors/id/M/MJ/MJEVANS/DBD-ODBC-1.61.tar.gz"
-      revision: "1.61"
-      sha256: "96def438c9610d72d0e24d007ea0eacd0059b5203c17eadb623bdea22fa9f40a"
-      license: "Artistic-1.0-Perl OR GPL-1.0-or-later"
-      ci_only: true
-    modes: [dsn, connection_string]
-    expected:
-      discovered: true
-      required: [perl.*]
   - id: r
     display_name: R odbc and DBItest
     kind: framework

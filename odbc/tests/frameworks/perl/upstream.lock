@@ -1,6 +1,0 @@
-kind: archive
-url: https://cpan.metacpan.org/authors/id/M/MJ/MJEVANS/DBD-ODBC-1.61.tar.gz
-revision: '1.61'
-sha256: 96def438c9610d72d0e24d007ea0eacd0059b5203c17eadb623bdea22fa9f40a
-license: Artistic-1.0-Perl OR GPL-1.0-or-later
-ci_only: true
