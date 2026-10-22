@@ -1,0 +1,4 @@
+Cases: 1  Tried: 0  Errors: 0  Failures: 0
+### Error:
+user error (SQL error: SqlError {seState = "[\"42S02\"]", seNativeError = -1, seErrorMsg = "execute execute: [\"400070: Base table or view not found: <main>: Error: Type annotation, code: 1030\\n    <main>:1:12: Error: At function: KiDropTable!\\n        <main>:1:12: Error: Cannot find table 'db.[/local/hdbctest1]' because it does not exist or you do not have access permissions. Please check correctness of table path and user permissions., code: 2003\\n\"]"})
+Cases: 1  Tried: 1  Errors: 1  Failures: 0

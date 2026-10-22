@@ -1,0 +1,17 @@
+001- array(4) {
+002-   ["id"]=>
+003-   string(1) "1"
+004-   [0]=>
+005-   string(1) "1"
+006-   ["usr"]=>
+007-   string(4) "user"
+008-   [1]=>
+009-   string(4) "user"
+010- }
+011- bool(false)
+012- Done
+001+ Fatal error: Uncaught PDOException: SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/bug_39656.php:15
+002+ Stack trace:
+003+ #0 /work/source/ext/pdo/tests/bug_39656.php(15): PDOStatement->execute()
+004+ #1 {main}
+005+   thrown in /work/source/ext/pdo/tests/bug_39656.php on line 15

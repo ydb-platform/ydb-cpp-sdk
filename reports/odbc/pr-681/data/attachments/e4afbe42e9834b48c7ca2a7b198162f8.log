@@ -1,0 +1,787 @@
+# 
+# 
+# NOTE: This is an experimental test. Since DBD::ODBC added the execute_for_fetch method this tests the native method and not DBI's fallback method. If you fail this test it probably means the ODBC driver you are using does not have sufficient support (or is buggy) for array operations. If you pass this test your ODBC Driver seems ok and you can get faster insert/update/delete operations using DBI's execute_array or execute_for_fetch methods by setting the odbc_array_operations to true.
+# 
+# If this test fails it should not stop you installing DBD::ODBC but if it fails with an error other than something indicating 'connection busy' I'd strongly suggest you don't set odbc_array_operations and stick with DBI's default implementation.
+# 
+# If this test fails for your driver I'd like to hear about it so I can compile a list of working drivers and perhaps pass bug reports on to the maintainers. Please rerun this test with TEST_VERBOSE set or using prove and send the results to the dbi-users mailing list.
+# 
+# 
+# Perl 5.38.2
+# osname=linux, osvers=6.1.0, archname=x86_64-linux-gnu-thread-multi
+# Using DBI 1.643
+# Using DBD::ODBC 1.61
+# Using DBMS_NAME 'YDB'
+# Using DBMS_VER '25.2.1.24'
+# Using DRIVER_NAME 'ydb-odbc'
+# Using DRIVER_VER '3.22.0'
+# odbc_has_unicode 1
+# Using driver ODBC
+# ***** error handler called *****
+# Table dropped
+ok 1 - create test table
+# simple tests raise = 1, array_context = 1
+#   all param arrays the same size
+#     Autocommit: 1
+# insert array_context = 1, raise = 1, commit = '', sts = 5, error = 0, tuple = ARRAY(0x5569f1854db0), affected = 5
+ok 2 - no error in execute_array eval
+ok 3 - execute_array returned 5 rows executed
+ok 4 - total affected 5
+ok 5 - no error captured
+ok 6 - 5 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1
+#                     ];
+ok 7 - tuple status is an array
+ok 8 - status arrays same size
+ok 9 - row 0 tuple status unknown
+ok 10 - row 1 tuple status unknown
+ok 11 - row 2 tuple status unknown
+ok 12 - row 3 tuple status unknown
+ok 13 - row 4 tuple status unknown
+ok 14 - row 0 p1 data
+ok 15 - row 0 p2 data
+ok 16 - row 1 p1 data
+ok 17 - row 1 p2 data
+ok 18 - row 2 p1 data
+ok 19 - row 2 p2 data
+ok 20 - row 3 p1 data
+ok 21 - row 3 p2 data
+ok 22 - row 4 p1 data
+ok 23 - row 4 p2 data
+#     Autocommit: 0
+# insert commit = 1, raise = 1, array_context = 1, affected = 5, error = 0, tuple = ARRAY(0x5569f0efd608), sts = 5
+ok 24 - no error in execute_array eval
+ok 25 - execute_array returned 5 rows executed
+not ok 26 - total affected 4
+#   Failed test 'total affected 4'
+#   at t/ExecuteArray.pm line 251.
+#          got: '4'
+#     expected: '5'
+ok 27 - no error captured
+ok 28 - 5 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1
+#                     ];
+ok 29 - tuple status is an array
+ok 30 - status arrays same size
+ok 31 - row 0 tuple status unknown
+ok 32 - row 1 tuple status unknown
+ok 33 - row 2 tuple status unknown
+ok 34 - row 3 tuple status unknown
+ok 35 - row 4 tuple status unknown
+ok 36 - row 0 p1 data
+ok 37 - row 0 p2 data
+ok 38 - row 1 p1 data
+ok 39 - row 1 p2 data
+ok 40 - row 2 p1 data
+ok 41 - row 2 p2 data
+ok 42 - row 3 p1 data
+ok 43 - row 3 p2 data
+ok 44 - row 4 p1 data
+ok 45 - row 4 p2 data
+#   Not all param arrays the same size
+# insert raise = 1, array_context = 1, commit = 0, sts = 5, affected = 5, error = 0, tuple = ARRAY(0x5569f185afd0)
+ok 46 - no error in execute_array eval
+ok 47 - execute_array returned 5 rows executed
+ok 48 - total affected 5
+ok 49 - no error captured
+ok 50 - 5 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1
+#                     ];
+ok 51 - tuple status is an array
+ok 52 - status arrays same size
+ok 53 - row 0 tuple status unknown
+ok 54 - row 1 tuple status unknown
+ok 55 - row 2 tuple status unknown
+ok 56 - row 3 tuple status unknown
+ok 57 - row 4 tuple status unknown
+ok 58 - row 0 p1 data
+ok 59 - row 0 p2 data
+ok 60 - row 1 p1 data
+ok 61 - row 1 p2 data
+ok 62 - row 2 p1 data
+ok 63 - row 2 p2 data
+ok 64 - row 3 p1 data
+ok 65 - row 3 p2 data
+ok 66 - row 4 p1 data
+ok 67 - row 4 p2 data
+#   Not all param arrays the same size with bind on execute_array
+# insert tuple = ARRAY(0x5569f185b588), error = 0, params = ARRAY(0x5569f1854b70), affected = 5, sts = 5, commit = 0, array_context = 1, raise = 1
+ok 68 - no error in execute_array eval
+ok 69 - execute_array returned 5 rows executed
+ok 70 - total affected 5
+ok 71 - no error captured
+ok 72 - 5 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1
+#                     ];
+ok 73 - tuple status is an array
+ok 74 - status arrays same size
+ok 75 - row 0 tuple status unknown
+ok 76 - row 1 tuple status unknown
+ok 77 - row 2 tuple status unknown
+ok 78 - row 3 tuple status unknown
+ok 79 - row 4 tuple status unknown
+ok 80 - row 0 p1 data
+ok 81 - row 0 p2 data
+ok 82 - row 1 p1 data
+ok 83 - row 1 p2 data
+ok 84 - row 2 p1 data
+ok 85 - row 2 p2 data
+ok 86 - row 3 p1 data
+ok 87 - row 3 p2 data
+ok 88 - row 4 p1 data
+ok 89 - row 4 p2 data
+#   no parameters
+# insert commit = 0, raise = 1, array_context = 1, affected = 0, params = ARRAY(0x5569f1879d98), error = 0, tuple = ARRAY(0x5569f0f15430), sts = '0E0'
+ok 90 - no error in execute_array eval
+ok 91 - execute_array returned '0E0' rows executed
+ok 92 - total affected 0
+ok 93 - no error captured
+ok 94 - 0E0 rows in tuple_status
+# $ArrayTupleStatus = [];
+ok 95 - tuple status is an array
+ok 96 - status arrays same size
+# simple tests array_context = 0, raise = 1
+#   all param arrays the same size
+#     Autocommit: 1
+# insert commit = '', array_context = 0, raise = 1, error = 0, tuple = ARRAY(0x5569f18992b8), affected = 5, sts = 5
+ok 97 - no error in execute_array eval
+ok 98 - execute_array returned 5 rows executed
+ok 99 - no error captured
+ok 100 - 5 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1
+#                     ];
+ok 101 - tuple status is an array
+ok 102 - status arrays same size
+ok 103 - row 0 tuple status unknown
+ok 104 - row 1 tuple status unknown
+ok 105 - row 2 tuple status unknown
+ok 106 - row 3 tuple status unknown
+ok 107 - row 4 tuple status unknown
+ok 108 - row 0 p1 data
+ok 109 - row 0 p2 data
+ok 110 - row 1 p1 data
+ok 111 - row 1 p2 data
+ok 112 - row 2 p1 data
+ok 113 - row 2 p2 data
+ok 114 - row 3 p1 data
+ok 115 - row 3 p2 data
+ok 116 - row 4 p1 data
+ok 117 - row 4 p2 data
+#     Autocommit: 0
+# insert tuple = ARRAY(0x5569f1872b58), error = 0, affected = 5, sts = 5, commit = 1, array_context = 0, raise = 1
+ok 118 - no error in execute_array eval
+ok 119 - execute_array returned 5 rows executed
+ok 120 - no error captured
+ok 121 - 5 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1
+#                     ];
+ok 122 - tuple status is an array
+ok 123 - status arrays same size
+ok 124 - row 0 tuple status unknown
+ok 125 - row 1 tuple status unknown
+ok 126 - row 2 tuple status unknown
+ok 127 - row 3 tuple status unknown
+ok 128 - row 4 tuple status unknown
+ok 129 - row 0 p1 data
+ok 130 - row 0 p2 data
+ok 131 - row 1 p1 data
+ok 132 - row 1 p2 data
+ok 133 - row 2 p1 data
+ok 134 - row 2 p2 data
+ok 135 - row 3 p1 data
+ok 136 - row 3 p2 data
+ok 137 - row 4 p1 data
+ok 138 - row 4 p2 data
+#   Not all param arrays the same size
+# insert commit = 0, raise = 1, array_context = 0, affected = 5, error = 0, tuple = ARRAY(0x5569f189c8b0), sts = 5
+ok 139 - no error in execute_array eval
+ok 140 - execute_array returned 5 rows executed
+ok 141 - no error captured
+ok 142 - 5 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1
+#                     ];
+ok 143 - tuple status is an array
+ok 144 - status arrays same size
+ok 145 - row 0 tuple status unknown
+ok 146 - row 1 tuple status unknown
+ok 147 - row 2 tuple status unknown
+ok 148 - row 3 tuple status unknown
+ok 149 - row 4 tuple status unknown
+ok 150 - row 0 p1 data
+ok 151 - row 0 p2 data
+ok 152 - row 1 p1 data
+ok 153 - row 1 p2 data
+ok 154 - row 2 p1 data
+ok 155 - row 2 p2 data
+ok 156 - row 3 p1 data
+ok 157 - row 3 p2 data
+ok 158 - row 4 p1 data
+ok 159 - row 4 p2 data
+#   Not all param arrays the same size with bind on execute_array
+# insert error = 0, tuple = ARRAY(0x5569f189cac0), params = ARRAY(0x5569f18975e0), affected = 5, sts = 5, commit = 0, array_context = 0, raise = 1
+ok 160 - no error in execute_array eval
+ok 161 - execute_array returned 5 rows executed
+ok 162 - no error captured
+ok 163 - 5 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1
+#                     ];
+ok 164 - tuple status is an array
+ok 165 - status arrays same size
+ok 166 - row 0 tuple status unknown
+ok 167 - row 1 tuple status unknown
+ok 168 - row 2 tuple status unknown
+ok 169 - row 3 tuple status unknown
+ok 170 - row 4 tuple status unknown
+ok 171 - row 0 p1 data
+ok 172 - row 0 p2 data
+ok 173 - row 1 p1 data
+ok 174 - row 1 p2 data
+ok 175 - row 2 p1 data
+ok 176 - row 2 p2 data
+ok 177 - row 3 p1 data
+ok 178 - row 3 p2 data
+ok 179 - row 4 p1 data
+ok 180 - row 4 p2 data
+#   no parameters
+# insert error = 0, tuple = ARRAY(0x5569f189c880), params = ARRAY(0x5569f18a06c0), affected = 0, sts = '0E0', commit = 0, array_context = 0, raise = 1
+ok 181 - no error in execute_array eval
+ok 182 - execute_array returned '0E0' rows executed
+ok 183 - no error captured
+ok 184 - 0E0 rows in tuple_status
+# $ArrayTupleStatus = [];
+ok 185 - tuple status is an array
+ok 186 - status arrays same size
+# error tests array_context = 1, raise = 1
+# Last row in error
+# insert sts = undef, affected = undef, tuple = ARRAY(0x5569f18aa870), error = 1, raise = 1, array_context = 1, commit = 0
+# ***** error handler called *****
+ok 187 - error in execute_array eval
+ok 188 - error captured
+# $ArrayTupleStatus = [
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1
+#                     ];
+ok 189 - tuple status is an array
+ok 190 - status arrays same size
+ok 191 - row 0 tuple status unknown
+ok 192 - row 1 tuple status unknown
+ok 193 - row 2 tuple status unknown
+ok 194 - row 3 tuple status unknown
+ok 195 - row 0 p1 data
+ok 196 - row 0 p2 data
+ok 197 - row 1 p1 data
+ok 198 - row 1 p2 data
+ok 199 - row 2 p1 data
+ok 200 - row 2 p2 data
+ok 201 - row 3 p1 data
+ok 202 - row 3 p2 data
+# 2nd last row in error
+# insert commit = 0, raise = 1, array_context = 1, affected = undef, tuple = ARRAY(0x5569f18a7170), error = 1, sts = undef
+# ***** error handler called *****
+ok 203 - error in execute_array eval
+ok 204 - error captured
+# $ArrayTupleStatus = [
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1
+#                     ];
+ok 205 - tuple status is an array
+ok 206 - status arrays same size
+ok 207 - row 0 tuple status unknown
+ok 208 - row 1 tuple status unknown
+ok 209 - row 2 tuple status unknown
+ok 210 - row 4 tuple status unknown
+ok 211 - row 0 p1 data
+ok 212 - row 0 p2 data
+ok 213 - row 1 p1 data
+ok 214 - row 1 p2 data
+ok 215 - row 2 p1 data
+ok 216 - row 2 p2 data
+# error tests raise = 1, array_context = 0
+# Last row in error
+# insert sts = undef, tuple = ARRAY(0x5569f18a0d08), error = 1, affected = undef, array_context = 0, raise = 1, commit = 0
+# ***** error handler called *****
+ok 217 - error in execute_array eval
+ok 218 - error captured
+# $ArrayTupleStatus = [
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1
+#                     ];
+ok 219 - tuple status is an array
+ok 220 - status arrays same size
+ok 221 - row 0 tuple status unknown
+ok 222 - row 1 tuple status unknown
+ok 223 - row 2 tuple status unknown
+ok 224 - row 3 tuple status unknown
+ok 225 - row 0 p1 data
+ok 226 - row 0 p2 data
+ok 227 - row 1 p1 data
+ok 228 - row 1 p2 data
+ok 229 - row 2 p1 data
+ok 230 - row 2 p2 data
+ok 231 - row 3 p1 data
+ok 232 - row 3 p2 data
+# 2nd last row in error
+# insert commit = 0, array_context = 0, raise = 1, tuple = ARRAY(0x5569f18b1630), error = 1, affected = undef, sts = undef
+# ***** error handler called *****
+ok 233 - error in execute_array eval
+ok 234 - error captured
+# $ArrayTupleStatus = [
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1
+#                     ];
+ok 235 - tuple status is an array
+ok 236 - status arrays same size
+ok 237 - row 0 tuple status unknown
+ok 238 - row 1 tuple status unknown
+ok 239 - row 2 tuple status unknown
+ok 240 - row 4 tuple status unknown
+ok 241 - row 0 p1 data
+ok 242 - row 0 p2 data
+ok 243 - row 1 p1 data
+ok 244 - row 1 p2 data
+ok 245 - row 2 p1 data
+ok 246 - row 2 p2 data
+# error tests array_context = 1, raise = 0
+# Last row in error
+# insert commit = 0, array_context = 1, raise = 0, tuple = ARRAY(0x5569f18b1b10), error = 1, affected = undef, sts = undef
+# ***** error handler called *****
+ok 247 - no error in execute_array eval
+ok 248 - execute_array returned undef rows executed
+ok 249 - total affected undef
+# $ArrayTupleStatus = [
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1
+#                     ];
+ok 250 - tuple status is an array
+ok 251 - status arrays same size
+ok 252 - row 0 tuple status unknown
+ok 253 - row 1 tuple status unknown
+ok 254 - row 2 tuple status unknown
+ok 255 - row 3 tuple status unknown
+ok 256 - row 0 p1 data
+ok 257 - row 0 p2 data
+ok 258 - row 1 p1 data
+ok 259 - row 1 p2 data
+ok 260 - row 2 p1 data
+ok 261 - row 2 p2 data
+ok 262 - row 3 p1 data
+ok 263 - row 3 p2 data
+# 2nd last row in error
+# insert sts = undef, affected = undef, error = 1, tuple = ARRAY(0x5569f18b3c38), raise = 0, array_context = 1, commit = 0
+# ***** error handler called *****
+ok 264 - no error in execute_array eval
+ok 265 - execute_array returned undef rows executed
+ok 266 - total affected undef
+# $ArrayTupleStatus = [
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1
+#                     ];
+ok 267 - tuple status is an array
+ok 268 - status arrays same size
+ok 269 - row 0 tuple status unknown
+ok 270 - row 1 tuple status unknown
+ok 271 - row 2 tuple status unknown
+ok 272 - row 4 tuple status unknown
+ok 273 - row 0 p1 data
+ok 274 - row 0 p2 data
+ok 275 - row 1 p1 data
+ok 276 - row 1 p2 data
+ok 277 - row 2 p1 data
+ok 278 - row 2 p2 data
+# error tests raise = 0, array_context = 0
+# Last row in error
+# insert commit = 0, array_context = 0, raise = 0, error = 1, tuple = ARRAY(0x5569f18aee78), affected = undef, sts = undef
+# ***** error handler called *****
+ok 279 - no error in execute_array eval
+ok 280 - execute_array returned undef rows executed
+# $ArrayTupleStatus = [
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1
+#                     ];
+ok 281 - tuple status is an array
+ok 282 - status arrays same size
+ok 283 - row 0 tuple status unknown
+ok 284 - row 1 tuple status unknown
+ok 285 - row 2 tuple status unknown
+ok 286 - row 3 tuple status unknown
+ok 287 - row 0 p1 data
+ok 288 - row 0 p2 data
+ok 289 - row 1 p1 data
+ok 290 - row 1 p2 data
+ok 291 - row 2 p1 data
+ok 292 - row 2 p2 data
+ok 293 - row 3 p1 data
+ok 294 - row 3 p2 data
+# 2nd last row in error
+# insert sts = undef, tuple = ARRAY(0x5569f18ae338), error = 1, affected = undef, array_context = 0, raise = 0, commit = 0
+# ***** error handler called *****
+ok 295 - no error in execute_array eval
+ok 296 - execute_array returned undef rows executed
+# $ArrayTupleStatus = [
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1
+#                     ];
+ok 297 - tuple status is an array
+ok 298 - status arrays same size
+ok 299 - row 0 tuple status unknown
+ok 300 - row 1 tuple status unknown
+ok 301 - row 2 tuple status unknown
+ok 302 - row 4 tuple status unknown
+ok 303 - row 0 p1 data
+ok 304 - row 0 p2 data
+ok 305 - row 1 p1 data
+ok 306 - row 1 p2 data
+ok 307 - row 2 p1 data
+ok 308 - row 2 p2 data
+# row_size via execute_for_fetch
+# insert sts = 5, fetch = CODE(0x5569f17827f8), affected = 5, tuple = ARRAY(0x5569f18bc9e0), error = 0, raise = 1, array_context = 1, commit = 0
+# fetch_sub 0
+# fetch_sub 1
+# fetch_sub 2
+# fetch_sub 3
+# fetch_sub 4
+# fetch_sub 5
+# returning undef
+ok 309 - no error in execute_array eval
+ok 310 - execute_array returned 5 rows executed
+ok 311 - total affected 5
+ok 312 - no error captured
+ok 313 - 5 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1
+#                     ];
+ok 314 - tuple status is an array
+ok 315 - status arrays same size
+ok 316 - row 0 tuple status unknown
+ok 317 - row 1 tuple status unknown
+ok 318 - row 2 tuple status unknown
+ok 319 - row 3 tuple status unknown
+ok 320 - row 4 tuple status unknown
+# row_size via select
+ok 321 - execute on second table
+ok 322 - second statement is in executed state
+# insert commit = 0, requires_mas = 1, raise = 1, array_context = 1, affected = 5, error = 0, tuple = ARRAY(0x5569f18aed40), sts = 5, fetch = DBI::st=HASH(0x5569f18b3d70)
+ok 323 - no error in execute_array eval
+ok 324 - execute_array returned 5 rows executed
+ok 325 - total affected 5
+ok 326 - no error captured
+ok 327 - 5 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1
+#                     ];
+ok 328 - tuple status is an array
+ok 329 - status arrays same size
+ok 330 - row 0 tuple status unknown
+ok 331 - row 1 tuple status unknown
+ok 332 - row 2 tuple status unknown
+ok 333 - row 3 tuple status unknown
+ok 334 - row 4 tuple status unknown
+ok 335 - row 0 p1 data
+ok 336 - row 0 p2 data
+ok 337 - row 1 p1 data
+ok 338 - row 1 p2 data
+ok 339 - row 2 p1 data
+ok 340 - row 2 p2 data
+ok 341 - row 3 p1 data
+ok 342 - row 3 p2 data
+ok 343 - row 4 p1 data
+ok 344 - row 4 p2 data
+# update test
+# insert fetch = CODE(0x5569f17827f8), sts = 5, tuple = ARRAY(0x5569f18baec0), error = 0, affected = 5, array_context = 1, raise = 1, commit = 0
+# fetch_sub 0
+# fetch_sub 1
+# fetch_sub 2
+# fetch_sub 3
+# fetch_sub 4
+# fetch_sub 5
+# returning undef
+ok 345 - no error in execute_array eval
+ok 346 - execute_array returned 5 rows executed
+ok 347 - total affected 5
+ok 348 - no error captured
+ok 349 - 5 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1
+#                     ];
+ok 350 - tuple status is an array
+ok 351 - status arrays same size
+ok 352 - row 0 tuple status unknown
+ok 353 - row 1 tuple status unknown
+ok 354 - row 2 tuple status unknown
+ok 355 - row 3 tuple status unknown
+ok 356 - row 4 tuple status unknown
+ok 357 - row 0 p1 data
+ok 358 - row 0 p2 data
+ok 359 - row 1 p1 data
+ok 360 - row 1 p2 data
+ok 361 - row 2 p1 data
+ok 362 - row 2 p2 data
+ok 363 - row 3 p1 data
+ok 364 - row 3 p2 data
+ok 365 - row 4 p1 data
+ok 366 - row 4 p2 data
+# insert commit = 0, array_context = 1, raise = 1, error = 0, tuple = ARRAY(0x5569f18bd280), affected = 5, sts = 5
+ok 367 - no error in execute_array eval
+ok 368 - execute_array returned 5 rows executed
+ok 369 - total affected 5
+ok 370 - no error captured
+ok 371 - 5 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1
+#                     ];
+ok 372 - tuple status is an array
+ok 373 - status arrays same size
+ok 374 - row 0 tuple status unknown
+ok 375 - row 1 tuple status unknown
+ok 376 - row 2 tuple status unknown
+ok 377 - row 3 tuple status unknown
+ok 378 - row 4 tuple status unknown
+ok 379 - row 0 p1 data
+ok 380 - row 0 p2 data
+ok 381 - row 1 p1 data
+ok 382 - row 1 p2 data
+ok 383 - row 2 p1 data
+ok 384 - row 2 p2 data
+ok 385 - row 3 p1 data
+ok 386 - row 3 p2 data
+ok 387 - row 4 p1 data
+ok 388 - row 4 p2 data
+# insert sts = 5, tuple = ARRAY(0x5569f18c35b8), error = 0, affected = 4, array_context = 1, raise = 1, commit = 0
+ok 389 - no error in execute_array eval
+ok 390 - execute_array returned 5 rows executed
+ok 391 - total affected 4
+ok 392 - no error captured
+ok 393 - 5 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1,
+#                       -1
+#                     ];
+ok 394 - tuple status is an array
+ok 395 - status arrays same size
+ok 396 - row 0 tuple status unknown
+ok 397 - row 1 tuple status unknown
+ok 398 - row 2 tuple status unknown
+ok 399 - row 3 tuple status unknown
+ok 400 - row 4 tuple status unknown
+ok 401 - row 0 p1 data
+ok 402 - row 0 p2 data
+ok 403 - row 1 p1 data
+ok 404 - row 1 p2 data
+ok 405 - row 2 p1 data
+ok 406 - row 2 p2 data
+ok 407 - row 3 p1 data
+ok 408 - row 3 p2 data
+ok 409 - row 4 p1 data
+ok 410 - row 4 p2 data
+# insert commit = 0, raise = 1, array_context = 1, affected = 5, error = 0, tuple = ARRAY(0x5569f18bd280), sts = 2
+ok 411 - no error in execute_array eval
+ok 412 - execute_array returned 2 rows executed
+ok 413 - total affected 5
+ok 414 - no error captured
+ok 415 - 2 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       -1,
+#                       -1
+#                     ];
+ok 416 - tuple status is an array
+ok 417 - status arrays same size
+ok 418 - row 0 tuple status unknown
+ok 419 - row 1 tuple status unknown
+ok 420 - row 0 p1 data
+ok 421 - row 0 p2 data
+ok 422 - row 1 p1 data
+ok 423 - row 1 p2 data
+ok 424 - row 2 p1 data
+ok 425 - row 2 p2 data
+ok 426 - row 3 p1 data
+ok 427 - row 3 p2 data
+ok 428 - row 4 p1 data
+ok 429 - row 4 p2 data
+# error tests array_context = 1, raise = 1, notuplestatus = 1
+# Last row in error
+# insert array_context = 1, raise = 1, commit = 0, sts = undef, tuple = ARRAY(0x5569f18bb208), error = 1, notuplestatus = 1, affected = undef
+# ***** error handler called *****
+ok 430 - error in execute_array eval
+ok 431 - error captured
+ok 432 - row 0 p1 data
+ok 433 - row 0 p2 data
+ok 434 - row 1 p1 data
+ok 435 - row 1 p2 data
+ok 436 - row 2 p1 data
+ok 437 - row 2 p2 data
+ok 438 - row 3 p1 data
+ok 439 - row 3 p2 data
+# 2nd last row in error
+# insert sts = undef, tuple = ARRAY(0x5569f18d3390), error = 1, notuplestatus = 1, affected = undef, array_context = 1, raise = 1, commit = 0
+# ***** error handler called *****
+ok 440 - error in execute_array eval
+ok 441 - error captured
+ok 442 - row 0 p1 data
+ok 443 - row 0 p2 data
+ok 444 - row 1 p1 data
+ok 445 - row 1 p2 data
+ok 446 - row 2 p1 data
+ok 447 - row 2 p2 data
+# error tests notuplestatus = 1, raise = 1, array_context = 0
+# Last row in error
+# insert affected = undef, notuplestatus = 1, error = 1, tuple = ARRAY(0x5569f18d3198), sts = undef, commit = 0, raise = 1, array_context = 0
+# ***** error handler called *****
+ok 448 - error in execute_array eval
+ok 449 - error captured
+ok 450 - row 0 p1 data
+ok 451 - row 0 p2 data
+ok 452 - row 1 p1 data
+ok 453 - row 1 p2 data
+ok 454 - row 2 p1 data
+ok 455 - row 2 p2 data
+ok 456 - row 3 p1 data
+ok 457 - row 3 p2 data
+# 2nd last row in error
+# insert error = 1, tuple = ARRAY(0x5569f18e8bd0), notuplestatus = 1, affected = undef, sts = undef, commit = 0, array_context = 0, raise = 1
+# ***** error handler called *****
+ok 458 - error in execute_array eval
+ok 459 - error captured
+ok 460 - row 0 p1 data
+ok 461 - row 0 p2 data
+ok 462 - row 1 p1 data
+ok 463 - row 1 p2 data
+ok 464 - row 2 p1 data
+ok 465 - row 2 p2 data
+# error tests raise = 0, array_context = 1, notuplestatus = 1
+# Last row in error
+# insert raise = 0, array_context = 1, commit = 0, sts = undef, affected = undef, notuplestatus = 1, tuple = ARRAY(0x5569f18e8f18), error = 1
+# ***** error handler called *****
+ok 466 - no error in execute_array eval
+ok 467 - execute_array returned undef rows executed
+ok 468 - total affected undef
+ok 469 - row 0 p1 data
+ok 470 - row 0 p2 data
+ok 471 - row 1 p1 data
+ok 472 - row 1 p2 data
+ok 473 - row 2 p1 data
+ok 474 - row 2 p2 data
+ok 475 - row 3 p1 data
+ok 476 - row 3 p2 data
+# 2nd last row in error
+# insert commit = 0, raise = 0, array_context = 1, notuplestatus = 1, affected = undef, tuple = ARRAY(0x5569f18e90c8), error = 1, sts = undef
+# ***** error handler called *****
+ok 477 - no error in execute_array eval
+ok 478 - execute_array returned undef rows executed
+ok 479 - total affected undef
+ok 480 - row 0 p1 data
+ok 481 - row 0 p2 data
+ok 482 - row 1 p1 data
+ok 483 - row 1 p2 data
+ok 484 - row 2 p1 data
+ok 485 - row 2 p2 data
+# error tests raise = 0, array_context = 0, notuplestatus = 1
+# Last row in error
+# insert commit = 0, array_context = 0, raise = 0, tuple = ARRAY(0x5569f18e92c0), error = 1, affected = undef, notuplestatus = 1, sts = undef
+# ***** error handler called *****
+ok 486 - no error in execute_array eval
+ok 487 - execute_array returned undef rows executed
+ok 488 - row 0 p1 data
+ok 489 - row 0 p2 data
+ok 490 - row 1 p1 data
+ok 491 - row 1 p2 data
+ok 492 - row 2 p1 data
+ok 493 - row 2 p2 data
+ok 494 - row 3 p1 data
+ok 495 - row 3 p2 data
+# 2nd last row in error
+# insert commit = 0, raise = 0, array_context = 0, notuplestatus = 1, affected = undef, tuple = ARRAY(0x5569f18ebf80), error = 1, sts = undef
+# ***** error handler called *****
+ok 496 - no error in execute_array eval
+ok 497 - execute_array returned undef rows executed
+ok 498 - row 0 p1 data
+ok 499 - row 0 p2 data
+ok 500 - row 1 p1 data
+ok 501 - row 1 p2 data
+ok 502 - row 2 p1 data
+ok 503 - row 2 p2 data
+# Table dropped
+1..503
+# Looks like you failed 1 test of 503.

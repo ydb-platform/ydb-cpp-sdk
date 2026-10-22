@@ -1,0 +1,20 @@
+--
+       [2]=>
+       string(%d) "%s%w%S"
+     }
+011- bool(true)
+012- string(5) "00000"
+011+ bool(false)
+012+ string(5) "07006"
+     array(3) {
+       [0]=>
+015-   string(5) "00000"
+015+   string(5) "07006"
+       [1]=>
+017-   NULL
+017+   int(0)
+       [2]=>
+019-   NULL
+019+   string(116) "Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263)"
+     }
+     ===DONE===

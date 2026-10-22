@@ -1,0 +1,868 @@
+# 
+# 
+# NOTE: This tests execute_array and execute_for_fetch using DBI's version and not the native DBD::ODBC execute_for_fetch. It should work as it is using nothing special in DBD::ODBC other than the normal methods.
+# Using driver ODBC
+# ***** error handler called *****
+# Table dropped
+ok 1 - create test table
+# simple tests raise = 1, array_context = 1
+#   all param arrays the same size
+#     Autocommit: 1
+# insert array_context = 1, raise = 1, tuple = ARRAY(0x55effb065410), sts = 5, error = 0, commit = '', affected = 5
+ok 2 - no error in execute_array eval
+ok 3 - execute_array returned 5 rows executed
+ok 4 - total affected 5
+ok 5 - no error captured
+ok 6 - 5 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       1,
+#                       1,
+#                       1,
+#                       1,
+#                       1
+#                     ];
+ok 7 - tuple status is an array
+ok 8 - status arrays same size
+ok 9 - row 0 tuple status
+ok 10 - row 1 tuple status
+ok 11 - row 2 tuple status
+ok 12 - row 3 tuple status
+ok 13 - row 4 tuple status
+ok 14 - row 0 p1 data
+ok 15 - row 0 p2 data
+ok 16 - row 1 p1 data
+ok 17 - row 1 p2 data
+ok 18 - row 2 p1 data
+ok 19 - row 2 p2 data
+ok 20 - row 3 p1 data
+ok 21 - row 3 p2 data
+ok 22 - row 4 p1 data
+ok 23 - row 4 p2 data
+#     Autocommit: 0
+# insert array_context = 1, tuple = ARRAY(0x55effafc63c8), sts = 5, raise = 1, error = 0, affected = 5, commit = 1
+ok 24 - no error in execute_array eval
+ok 25 - execute_array returned 5 rows executed
+not ok 26 - total affected 4
+#   Failed test 'total affected 4'
+#   at t/ExecuteArray.pm line 251.
+#          got: '4'
+#     expected: '5'
+ok 27 - no error captured
+ok 28 - 5 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       '0E0',
+#                       2,
+#                       '0E0',
+#                       2,
+#                       '0E0'
+#                     ];
+ok 29 - tuple status is an array
+ok 30 - status arrays same size
+not ok 31 - row 0 tuple status
+#   Failed test 'row 0 tuple status'
+#   at t/ExecuteArray.pm line 153.
+#          got: '0E0'
+#     expected: '1'
+not ok 32 - row 1 tuple status
+#   Failed test 'row 1 tuple status'
+#   at t/ExecuteArray.pm line 153.
+#          got: '2'
+#     expected: '1'
+not ok 33 - row 2 tuple status
+#   Failed test 'row 2 tuple status'
+#   at t/ExecuteArray.pm line 153.
+#          got: '0E0'
+#     expected: '1'
+not ok 34 - row 3 tuple status
+#   Failed test 'row 3 tuple status'
+#   at t/ExecuteArray.pm line 153.
+#          got: '2'
+#     expected: '1'
+not ok 35 - row 4 tuple status
+#   Failed test 'row 4 tuple status'
+#   at t/ExecuteArray.pm line 153.
+#          got: '0E0'
+#     expected: '1'
+ok 36 - row 0 p1 data
+ok 37 - row 0 p2 data
+ok 38 - row 1 p1 data
+ok 39 - row 1 p2 data
+ok 40 - row 2 p1 data
+ok 41 - row 2 p2 data
+ok 42 - row 3 p1 data
+ok 43 - row 3 p2 data
+ok 44 - row 4 p1 data
+ok 45 - row 4 p2 data
+#   Not all param arrays the same size
+# insert array_context = 1, sts = 5, tuple = ARRAY(0x55effafc63c8), raise = 1, error = 0, affected = 5, commit = 0
+ok 46 - no error in execute_array eval
+ok 47 - execute_array returned 5 rows executed
+ok 48 - total affected 5
+ok 49 - no error captured
+ok 50 - 5 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       1,
+#                       1,
+#                       1,
+#                       1,
+#                       1
+#                     ];
+ok 51 - tuple status is an array
+ok 52 - status arrays same size
+ok 53 - row 0 tuple status
+ok 54 - row 1 tuple status
+ok 55 - row 2 tuple status
+ok 56 - row 3 tuple status
+ok 57 - row 4 tuple status
+ok 58 - row 0 p1 data
+ok 59 - row 0 p2 data
+ok 60 - row 1 p1 data
+ok 61 - row 1 p2 data
+ok 62 - row 2 p1 data
+ok 63 - row 2 p2 data
+ok 64 - row 3 p1 data
+ok 65 - row 3 p2 data
+ok 66 - row 4 p1 data
+ok 67 - row 4 p2 data
+#   Not all param arrays the same size with bind on execute_array
+# insert array_context = 1, sts = 5, tuple = ARRAY(0x55effb057880), raise = 1, error = 0, params = ARRAY(0x55effb057a60), affected = 5, commit = 0
+ok 68 - no error in execute_array eval
+ok 69 - execute_array returned 5 rows executed
+ok 70 - total affected 5
+ok 71 - no error captured
+ok 72 - 5 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       1,
+#                       1,
+#                       1,
+#                       1,
+#                       1
+#                     ];
+ok 73 - tuple status is an array
+ok 74 - status arrays same size
+ok 75 - row 0 tuple status
+ok 76 - row 1 tuple status
+ok 77 - row 2 tuple status
+ok 78 - row 3 tuple status
+ok 79 - row 4 tuple status
+ok 80 - row 0 p1 data
+ok 81 - row 0 p2 data
+ok 82 - row 1 p1 data
+ok 83 - row 1 p2 data
+ok 84 - row 2 p1 data
+ok 85 - row 2 p2 data
+ok 86 - row 3 p1 data
+ok 87 - row 3 p2 data
+ok 88 - row 4 p1 data
+ok 89 - row 4 p2 data
+#   no parameters
+# insert error = 0, params = ARRAY(0x55effb059700), affected = 0, commit = 0, array_context = 1, tuple = ARRAY(0x55effb065a70), sts = '0E0', raise = 1
+ok 90 - no error in execute_array eval
+ok 91 - execute_array returned '0E0' rows executed
+ok 92 - total affected 0
+ok 93 - no error captured
+ok 94 - 0E0 rows in tuple_status
+# $ArrayTupleStatus = [];
+ok 95 - tuple status is an array
+ok 96 - status arrays same size
+# simple tests array_context = 0, raise = 1
+#   all param arrays the same size
+#     Autocommit: 1
+# insert commit = '', affected = 5, error = 0, raise = 1, tuple = ARRAY(0x55effb0597d8), sts = 5, array_context = 0
+ok 97 - no error in execute_array eval
+ok 98 - execute_array returned 5 rows executed
+ok 99 - no error captured
+ok 100 - 5 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       1,
+#                       1,
+#                       1,
+#                       1,
+#                       1
+#                     ];
+ok 101 - tuple status is an array
+ok 102 - status arrays same size
+ok 103 - row 0 tuple status
+ok 104 - row 1 tuple status
+ok 105 - row 2 tuple status
+ok 106 - row 3 tuple status
+ok 107 - row 4 tuple status
+ok 108 - row 0 p1 data
+ok 109 - row 0 p2 data
+ok 110 - row 1 p1 data
+ok 111 - row 1 p2 data
+ok 112 - row 2 p1 data
+ok 113 - row 2 p2 data
+ok 114 - row 3 p1 data
+ok 115 - row 3 p2 data
+ok 116 - row 4 p1 data
+ok 117 - row 4 p2 data
+#     Autocommit: 0
+# insert commit = 1, affected = 5, error = 0, raise = 1, tuple = ARRAY(0x55effb093110), sts = 5, array_context = 0
+ok 118 - no error in execute_array eval
+ok 119 - execute_array returned 5 rows executed
+ok 120 - no error captured
+ok 121 - 5 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       '0E0',
+#                       2,
+#                       '0E0',
+#                       2,
+#                       '0E0'
+#                     ];
+ok 122 - tuple status is an array
+ok 123 - status arrays same size
+not ok 124 - row 0 tuple status
+#   Failed test 'row 0 tuple status'
+#   at t/ExecuteArray.pm line 153.
+#          got: '0E0'
+#     expected: '1'
+not ok 125 - row 1 tuple status
+#   Failed test 'row 1 tuple status'
+#   at t/ExecuteArray.pm line 153.
+#          got: '2'
+#     expected: '1'
+not ok 126 - row 2 tuple status
+#   Failed test 'row 2 tuple status'
+#   at t/ExecuteArray.pm line 153.
+#          got: '0E0'
+#     expected: '1'
+not ok 127 - row 3 tuple status
+#   Failed test 'row 3 tuple status'
+#   at t/ExecuteArray.pm line 153.
+#          got: '2'
+#     expected: '1'
+not ok 128 - row 4 tuple status
+#   Failed test 'row 4 tuple status'
+#   at t/ExecuteArray.pm line 153.
+#          got: '0E0'
+#     expected: '1'
+ok 129 - row 0 p1 data
+ok 130 - row 0 p2 data
+ok 131 - row 1 p1 data
+ok 132 - row 1 p2 data
+ok 133 - row 2 p1 data
+ok 134 - row 2 p2 data
+ok 135 - row 3 p1 data
+ok 136 - row 3 p2 data
+ok 137 - row 4 p1 data
+ok 138 - row 4 p2 data
+#   Not all param arrays the same size
+# insert error = 0, commit = 0, affected = 5, array_context = 0, raise = 1, sts = 5, tuple = ARRAY(0x55effb0944b8)
+ok 139 - no error in execute_array eval
+ok 140 - execute_array returned 5 rows executed
+ok 141 - no error captured
+ok 142 - 5 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       1,
+#                       1,
+#                       1,
+#                       1,
+#                       1
+#                     ];
+ok 143 - tuple status is an array
+ok 144 - status arrays same size
+ok 145 - row 0 tuple status
+ok 146 - row 1 tuple status
+ok 147 - row 2 tuple status
+ok 148 - row 3 tuple status
+ok 149 - row 4 tuple status
+ok 150 - row 0 p1 data
+ok 151 - row 0 p2 data
+ok 152 - row 1 p1 data
+ok 153 - row 1 p2 data
+ok 154 - row 2 p1 data
+ok 155 - row 2 p2 data
+ok 156 - row 3 p1 data
+ok 157 - row 3 p2 data
+ok 158 - row 4 p1 data
+ok 159 - row 4 p2 data
+#   Not all param arrays the same size with bind on execute_array
+# insert affected = 5, params = ARRAY(0x55effb094668), commit = 0, error = 0, tuple = ARRAY(0x55effb094c38), sts = 5, raise = 1, array_context = 0
+ok 160 - no error in execute_array eval
+ok 161 - execute_array returned 5 rows executed
+ok 162 - no error captured
+ok 163 - 5 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       1,
+#                       1,
+#                       1,
+#                       1,
+#                       1
+#                     ];
+ok 164 - tuple status is an array
+ok 165 - status arrays same size
+ok 166 - row 0 tuple status
+ok 167 - row 1 tuple status
+ok 168 - row 2 tuple status
+ok 169 - row 3 tuple status
+ok 170 - row 4 tuple status
+ok 171 - row 0 p1 data
+ok 172 - row 0 p2 data
+ok 173 - row 1 p1 data
+ok 174 - row 1 p2 data
+ok 175 - row 2 p1 data
+ok 176 - row 2 p2 data
+ok 177 - row 3 p1 data
+ok 178 - row 3 p2 data
+ok 179 - row 4 p1 data
+ok 180 - row 4 p2 data
+#   no parameters
+# insert array_context = 0, raise = 1, sts = '0E0', tuple = ARRAY(0x55effb093bc0), error = 0, commit = 0, affected = 0, params = ARRAY(0x55effb078048)
+ok 181 - no error in execute_array eval
+ok 182 - execute_array returned '0E0' rows executed
+ok 183 - no error captured
+ok 184 - 0E0 rows in tuple_status
+# $ArrayTupleStatus = [];
+ok 185 - tuple status is an array
+ok 186 - status arrays same size
+# error tests raise = 1, array_context = 1
+# Last row in error
+# insert raise = 1, tuple = ARRAY(0x55effb0a2418), sts = undef, array_context = 1, commit = 0, affected = undef, error = 1
+# ***** error handler called *****
+ok 187 - error in execute_array eval
+ok 188 - error captured
+# $ArrayTupleStatus = [
+#                       1,
+#                       1,
+#                       1,
+#                       1,
+#                       [
+#                         !!1,
+#                         'Integrity constraint violation: <main>: Error: Conflict with existing key., code: 2012
+#  (SQL-23000)',
+#                         '23000'
+#                       ]
+#                     ];
+ok 189 - tuple status is an array
+ok 190 - status arrays same size
+ok 191 - row 0 tuple status
+ok 192 - row 1 tuple status
+ok 193 - row 2 tuple status
+ok 194 - row 3 tuple status
+ok 195 - row 0 p1 data
+ok 196 - row 0 p2 data
+ok 197 - row 1 p1 data
+ok 198 - row 1 p2 data
+ok 199 - row 2 p1 data
+ok 200 - row 2 p2 data
+ok 201 - row 3 p1 data
+ok 202 - row 3 p2 data
+# 2nd last row in error
+# insert affected = undef, commit = 0, error = 1, sts = undef, tuple = ARRAY(0x55effb0a5240), raise = 1, array_context = 1
+# ***** error handler called *****
+ok 203 - error in execute_array eval
+ok 204 - error captured
+# $ArrayTupleStatus = [
+#                       1,
+#                       1,
+#                       1,
+#                       [
+#                         !!1,
+#                         'Integrity constraint violation: <main>: Error: Conflict with existing key., code: 2012
+#  (SQL-23000)',
+#                         '23000'
+#                       ],
+#                       1
+#                     ];
+ok 205 - tuple status is an array
+ok 206 - status arrays same size
+ok 207 - row 0 tuple status
+ok 208 - row 1 tuple status
+ok 209 - row 2 tuple status
+ok 210 - row 4 tuple status
+ok 211 - row 0 p1 data
+ok 212 - row 0 p2 data
+ok 213 - row 1 p1 data
+ok 214 - row 1 p2 data
+ok 215 - row 2 p1 data
+ok 216 - row 2 p2 data
+ok 217 - row 3 p1 data
+ok 218 - row 3 p2 data
+# error tests raise = 1, array_context = 0
+# Last row in error
+# insert error = 1, commit = 0, affected = undef, array_context = 0, raise = 1, tuple = ARRAY(0x55effb0a5b88), sts = undef
+# ***** error handler called *****
+ok 219 - error in execute_array eval
+ok 220 - error captured
+# $ArrayTupleStatus = [
+#                       1,
+#                       1,
+#                       1,
+#                       1,
+#                       [
+#                         !!1,
+#                         'Integrity constraint violation: <main>: Error: Conflict with existing key., code: 2012
+#  (SQL-23000)',
+#                         '23000'
+#                       ]
+#                     ];
+ok 221 - tuple status is an array
+ok 222 - status arrays same size
+ok 223 - row 0 tuple status
+ok 224 - row 1 tuple status
+ok 225 - row 2 tuple status
+ok 226 - row 3 tuple status
+ok 227 - row 0 p1 data
+ok 228 - row 0 p2 data
+ok 229 - row 1 p1 data
+ok 230 - row 1 p2 data
+ok 231 - row 2 p1 data
+ok 232 - row 2 p2 data
+ok 233 - row 3 p1 data
+ok 234 - row 3 p2 data
+# 2nd last row in error
+# insert error = 1, affected = undef, commit = 0, array_context = 0, tuple = ARRAY(0x55effb0a5378), sts = undef, raise = 1
+# ***** error handler called *****
+ok 235 - error in execute_array eval
+ok 236 - error captured
+# $ArrayTupleStatus = [
+#                       1,
+#                       1,
+#                       1,
+#                       [
+#                         !!1,
+#                         'Integrity constraint violation: <main>: Error: Conflict with existing key., code: 2012
+#  (SQL-23000)',
+#                         '23000'
+#                       ],
+#                       1
+#                     ];
+ok 237 - tuple status is an array
+ok 238 - status arrays same size
+ok 239 - row 0 tuple status
+ok 240 - row 1 tuple status
+ok 241 - row 2 tuple status
+ok 242 - row 4 tuple status
+ok 243 - row 0 p1 data
+ok 244 - row 0 p2 data
+ok 245 - row 1 p1 data
+ok 246 - row 1 p2 data
+ok 247 - row 2 p1 data
+ok 248 - row 2 p2 data
+ok 249 - row 3 p1 data
+ok 250 - row 3 p2 data
+# error tests raise = 0, array_context = 1
+# Last row in error
+# insert array_context = 1, raise = 0, tuple = ARRAY(0x55effb0aa448), sts = undef, error = 1, commit = 0, affected = undef
+# ***** error handler called *****
+ok 251 - no error in execute_array eval
+ok 252 - execute_array returned undef rows executed
+ok 253 - total affected undef
+# $ArrayTupleStatus = [
+#                       1,
+#                       1,
+#                       1,
+#                       1,
+#                       [
+#                         !!1,
+#                         'Integrity constraint violation: <main>: Error: Conflict with existing key., code: 2012
+#  (SQL-23000)',
+#                         '23000'
+#                       ]
+#                     ];
+ok 254 - tuple status is an array
+ok 255 - status arrays same size
+ok 256 - row 0 tuple status
+ok 257 - row 1 tuple status
+ok 258 - row 2 tuple status
+ok 259 - row 3 tuple status
+ok 260 - row 0 p1 data
+ok 261 - row 0 p2 data
+ok 262 - row 1 p1 data
+ok 263 - row 1 p2 data
+ok 264 - row 2 p1 data
+ok 265 - row 2 p2 data
+ok 266 - row 3 p1 data
+ok 267 - row 3 p2 data
+# 2nd last row in error
+# insert error = 1, commit = 0, affected = undef, array_context = 1, raise = 0, tuple = ARRAY(0x55effb0aac10), sts = undef
+# ***** error handler called *****
+ok 268 - no error in execute_array eval
+ok 269 - execute_array returned undef rows executed
+ok 270 - total affected undef
+# $ArrayTupleStatus = [
+#                       1,
+#                       1,
+#                       1,
+#                       [
+#                         !!1,
+#                         'Integrity constraint violation: <main>: Error: Conflict with existing key., code: 2012
+#  (SQL-23000)',
+#                         '23000'
+#                       ],
+#                       1
+#                     ];
+ok 271 - tuple status is an array
+ok 272 - status arrays same size
+ok 273 - row 0 tuple status
+ok 274 - row 1 tuple status
+ok 275 - row 2 tuple status
+ok 276 - row 4 tuple status
+ok 277 - row 0 p1 data
+ok 278 - row 0 p2 data
+ok 279 - row 1 p1 data
+ok 280 - row 1 p2 data
+ok 281 - row 2 p1 data
+ok 282 - row 2 p2 data
+ok 283 - row 3 p1 data
+ok 284 - row 3 p2 data
+# error tests raise = 0, array_context = 0
+# Last row in error
+# insert commit = 0, affected = undef, error = 1, raise = 0, tuple = ARRAY(0x55effb0ad798), sts = undef, array_context = 0
+# ***** error handler called *****
+ok 285 - no error in execute_array eval
+ok 286 - execute_array returned undef rows executed
+# $ArrayTupleStatus = [
+#                       1,
+#                       1,
+#                       1,
+#                       1,
+#                       [
+#                         !!1,
+#                         'Integrity constraint violation: <main>: Error: Conflict with existing key., code: 2012
+#  (SQL-23000)',
+#                         '23000'
+#                       ]
+#                     ];
+ok 287 - tuple status is an array
+ok 288 - status arrays same size
+ok 289 - row 0 tuple status
+ok 290 - row 1 tuple status
+ok 291 - row 2 tuple status
+ok 292 - row 3 tuple status
+ok 293 - row 0 p1 data
+ok 294 - row 0 p2 data
+ok 295 - row 1 p1 data
+ok 296 - row 1 p2 data
+ok 297 - row 2 p1 data
+ok 298 - row 2 p2 data
+ok 299 - row 3 p1 data
+ok 300 - row 3 p2 data
+# 2nd last row in error
+# insert tuple = ARRAY(0x55effb0b1708), sts = undef, raise = 0, array_context = 0, affected = undef, commit = 0, error = 1
+# ***** error handler called *****
+ok 301 - no error in execute_array eval
+ok 302 - execute_array returned undef rows executed
+# $ArrayTupleStatus = [
+#                       1,
+#                       1,
+#                       1,
+#                       [
+#                         !!1,
+#                         'Integrity constraint violation: <main>: Error: Conflict with existing key., code: 2012
+#  (SQL-23000)',
+#                         '23000'
+#                       ],
+#                       1
+#                     ];
+ok 303 - tuple status is an array
+ok 304 - status arrays same size
+ok 305 - row 0 tuple status
+ok 306 - row 1 tuple status
+ok 307 - row 2 tuple status
+ok 308 - row 4 tuple status
+ok 309 - row 0 p1 data
+ok 310 - row 0 p2 data
+ok 311 - row 1 p1 data
+ok 312 - row 1 p2 data
+ok 313 - row 2 p1 data
+ok 314 - row 2 p2 data
+ok 315 - row 3 p1 data
+ok 316 - row 3 p2 data
+# row_size via execute_for_fetch
+# insert tuple = ARRAY(0x55effb0ad750), sts = 5, raise = 1, array_context = 1, affected = 5, commit = 0, error = 0, fetch = CODE(0x55effaf81880)
+# fetch_sub 0
+# fetch_sub 1
+# fetch_sub 2
+# fetch_sub 3
+# fetch_sub 4
+# fetch_sub 5
+# returning undef
+ok 317 - no error in execute_array eval
+ok 318 - execute_array returned 5 rows executed
+ok 319 - total affected 5
+ok 320 - no error captured
+ok 321 - 5 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       1,
+#                       1,
+#                       1,
+#                       1,
+#                       1
+#                     ];
+ok 322 - tuple status is an array
+ok 323 - status arrays same size
+ok 324 - row 0 tuple status
+ok 325 - row 1 tuple status
+ok 326 - row 2 tuple status
+ok 327 - row 3 tuple status
+ok 328 - row 4 tuple status
+# row_size via select
+ok 329 - execute on second table
+ok 330 - second statement is in executed state
+# insert array_context = 1, raise = 1, tuple = ARRAY(0x55effb0b4a50), sts = 5, requires_mas = 1, error = 0, fetch = DBI::st=HASH(0x55effb0b1ac8), commit = 0, affected = 5
+ok 331 - no error in execute_array eval
+ok 332 - execute_array returned 5 rows executed
+ok 333 - total affected 5
+ok 334 - no error captured
+ok 335 - 5 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       1,
+#                       1,
+#                       1,
+#                       1,
+#                       1
+#                     ];
+ok 336 - tuple status is an array
+ok 337 - status arrays same size
+ok 338 - row 0 tuple status
+ok 339 - row 1 tuple status
+ok 340 - row 2 tuple status
+ok 341 - row 3 tuple status
+ok 342 - row 4 tuple status
+ok 343 - row 0 p1 data
+ok 344 - row 0 p2 data
+ok 345 - row 1 p1 data
+ok 346 - row 1 p2 data
+ok 347 - row 2 p1 data
+ok 348 - row 2 p2 data
+ok 349 - row 3 p1 data
+ok 350 - row 3 p2 data
+ok 351 - row 4 p1 data
+ok 352 - row 4 p2 data
+# update test
+# insert sts = 5, tuple = ARRAY(0x55effb0b46a8), raise = 1, array_context = 1, affected = 5, commit = 0, error = 0, fetch = CODE(0x55effaf81880)
+# fetch_sub 0
+# fetch_sub 1
+# fetch_sub 2
+# fetch_sub 3
+# fetch_sub 4
+# fetch_sub 5
+# returning undef
+ok 353 - no error in execute_array eval
+ok 354 - execute_array returned 5 rows executed
+ok 355 - total affected 5
+ok 356 - no error captured
+ok 357 - 5 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       1,
+#                       1,
+#                       1,
+#                       1,
+#                       1
+#                     ];
+ok 358 - tuple status is an array
+ok 359 - status arrays same size
+ok 360 - row 0 tuple status
+ok 361 - row 1 tuple status
+ok 362 - row 2 tuple status
+ok 363 - row 3 tuple status
+ok 364 - row 4 tuple status
+ok 365 - row 0 p1 data
+ok 366 - row 0 p2 data
+ok 367 - row 1 p1 data
+ok 368 - row 1 p2 data
+ok 369 - row 2 p1 data
+ok 370 - row 2 p2 data
+ok 371 - row 3 p1 data
+ok 372 - row 3 p2 data
+ok 373 - row 4 p1 data
+ok 374 - row 4 p2 data
+# insert error = 0, affected = 5, commit = 0, array_context = 1, tuple = ARRAY(0x55effb0b4bd0), sts = 5, raise = 1
+ok 375 - no error in execute_array eval
+ok 376 - execute_array returned 5 rows executed
+ok 377 - total affected 5
+ok 378 - no error captured
+ok 379 - 5 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       1,
+#                       1,
+#                       1,
+#                       1,
+#                       1
+#                     ];
+ok 380 - tuple status is an array
+ok 381 - status arrays same size
+ok 382 - row 0 tuple status
+ok 383 - row 1 tuple status
+ok 384 - row 2 tuple status
+ok 385 - row 3 tuple status
+ok 386 - row 4 tuple status
+ok 387 - row 0 p1 data
+ok 388 - row 0 p2 data
+ok 389 - row 1 p1 data
+ok 390 - row 1 p2 data
+ok 391 - row 2 p1 data
+ok 392 - row 2 p2 data
+ok 393 - row 3 p1 data
+ok 394 - row 3 p2 data
+ok 395 - row 4 p1 data
+ok 396 - row 4 p2 data
+# insert raise = 1, tuple = ARRAY(0x55effb0c1430), sts = 5, array_context = 1, commit = 0, affected = 4, error = 0
+ok 397 - no error in execute_array eval
+ok 398 - execute_array returned 5 rows executed
+ok 399 - total affected 4
+ok 400 - no error captured
+ok 401 - 5 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       1,
+#                       1,
+#                       1,
+#                       1,
+#                       '0E0'
+#                     ];
+ok 402 - tuple status is an array
+ok 403 - status arrays same size
+ok 404 - row 0 tuple status
+ok 405 - row 1 tuple status
+ok 406 - row 2 tuple status
+ok 407 - row 3 tuple status
+ok 408 - row 4 tuple status
+ok 409 - row 0 p1 data
+ok 410 - row 0 p2 data
+ok 411 - row 1 p1 data
+ok 412 - row 1 p2 data
+ok 413 - row 2 p1 data
+ok 414 - row 2 p2 data
+ok 415 - row 3 p1 data
+ok 416 - row 3 p2 data
+ok 417 - row 4 p1 data
+ok 418 - row 4 p2 data
+# insert commit = 0, affected = 5, error = 0, raise = 1, sts = 2, tuple = ARRAY(0x55effb0be948), array_context = 1
+ok 419 - no error in execute_array eval
+ok 420 - execute_array returned 2 rows executed
+ok 421 - total affected 5
+ok 422 - no error captured
+ok 423 - 2 rows in tuple_status
+# $ArrayTupleStatus = [
+#                       4,
+#                       1
+#                     ];
+ok 424 - tuple status is an array
+ok 425 - status arrays same size
+ok 426 - row 0 tuple status
+ok 427 - row 1 tuple status
+ok 428 - row 0 p1 data
+ok 429 - row 0 p2 data
+ok 430 - row 1 p1 data
+ok 431 - row 1 p2 data
+ok 432 - row 2 p1 data
+ok 433 - row 2 p2 data
+ok 434 - row 3 p1 data
+ok 435 - row 3 p2 data
+ok 436 - row 4 p1 data
+ok 437 - row 4 p2 data
+# error tests notuplestatus = 1, array_context = 1, raise = 1
+# Last row in error
+# insert array_context = 1, sts = undef, tuple = ARRAY(0x55effb0c52b0), raise = 1, error = 1, notuplestatus = 1, affected = undef, commit = 0
+# ***** error handler called *****
+ok 438 - error in execute_array eval
+ok 439 - error captured
+ok 440 - row 0 p1 data
+ok 441 - row 0 p2 data
+ok 442 - row 1 p1 data
+ok 443 - row 1 p2 data
+ok 444 - row 2 p1 data
+ok 445 - row 2 p2 data
+ok 446 - row 3 p1 data
+ok 447 - row 3 p2 data
+# 2nd last row in error
+# insert array_context = 1, sts = undef, tuple = ARRAY(0x55effb0c3d90), raise = 1, error = 1, notuplestatus = 1, affected = undef, commit = 0
+# ***** error handler called *****
+ok 448 - error in execute_array eval
+ok 449 - error captured
+ok 450 - row 0 p1 data
+ok 451 - row 0 p2 data
+ok 452 - row 1 p1 data
+ok 453 - row 1 p2 data
+ok 454 - row 2 p1 data
+ok 455 - row 2 p2 data
+ok 456 - row 3 p1 data
+ok 457 - row 3 p2 data
+# error tests array_context = 0, notuplestatus = 1, raise = 1
+# Last row in error
+# insert raise = 1, tuple = ARRAY(0x55effb0c88a0), sts = undef, array_context = 0, commit = 0, affected = undef, notuplestatus = 1, error = 1
+# ***** error handler called *****
+ok 458 - error in execute_array eval
+ok 459 - error captured
+ok 460 - row 0 p1 data
+ok 461 - row 0 p2 data
+ok 462 - row 1 p1 data
+ok 463 - row 1 p2 data
+ok 464 - row 2 p1 data
+ok 465 - row 2 p2 data
+ok 466 - row 3 p1 data
+ok 467 - row 3 p2 data
+# 2nd last row in error
+# insert error = 1, notuplestatus = 1, affected = undef, commit = 0, array_context = 0, sts = undef, tuple = ARRAY(0x55effb0c86d8), raise = 1
+# ***** error handler called *****
+ok 468 - error in execute_array eval
+ok 469 - error captured
+ok 470 - row 0 p1 data
+ok 471 - row 0 p2 data
+ok 472 - row 1 p1 data
+ok 473 - row 1 p2 data
+ok 474 - row 2 p1 data
+ok 475 - row 2 p2 data
+ok 476 - row 3 p1 data
+ok 477 - row 3 p2 data
+# error tests raise = 0, notuplestatus = 1, array_context = 1
+# Last row in error
+# insert sts = undef, tuple = ARRAY(0x55effb0d2430), raise = 0, array_context = 1, affected = undef, commit = 0, error = 1, notuplestatus = 1
+# ***** error handler called *****
+ok 478 - no error in execute_array eval
+ok 479 - execute_array returned undef rows executed
+ok 480 - total affected undef
+ok 481 - row 0 p1 data
+ok 482 - row 0 p2 data
+ok 483 - row 1 p1 data
+ok 484 - row 1 p2 data
+ok 485 - row 2 p1 data
+ok 486 - row 2 p2 data
+ok 487 - row 3 p1 data
+ok 488 - row 3 p2 data
+# 2nd last row in error
+# insert tuple = ARRAY(0x55effb0c8d50), sts = undef, raise = 0, array_context = 1, affected = undef, commit = 0, error = 1, notuplestatus = 1
+# ***** error handler called *****
+ok 489 - no error in execute_array eval
+ok 490 - execute_array returned undef rows executed
+ok 491 - total affected undef
+ok 492 - row 0 p1 data
+ok 493 - row 0 p2 data
+ok 494 - row 1 p1 data
+ok 495 - row 1 p2 data
+ok 496 - row 2 p1 data
+ok 497 - row 2 p2 data
+ok 498 - row 3 p1 data
+ok 499 - row 3 p2 data
+# error tests array_context = 0, notuplestatus = 1, raise = 0
+# Last row in error
+# insert raise = 0, tuple = ARRAY(0x55effb0d28f8), sts = undef, array_context = 0, commit = 0, affected = undef, notuplestatus = 1, error = 1
+# ***** error handler called *****
+ok 500 - no error in execute_array eval
+ok 501 - execute_array returned undef rows executed
+ok 502 - row 0 p1 data
+ok 503 - row 0 p2 data
+ok 504 - row 1 p1 data
+ok 505 - row 1 p2 data
+ok 506 - row 2 p1 data
+ok 507 - row 2 p2 data
+ok 508 - row 3 p1 data
+ok 509 - row 3 p2 data
+# 2nd last row in error
+# insert array_context = 0, sts = undef, tuple = ARRAY(0x55effb0e6f70), raise = 0, error = 1, notuplestatus = 1, affected = undef, commit = 0
+# ***** error handler called *****
+ok 510 - no error in execute_array eval
+ok 511 - execute_array returned undef rows executed
+ok 512 - row 0 p1 data
+ok 513 - row 0 p2 data
+ok 514 - row 1 p1 data
+ok 515 - row 1 p2 data
+ok 516 - row 2 p1 data
+ok 517 - row 2 p2 data
+ok 518 - row 3 p1 data
+ok 519 - row 3 p2 data
+# Table dropped
+1..519
+# Looks like you failed 11 tests of 519.

@@ -1,0 +1,16 @@
+1..7
+ok 1 - use strict;
+ok 2 - use DBI;
+ok 3 - use ODBCTEST;
+# DBD::ODBC::st execute failed: Base table or view not found: <main>: Error: Type annotation, code: 1030
+#     <main>:1:1: Error: At function: KiReadTable!
+#         <main>:1:1: Error: Cannot find table 'db.[/local/perl_dbd_test]' because it does not exist or you do not have access permissions. Please check correctness of table path and user permissions., code: 2003
+#  (SQL-42S02) at /work/source/t/09multi.t line 58.
+ok 4 # skip Multiple statements not supported using YDB
+# 
+ok 5 # skip Multiple statements not supported using YDB
+# 
+ok 6 # skip Multiple statements not supported using YDB
+# 
+ok 7 # skip Multiple statements not supported using YDB
+# 

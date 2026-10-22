@@ -1,0 +1,50 @@
+1..65
+ok 1 - use DBI;
+ok 2 - use ODBCTEST;
+# 
+# Perl 5.38.2
+# osname=linux, osvers=6.1.0, archname=x86_64-linux-gnu-thread-multi
+# Using DBI 1.643
+# Using DBD::ODBC 1.61
+# Using DBMS_NAME 'YDB'
+# Using DBMS_VER '25.2.1.24'
+# Using DRIVER_NAME 'ydb-odbc'
+# Using DRIVER_VER '3.22.0'
+# odbc_has_unicode 1
+ok 3 - ReadOnly set
+ok 4 - ReadOnly cleared
+ok 5 - dbc private_attribute_info result
+ok 6 - dbc private_attribute_info is hashref
+ok 7 - dbc private_attribute_info has some attributes
+ok 8 - stmt private_attribute_info result
+ok 9 - stmt private_attribute_info is hashref
+ok 10 - stmt private_attribute_info has some attributes
+ok 11 - Set Auto commit off
+ok 12 - Auto commit off retrieved
+ok 13 - Set Auto commit on
+ok 14 - Auto commit on restored
+DBD::ODBC::db type_info failed: st_fetch/SQLFetch (long truncated DBI attribute LongTruncOk not set and/or LongReadLen too small) (SQL-HY000) [state was HY000 now 01004]
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004) at t/ODBCTEST.pm line 51.
+DBD::ODBC::db type_info_all failed: st_fetch/SQLFetch (long truncated DBI attribute LongTruncOk not set and/or LongReadLen too small) (SQL-HY000) [state was HY000 now 01004]
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004) at t/ODBCTEST.pm line 54.
+Bail out!  Unable to find a suitable test type for field COL_A

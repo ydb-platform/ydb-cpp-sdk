@@ -1,0 +1,3 @@
+# Driver: ydb-odbc
+# Not MS SQL Server
+1..0 # SKIP Not MS SQL Server

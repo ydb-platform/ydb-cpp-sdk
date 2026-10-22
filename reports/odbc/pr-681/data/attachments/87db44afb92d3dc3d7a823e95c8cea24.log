@@ -1,0 +1,12 @@
+1..55
+ok 1 - DBI connect
+ok 2 - Drop old test table
+ok 3 - Create test table
+ok 4 - prepare insert statement
+ok 5 - Bind parameter SQL_INTEGER
+ok 6 - Bind parameter default
+ok 7 - Bind parameter SQL_WVARCHAR
+ok 8 - Bind parameter SQL_WVARCHAR
+DBD::ODBC::st execute failed: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 4) (SQL-07006) at /work/source/t/41Unicode.t line 123.
+DBD::ODBC::st execute failed: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 4) (SQL-07006) at /work/source/t/41Unicode.t line 123.
+# Looks like your test exited with 2 just after 8.

@@ -1,0 +1,4 @@
+Cases: 1  Tried: 0  Errors: 0  Failures: 0
+### Error:
+user error (SQL error: SqlError {seState = "[\"07006\"]", seNativeError = -1, seErrorMsg = "execute execute: [\"0: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0)\"]"})
+Cases: 1  Tried: 1  Errors: 1  Failures: 0

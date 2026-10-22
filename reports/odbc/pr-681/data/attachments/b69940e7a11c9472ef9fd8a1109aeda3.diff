@@ -1,0 +1,65 @@
+001- object(Test)#%d (3) {
+002-   ["id"]=>
+003-   string(2) "10"
+004-   ["val"]=>
+005-   string(3) "Abc"
+006-   ["val2"]=>
+007-   string(3) "zxy"
+008- }
+009- object(Test)#%d (3) {
+010-   ["id"]=>
+011-   string(2) "20"
+012-   ["val"]=>
+013-   string(3) "Def"
+014-   ["val2"]=>
+015-   string(3) "wvu"
+016- }
+017- object(Test)#%d (3) {
+018-   ["id"]=>
+019-   string(2) "30"
+020-   ["val"]=>
+021-   string(3) "Ghi"
+022-   ["val2"]=>
+023-   string(3) "tsr"
+024- }
+025- object(Test)#%d (3) {
+026-   ["id"]=>
+027-   string(2) "40"
+028-   ["val"]=>
+029-   string(3) "Jkl"
+030-   ["val2"]=>
+031-   string(3) "qpo"
+032- }
+033- object(Test)#%d (3) {
+034-   ["id"]=>
+035-   string(2) "50"
+036-   ["val"]=>
+037-   string(3) "Mno"
+038-   ["val2"]=>
+039-   string(3) "nml"
+040- }
+041- object(Test)#%d (3) {
+042-   ["id"]=>
+043-   string(2) "60"
+044-   ["val"]=>
+045-   string(3) "Pqr"
+046-   ["val2"]=>
+047-   string(3) "kji"
+048- }
+001+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_025.php on line 21
+002+ 
+003+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_025.php on line 21
+004+ 
+005+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_025.php on line 21
+006+ 
+007+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_025.php on line 21
+008+ 
+009+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_025.php on line 21
+010+ 
+011+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_025.php on line 21
+     ===FAIL===
+050- 
+051- Fatal error: Uncaught Error: Cannot access protected property Fail::$id in %spdo_025.php:%d
+052- Stack trace:
+053- #0 {main}
+054-   thrown in %spdo_025.php on line %d

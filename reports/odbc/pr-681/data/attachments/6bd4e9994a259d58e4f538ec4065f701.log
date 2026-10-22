@@ -1,0 +1,27 @@
+1..25
+ok 1 - use ODBCTEST;
+DBD::ODBC::db type_info failed: st_fetch/SQLFetch (long truncated DBI attribute LongTruncOk not set and/or LongReadLen too small) (SQL-HY000) [state was HY000 now 01004]
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004) at t/ODBCTEST.pm line 51.
+DBD::ODBC::db type_info_all failed: st_fetch/SQLFetch (long truncated DBI attribute LongTruncOk not set and/or LongReadLen too small) (SQL-HY000) [state was HY000 now 01004]
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004) at t/ODBCTEST.pm line 54.
+Bail out!  Unable to find a suitable test type for field COL_A

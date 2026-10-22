@@ -1,0 +1,11 @@
+string(10) ""abc":8000"
+string(18) ""abc":8001 -- Wat?"
+string(10) ""abc":8002"
+string(10) ""abc":8003"
+string(10) ""abc":8004"
+
+Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/bug_71447.php on line 70
+bool(false)
+
+Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/bug_71447.php on line 81
+bool(false)

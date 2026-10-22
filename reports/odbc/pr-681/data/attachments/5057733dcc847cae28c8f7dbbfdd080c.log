@@ -1,0 +1,27 @@
+1..17
+ok 1 - use ODBCTEST;
+DBD::ODBC::db do failed: General error: <main>: Error: Pre type annotation, code: 1020
+    <main>:1:34: Error: Primary key is required for ydb tables.
+ (SQL-HY000) at /work/source/t/odbc_describe_parameter.t line 59.
+ok 2 - create test table with integer
+ok 3 - prepare insert
+DBD::ODBC::st execute failed: General error: <main>:2:13: Error: INSERT INTO ... VALUES requires specification of table columns
+ (SQL-HY000) at /work/source/t/odbc_describe_parameter.t line 82.
+ok 4 - execute ok
+ok 5 - ParamTypes is a hash
+ok 6 - one parameter
+ok 7 - integer parameter
+ok 8 - prepare insert
+DBD::ODBC::st execute failed: General error: <main>:2:13: Error: INSERT INTO ... VALUES requires specification of table columns
+ (SQL-HY000) at /work/source/t/odbc_describe_parameter.t line 131.
+ok 9 - execute ok
+ok 10 - ParamTypes is a hash
+ok 11 - one parameter
+ok 12 - char parameter (prepare)
+ok 13 - prepare insert
+DBD::ODBC::st execute failed: General error: <main>:2:13: Error: INSERT INTO ... VALUES requires specification of table columns
+ (SQL-HY000) at /work/source/t/odbc_describe_parameter.t line 173.
+ok 14 - execute ok
+ok 15 - ParamTypes is a hash
+ok 16 - one parameter
+ok 17 - char parameter (connect)

@@ -1,0 +1,7 @@
+odbc_field_len(): Argument #2 ($field) must be greater than 0
+int(10)
+int(2147483647)
+int(50)
+
+Warning: odbc_field_len(): Field index larger than number of fields in %s on line %d
+bool(false)

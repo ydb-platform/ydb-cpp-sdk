@@ -1,0 +1,6 @@
+1..5
+ok 1 - use ODBCTEST;
+ok 2 # skip Microsoft SQL Server test not supported using YDB
+ok 3 # skip Microsoft SQL Server test not supported using YDB
+ok 4 # skip Microsoft SQL Server test not supported using YDB
+ok 5 # skip Microsoft SQL Server test not supported using YDB

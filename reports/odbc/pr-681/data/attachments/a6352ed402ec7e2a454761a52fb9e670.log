@@ -1,0 +1,23 @@
+ok 1 - use ODBCTEST;
+DBD::ODBC::st execute failed: General error: <main>: Error: Type annotation, code: 1030
+    <main>:3:13: Error: At function: KiWriteTable!
+        <main>:3:36: Error: Failed to convert type: Struct<'a':Utf8,'val':Utf8> to Struct<'a':Utf8?,'val':Decimal(9,2)?>
+            <main>:3:36: Error: Failed to convert 'val': Utf8 to Optional<Decimal(9,2)>
+        <main>:3:36: Error: Failed to convert input columns types to scheme types, code: 2031
+ (SQL-HY000) at /work/source/t/rt_101579.t line 56.
+ok 2 - Inserted 8295.6
+DBD::ODBC::st execute failed: General error: <main>: Error: Type annotation, code: 1030
+    <main>:3:13: Error: At function: KiWriteTable!
+        <main>:3:36: Error: Failed to convert type: Struct<'a':Utf8,'val':Utf8> to Struct<'a':Utf8?,'val':Decimal(9,2)?>
+            <main>:3:36: Error: Failed to convert 'val': Utf8 to Optional<Decimal(9,2)>
+        <main>:3:36: Error: Failed to convert input columns types to scheme types, code: 2031
+ (SQL-HY000) at /work/source/t/rt_101579.t line 56.
+ok 3 - Inserted 181161.8
+DBD::ODBC::st execute failed: General error: <main>: Error: Type annotation, code: 1030
+    <main>:3:13: Error: At function: KiWriteTable!
+        <main>:3:36: Error: Failed to convert type: Struct<'a':Utf8,'val':Utf8> to Struct<'a':Utf8?,'val':Decimal(9,2)?>
+            <main>:3:36: Error: Failed to convert 'val': Utf8 to Optional<Decimal(9,2)>
+        <main>:3:36: Error: Failed to convert input columns types to scheme types, code: 2031
+ (SQL-HY000) at /work/source/t/rt_101579.t line 56.
+ok 4 - Inserted 6514.15
+1..4

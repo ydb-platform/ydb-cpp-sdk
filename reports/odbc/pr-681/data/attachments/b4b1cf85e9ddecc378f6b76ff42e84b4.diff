@@ -1,0 +1,16 @@
+001- array(2) {
+002-   [0]=>
+003-   array(1) {
+004-     ["id"]=>
+005-     NULL
+006-   }
+007-   [1]=>
+008-   array(1) {
+009-     ["id"]=>
+010-     NULL
+011-   }
+001+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/bug_73234.php on line 21
+002+ 
+003+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/bug_73234.php on line 24
+004+ array(0) {
+     }

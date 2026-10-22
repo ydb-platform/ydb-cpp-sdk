@@ -1,0 +1,97 @@
+$ apt-get install -y /packages/ydb-odbc_3.22.0_amd64.deb
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following NEW packages will be installed:
+  ydb-odbc
+0 upgraded, 1 newly installed, 0 to remove and 32 not upgraded.
+Need to get 0 B/5793 kB of archives.
+After this operation, 24.9 MB of additional disk space will be used.
+Get:1 /packages/ydb-odbc_3.22.0_amd64.deb ydb-odbc amd64 3.22.0 [5793 kB]
+debconf: delaying package configuration, since apt-utils is not installed
+Selecting previously unselected package ydb-odbc.
+(Reading database ... 
+(Reading database ... 5%
+(Reading database ... 10%
+(Reading database ... 15%
+(Reading database ... 20%
+(Reading database ... 25%
+(Reading database ... 30%
+(Reading database ... 35%
+(Reading database ... 40%
+(Reading database ... 45%
+(Reading database ... 50%
+(Reading database ... 55%
+(Reading database ... 60%
+(Reading database ... 65%
+(Reading database ... 70%
+(Reading database ... 75%
+(Reading database ... 80%
+(Reading database ... 85%
+(Reading database ... 90%
+(Reading database ... 95%
+(Reading database ... 100%
+(Reading database ... 9034 files and directories currently installed.)
+Preparing to unpack .../ydb-odbc_3.22.0_amd64.deb ...
+Unpacking ydb-odbc (3.22.0) ...
+Setting up ydb-odbc (3.22.0) ...
+odbcinst: Driver installed. Usage count increased to 1. 
+    Target directory is /etc
+$ odbcinst -q -d -n YDB
+[YDB]
+Description=YDB ODBC Driver
+Driver=/usr/lib/x86_64-linux-gnu/libydb-odbc.so
+Setup=/usr/lib/x86_64-linux-gnu/libydb-odbc.so
+UsageCount=1
+$ odbcinst -u -d -n YDB
+YDB has been deleted (if it existed at all) because its usage count became zero
+$ odbcinst -i -d -f /tmp/replacement.ini
+odbcinst: Driver installed. Usage count increased to 1. 
+    Target directory is /etc
+$ odbcinst -q -d -n YDB
+[YDB]
+Driver=/usr/lib/x86_64-linux-gnu/libodbc.so.2
+Setup=/usr/lib/x86_64-linux-gnu/libodbcinst.so.2
+UsageCount=1
+$ apt-get remove -y ydb-odbc
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following packages were automatically installed and are no longer required:
+  libabsl20220623t64 libbrotli1 libcares2 libdouble-conversion3
+  libgrpc++1.51t64 libgrpc29t64 libidn12 libprotobuf32t64 libprotoc32t64
+  libre2-10 libsnappy1v5
+Use 'apt autoremove' to remove them.
+The following packages will be REMOVED:
+  ydb-odbc
+0 upgraded, 0 newly installed, 1 to remove and 32 not upgraded.
+After this operation, 24.9 MB disk space will be freed.
+(Reading database ... 
+(Reading database ... 5%
+(Reading database ... 10%
+(Reading database ... 15%
+(Reading database ... 20%
+(Reading database ... 25%
+(Reading database ... 30%
+(Reading database ... 35%
+(Reading database ... 40%
+(Reading database ... 45%
+(Reading database ... 50%
+(Reading database ... 55%
+(Reading database ... 60%
+(Reading database ... 65%
+(Reading database ... 70%
+(Reading database ... 75%
+(Reading database ... 80%
+(Reading database ... 85%
+(Reading database ... 90%
+(Reading database ... 95%
+(Reading database ... 100%
+(Reading database ... 9038 files and directories currently installed.)
+Removing ydb-odbc (3.22.0) ...
+Processing triggers for libc-bin (2.39-0ubuntu8.8) ...
+$ odbcinst -q -d -n YDB
+[YDB]
+Driver=/usr/lib/x86_64-linux-gnu/libodbc.so.2
+Setup=/usr/lib/x86_64-linux-gnu/libodbcinst.so.2
+UsageCount=1

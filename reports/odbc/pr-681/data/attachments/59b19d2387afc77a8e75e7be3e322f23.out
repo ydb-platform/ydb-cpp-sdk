@@ -1,0 +1,31 @@
+string(11) "PDODatabase"
+string(12) "PDOStatement"
+
+Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_030.php on line 56
+
+Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_030.php on line 56
+
+Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_030.php on line 56
+===QUERY===
+array(1) {
+  [0]=>
+  string(12) "PDOStatement"
+}
+array(2) {
+  [0]=>
+  string(13) "PDOStatementX"
+  [1]=>
+  array(1) {
+    [0]=>
+    object(PDODatabase)#1 (0) {
+    }
+  }
+}
+PDODatabase::query()
+PDOStatementX::__construct()
+string(13) "PDOStatementX"
+string(11) "PDODatabase"
+===FOREACH===
+===DONE===
+PDOStatementX::__destruct()
+PDODatabase::__destruct()

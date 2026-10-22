@@ -1,0 +1,131 @@
+--
+       [0]=>
+       string(7) "String0"
+     }
+028- bool(true)
+029- bool(true)
+030- bool(true)
+031- bool(true)
+028+ 
+029+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_016.php on line 47
+030+ bool(false)
+031+ bool(false)
+032+ 
+033+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_016.php on line 57
+034+ bool(false)
+035+ bool(false)
+     array(1) {
+033-   [0]=>
+034-   string(7) "String0"
+037+   [""]=>
+038+   NULL
+     }
+     array(1) {
+       [1]=>
+       string(7) "String1"
+     }
+040- bool(true)
+041- bool(true)
+042- bool(true)
+043- bool(true)
+044+ 
+045+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_016.php on line 47
+046+ bool(false)
+047+ bool(false)
+048+ 
+049+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_016.php on line 57
+050+ bool(false)
+051+ bool(false)
+     array(1) {
+045-   [1]=>
+046-   string(7) "String1"
+053+   [""]=>
+054+   NULL
+     }
+     array(1) {
+       [2]=>
+       string(7) "String2"
+     }
+052- bool(true)
+053- bool(true)
+054- bool(true)
+055- bool(true)
+060+ 
+061+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_016.php on line 47
+062+ bool(false)
+063+ bool(false)
+064+ 
+065+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_016.php on line 57
+066+ bool(false)
+067+ bool(false)
+     array(1) {
+057-   [2]=>
+058-   string(7) "String2"
+069+   [""]=>
+070+   NULL
+     }
+     ===REBIND/SAME===
+     array(1) {
+       [0]=>
+       string(7) "String0"
+     }
+065- bool(true)
+066- bool(true)
+067- string(7) "String0"
+068- bool(true)
+069- bool(true)
+070- string(1) "0"
+077+ 
+078+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_016.php on line 75
+079+ bool(false)
+080+ bool(false)
+081+ NULL
+082+ 
+083+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_016.php on line 79
+084+ bool(false)
+085+ bool(false)
+086+ NULL
+     array(1) {
+       [1]=>
+       string(7) "String1"
+     }
+075- bool(true)
+076- bool(true)
+077- string(7) "String1"
+078- bool(true)
+079- bool(true)
+080- string(1) "1"
+091+ 
+092+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_016.php on line 75
+093+ bool(false)
+094+ bool(false)
+095+ NULL
+096+ 
+097+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_016.php on line 79
+098+ bool(false)
+099+ bool(false)
+100+ NULL
+     array(1) {
+       [2]=>
+       string(7) "String2"
+     }
+085- bool(true)
+086- bool(true)
+087- string(7) "String2"
+088- bool(true)
+089- bool(true)
+090- string(1) "2"
+105+ 
+106+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_016.php on line 75
+107+ bool(false)
+108+ bool(false)
+109+ NULL
+110+ 
+111+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_016.php on line 79
+112+ bool(false)
+113+ bool(false)
+114+ NULL
+     ===REBIND/CONFLICT===
+     string(7) "String0"
+     string(7) "String1"
+--

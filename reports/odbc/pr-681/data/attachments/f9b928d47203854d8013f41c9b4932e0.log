@@ -1,0 +1,4 @@
+1..3
+ok 1 - odbc_utf8_on exists with value=0
+ok 2 - odbc_utf8_on is off by default
+ok 3 - odbc_utf8_on set value=1

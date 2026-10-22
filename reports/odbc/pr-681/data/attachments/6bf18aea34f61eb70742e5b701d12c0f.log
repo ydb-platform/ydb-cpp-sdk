@@ -1,0 +1,7 @@
+1..6
+ok 1 - require DBI;
+ok 2 - import DBI
+ok 3 - DBI->internal is DBI::dr
+ok 4 - install ODBC
+ok 5 - Install ODBC driver OK
+ok 6 - Version is not empty

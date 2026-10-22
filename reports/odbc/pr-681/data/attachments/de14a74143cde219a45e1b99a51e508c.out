@@ -1,0 +1,21 @@
+bool(false)
+string(5) "07006"
+array(3) {
+  [0]=>
+  string(5) "07006"
+  [1]=>
+  int(0)
+  [2]=>
+  string(116) "Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263)"
+}
+bool(false)
+string(5) "07006"
+array(3) {
+  [0]=>
+  string(5) "07006"
+  [1]=>
+  int(0)
+  [2]=>
+  string(116) "Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263)"
+}
+===DONE===

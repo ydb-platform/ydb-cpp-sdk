@@ -1,0 +1,12 @@
+ok 1 - use ODBCTEST;
+ok 2 - affected from execute insert
+ok 3 - execute and odbc_rows agree on insert
+ok 4 - affected from execute insert
+ok 5 - execute and odbc_rows agree on insert 2 
+ok 6 - affected from execute update none
+ok 7 - execute and odbc_rows agree on update none
+ok 8 - affected from execute update 1
+ok 9 - execute and odbc_rows agree on update 1
+ok 10 - affected from execute update 2
+ok 11 - execute and odbc_rows agree on update 2
+1..11

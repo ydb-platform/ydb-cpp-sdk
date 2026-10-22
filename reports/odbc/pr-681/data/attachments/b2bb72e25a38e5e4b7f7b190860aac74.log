@@ -1,0 +1,5 @@
+1..4
+ok 1 - use ODBCTEST;
+ok 2 # skip Oracle tests not supported using YDB
+ok 3 # skip Oracle tests not supported using YDB
+ok 4 # skip Oracle tests not supported using YDB

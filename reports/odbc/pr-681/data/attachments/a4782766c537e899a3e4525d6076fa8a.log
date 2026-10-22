@@ -1,0 +1,9 @@
+1..8
+ok 1 - got DBMS name: YDB
+ok 2 - got DBMS version: 25.2.1.24
+ok 3 - got DRIVER name: ydb-odbc
+ok 4 - got DRIVER version 3.22.0
+ok 5 # skip not SQL Server
+ok 6 # skip not SQL Server
+ok 7 # skip not SQL Server
+ok 8 # skip not SQL Server

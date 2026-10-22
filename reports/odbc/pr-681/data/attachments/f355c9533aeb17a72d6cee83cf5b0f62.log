@@ -1,0 +1,9 @@
+1..8
+ok 1 - use ODBCTEST;
+ok 2 # skip Microsoft Access tests not supported using YDB
+ok 3 # skip Microsoft Access tests not supported using YDB
+ok 4 # skip Microsoft Access tests not supported using YDB
+ok 5 # skip Microsoft Access tests not supported using YDB
+ok 6 # skip Microsoft Access tests not supported using YDB
+ok 7 # skip Microsoft Access tests not supported using YDB
+ok 8 # skip Microsoft Access tests not supported using YDB

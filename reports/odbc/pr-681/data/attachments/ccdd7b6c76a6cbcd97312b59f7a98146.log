@@ -1,0 +1,62 @@
+1..61
+ok 1 - DBI connect
+ok 2 - prepare round-trip select statement plaintext
+ok 3 - bind VARCHAR
+ok 4 - execute
+ok 5 - fetch
+ok 6 - length equal
+ok 7 - text equal
+ok 8 - prepare round-trip select statement unicode
+ok 9 - bind WVARCHAR
+ok 10 - execute
+ok 11 - fetch
+ok 12 - length equal
+ok 13 - text equal
+ok 14 - prepare round-trip select statement plaintext
+ok 15 - bind VARCHAR
+ok 16 - execute
+ok 17 - fetch
+ok 18 - length equal
+ok 19 - text equal
+ok 20 - prepare round-trip select statement unicode
+ok 21 - bind WVARCHAR
+ok 22 - execute
+ok 23 - fetch
+ok 24 - length equal
+ok 25 - text equal
+ok 26 - prepare round-trip select statement unicode
+ok 27 - bind WVARCHAR
+ok 28 - execute
+ok 29 - fetch
+ok 30 - length equal
+ok 31 - text equal
+ok 32 - prepare round-trip select statement plaintext
+ok 33 - bind VARCHAR
+ok 34 - execute
+ok 35 - fetch
+ok 36 - length equal
+ok 37 - text equal
+ok 38 - prepare round-trip select statement unicode
+ok 39 - bind WVARCHAR
+ok 40 - execute
+ok 41 - fetch
+ok 42 - length equal
+ok 43 - text equal
+ok 44 - prepare round-trip select statement unicode
+ok 45 - bind WVARCHAR
+ok 46 - execute
+ok 47 - fetch
+ok 48 - length equal
+ok 49 - text equal
+ok 50 - prepare round-trip select statement plaintext
+ok 51 - bind VARCHAR
+ok 52 - execute
+ok 53 - fetch
+ok 54 - length equal
+ok 55 - text equal
+ok 56 - prepare round-trip select statement unicode
+ok 57 - bind WVARCHAR
+ok 58 - execute
+ok 59 - fetch
+ok 60 - length equal
+ok 61 - text equal

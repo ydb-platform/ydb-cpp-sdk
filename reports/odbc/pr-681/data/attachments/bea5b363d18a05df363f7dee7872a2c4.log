@@ -1,0 +1,17 @@
+1..16
+ok 1 - use ODBCTEST;
+ok 2 - create test table with integer
+ok 3 - insert into table
+ok 4 - correct value returned
+ok 5 - ! ivok no bind
+ok 6 - correct value returned Bind
+ok 7 - ! ivok bind
+ok 8 - correct value returned SQL_NUMERIC
+ok 9 - ivok bind integer
+ok 10 - PV bind integer
+ok 11 - correct value returned SQL_NUMERIC|DiscardString
+ok 12 - ivok bind integer discard
+ok 13 - not PV bind integer discard
+ok 14 - correct value returned SQL_NUMERIC|DiscardString
+ok 15 - ivok bind integer discard
+ok 16 - not PV bind integer discard

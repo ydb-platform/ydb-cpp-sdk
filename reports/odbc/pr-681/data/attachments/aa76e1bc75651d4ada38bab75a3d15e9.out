@@ -1,0 +1,2 @@
+Warning: odbc_execute(): SQL error: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0), SQL state 07006 in SQLExecute in /work/source/ext/odbc/tests/bug47803.php on line 57
+[sql] exec: array(test 1, 1)

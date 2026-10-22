@@ -1,0 +1,4 @@
+Cases: 1  Tried: 0  Errors: 0  Failures: 0
+### Error:
+user error (SQL error: SqlError {seState = "[\"HY000\"]", seNativeError = -1, seErrorMsg = "execute execute: [\"400080: General error: <main>:1:67: Error: extraneous input 'with' expecting {',', ')'}\\n\"]"})
+Cases: 1  Tried: 1  Errors: 1  Failures: 0

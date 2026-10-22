@@ -1,0 +1,10 @@
+001- array(3) {
+002-   ["f1"]=>
+003-   string(3) "1.0"
+004-   ["f2"]=>
+005-   string(3) "2.0"
+006-   ["f3"]=>
+007-   string(3) "3.0"
+008- }
+001+ Warning: odbc_execute(): SQL error: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0), SQL state 07006 in SQLExecute in /work/source/ext/odbc/tests/bug80592.php on line 7
+002+ bool(false)

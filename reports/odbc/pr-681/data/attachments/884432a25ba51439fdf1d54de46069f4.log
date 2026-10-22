@@ -1,0 +1,3 @@
+ok 1 - use ODBCTEST;
+ok 2 - Statement is defined
+1..2

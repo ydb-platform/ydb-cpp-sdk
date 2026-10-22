@@ -1,0 +1,37 @@
+1..24
+ok 1 - use ODBCTEST;
+ok 2 - default putdata_start
+DBD::ODBC::db type_info_all failed: st_fetch/SQLFetch (long truncated DBI attribute LongTruncOk not set and/or LongReadLen too small) (SQL-HY000) [state was HY000 now 01004]
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004)
+String data, right truncated (SQL-01004) at /work/source/t/12blob.t line 57.
+ok 3 - type_info_all
+ok 4 # skip ODBC Driver/Database has not got a big enough type
+ok 5 # skip ODBC Driver/Database has not got a big enough type
+ok 6 # skip ODBC Driver/Database has not got a big enough type
+ok 7 # skip ODBC Driver/Database has not got a big enough type
+ok 8 # skip ODBC Driver/Database has not got a big enough type
+ok 9 # skip ODBC Driver/Database has not got a big enough type
+ok 10 # skip ODBC Driver/Database has not got a big enough type
+ok 11 # skip ODBC Driver/Database has not got a big enough type
+ok 12 # skip ODBC Driver/Database has not got a big enough type
+ok 13 # skip ODBC Driver/Database has not got a big enough type
+ok 14 # skip ODBC Driver/Database has not got a big enough type
+ok 15 # skip ODBC Driver/Database has not got a big enough type
+ok 16 # skip ODBC Driver/Database has not got a big enough type
+ok 17 # skip ODBC Driver/Database has not got a big enough type
+ok 18 # skip ODBC Driver/Database has not got a big enough type
+ok 19 # skip ODBC Driver/Database has not got a big enough type
+ok 20 # skip ODBC Driver/Database has not got a big enough type
+ok 21 # skip ODBC Driver/Database has not got a big enough type
+ok 22 # skip ODBC Driver/Database has not got a big enough type
+ok 23 # skip ODBC Driver/Database has not got a big enough type
+ok 24 # skip ODBC Driver/Database has not got a big enough type

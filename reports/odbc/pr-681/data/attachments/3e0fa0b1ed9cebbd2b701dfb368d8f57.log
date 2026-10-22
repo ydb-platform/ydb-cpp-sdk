@@ -1,0 +1,4 @@
+Cases: 1  Tried: 0  Errors: 0  Failures: 0
+### Error:
+user error (SQL error: SqlError {seState = "[\"23000\"]", seNativeError = -1, seErrorMsg = "execute execute: [\"400120: Integrity constraint violation: <main>: Error: Scheme operations cannot be executed inside transaction\\n\"]"})
+Cases: 1  Tried: 1  Errors: 1  Failures: 0

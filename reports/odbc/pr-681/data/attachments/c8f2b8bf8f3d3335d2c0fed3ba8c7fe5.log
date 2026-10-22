@@ -1,0 +1,29 @@
+1..28
+ok 1 - use ODBCTEST;
+ok 2 - got DBMS name: YDB
+ok 3 - got DBMS version: 25.2.1.24
+ok 4 # skip not SQL Server
+ok 5 # skip not SQL Server
+ok 6 # skip not SQL Server
+ok 7 # skip not SQL Server
+ok 8 # skip not SQL Server
+ok 9 # skip not SQL Server
+ok 10 # skip not SQL Server
+ok 11 # skip not SQL Server
+ok 12 # skip not SQL Server
+ok 13 # skip not SQL Server
+ok 14 # skip not SQL Server
+ok 15 # skip not SQL Server
+ok 16 # skip not SQL Server
+ok 17 # skip not SQL Server
+ok 18 # skip not SQL Server
+ok 19 # skip not SQL Server
+ok 20 # skip not SQL Server
+ok 21 # skip not SQL Server
+ok 22 # skip not SQL Server
+ok 23 # skip not SQL Server
+ok 24 # skip not SQL Server
+ok 25 # skip not SQL Server
+ok 26 # skip not SQL Server
+ok 27 # skip not SQL Server
+ok 28 # skip not SQL Server

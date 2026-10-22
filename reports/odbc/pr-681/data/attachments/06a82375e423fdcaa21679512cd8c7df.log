@@ -1,0 +1,7 @@
+Cases: 1  Tried: 0  Errors: 0  Failures: 0
+### Error:
+Maybe.fromJust: Nothing
+CallStack (from HasCallStack):
+  error, called at libraries/base/Data/Maybe.hs:150:21 in base:Data.Maybe
+  fromJust, called at testsrc/TestTime.hs:23:21 in main:TestTime
+Cases: 1  Tried: 1  Errors: 1  Failures: 0

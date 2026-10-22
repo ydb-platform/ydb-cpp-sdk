@@ -1,0 +1,30 @@
+001- array(1) {
+001+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/bug_65946.php on line 28
+002+ array(4) {
+       [0]=>
+003-   array(1) {
+004-     ["id"]=>
+005-     string(1) "1"
+006-   }
+004+   string(5) "07006"
+005+   [1]=>
+006+   int(0)
+007+   [2]=>
+008+   string(116) "Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263)"
+009+   [3]=>
+010+   string(5) "07006"
+011+ }
+012+ 
+013+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/bug_65946.php on line 29
+014+ array(4) {
+015+   [0]=>
+016+   string(5) "07006"
+017+   [1]=>
+018+   int(0)
+019+   [2]=>
+020+   string(116) "Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263)"
+021+   [3]=>
+022+   string(5) "07006"
+023+ }
+024+ array(0) {
+     }

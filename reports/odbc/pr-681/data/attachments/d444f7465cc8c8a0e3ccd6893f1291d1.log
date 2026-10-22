@@ -1,0 +1,1811 @@
+
+Common Test starting (cwd is /work/source)
+
+
+
+CWD set to: "/results/native/ct/ct_run.nonode@nohost.2026-10-22_08.58.25"
+
+TEST INFO: 4 test(s), 108 case(s) in 4 suite(s)
+
+Testing lib.odbc.odbc_start_SUITE: Starting test, 4 test cases
+
+----------------------------------------------------
+2026-10-22 08:58:25.328
+ODBCINI = "/etc/odbc.ini"
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:25.352
+ODBCINI = "/etc/odbc.ini"
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:25.376
+ODBCINI = "/etc/odbc.ini"
+
+
+=INFO REPORT==== 22-Oct-2026::08:58:25.403805 ===
+    application: odbc
+    exited: stopped
+    type: temporary
+
+=INFO REPORT==== 22-Oct-2026::08:58:25.426932 ===
+    application: odbc
+    exited: stopped
+    type: transient
+
+=INFO REPORT==== 22-Oct-2026::08:58:25.449593 ===
+    application: odbc
+    exited: stopped
+    type: permanent
+
+
+----------------------------------------------------
+2026-10-22 08:58:25.472
+ODBCINI = "/etc/odbc.ini"
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:25.475
+Driver error reason: "[unixODBC][Driver Manager]Data source name not found and no default driver specified SQLSTATE IS: IM002 Connection to database failed."
+
+=INFO REPORT==== 22-Oct-2026::08:58:25.475268 ===
+    application: odbc
+    exited: stopped
+    type: temporary
+
+Testing lib.odbc.odbc_start_SUITE: TEST COMPLETE, 4 ok, 0 failed of 4 test cases
+
+Testing lib.odbc.odbc_connect_SUITE: Starting test, 20 test cases
+
+----------------------------------------------------
+2026-10-22 08:58:26.807
+ODBCINI = "/etc/odbc.ini"
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:26.961
+ODBCINI = "/etc/odbc.ini"
+
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+odbc_connect_SUITE:commit failed on line 176
+Reason: {badmatch,{updated,0}}
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+=ERROR REPORT==== 22-Oct-2026::08:58:27.065057 ===
+** Generic server <0.196.0> terminating 
+** Last message in was {'DOWN',#Ref<0.2863456703.733216769.5450>,process,
+                           <0.194.0>,
+                           {#Ref<0.2863456703.733216769.5398>,69740,
+                            {'EXIT',
+                                {{badmatch,{updated,0}},
+                                 [{odbc_connect_SUITE,commit,1,
+                                      [{file,"odbc_connect_SUITE.erl"},
+                                       {line,176}]},
+                                  {test_server,ts_tc,3,
+                                      [{file,"test_server.erl"},{line,1782}]},
+                                  {test_server,run_test_case_eval1,6,
+                                      [{file,"test_server.erl"},{line,1291}]},
+                                  {test_server,run_test_case_eval,9,
+                                      [{file,"test_server.erl"},
+                                       {line,1223}]}]}},
+                            [{odbc_connect_SUITE,commit,176},
+                             {test_server,ts_tc,1782},
+                             {test_server,run_test_case_eval1,1291},
+                             {test_server,run_test_case_eval,1223}],
+                            []}}
+** When Server state == {state,#Port<0.51>,undefined,<0.194.0>,undefined,off,
+                               false,false,on,connected,undefined,0,
+                               [#Port<0.49>,#Port<0.50>],
+                               #Port<0.52>,#Port<0.53>}
+** Reason for termination ==
+** {stopped,
+       {'EXIT',<0.194.0>,
+           {#Ref<0.2863456703.733216769.5398>,69740,
+            {'EXIT',
+                {{badmatch,{updated,0}},
+                 [{odbc_connect_SUITE,commit,1,
+                      [{file,"odbc_connect_SUITE.erl"},{line,176}]},
+                  {test_server,ts_tc,3,[{file,"test_server.erl"},{line,1782}]},
+                  {test_server,run_test_case_eval1,6,
+                      [{file,"test_server.erl"},{line,1291}]},
+                  {test_server,run_test_case_eval,9,
+                      [{file,"test_server.erl"},{line,1223}]}]}},
+            [{odbc_connect_SUITE,commit,176},
+             {test_server,ts_tc,1782},
+             {test_server,run_test_case_eval1,1291},
+             {test_server,run_test_case_eval,1223}],
+            []}}}
+
+=CRASH REPORT==== 22-Oct-2026::08:58:27.065625 ===
+  crasher:
+    initial call: odbc:init/1
+    pid: <0.196.0>
+    registered_name: []
+    exception exit: {stopped,
+                        {'EXIT',<0.194.0>,
+                            {#Ref<0.2863456703.733216769.5398>,69740,
+                             {'EXIT',
+                                 {{badmatch,{updated,0}},
+                                  [{odbc_connect_SUITE,commit,1,
+                                       [{file,"odbc_connect_SUITE.erl"},
+                                        {line,176}]},
+                                   {test_server,ts_tc,3,
+                                       [{file,"test_server.erl"},{line,1782}]},
+                                   {test_server,run_test_case_eval1,6,
+                                       [{file,"test_server.erl"},{line,1291}]},
+                                   {test_server,run_test_case_eval,9,
+                                       [{file,"test_server.erl"},
+                                        {line,1223}]}]}},
+                             [{odbc_connect_SUITE,commit,176},
+                              {test_server,ts_tc,1782},
+                              {test_server,run_test_case_eval1,1291},
+                              {test_server,run_test_case_eval,1223}],
+                             []}}}
+      in function  gen_server:handle_common_reply/8 (gen_server.erl, line 1241)
+    ancestors: [odbc_sup,<0.184.0>]
+    message_queue_len: 1
+    messages: [{'EXIT',#Port<0.51>,normal}]
+    links: [<0.185.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 610
+    stack_size: 28
+    reductions: 18669
+  neighbours:
+
+=SUPERVISOR REPORT==== 22-Oct-2026::08:58:27.067748 ===
+    supervisor: {local,odbc_sup}
+    errorContext: child_terminated
+    reason: {stopped,
+                {'EXIT',<0.194.0>,
+                    {#Ref<0.2863456703.733216769.5398>,69740,
+                     {'EXIT',
+                         {{badmatch,{updated,0}},
+                          [{odbc_connect_SUITE,commit,1,
+                               [{file,"odbc_connect_SUITE.erl"},{line,176}]},
+                           {test_server,ts_tc,3,
+                               [{file,"test_server.erl"},{line,1782}]},
+                           {test_server,run_test_case_eval1,6,
+                               [{file,"test_server.erl"},{line,1291}]},
+                           {test_server,run_test_case_eval,9,
+                               [{file,"test_server.erl"},{line,1223}]}]}},
+                     [{odbc_connect_SUITE,commit,176},
+                      {test_server,ts_tc,1782},
+                      {test_server,run_test_case_eval1,1291},
+                      {test_server,run_test_case_eval,1223}],
+                     []}}}
+    offender: [{pid,<0.196.0>},
+               {id,[]},
+               {mfargs,{odbc,start_link_sup,undefined}},
+               {restart_type,temporary},
+               {significant,false},
+               {shutdown,7000},
+               {child_type,worker}]
+
+Testing lib.odbc.odbc_connect_SUITE: *** FAILED test case 2 of 20 ***
+
+----------------------------------------------------
+2026-10-22 08:58:27.087
+ODBCINI = "/etc/odbc.ini"
+
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+odbc_connect_SUITE:rollback failed on line 215
+Reason: {badmatch,{updated,0}}
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+=ERROR REPORT==== 22-Oct-2026::08:58:27.190606 ===
+** Generic server <0.202.0> terminating 
+** Last message in was {'DOWN',#Ref<0.2863456703.733216769.5715>,process,
+                           <0.200.0>,
+                           {#Ref<0.2863456703.733216769.5663>,70641,
+                            {'EXIT',
+                                {{badmatch,{updated,0}},
+                                 [{odbc_connect_SUITE,rollback,1,
+                                      [{file,"odbc_connect_SUITE.erl"},
+                                       {line,215}]},
+                                  {test_server,ts_tc,3,
+                                      [{file,"test_server.erl"},{line,1782}]},
+                                  {test_server,run_test_case_eval1,6,
+                                      [{file,"test_server.erl"},{line,1291}]},
+                                  {test_server,run_test_case_eval,9,
+                                      [{file,"test_server.erl"},
+                                       {line,1223}]}]}},
+                            [{odbc_connect_SUITE,rollback,215},
+                             {test_server,ts_tc,1782},
+                             {test_server,run_test_case_eval1,1291},
+                             {test_server,run_test_case_eval,1223}],
+                            []}}
+** When Server state == {state,#Port<0.69>,undefined,<0.200.0>,undefined,off,
+                               false,false,on,connected,undefined,0,
+                               [#Port<0.67>,#Port<0.68>],
+                               #Port<0.70>,#Port<0.71>}
+** Reason for termination ==
+** {stopped,
+       {'EXIT',<0.200.0>,
+           {#Ref<0.2863456703.733216769.5663>,70641,
+            {'EXIT',
+                {{badmatch,{updated,0}},
+                 [{odbc_connect_SUITE,rollback,1,
+                      [{file,"odbc_connect_SUITE.erl"},{line,215}]},
+                  {test_server,ts_tc,3,[{file,"test_server.erl"},{line,1782}]},
+                  {test_server,run_test_case_eval1,6,
+                      [{file,"test_server.erl"},{line,1291}]},
+                  {test_server,run_test_case_eval,9,
+                      [{file,"test_server.erl"},{line,1223}]}]}},
+            [{odbc_connect_SUITE,rollback,215},
+             {test_server,ts_tc,1782},
+             {test_server,run_test_case_eval1,1291},
+             {test_server,run_test_case_eval,1223}],
+            []}}}
+
+=CRASH REPORT==== 22-Oct-2026::08:58:27.191113 ===
+  crasher:
+    initial call: odbc:init/1
+    pid: <0.202.0>
+    registered_name: []
+    exception exit: {stopped,
+                        {'EXIT',<0.200.0>,
+                            {#Ref<0.2863456703.733216769.5663>,70641,
+                             {'EXIT',
+                                 {{badmatch,{updated,0}},
+                                  [{odbc_connect_SUITE,rollback,1,
+                                       [{file,"odbc_connect_SUITE.erl"},
+                                        {line,215}]},
+                                   {test_server,ts_tc,3,
+                                       [{file,"test_server.erl"},{line,1782}]},
+                                   {test_server,run_test_case_eval1,6,
+                                       [{file,"test_server.erl"},{line,1291}]},
+                                   {test_server,run_test_case_eval,9,
+                                       [{file,"test_server.erl"},
+                                        {line,1223}]}]}},
+                             [{odbc_connect_SUITE,rollback,215},
+                              {test_server,ts_tc,1782},
+                              {test_server,run_test_case_eval1,1291},
+                              {test_server,run_test_case_eval,1223}],
+                             []}}}
+      in function  gen_server:handle_common_reply/8 (gen_server.erl, line 1241)
+    ancestors: [odbc_sup,<0.184.0>]
+    message_queue_len: 1
+    messages: [{'EXIT',#Port<0.69>,normal}]
+    links: [<0.185.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 610
+    stack_size: 28
+    reductions: 18670
+  neighbours:
+
+=SUPERVISOR REPORT==== 22-Oct-2026::08:58:27.191692 ===
+    supervisor: {local,odbc_sup}
+    errorContext: child_terminated
+    reason: {stopped,
+                {'EXIT',<0.200.0>,
+                    {#Ref<0.2863456703.733216769.5663>,70641,
+                     {'EXIT',
+                         {{badmatch,{updated,0}},
+                          [{odbc_connect_SUITE,rollback,1,
+                               [{file,"odbc_connect_SUITE.erl"},{line,215}]},
+                           {test_server,ts_tc,3,
+                               [{file,"test_server.erl"},{line,1782}]},
+                           {test_server,run_test_case_eval1,6,
+                               [{file,"test_server.erl"},{line,1291}]},
+                           {test_server,run_test_case_eval,9,
+                               [{file,"test_server.erl"},{line,1223}]}]}},
+                     [{odbc_connect_SUITE,rollback,215},
+                      {test_server,ts_tc,1782},
+                      {test_server,run_test_case_eval1,1291},
+                      {test_server,run_test_case_eval,1223}],
+                     []}}}
+    offender: [{pid,<0.202.0>},
+               {id,[]},
+               {mfargs,{odbc,start_link_sup,undefined}},
+               {restart_type,temporary},
+               {significant,false},
+               {shutdown,7000},
+               {child_type,worker}]
+
+Testing lib.odbc.odbc_connect_SUITE: *** FAILED test case 3 of 20 ***
+
+----------------------------------------------------
+2026-10-22 08:58:27.213
+ODBCINI = "/etc/odbc.ini"
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:27.285
+ODBCINI = "/etc/odbc.ini"
+
+
+Testing lib.odbc.odbc_connect_SUITE: *** SKIPPED test case 5 of 20 ***
+
+----------------------------------------------------
+2026-10-22 08:58:27.334
+ODBCINI = "/etc/odbc.ini"
+
+
+=ERROR REPORT==== 22-Oct-2026::08:58:27.353933 ===
+** Generic server <0.217.0> terminating 
+** Last message in was {'EXIT',#Port<0.105>,killed}
+** When Server state == {state,#Port<0.105>,undefined,<0.215.0>,undefined,on,
+                               false,false,on,connected,undefined,0,
+                               [#Port<0.103>,#Port<0.104>],
+                               #Port<0.106>,#Port<0.107>}
+** Reason for termination ==
+** killed
+
+=CRASH REPORT==== 22-Oct-2026::08:58:27.354175 ===
+  crasher:
+    initial call: odbc:init/1
+    pid: <0.217.0>
+    registered_name: []
+    exception exit: killed
+      in function  gen_server:handle_common_reply/8 (gen_server.erl, line 1241)
+    ancestors: [odbc_sup,<0.184.0>]
+    message_queue_len: 0
+    messages: []
+    links: [<0.185.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 2586
+    stack_size: 28
+    reductions: 8510
+  neighbours:
+
+=SUPERVISOR REPORT==== 22-Oct-2026::08:58:27.354359 ===
+    supervisor: {local,odbc_sup}
+    errorContext: child_terminated
+    reason: killed
+    offender: [{pid,<0.217.0>},
+               {id,[]},
+               {mfargs,{odbc,start_link_sup,undefined}},
+               {restart_type,temporary},
+               {significant,false},
+               {shutdown,7000},
+               {child_type,worker}]
+
+
+----------------------------------------------------
+2026-10-22 08:58:37.405
+ODBCINI = "/etc/odbc.ini"
+
+
+=SUPERVISOR REPORT==== 22-Oct-2026::08:58:37.425848 ===
+    supervisor: {local,odbc_sup}
+    errorContext: child_terminated
+    reason: killed
+    offender: [{pid,<0.223.0>},
+               {id,[]},
+               {mfargs,{odbc,start_link_sup,undefined}},
+               {restart_type,temporary},
+               {significant,false},
+               {shutdown,7000},
+               {child_type,worker}]
+
+
+----------------------------------------------------
+2026-10-22 08:58:38.001
+ODBCINI = "/etc/odbc.ini"
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:38.072
+ODBCINI = "/etc/odbc.ini"
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:38.147
+ODBCINI = "/etc/odbc.ini"
+
+
+=ERROR REPORT==== 22-Oct-2026::08:58:38.168622 ===
+** Generic server <0.244.0> terminating 
+** Last message in was {'DOWN',#Ref<0.2863456703.733216769.7461>,process,
+                               <0.243.0>,error}
+** When Server state == {state,#Port<0.153>,undefined,<0.243.0>,undefined,on,
+                               false,false,on,connected,undefined,0,
+                               [#Port<0.151>,#Port<0.152>],
+                               #Port<0.154>,#Port<0.155>}
+** Reason for termination ==
+** {stopped,{'EXIT',<0.243.0>,error}}
+
+=CRASH REPORT==== 22-Oct-2026::08:58:38.168894 ===
+  crasher:
+    initial call: odbc:init/1
+    pid: <0.244.0>
+    registered_name: []
+    exception exit: {stopped,{'EXIT',<0.243.0>,error}}
+      in function  gen_server:handle_common_reply/8 (gen_server.erl, line 1241)
+    ancestors: [odbc_sup,<0.184.0>]
+    message_queue_len: 1
+    messages: [{'EXIT',#Port<0.153>,normal}]
+    links: [<0.185.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 4185
+    stack_size: 28
+    reductions: 8910
+  neighbours:
+
+=SUPERVISOR REPORT==== 22-Oct-2026::08:58:38.169035 ===
+    supervisor: {local,odbc_sup}
+    errorContext: child_terminated
+    reason: {stopped,{'EXIT',<0.243.0>,error}}
+    offender: [{pid,<0.244.0>},
+               {id,[]},
+               {mfargs,{odbc,start_link_sup,undefined}},
+               {restart_type,temporary},
+               {significant,false},
+               {shutdown,7000},
+               {child_type,worker}]
+
+
+----------------------------------------------------
+2026-10-22 08:58:38.243
+ODBCINI = "/etc/odbc.ini"
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:38.296
+ODBCINI = "/etc/odbc.ini"
+
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+odbc_connect_SUITE:timeout failed on line 453
+Reason: {badmatch,{updated,0}}
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+=ERROR REPORT==== 22-Oct-2026::08:58:38.403324 ===
+** Generic server <0.258.0> terminating 
+** Last message in was {'DOWN',#Ref<0.2863456703.733216769.8093>,process,
+                           <0.256.0>,
+                           {#Ref<0.2863456703.733216769.8041>,71907,
+                            {'EXIT',
+                                {{badmatch,{updated,0}},
+                                 [{odbc_connect_SUITE,timeout,1,
+                                      [{file,"odbc_connect_SUITE.erl"},
+                                       {line,453}]},
+                                  {test_server,ts_tc,3,
+                                      [{file,"test_server.erl"},{line,1782}]},
+                                  {test_server,run_test_case_eval1,6,
+                                      [{file,"test_server.erl"},{line,1291}]},
+                                  {test_server,run_test_case_eval,9,
+                                      [{file,"test_server.erl"},
+                                       {line,1223}]}]}},
+                            [{odbc_connect_SUITE,timeout,453},
+                             {test_server,ts_tc,1782},
+                             {test_server,run_test_case_eval1,1291},
+                             {test_server,run_test_case_eval,1223}],
+                            []}}
+** When Server state == {state,#Port<0.177>,undefined,<0.256.0>,undefined,off,
+                               false,false,on,connected,undefined,0,
+                               [#Port<0.175>,#Port<0.176>],
+                               #Port<0.178>,#Port<0.179>}
+** Reason for termination ==
+** {stopped,
+       {'EXIT',<0.256.0>,
+           {#Ref<0.2863456703.733216769.8041>,71907,
+            {'EXIT',
+                {{badmatch,{updated,0}},
+                 [{odbc_connect_SUITE,timeout,1,
+                      [{file,"odbc_connect_SUITE.erl"},{line,453}]},
+                  {test_server,ts_tc,3,[{file,"test_server.erl"},{line,1782}]},
+                  {test_server,run_test_case_eval1,6,
+                      [{file,"test_server.erl"},{line,1291}]},
+                  {test_server,run_test_case_eval,9,
+                      [{file,"test_server.erl"},{line,1223}]}]}},
+            [{odbc_connect_SUITE,timeout,453},
+             {test_server,ts_tc,1782},
+             {test_server,run_test_case_eval1,1291},
+             {test_server,run_test_case_eval,1223}],
+            []}}}
+
+=CRASH REPORT==== 22-Oct-2026::08:58:38.403967 ===
+  crasher:
+    initial call: odbc:init/1
+    pid: <0.258.0>
+    registered_name: []
+    exception exit: {stopped,
+                        {'EXIT',<0.256.0>,
+                            {#Ref<0.2863456703.733216769.8041>,71907,
+                             {'EXIT',
+                                 {{badmatch,{updated,0}},
+                                  [{odbc_connect_SUITE,timeout,1,
+                                       [{file,"odbc_connect_SUITE.erl"},
+                                        {line,453}]},
+                                   {test_server,ts_tc,3,
+                                       [{file,"test_server.erl"},{line,1782}]},
+                                   {test_server,run_test_case_eval1,6,
+                                       [{file,"test_server.erl"},{line,1291}]},
+                                   {test_server,run_test_case_eval,9,
+                                       [{file,"test_server.erl"},
+                                        {line,1223}]}]}},
+                             [{odbc_connect_SUITE,timeout,453},
+                              {test_server,ts_tc,1782},
+                              {test_server,run_test_case_eval1,1291},
+                              {test_server,run_test_case_eval,1223}],
+                             []}}}
+      in function  gen_server:handle_common_reply/8 (gen_server.erl, line 1241)
+    ancestors: [odbc_sup,<0.184.0>]
+    message_queue_len: 1
+    messages: [{'EXIT',#Port<0.177>,normal}]
+    links: [<0.185.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 10958
+    stack_size: 28
+    reductions: 19728
+  neighbours:
+
+=SUPERVISOR REPORT==== 22-Oct-2026::08:58:38.404322 ===
+    supervisor: {local,odbc_sup}
+    errorContext: child_terminated
+    reason: {stopped,
+                {'EXIT',<0.256.0>,
+                    {#Ref<0.2863456703.733216769.8041>,71907,
+                     {'EXIT',
+                         {{badmatch,{updated,0}},
+                          [{odbc_connect_SUITE,timeout,1,
+                               [{file,"odbc_connect_SUITE.erl"},{line,453}]},
+                           {test_server,ts_tc,3,
+                               [{file,"test_server.erl"},{line,1782}]},
+                           {test_server,run_test_case_eval1,6,
+                               [{file,"test_server.erl"},{line,1291}]},
+                           {test_server,run_test_case_eval,9,
+                               [{file,"test_server.erl"},{line,1223}]}]}},
+                     [{odbc_connect_SUITE,timeout,453},
+                      {test_server,ts_tc,1782},
+                      {test_server,run_test_case_eval1,1291},
+                      {test_server,run_test_case_eval,1223}],
+                     []}}}
+    offender: [{pid,<0.258.0>},
+               {id,[]},
+               {mfargs,{odbc,start_link_sup,undefined}},
+               {restart_type,temporary},
+               {significant,false},
+               {shutdown,7000},
+               {child_type,worker}]
+
+Testing lib.odbc.odbc_connect_SUITE: *** FAILED test case 12 of 20 ***
+
+----------------------------------------------------
+2026-10-22 08:58:38.426
+ODBCINI = "/etc/odbc.ini"
+
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+odbc_connect_SUITE:many_timeouts failed on line 534
+Reason: {badmatch,{updated,0}}
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+=ERROR REPORT==== 22-Oct-2026::08:58:38.583782 ===
+** Generic server <0.264.0> terminating 
+** Last message in was {'DOWN',#Ref<0.2863456703.733216769.8347>,process,
+                           <0.262.0>,
+                           {#Ref<0.2863456703.733216769.8295>,119516,
+                            {'EXIT',
+                                {{badmatch,{updated,0}},
+                                 [{odbc_connect_SUITE,many_timeouts,1,
+                                      [{file,"odbc_connect_SUITE.erl"},
+                                       {line,534}]},
+                                  {test_server,ts_tc,3,
+                                      [{file,"test_server.erl"},{line,1782}]},
+                                  {test_server,run_test_case_eval1,6,
+                                      [{file,"test_server.erl"},{line,1291}]},
+                                  {test_server,run_test_case_eval,9,
+                                      [{file,"test_server.erl"},
+                                       {line,1223}]}]}},
+                            [{odbc_connect_SUITE,many_timeouts,534},
+                             {test_server,ts_tc,1782},
+                             {test_server,run_test_case_eval1,1291},
+                             {test_server,run_test_case_eval,1223}],
+                            []}}
+** When Server state == {state,#Port<0.195>,undefined,<0.262.0>,undefined,off,
+                               false,false,on,connected,undefined,0,
+                               [#Port<0.193>,#Port<0.194>],
+                               #Port<0.196>,#Port<0.197>}
+** Reason for termination ==
+** {stopped,
+       {'EXIT',<0.262.0>,
+           {#Ref<0.2863456703.733216769.8295>,119516,
+            {'EXIT',
+                {{badmatch,{updated,0}},
+                 [{odbc_connect_SUITE,many_timeouts,1,
+                      [{file,"odbc_connect_SUITE.erl"},{line,534}]},
+                  {test_server,ts_tc,3,[{file,"test_server.erl"},{line,1782}]},
+                  {test_server,run_test_case_eval1,6,
+                      [{file,"test_server.erl"},{line,1291}]},
+                  {test_server,run_test_case_eval,9,
+                      [{file,"test_server.erl"},{line,1223}]}]}},
+            [{odbc_connect_SUITE,many_timeouts,534},
+             {test_server,ts_tc,1782},
+             {test_server,run_test_case_eval1,1291},
+             {test_server,run_test_case_eval,1223}],
+            []}}}
+
+=CRASH REPORT==== 22-Oct-2026::08:58:38.584404 ===
+  crasher:
+    initial call: odbc:init/1
+    pid: <0.264.0>
+    registered_name: []
+    exception exit: {stopped,
+                        {'EXIT',<0.262.0>,
+                            {#Ref<0.2863456703.733216769.8295>,119516,
+                             {'EXIT',
+                                 {{badmatch,{updated,0}},
+                                  [{odbc_connect_SUITE,many_timeouts,1,
+                                       [{file,"odbc_connect_SUITE.erl"},
+                                        {line,534}]},
+                                   {test_server,ts_tc,3,
+                                       [{file,"test_server.erl"},{line,1782}]},
+                                   {test_server,run_test_case_eval1,6,
+                                       [{file,"test_server.erl"},{line,1291}]},
+                                   {test_server,run_test_case_eval,9,
+                                       [{file,"test_server.erl"},
+                                        {line,1223}]}]}},
+                             [{odbc_connect_SUITE,many_timeouts,534},
+                              {test_server,ts_tc,1782},
+                              {test_server,run_test_case_eval1,1291},
+                              {test_server,run_test_case_eval,1223}],
+                             []}}}
+      in function  gen_server:handle_common_reply/8 (gen_server.erl, line 1241)
+    ancestors: [odbc_sup,<0.184.0>]
+    message_queue_len: 1
+    messages: [{'EXIT',#Port<0.195>,normal}]
+    links: [<0.185.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 10958
+    stack_size: 28
+    reductions: 19827
+  neighbours:
+
+=SUPERVISOR REPORT==== 22-Oct-2026::08:58:38.584884 ===
+    supervisor: {local,odbc_sup}
+    errorContext: child_terminated
+    reason: {stopped,
+                {'EXIT',<0.262.0>,
+                    {#Ref<0.2863456703.733216769.8295>,119516,
+                     {'EXIT',
+                         {{badmatch,{updated,0}},
+                          [{odbc_connect_SUITE,many_timeouts,1,
+                               [{file,"odbc_connect_SUITE.erl"},{line,534}]},
+                           {test_server,ts_tc,3,
+                               [{file,"test_server.erl"},{line,1782}]},
+                           {test_server,run_test_case_eval1,6,
+                               [{file,"test_server.erl"},{line,1291}]},
+                           {test_server,run_test_case_eval,9,
+                               [{file,"test_server.erl"},{line,1223}]}]}},
+                     [{odbc_connect_SUITE,many_timeouts,534},
+                      {test_server,ts_tc,1782},
+                      {test_server,run_test_case_eval1,1291},
+                      {test_server,run_test_case_eval,1223}],
+                     []}}}
+    offender: [{pid,<0.264.0>},
+               {id,[]},
+               {mfargs,{odbc,start_link_sup,undefined}},
+               {restart_type,temporary},
+               {significant,false},
+               {shutdown,7000},
+               {child_type,worker}]
+
+Testing lib.odbc.odbc_connect_SUITE: *** FAILED test case 13 of 20 ***
+
+----------------------------------------------------
+2026-10-22 08:58:38.607
+ODBCINI = "/etc/odbc.ini"
+
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+odbc_connect_SUITE:timeout_reset failed on line 591
+Reason: {badmatch,{updated,0}}
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+=ERROR REPORT==== 22-Oct-2026::08:58:38.714534 ===
+** Generic server <0.270.0> terminating 
+** Last message in was {'DOWN',#Ref<0.2863456703.733216769.8607>,process,
+                           <0.268.0>,
+                           {#Ref<0.2863456703.733216769.8555>,72383,
+                            {'EXIT',
+                                {{badmatch,{updated,0}},
+                                 [{odbc_connect_SUITE,timeout_reset,1,
+                                      [{file,"odbc_connect_SUITE.erl"},
+                                       {line,591}]},
+                                  {test_server,ts_tc,3,
+                                      [{file,"test_server.erl"},{line,1782}]},
+                                  {test_server,run_test_case_eval1,6,
+                                      [{file,"test_server.erl"},{line,1291}]},
+                                  {test_server,run_test_case_eval,9,
+                                      [{file,"test_server.erl"},
+                                       {line,1223}]}]}},
+                            [{odbc_connect_SUITE,timeout_reset,591},
+                             {test_server,ts_tc,1782},
+                             {test_server,run_test_case_eval1,1291},
+                             {test_server,run_test_case_eval,1223}],
+                            []}}
+** When Server state == {state,#Port<0.213>,undefined,<0.268.0>,undefined,off,
+                               false,false,on,connected,undefined,0,
+                               [#Port<0.211>,#Port<0.212>],
+                               #Port<0.214>,#Port<0.215>}
+** Reason for termination ==
+** {stopped,
+       {'EXIT',<0.268.0>,
+           {#Ref<0.2863456703.733216769.8555>,72383,
+            {'EXIT',
+                {{badmatch,{updated,0}},
+                 [{odbc_connect_SUITE,timeout_reset,1,
+                      [{file,"odbc_connect_SUITE.erl"},{line,591}]},
+                  {test_server,ts_tc,3,[{file,"test_server.erl"},{line,1782}]},
+                  {test_server,run_test_case_eval1,6,
+                      [{file,"test_server.erl"},{line,1291}]},
+                  {test_server,run_test_case_eval,9,
+                      [{file,"test_server.erl"},{line,1223}]}]}},
+            [{odbc_connect_SUITE,timeout_reset,591},
+             {test_server,ts_tc,1782},
+             {test_server,run_test_case_eval1,1291},
+             {test_server,run_test_case_eval,1223}],
+            []}}}
+
+=CRASH REPORT==== 22-Oct-2026::08:58:38.715037 ===
+  crasher:
+    initial call: odbc:init/1
+    pid: <0.270.0>
+    registered_name: []
+    exception exit: {stopped,
+                        {'EXIT',<0.268.0>,
+                            {#Ref<0.2863456703.733216769.8555>,72383,
+                             {'EXIT',
+                                 {{badmatch,{updated,0}},
+                                  [{odbc_connect_SUITE,timeout_reset,1,
+                                       [{file,"odbc_connect_SUITE.erl"},
+                                        {line,591}]},
+                                   {test_server,ts_tc,3,
+                                       [{file,"test_server.erl"},{line,1782}]},
+                                   {test_server,run_test_case_eval1,6,
+                                       [{file,"test_server.erl"},{line,1291}]},
+                                   {test_server,run_test_case_eval,9,
+                                       [{file,"test_server.erl"},
+                                        {line,1223}]}]}},
+                             [{odbc_connect_SUITE,timeout_reset,591},
+                              {test_server,ts_tc,1782},
+                              {test_server,run_test_case_eval1,1291},
+                              {test_server,run_test_case_eval,1223}],
+                             []}}}
+      in function  gen_server:handle_common_reply/8 (gen_server.erl, line 1241)
+    ancestors: [odbc_sup,<0.184.0>]
+    message_queue_len: 1
+    messages: [{'EXIT',#Port<0.213>,normal}]
+    links: [<0.185.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 987
+    stack_size: 28
+    reductions: 18981
+  neighbours:
+
+=SUPERVISOR REPORT==== 22-Oct-2026::08:58:38.715429 ===
+    supervisor: {local,odbc_sup}
+    errorContext: child_terminated
+    reason: {stopped,
+                {'EXIT',<0.268.0>,
+                    {#Ref<0.2863456703.733216769.8555>,72383,
+                     {'EXIT',
+                         {{badmatch,{updated,0}},
+                          [{odbc_connect_SUITE,timeout_reset,1,
+                               [{file,"odbc_connect_SUITE.erl"},{line,591}]},
+                           {test_server,ts_tc,3,
+                               [{file,"test_server.erl"},{line,1782}]},
+                           {test_server,run_test_case_eval1,6,
+                               [{file,"test_server.erl"},{line,1291}]},
+                           {test_server,run_test_case_eval,9,
+                               [{file,"test_server.erl"},{line,1223}]}]}},
+                     [{odbc_connect_SUITE,timeout_reset,591},
+                      {test_server,ts_tc,1782},
+                      {test_server,run_test_case_eval1,1291},
+                      {test_server,run_test_case_eval,1223}],
+                     []}}}
+    offender: [{pid,<0.270.0>},
+               {id,[]},
+               {mfargs,{odbc,start_link_sup,undefined}},
+               {restart_type,temporary},
+               {significant,false},
+               {shutdown,7000},
+               {child_type,worker}]
+
+Testing lib.odbc.odbc_connect_SUITE: *** FAILED test case 14 of 20 ***
+
+----------------------------------------------------
+2026-10-22 08:58:38.737
+ODBCINI = "/etc/odbc.ini"
+
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+odbc_connect_SUITE:disconnect_on_timeout failed on line 687
+Reason: {badmatch,{updated,0}}
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+=ERROR REPORT==== 22-Oct-2026::08:58:38.892224 ===
+** Generic server <0.276.0> terminating 
+** Last message in was {'DOWN',#Ref<0.2863456703.733216769.8819>,process,
+                           <0.274.0>,
+                           {#Ref<0.2863456703.733216769.8767>,119951,
+                            {'EXIT',
+                                {{badmatch,{updated,0}},
+                                 [{odbc_connect_SUITE,disconnect_on_timeout,
+                                      1,
+                                      [{file,"odbc_connect_SUITE.erl"},
+                                       {line,687}]},
+                                  {test_server,ts_tc,3,
+                                      [{file,"test_server.erl"},{line,1782}]},
+                                  {test_server,run_test_case_eval1,6,
+                                      [{file,"test_server.erl"},{line,1291}]},
+                                  {test_server,run_test_case_eval,9,
+                                      [{file,"test_server.erl"},
+                                       {line,1223}]}]}},
+                            [{odbc_connect_SUITE,disconnect_on_timeout,687},
+                             {test_server,ts_tc,1782},
+                             {test_server,run_test_case_eval1,1291},
+                             {test_server,run_test_case_eval,1223}],
+                            []}}
+** When Server state == {state,#Port<0.231>,undefined,<0.274.0>,undefined,off,
+                               false,false,on,connected,undefined,0,
+                               [#Port<0.229>,#Port<0.230>],
+                               #Port<0.232>,#Port<0.233>}
+** Reason for termination ==
+** {stopped,
+       {'EXIT',<0.274.0>,
+           {#Ref<0.2863456703.733216769.8767>,119951,
+            {'EXIT',
+                {{badmatch,{updated,0}},
+                 [{odbc_connect_SUITE,disconnect_on_timeout,1,
+                      [{file,"odbc_connect_SUITE.erl"},{line,687}]},
+                  {test_server,ts_tc,3,[{file,"test_server.erl"},{line,1782}]},
+                  {test_server,run_test_case_eval1,6,
+                      [{file,"test_server.erl"},{line,1291}]},
+                  {test_server,run_test_case_eval,9,
+                      [{file,"test_server.erl"},{line,1223}]}]}},
+            [{odbc_connect_SUITE,disconnect_on_timeout,687},
+             {test_server,ts_tc,1782},
+             {test_server,run_test_case_eval1,1291},
+             {test_server,run_test_case_eval,1223}],
+            []}}}
+
+=CRASH REPORT==== 22-Oct-2026::08:58:38.892840 ===
+  crasher:
+    initial call: odbc:init/1
+    pid: <0.276.0>
+    registered_name: []
+    exception exit: {stopped,
+                        {'EXIT',<0.274.0>,
+                            {#Ref<0.2863456703.733216769.8767>,119951,
+                             {'EXIT',
+                                 {{badmatch,{updated,0}},
+                                  [{odbc_connect_SUITE,disconnect_on_timeout,
+                                       1,
+                                       [{file,"odbc_connect_SUITE.erl"},
+                                        {line,687}]},
+                                   {test_server,ts_tc,3,
+                                       [{file,"test_server.erl"},{line,1782}]},
+                                   {test_server,run_test_case_eval1,6,
+                                       [{file,"test_server.erl"},{line,1291}]},
+                                   {test_server,run_test_case_eval,9,
+                                       [{file,"test_server.erl"},
+                                        {line,1223}]}]}},
+                             [{odbc_connect_SUITE,disconnect_on_timeout,687},
+                              {test_server,ts_tc,1782},
+                              {test_server,run_test_case_eval1,1291},
+                              {test_server,run_test_case_eval,1223}],
+                             []}}}
+      in function  gen_server:handle_common_reply/8 (gen_server.erl, line 1241)
+    ancestors: [odbc_sup,<0.184.0>]
+    message_queue_len: 1
+    messages: [{'EXIT',#Port<0.231>,normal}]
+    links: [<0.185.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 610
+    stack_size: 28
+    reductions: 18988
+  neighbours:
+
+=SUPERVISOR REPORT==== 22-Oct-2026::08:58:38.893270 ===
+    supervisor: {local,odbc_sup}
+    errorContext: child_terminated
+    reason: {stopped,
+                {'EXIT',<0.274.0>,
+                    {#Ref<0.2863456703.733216769.8767>,119951,
+                     {'EXIT',
+                         {{badmatch,{updated,0}},
+                          [{odbc_connect_SUITE,disconnect_on_timeout,1,
+                               [{file,"odbc_connect_SUITE.erl"},{line,687}]},
+                           {test_server,ts_tc,3,
+                               [{file,"test_server.erl"},{line,1782}]},
+                           {test_server,run_test_case_eval1,6,
+                               [{file,"test_server.erl"},{line,1291}]},
+                           {test_server,run_test_case_eval,9,
+                               [{file,"test_server.erl"},{line,1223}]}]}},
+                     [{odbc_connect_SUITE,disconnect_on_timeout,687},
+                      {test_server,ts_tc,1782},
+                      {test_server,run_test_case_eval1,1291},
+                      {test_server,run_test_case_eval,1223}],
+                     []}}}
+    offender: [{pid,<0.276.0>},
+               {id,[]},
+               {mfargs,{odbc,start_link_sup,undefined}},
+               {restart_type,temporary},
+               {significant,false},
+               {shutdown,7000},
+               {child_type,worker}]
+
+Testing lib.odbc.odbc_connect_SUITE: *** FAILED test case 15 of 20 ***
+
+----------------------------------------------------
+2026-10-22 08:58:38.915
+ODBCINI = "/etc/odbc.ini"
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:39.032
+ODBCINI = "/etc/odbc.ini"
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:39.111
+Expected: {selected,["id"],[{1}]}
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:39.111
+Got: {selected,["id"],[{1}]}
+
+
+=ERROR REPORT==== 22-Oct-2026::08:58:39.146910 ===
+** Generic server <0.288.0> terminating 
+** Last message in was {'DOWN',#Ref<0.2863456703.733216769.9267>,process,
+                           <0.286.0>,
+                           {#Ref<0.2863456703.733216769.9215>,79042,
+                            {selected,["id"],[]},
+                            [{odbc_connect_SUITE,disable_scrollable_cursors}],
+                            []}}
+** When Server state == {state,#Port<0.267>,undefined,<0.286.0>,exists,on,
+                               false,false,off,connected,undefined,0,
+                               [#Port<0.265>,#Port<0.266>],
+                               #Port<0.268>,#Port<0.269>}
+** Reason for termination ==
+** {stopped,{'EXIT',<0.286.0>,
+                    {#Ref<0.2863456703.733216769.9215>,79042,
+                     {selected,["id"],[]},
+                     [{odbc_connect_SUITE,disable_scrollable_cursors}],
+                     []}}}
+
+=CRASH REPORT==== 22-Oct-2026::08:58:39.147227 ===
+  crasher:
+    initial call: odbc:init/1
+    pid: <0.288.0>
+    registered_name: []
+    exception exit: {stopped,
+                        {'EXIT',<0.286.0>,
+                            {#Ref<0.2863456703.733216769.9215>,79042,
+                             {selected,["id"],[]},
+                             [{odbc_connect_SUITE,disable_scrollable_cursors}],
+                             []}}}
+      in function  gen_server:handle_common_reply/8 (gen_server.erl, line 1241)
+    ancestors: [odbc_sup,<0.184.0>]
+    message_queue_len: 1
+    messages: [{'EXIT',#Port<0.267>,normal}]
+    links: [<0.185.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 6772
+    stack_size: 28
+    reductions: 11190
+  neighbours:
+
+=SUPERVISOR REPORT==== 22-Oct-2026::08:58:39.147463 ===
+    supervisor: {local,odbc_sup}
+    errorContext: child_terminated
+    reason: {stopped,
+                {'EXIT',<0.286.0>,
+                    {#Ref<0.2863456703.733216769.9215>,79042,
+                     {selected,["id"],[]},
+                     [{odbc_connect_SUITE,disable_scrollable_cursors}],
+                     []}}}
+    offender: [{pid,<0.288.0>},
+               {id,[]},
+               {mfargs,{odbc,start_link_sup,undefined}},
+               {restart_type,temporary},
+               {significant,false},
+               {shutdown,7000},
+               {child_type,worker}]
+
+
+----------------------------------------------------
+2026-10-22 08:58:39.169
+ODBCINI = "/etc/odbc.ini"
+
+
+=ERROR REPORT==== 22-Oct-2026::08:58:39.299117 ===
+** Generic server <0.294.0> terminating 
+** Last message in was {'DOWN',#Ref<0.2863456703.733216769.9521>,process,
+                               <0.292.0>,
+                               {#Ref<0.2863456703.733216769.9469>,95669,
+                                {selected,["id","data"],[[1,"bar"]]},
+                                [{odbc_connect_SUITE,return_rows_as_lists}],
+                                []}}
+** When Server state == {state,#Port<0.285>,undefined,<0.292.0>,exists,on,
+                               false,false,on,connected,undefined,0,
+                               [#Port<0.283>,#Port<0.284>],
+                               #Port<0.286>,#Port<0.287>}
+** Reason for termination ==
+** {stopped,{'EXIT',<0.292.0>,
+                    {#Ref<0.2863456703.733216769.9469>,95669,
+                     {selected,["id","data"],[[1,"bar"]]},
+                     [{odbc_connect_SUITE,return_rows_as_lists}],
+                     []}}}
+
+=CRASH REPORT==== 22-Oct-2026::08:58:39.299537 ===
+  crasher:
+    initial call: odbc:init/1
+    pid: <0.294.0>
+    registered_name: []
+    exception exit: {stopped,
+                        {'EXIT',<0.292.0>,
+                            {#Ref<0.2863456703.733216769.9469>,95669,
+                             {selected,["id","data"],[[1,"bar"]]},
+                             [{odbc_connect_SUITE,return_rows_as_lists}],
+                             []}}}
+      in function  gen_server:handle_common_reply/8 (gen_server.erl, line 1241)
+    ancestors: [odbc_sup,<0.184.0>]
+    message_queue_len: 1
+    messages: [{'EXIT',#Port<0.285>,normal}]
+    links: [<0.185.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 4185
+    stack_size: 28
+    reductions: 11717
+  neighbours:
+
+=SUPERVISOR REPORT==== 22-Oct-2026::08:58:39.299734 ===
+    supervisor: {local,odbc_sup}
+    errorContext: child_terminated
+    reason: {stopped,{'EXIT',<0.292.0>,
+                             {#Ref<0.2863456703.733216769.9469>,95669,
+                              {selected,["id","data"],[[1,"bar"]]},
+                              [{odbc_connect_SUITE,return_rows_as_lists}],
+                              []}}}
+    offender: [{pid,<0.294.0>},
+               {id,[]},
+               {mfargs,{odbc,start_link_sup,undefined}},
+               {restart_type,temporary},
+               {significant,false},
+               {shutdown,7000},
+               {child_type,worker}]
+
+
+----------------------------------------------------
+2026-10-22 08:58:39.322
+ODBCINI = "/etc/odbc.ini"
+
+
+=ERROR REPORT==== 22-Oct-2026::08:58:39.344615 ===
+** Generic server <0.300.0> terminating 
+** Last message in was {<0.298.0>,foobar,10}
+** When Server state == {state,#Port<0.303>,undefined,<0.298.0>,undefined,on,
+                               false,false,on,connected,undefined,0,
+                               [#Port<0.301>,#Port<0.302>],
+                               #Port<0.304>,#Port<0.305>}
+** Reason for termination ==
+** {'API_violation_connection_colsed',foobar}
+** Client <0.298.0> stacktrace
+** [{gen,do_call,4,[{file,"gen.erl"},{line,237}]},
+    {gen_server,call,3,[{file,"gen_server.erl"},{line,381}]},
+    {odbc_connect_SUITE,api_missuse,1,
+                        [{file,"odbc_connect_SUITE.erl"},{line,831}]},
+    {test_server,ts_tc,3,[{file,"test_server.erl"},{line,1782}]},
+    {test_server,run_test_case_eval1,6,[{file,"test_server.erl"},{line,1291}]},
+    {test_server,run_test_case_eval,9,[{file,"test_server.erl"},{line,1223}]}]
+
+=CRASH REPORT==== 22-Oct-2026::08:58:39.344946 ===
+  crasher:
+    initial call: odbc:init/1
+    pid: <0.300.0>
+    registered_name: []
+    exception exit: {'API_violation_connection_colsed',foobar}
+      in function  gen_server:handle_msg/6 (gen_server.erl, line 1193)
+    ancestors: [odbc_sup,<0.184.0>]
+    message_queue_len: 1
+    messages: [{'EXIT',#Port<0.303>,normal}]
+    links: [<0.185.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 233
+    stack_size: 28
+    reductions: 12399
+  neighbours:
+
+=SUPERVISOR REPORT==== 22-Oct-2026::08:58:39.345207 ===
+    supervisor: {local,odbc_sup}
+    errorContext: child_terminated
+    reason: {'API_violation_connection_colsed',foobar}
+    offender: [{pid,<0.300.0>},
+               {id,[]},
+               {mfargs,{odbc,start_link_sup,undefined}},
+               {restart_type,temporary},
+               {significant,false},
+               {shutdown,7000},
+               {child_type,worker}]
+
+=ERROR REPORT==== 22-Oct-2026::08:58:39.365896 ===
+** Generic server <0.302.0> terminating 
+** Last message in was {'$gen_cast',{<0.298.0>,foobar,10}}
+** When Server state == {state,#Port<0.309>,undefined,<0.298.0>,undefined,on,
+                               false,false,on,connected,undefined,0,
+                               [#Port<0.307>,#Port<0.308>],
+                               #Port<0.310>,#Port<0.311>}
+** Reason for termination ==
+** {'API_violation_connection_colsed',{<0.298.0>,foobar,10}}
+
+=CRASH REPORT==== 22-Oct-2026::08:58:39.366606 ===
+  crasher:
+    initial call: odbc:init/1
+    pid: <0.302.0>
+    registered_name: []
+    exception exit: {'API_violation_connection_colsed',{<0.298.0>,foobar,10}}
+      in function  gen_server:handle_common_reply/8 (gen_server.erl, line 1241)
+    ancestors: [odbc_sup,<0.184.0>]
+    message_queue_len: 1
+    messages: [{'EXIT',#Port<0.309>,normal}]
+    links: [<0.185.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 2586
+    stack_size: 28
+    reductions: 8924
+  neighbours:
+
+=SUPERVISOR REPORT==== 22-Oct-2026::08:58:39.366798 ===
+    supervisor: {local,odbc_sup}
+    errorContext: child_terminated
+    reason: {'API_violation_connection_colsed',{<0.298.0>,foobar,10}}
+    offender: [{pid,<0.302.0>},
+               {id,[]},
+               {mfargs,{odbc,start_link_sup,undefined}},
+               {restart_type,temporary},
+               {significant,false},
+               {shutdown,7000},
+               {child_type,worker}]
+
+=ERROR REPORT==== 22-Oct-2026::08:58:39.387639 ===
+ODBC: received unexpected info: foobar
+
+=ERROR REPORT==== 22-Oct-2026::08:58:39.439912 ===
+** Generic server <0.304.0> terminating 
+** Last message in was {'DOWN',#Ref<0.2863456703.733216770.1296>,process,
+                               <0.298.0>,
+                               {#Ref<0.2863456703.733216769.9687>,75623,
+                                {status,waiting},
+                                [{odbc_connect_SUITE,api_missuse}],
+                                []}}
+** When Server state == {state,#Port<0.315>,undefined,<0.298.0>,undefined,on,
+                               false,false,on,connected,undefined,0,
+                               [#Port<0.313>,#Port<0.314>],
+                               #Port<0.316>,#Port<0.317>}
+** Reason for termination ==
+** {stopped,{'EXIT',<0.298.0>,
+                    {#Ref<0.2863456703.733216769.9687>,75623,
+                     {status,waiting},
+                     [{odbc_connect_SUITE,api_missuse}],
+                     []}}}
+
+=CRASH REPORT==== 22-Oct-2026::08:58:39.440735 ===
+  crasher:
+    initial call: odbc:init/1
+    pid: <0.304.0>
+    registered_name: []
+    exception exit: {stopped,{'EXIT',<0.298.0>,
+                                     {#Ref<0.2863456703.733216769.9687>,75623,
+                                      {status,waiting},
+                                      [{odbc_connect_SUITE,api_missuse}],
+                                      []}}}
+      in function  gen_server:handle_common_reply/8 (gen_server.erl, line 1241)
+    ancestors: [odbc_sup,<0.184.0>]
+    message_queue_len: 1
+    messages: [{'EXIT',#Port<0.315>,normal}]
+    links: [<0.185.0>]
+    dictionary: []
+    trap_exit: true
+    status: running
+    heap_size: 4185
+    stack_size: 28
+    reductions: 12154
+  neighbours:
+
+=SUPERVISOR REPORT==== 22-Oct-2026::08:58:39.441100 ===
+    supervisor: {local,odbc_sup}
+    errorContext: child_terminated
+    reason: {stopped,{'EXIT',<0.298.0>,
+                             {#Ref<0.2863456703.733216769.9687>,75623,
+                              {status,waiting},
+                              [{odbc_connect_SUITE,api_missuse}],
+                              []}}}
+    offender: [{pid,<0.304.0>},
+               {id,[]},
+               {mfargs,{odbc,start_link_sup,undefined}},
+               {restart_type,temporary},
+               {significant,false},
+               {shutdown,7000},
+               {child_type,worker}]
+
+
+----------------------------------------------------
+2026-10-22 08:58:39.463
+ODBCINI = "/etc/odbc.ini"
+
+
+=INFO REPORT==== 22-Oct-2026::08:58:39.599559 ===
+    application: odbc
+    exited: stopped
+    type: temporary
+
+Testing lib.odbc.odbc_connect_SUITE: TEST COMPLETE, 13 ok, 6 failed, 1 skipped of 20 test cases
+
+Testing lib.odbc.odbc_query_SUITE: Starting test, 44 test cases
+Testing lib.odbc.odbc_query_SUITE: *** SKIPPED test case 1 of 44 ***
+
+----------------------------------------------------
+2026-10-22 08:58:40.947
+Correct row count Count: 1
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:40.962
+Correct row count Count: 1
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:40.969
+Correct row count Count: 1
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:41.077
+Correct row count Count: 1
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:41.090
+Correct row count Count: 1
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:41.227
+Correct row count Count: 1
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:41.239
+Correct row count Count: 1
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:41.355
+Correct row count Count: 1
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:41.368
+Correct row count Count: 1
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:41.483
+Correct row count Count: 1
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:41.496
+Correct row count Count: 1
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:41.638
+Correct row count Count: 1
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:42.289
+Driver error "General error: <main>: Error: Scheme operation failed, status: ExecComplete, reason: Check failed: path: '/local/nonodeAtnohost', error: path exist, request accepts it (id: [OwnerId: 72075186232723360, LocalPathId: 58], type: EPathTypeTable, state: EPathStateNoChanges)\n SQLSTATE IS: HY000"
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:42.394
+Driver error "Base table or view not found: <main>: Error: Type annotation, code: 1030\n    <main>:1:12: Error: At function: KiDropTable!\n        <main>:1:12: Error: Cannot find table 'db.[/local/nonodeAtnohost]' because it does not exist or you do not have access permissions. Please check correctness of table path and user permissions., code: 2003\n SQLSTATE IS: 42S02"
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:42.512
+Driver error "Integrity constraint violation: <main>: Error: Conflict with existing key., code: 2012\n SQLSTATE IS: 23000"
+
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+odbc_query_SUITE:multiple_mix_result_sets failed on line 651
+Reason: {badmatch,[{selected,["id","data"],[{1,"foobar"},{2,"foo"}]}...}
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Testing lib.odbc.odbc_query_SUITE: *** FAILED test case 18 of 44 ***
+
+----------------------------------------------------
+2026-10-22 08:58:43.255
+Driver error "Integrity constraint violation: <main>: Error: Conflict with existing key., code: 2012\n SQLSTATE IS: 23000"
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:43.270
+Driver error "Integrity constraint violation: <main>: Error: Conflict with existing key., code: 2012\n SQLSTATE IS: 23000"
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:43.450
+Correct row count Count: 2
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:43.566
+Correct row count Count: 2
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:43.683
+Correct row count Count: 2
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:43.811
+Correct row count Count: 2
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:43.947
+Correct row count Count: 2
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:43.985
+Correct row count Count: 1
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:44.103
+Correct row count Count: 2
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:44.156
+Correct row count Count: 1
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:44.297
+Correct row count Count: 2
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:44.418
+Correct row count Count: 2
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:44.591
+Correct row count Count: 2
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:44.712
+Correct row count Count: 2
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:44.874
+Correct row count Count: 2
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:44.996
+Correct row count Count: 2
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:45.118
+Correct row count Count: 2
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:45.235
+Correct row count Count: 2
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:45.354
+Correct row count Count: 3
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:45.367
+Correct row count Count: 2
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:45.490
+Correct row count Count: 3
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:45.499
+Correct row count Count: 2
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:45.619
+Correct row count Count: 3
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:45.740
+Correct row count Count: 3
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:45.873
+Correct row count Count: 3
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:45.886
+Correct row count Count: 2
+
+
+Testing lib.odbc.odbc_query_SUITE: *** SKIPPED test case 40 of 44 ***
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+odbc_query_SUITE:describe_floating failed on line 1429
+Reason: {badmatch,{ok,[{"myint1",sql_smallint},{"myint2",sql_integer...}
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Testing lib.odbc.odbc_query_SUITE: *** FAILED test case 41 of 44 ***
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+odbc_query_SUITE:describe_dec_num failed on line 1447
+Reason: {badmatch,{ok,[{"myint1",sql_smallint},{"myint2",sql_integer...}
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Testing lib.odbc.odbc_query_SUITE: *** FAILED test case 42 of 44 ***
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+odbc_query_SUITE:describe_no_such_table failed on line 1476
+Reason: {badmatch,{ok,[{"myint1",sql_smallint},{"myint2",sql_integer...}
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Testing lib.odbc.odbc_query_SUITE: *** FAILED test case 43 of 44 ***
+
+----------------------------------------------------
+2026-10-22 08:58:46.488
+Correct row count Count: 3
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:46.495
+Incorrect row count Expected 0 Got 1
+
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+odbc_query_SUITE:delete_nonexisting_row failed on line 1250
+Reason: {badmatch,false}
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Testing lib.odbc.odbc_query_SUITE: *** FAILED test case 44 of 44 ***
+=INFO REPORT==== 22-Oct-2026::08:58:46.559015 ===
+    application: odbc
+    exited: stopped
+    type: temporary
+
+Testing lib.odbc.odbc_query_SUITE: TEST COMPLETE, 37 ok, 5 failed, 2 skipped of 44 test cases
+
+Testing lib.odbc.odbc_data_type_SUITE: Starting test, 40 test cases
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+odbc_data_type_SUITE:varchar_lower_limit failed on line 356
+Reason: {badmatch,{error,"General error: <main>:1:42: Error: mismatc...}
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Testing lib.odbc.odbc_data_type_SUITE: *** FAILED test case 1 of 40 ***
+Testing lib.odbc.odbc_data_type_SUITE: *** SKIPPED test case 2 of 40 ***
+Testing lib.odbc.odbc_data_type_SUITE: *** SKIPPED test case 5 of 40 ***
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+odbc_data_type_SUITE:char_fixed_lower_limit failed on line 244
+Reason: {badmatch,{error,"General error: <main>:1:39: Error: mismatc...}
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Testing lib.odbc.odbc_data_type_SUITE: *** FAILED test case 6 of 40 ***
+Testing lib.odbc.odbc_data_type_SUITE: *** SKIPPED test case 7 of 40 ***
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+odbc_data_type_SUITE:char_fixed_padding failed on line 326
+Reason: {badmatch,{error,"General error: <main>:1:39: Error: mismatc...}
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Testing lib.odbc.odbc_data_type_SUITE: *** FAILED test case 8 of 40 ***
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+odbc_data_type_SUITE:binary_varchar_lower_limit failed on line 632
+Reason: {badmatch,{error,"General error: <main>:1:42: Error: mismatc...}
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Testing lib.odbc.odbc_data_type_SUITE: *** FAILED test case 9 of 40 ***
+Testing lib.odbc.odbc_data_type_SUITE: *** SKIPPED test case 10 of 40 ***
+Testing lib.odbc.odbc_data_type_SUITE: *** SKIPPED test case 13 of 40 ***
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+odbc_data_type_SUITE:binary_char_fixed_lower_limit failed on line 515
+Reason: {badmatch,{error,"General error: <main>:1:39: Error: mismatc...}
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Testing lib.odbc.odbc_data_type_SUITE: *** FAILED test case 14 of 40 ***
+Testing lib.odbc.odbc_data_type_SUITE: *** SKIPPED test case 15 of 40 ***
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+odbc_data_type_SUITE:binary_char_fixed_padding failed on line 602
+Reason: {badmatch,{error,"General error: <main>:1:39: Error: mismatc...}
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Testing lib.odbc.odbc_data_type_SUITE: *** FAILED test case 16 of 40 ***
+
+----------------------------------------------------
+2026-10-22 08:58:49.461
+UnicodeIn: [<<195,150,195,132,195,133,195,132,195,150,195,133,195,164,195,182,
+              195,165>>,
+            <<"testasdf">>,<<"Row 3">>,<<"Row 4">>,<<"Row 5">>,<<"Row 6">>,
+            <<"Row 7">>,<<"Row 8">>,<<"Row 9">>,<<"Row 10">>,<<"Row 11">>,
+            <<"Row 12">>] 
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:49.507
+UnicodeOut: [{<<195,150,195,132,195,133,195,132,195,150,195,133,195,164,195,
+                182,195,165>>},
+             {<<"testasdf">>},
+             {<<"Row 3">>},
+             {<<"Row 4">>},
+             {<<"Row 5">>},
+             {<<"Row 6">>},
+             {<<"Row 7">>},
+             {<<"Row 8">>},
+             {<<"Row 9">>},
+             {<<"Row 10">>},
+             {<<"Row 11">>},
+             {<<"Row 12">>}]
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:49.507
+Result: ["÷ƒ≈ƒ÷≈‰ˆÂ","testasdf","Row 3","Row 4","Row 5","Row 6","Row 7",
+         "Row 8","Row 9","Row 10","Row 11","Row 12"] 
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:49.603
+UnicodeIn (utf 16): [<<214,0,196,0,197,0,196,0,214,0,197,0,228,0,246,0,229,0>>,
+                     <<116,0,101,0,115,0,116,0,97,0,115,0,100,0,102,0>>,
+                     <<82,0,111,0,119,0,32,0,51,0>>,
+                     <<82,0,111,0,119,0,32,0,52,0>>,
+                     <<82,0,111,0,119,0,32,0,53,0>>,
+                     <<82,0,111,0,119,0,32,0,54,0>>,
+                     <<82,0,111,0,119,0,32,0,55,0>>,
+                     <<82,0,111,0,119,0,32,0,56,0>>,
+                     <<82,0,111,0,119,0,32,0,57,0>>,
+                     <<82,0,111,0,119,0,32,0,49,0,48,0>>,
+                     <<82,0,111,0,119,0,32,0,49,0,49,0>>,
+                     <<82,0,111,0,119,0,32,0,49,0,50,0>>] 
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:49.659
+UnicodeOut: [{<<195,150,195,132,195,133,195,132,195,150,195,133,195,164,195,
+                182,195,165>>},
+             {<<"testasdf">>},
+             {<<"Row 3">>},
+             {<<"Row 4">>},
+             {<<"Row 5">>},
+             {<<"Row 6">>},
+             {<<"Row 7">>},
+             {<<"Row 8">>},
+             {<<"Row 9">>},
+             {<<"Row 10">>},
+             {<<"Row 11">>},
+             {<<"Row 12">>}]
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:49.659
+Result: [[38595,33987,34243,33987,38595,34243,42179,46787,42435],
+         [25972,29811,29537,26212],
+         {incomplete,[28498,8311],<<"3">>},
+         {incomplete,[28498,8311],<<"4">>},
+         {incomplete,[28498,8311],<<"5">>},
+         {incomplete,[28498,8311],<<"6">>},
+         {incomplete,[28498,8311],<<"7">>},
+         {incomplete,[28498,8311],<<"8">>},
+         {incomplete,[28498,8311],<<"9">>},
+         [28498,8311,12337],
+         [28498,8311,12593],
+         [28498,8311,12849]]
+
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+string:strip_left failed on line 2107
+Reason: {function_clause,[{string,...},{...}|...]}
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Testing lib.odbc.odbc_data_type_SUITE: *** FAILED test case 18 of 40 ***
+
+----------------------------------------------------
+2026-10-22 08:58:49.755
+UnicodeIn (utf 16): [<<214,0,196,0,197,0,196,0,214,0,197,0,228,0,246,0,229,0>>,
+                     <<116,0,101,0,115,0,116,0,97,0,115,0,100,0,102,0>>,
+                     <<82,0,111,0,119,0,32,0,51,0>>,
+                     <<82,0,111,0,119,0,32,0,52,0>>,
+                     <<82,0,111,0,119,0,32,0,53,0>>,
+                     <<82,0,111,0,119,0,32,0,54,0>>,
+                     <<82,0,111,0,119,0,32,0,55,0>>,
+                     <<82,0,111,0,119,0,32,0,56,0>>,
+                     <<82,0,111,0,119,0,32,0,57,0>>,
+                     <<82,0,111,0,119,0,32,0,49,0,48,0>>,
+                     <<82,0,111,0,119,0,32,0,49,0,49,0>>,
+                     <<82,0,111,0,119,0,32,0,49,0,50,0>>] 
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:49.804
+UnicodeOut: [{<<195,150,195,132,195,133,195,132,195,150,195,133,195,164,195,
+                182,195,165>>},
+             {<<"testasdf">>},
+             {<<"Row 3">>},
+             {<<"Row 4">>},
+             {<<"Row 5">>},
+             {<<"Row 6">>},
+             {<<"Row 7">>},
+             {<<"Row 8">>},
+             {<<"Row 9">>},
+             {<<"Row 10">>},
+             {<<"Row 11">>},
+             {<<"Row 12">>}]
+
+
+
+----------------------------------------------------
+2026-10-22 08:58:49.804
+Result: [[38595,33987,34243,33987,38595,34243,42179,46787,42435],
+         [25972,29811,29537,26212],
+         {incomplete,[28498,8311],<<"3">>},
+         {incomplete,[28498,8311],<<"4">>},
+         {incomplete,[28498,8311],<<"5">>},
+         {incomplete,[28498,8311],<<"6">>},
+         {incomplete,[28498,8311],<<"7">>},
+         {incomplete,[28498,8311],<<"8">>},
+         {incomplete,[28498,8311],<<"9">>},
+         [28498,8311,12337],
+         [28498,8311,12593],
+         [28498,8311,12849]]
+
+
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+string:strip_left failed on line 2107
+Reason: {function_clause,[{string,...},{...}|...]}
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Testing lib.odbc.odbc_data_type_SUITE: *** FAILED test case 19 of 40 ***
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+odbc_data_type_SUITE:float_lower_limit failed on line 1099
+Reason: {badmatch,{updated,1}}
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Testing lib.odbc.odbc_data_type_SUITE: *** FAILED test case 30 of 40 ***
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+odbc_data_type_SUITE:float_upper_limit failed on line 1129
+Reason: {badmatch,{updated,1}}
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Testing lib.odbc.odbc_data_type_SUITE: *** FAILED test case 31 of 40 ***
+=INFO REPORT==== 22-Oct-2026::08:58:53.028236 ===
+    application: odbc
+    exited: stopped
+    type: temporary
+
+Testing lib.odbc.odbc_data_type_SUITE: TEST COMPLETE, 24 ok, 10 failed, 6 skipped of 40 test cases
+
+Updating /results/native/ct/index.html ... done
+Updating /results/native/ct/all_runs.html ... done

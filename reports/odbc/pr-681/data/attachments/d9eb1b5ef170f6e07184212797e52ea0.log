@@ -1,0 +1,11 @@
+1..8
+ok 1 - use ODBCTEST;
+# 
+# Some of these tests may fail for your driver - please let me know if they do along with the strings YDB/ydb-odbc
+ok 2 - Prepare with trailing comment and named placeholder
+ok 3 - Prepare with leading comment and named placeholder
+ok 4 - Prepare with line comment named placeholder
+ok 5 - Prepare with leading comment and ? placeholder
+ok 6 - Prepare with line comment and ? placeholder
+ok 7 - Prepare with ? placeholder in literal
+ok 8 - Prepare with named placeholder in literal

@@ -1,0 +1,3 @@
+ok 1 - use ODBCTEST;
+ok 2 - User/pass appended to DSN
+1..2

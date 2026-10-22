@@ -1,0 +1,34 @@
+===FAIL===
+
+Warning: PDO::query(): SQLSTATE[%s]: %s
+%A
+===TEST===
+bool(true)
+bool(true)
+bool(true)
+===GOOD===
+array(3) {
+  [0]=>
+  string(5) "00000"
+  [1]=>
+  NULL
+  [2]=>
+  NULL
+}
+===FAIL===
+
+Warning: PDO::exec(): SQLSTATE[%s]: %s
+%A
+===TEST===
+bool(true)
+bool(true)
+bool(true)
+===GOOD===
+array(3) {
+  [0]=>
+  string(5) "00000"
+  [1]=>
+  NULL
+  [2]=>
+  NULL
+}
