@@ -15,19 +15,17 @@ The native SDK/compiler/YDB-version matrix remains separate.
 | Haskell | HDBC-odbc HUnit tests |
 | Ruby | ruby-odbc ANSI and UTF-8 tests |
 | Lua | LuaSQL ODBC tests |
-| Perl | DBD::ODBC TAP tests |
 | R | odbc generic tests and DBItest's standard ODBC contract |
 
 All bindings run in DSN and connection-string modes. R's Arrow and stress suites are
-separate APIs and are outside this ODBC contract. Perl's POD documentation checks are
-outside the runtime suite. Julia and Tcl are outside the ticket.
+separate APIs and are outside this ODBC contract. Julia and Tcl are outside the ticket.
 
 ## Sources and fixtures
 
 Runtime bases and YDB are digest-pinned. Each consumer has a checksum-locked source
 archive and `upstream.lock`. PHP/Erlang sources match the installed Ubuntu runtime
-release. Ruby, Lua, Haskell, Perl and R bindings build from their locked source. Perl enables
-the binding's Unicode build. R additionally locks DBItest in `test-sources.lock`.
+release. Ruby, Lua, Haskell and R bindings build from their locked source.
+R additionally locks DBItest in `test-sources.lock`.
 
 Sources are downloaded only into the test container, checked before extraction, and
 kept out of SDK packages. Fixture patches apply to writable copies. They may change
