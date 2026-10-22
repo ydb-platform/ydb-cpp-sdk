@@ -9,10 +9,8 @@ The native SDK/compiler/YDB-version matrix remains separate.
 | package-contract | Debian installation, upgrade, removal and replacement |
 | isql | unixODBC scalar-query smoke test (DSN) |
 | Qt | QtSql database, query, model and threading tests |
-| Erlang | OTP ODBC Common Test suites |
 | PHP | ext/odbc PHPT tests |
 | PHP PDO | PDO_ODBC and generic PDO PHPT tests |
-| Haskell | HDBC-odbc HUnit tests |
 | Ruby | ruby-odbc ANSI and UTF-8 tests |
 | Lua | LuaSQL ODBC tests |
 | R | odbc generic tests and DBItest's standard ODBC contract |
@@ -23,8 +21,8 @@ separate APIs and are outside this ODBC contract. Julia and Tcl are outside the 
 ## Sources and fixtures
 
 Runtime bases and YDB are digest-pinned. Each consumer has a checksum-locked source
-archive and `upstream.lock`. PHP/Erlang sources match the installed Ubuntu runtime
-release. Ruby, Lua, Haskell and R bindings build from their locked source.
+archive and `upstream.lock`. PHP sources match the installed Ubuntu runtime
+release. Ruby, Lua and R bindings build from their locked source.
 R additionally locks DBItest in `test-sources.lock`.
 
 Sources are downloaded only into the test container, checked before extraction, and
