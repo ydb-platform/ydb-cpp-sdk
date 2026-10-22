@@ -1,6 +1,0 @@
-kind: archive
-url: https://codeload.github.com/erlang/otp/tar.gz/refs/tags/OTP-25.3.2.8
-revision: OTP-25.3.2.8
-sha256: 6b8a6dcfd294ee9d88e47721a6f897603532575329fea587240776c02b232d38
-license: Apache-2.0
-ci_only: true
