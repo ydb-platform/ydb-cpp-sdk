@@ -1,0 +1,505 @@
+--- a/ext/odbc/tests/bug44618.phpt
++++ b/ext/odbc/tests/bug44618.phpt
+@@ -15,8 +15,8 @@
+ include __DIR__ . "/config.inc";
+ $conn = odbc_connect($dsn, $user, $pass, SQL_CUR_USE_ODBC);
+ 
+-odbc_exec($conn, "CREATE TABLE bug44618(ID INT, real1 REAL, text1 TEXT)");
+-odbc_exec($conn, "INSERT INTO bug44618 VALUES (1, 10.0199995, 'testing 1,2,3')");
++odbc_exec($conn, "CREATE TABLE bug44618 (ID INT, real1 Float, text1 Utf8, PRIMARY KEY (ID))");
++odbc_exec($conn, "INSERT INTO bug44618 (ID, real1, text1) VALUES (1, 10.0199995, 'testing 1,2,3')");
+ 
+ $result = odbc_exec($conn, "SELECT * FROM bug44618");
+ var_dump(odbc_fetch_array($result));
+--- a/ext/odbc/tests/bug47803.phpt
++++ b/ext/odbc/tests/bug47803.phpt
+@@ -10,15 +10,15 @@
+ include __DIR__ . "/config.inc";
+ 
+ $create_table = "CREATE TABLE bug47803(
+-        [PAR_ID] [int] NOT NULL,
+-        [PAR_INT] [int] NULL,
+-        [PAR_CHR] [varchar](500) NULL
++        `PAR_ID` Int32 NOT NULL,
++        `PAR_INT` Int32 NULL,
++        `PAR_CHR` Utf8 NULL, PRIMARY KEY (`PAR_ID`)
+ )";
+ 
+ $inserts = "INSERT INTO bug47803
+-           ([PAR_ID]
+-           ,[PAR_INT]
+-           ,[PAR_CHR])
++           (`PAR_ID`
++           ,`PAR_INT`
++           ,`PAR_CHR`)
+      VALUES
+         (1,14,''),
+         (2,30,''),
+@@ -53,8 +53,8 @@
+     array('id'=>6, 'name'=>'test 6'),
+ );
+ $sql = "UPDATE bug47803
+-     SET [PAR_CHR] = ?
+-     WHERE [PAR_ID] = ?";
++     SET `PAR_CHR` = ?
++     WHERE `PAR_ID` = ?";
+ $result = odbc_prepare($link, $sql);
+ if (!$result) {
+     print ('[sql] prep: '.$sql);
+@@ -68,7 +68,7 @@
+ }
+ odbc_free_result($result);
+ 
+-$sql = "SELECT * FROM bug47803 WHERE [PAR_ID] = ?";
++$sql = "SELECT PAR_ID, PAR_INT, PAR_CHR FROM bug47803 WHERE `PAR_ID` = ?";
+ $result = odbc_prepare($link, $sql);
+ if (!$result) {
+     print ('[sql] prep: '.$sql);
+--- a/ext/odbc/tests/bug60616.phpt
++++ b/ext/odbc/tests/bug60616.phpt
+@@ -6,6 +6,7 @@
+ --SKIPIF--
+ <?php
+ include 'skipif.inc';
++die("skip YDB databases require UTF-8, not EUC_JP");
+ if ("unixODBC" != ODBC_TYPE) {
+     die("skip ODBC_TYPE != unixODBC");
+ }
+--- a/ext/odbc/tests/bug68087.phpt
++++ b/ext/odbc/tests/bug68087.phpt
+@@ -14,9 +14,9 @@
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+ 
+-odbc_exec($conn, 'CREATE TABLE bug68087 (ID INT, VARCHAR_COL VARCHAR(100), DATE_COL DATE)');
++odbc_exec($conn, 'CREATE TABLE bug68087 (ID INT, VARCHAR_COL Utf8, DATE_COL DATE, PRIMARY KEY (ID))');
+ 
+-odbc_exec($conn, "INSERT INTO bug68087(ID, VARCHAR_COL, DATE_COL) VALUES (1, 'hello', '$id_1_date'), (2, 'helloagain', '$id_2_date')");
++odbc_exec($conn, "INSERT INTO bug68087(ID, VARCHAR_COL, DATE_COL) VALUES (1, 'hello', Date('$id_1_date')), (2, 'helloagain', Date('$id_2_date'))");
+ 
+ $res = odbc_exec($conn, 'SELECT * FROM bug68087 ORDER BY ID ASC');
+ 
+--- a/ext/odbc/tests/bug69354.phpt
++++ b/ext/odbc/tests/bug69354.phpt
+@@ -11,7 +11,7 @@
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+ 
+-odbc_exec($conn, 'CREATE TABLE bug69354 (ID INT, VARCHAR_COL VARCHAR(100))');
++odbc_exec($conn, 'CREATE TABLE bug69354 (ID INT, VARCHAR_COL Utf8, PRIMARY KEY (ID))');
+ 
+ odbc_exec($conn, "INSERT INTO bug69354(ID, VARCHAR_COL) VALUES (1, '" . str_repeat("a", 100) . "')");
+ 
+--- a/ext/odbc/tests/bug69975.phpt
++++ b/ext/odbc/tests/bug69975.phpt
+@@ -9,8 +9,8 @@
+ include 'config.inc';
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+-odbc_exec($conn, 'CREATE TABLE bug69975 (ID INT, VARCHAR_COL NVARCHAR(MAX))');
+-odbc_exec($conn, "INSERT INTO bug69975 VALUES (1, 'foo')");
++odbc_exec($conn, 'CREATE TABLE bug69975 (ID INT, VARCHAR_COL Utf8, PRIMARY KEY (ID))');
++odbc_exec($conn, "INSERT INTO bug69975 (ID, VARCHAR_COL) VALUES (1, 'foo')");
+ 
+ $result = odbc_exec($conn, "SELECT VARCHAR_COL FROM bug69975");
+ var_dump(odbc_fetch_array($result));
+--- a/ext/odbc/tests/bug71171.phpt
++++ b/ext/odbc/tests/bug71171.phpt
+@@ -11,7 +11,7 @@
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+ 
+-odbc_exec($conn, 'CREATE TABLE bug71171 (ID INT, VARCHAR_COL NVARCHAR(40))');
++odbc_exec($conn, 'CREATE TABLE bug71171 (ID INT, VARCHAR_COL Utf8, PRIMARY KEY (ID))');
+ 
+ odbc_exec($conn, "INSERT INTO bug71171(ID, VARCHAR_COL) VALUES (1, '" . chr(0x81) . "')");
+ 
+--- a/ext/odbc/tests/bug73725.phpt
++++ b/ext/odbc/tests/bug73725.phpt
+@@ -11,9 +11,9 @@
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+ 
+-odbc_do($conn, "CREATE TABLE bug73725(i int, txt varchar(max), k int)");
++odbc_do($conn, "CREATE TABLE bug73725 (i int, txt Utf8, k int, PRIMARY KEY (i))");
+ 
+-odbc_do($conn, "INSERT INTO bug73725 VALUES(101,'Any text', 33), (102,'Lorem ipsum dolor', 34)");
++odbc_do($conn, "INSERT INTO bug73725 (i, txt, k) VALUES(101,'Any text', 33), (102,'Lorem ipsum dolor', 34)");
+ 
+ $rc = odbc_do($conn, "SELECT i, txt, k FROM bug73725");
+ 
+--- a/ext/odbc/tests/bug80147.phpt
++++ b/ext/odbc/tests/bug80147.phpt
+@@ -10,8 +10,8 @@
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+ 
+-odbc_exec($conn, "CREATE TABLE bug80147 (id INT, whatever VARBINARY(50))");
+-odbc_exec($conn, "INSERT INTO bug80147 VALUES (1, CONVERT(VARBINARY(50), 'whatever'))");
++odbc_exec($conn, "CREATE TABLE bug80147 (id INT, whatever String, PRIMARY KEY (id))");
++odbc_exec($conn, "INSERT INTO bug80147 (id, whatever) VALUES (1, CAST('whatever' AS String))");
+ 
+ $res = odbc_exec($conn, "SELECT * FROM bug80147");
+ odbc_binmode($res, ODBC_BINMODE_RETURN);
+--- a/ext/odbc/tests/bug80152.phpt
++++ b/ext/odbc/tests/bug80152.phpt
+@@ -9,7 +9,7 @@
+ include 'config.inc';
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+-odbc_exec($conn,"CREATE TABLE bug80152 (id INT, name CHAR(24))"); 
++odbc_exec($conn,"CREATE TABLE bug80152 (id INT, name Utf8, PRIMARY KEY (id))"); 
+ $stmt = odbc_prepare($conn,"INSERT INTO bug80152 (id, name) VALUES (?, ?)");
+ $params = [1, "John", "Lim"];
+ var_dump(key($params));
+--- a/ext/odbc/tests/bug80592.phpt
++++ b/ext/odbc/tests/bug80592.phpt
+@@ -9,7 +9,7 @@
+ include 'config.inc';
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+-odbc_exec($conn,"CREATE TABLE bug80592 (f1 float not null, f2 float not null, f3 float not null)"); 
++odbc_exec($conn,"CREATE TABLE bug80592 (f1 float not null, f2 float not null, f3 float not null, ydb_fixture_id Int32, PRIMARY KEY (ydb_fixture_id))"); 
+ $stmt = odbc_prepare($conn, "INSERT INTO bug80592 (f1, f2, f3) values (?, ?, ?)");
+ odbc_execute($stmt, [1.0, 2.0, 3.0]);
+ $res = odbc_exec($conn, "SELECT f1, f2, f3 from bug80592");
+--- a/ext/odbc/tests/config.inc
++++ b/ext/odbc/tests/config.inc
+@@ -8,7 +8,7 @@
+     $dsn = 'myodbc3';
+ }
+ if (false === $user) {
+-    $user = 'root';
++    $user = '';
+ }
+ if (false == $pass) {
+     $pass = '';
+--- a/ext/odbc/tests/odbc_columns_001.phpt
++++ b/ext/odbc/tests/odbc_columns_001.phpt
+@@ -8,6 +8,7 @@
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+ $result = @odbc_exec($conn, "SELECT @@Version");
++if (!$result) die("skip MS SQL specific test");
+ if ($result) {
+     $array = odbc_fetch_array($result);
+     $info = (string) reset($array);
+@@ -24,7 +25,7 @@
+ $conn = odbc_connect($dsn, $user, $pass);
+ odbc_exec($conn, 'CREATE DATABASE ColumnsTest');
+ odbc_exec($conn, 'USE ColumnsTest');
+-odbc_exec($conn, 'CREATE TABLE columns (foo INT NOT NULL, bar VARCHAR(20))');
++odbc_exec($conn, 'CREATE TABLE columns (foo INT NOT NULL, bar Utf8, PRIMARY KEY (foo))');
+ 
+ $res = odbc_columns($conn, "ColumnsTest", "dbo", "columns", "foo");
+ var_dump(odbc_fetch_array($res));
+--- a/ext/odbc/tests/odbc_commit_001.phpt
++++ b/ext/odbc/tests/odbc_commit_001.phpt
+@@ -10,10 +10,10 @@
+ include 'config.inc';
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+-odbc_exec($conn, 'CREATE TABLE commit_table (test INT)');
++odbc_exec($conn, 'CREATE TABLE commit_table (test INT, PRIMARY KEY (test))');
+ 
+ odbc_autocommit($conn, false);
+-odbc_exec($conn, 'INSERT INTO commit_table VALUES(1)');
++odbc_exec($conn, 'INSERT INTO commit_table (test) VALUES(1)');
+ var_dump(odbc_commit($conn));
+ 
+ $res = odbc_exec($conn, 'SELECT * FROM commit_table');
+--- a/ext/odbc/tests/odbc_cursor_001.phpt
++++ b/ext/odbc/tests/odbc_cursor_001.phpt
+@@ -10,8 +10,8 @@
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+ 
+-odbc_exec($conn, "CREATE TABLE cursor_table (id INT, whatever TEXT)");
+-odbc_exec($conn, "INSERT INTO cursor_table VALUES (1, 'whatever')");
++odbc_exec($conn, "CREATE TABLE cursor_table (id INT, whatever Utf8, PRIMARY KEY (id))");
++odbc_exec($conn, "INSERT INTO cursor_table (id, whatever) VALUES (1, 'whatever')");
+ $res = odbc_exec($conn, 'SELECT * FROM cursor_table');
+ 
+ var_dump(odbc_cursor($res));
+--- a/ext/odbc/tests/odbc_data_source_001.phpt
++++ b/ext/odbc/tests/odbc_data_source_001.phpt
+@@ -17,7 +17,7 @@
+ $conn = odbc_connect($dsn, $user, $pass);
+ 
+ try {
+-    var_dump(odbc_data_source($conn, NULL));
++    var_dump(odbc_data_source($conn, 0));
+ } catch (\ValueError $e) {
+     echo $e->getMessage() . \PHP_EOL;
+ }
+--- a/ext/odbc/tests/odbc_exec_002.phpt
++++ b/ext/odbc/tests/odbc_exec_002.phpt
+@@ -11,8 +11,8 @@
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+ 
+-odbc_exec($conn, 'CREATE TABLE exec2 (TEST INT)');
+-odbc_exec($conn, 'INSERT INTO exec2 VALUES (1), (2)');
++odbc_exec($conn, 'CREATE TABLE exec2 (test INT, PRIMARY KEY (test))');
++odbc_exec($conn, 'INSERT INTO exec2 (test) VALUES (1), (2)');
+ 
+ $res = odbc_exec($conn, 'SELECT * FROM exec2');
+ 
+--- a/ext/odbc/tests/odbc_fetch_array_001.phpt
++++ b/ext/odbc/tests/odbc_fetch_array_001.phpt
+@@ -11,8 +11,8 @@
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+ 
+-odbc_exec($conn, 'CREATE TABLE fetch_array (foo INT)');
+-odbc_exec($conn, 'INSERT INTO fetch_array VALUES (1), (2)');
++odbc_exec($conn, 'CREATE TABLE fetch_array (foo INT, PRIMARY KEY (foo))');
++odbc_exec($conn, 'INSERT INTO fetch_array (foo) VALUES (1), (2)');
+ 
+ $res = odbc_exec($conn, 'SELECT * FROM fetch_array');
+ 
+--- a/ext/odbc/tests/odbc_fetch_into_001.phpt
++++ b/ext/odbc/tests/odbc_fetch_into_001.phpt
+@@ -11,8 +11,8 @@
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+ 
+-odbc_exec($conn, 'CREATE TABLE fetch_into (foo INT)');
+-odbc_exec($conn, 'INSERT INTO fetch_into VALUES (1), (2)');
++odbc_exec($conn, 'CREATE TABLE fetch_into (foo INT, PRIMARY KEY (foo))');
++odbc_exec($conn, 'INSERT INTO fetch_into (foo) VALUES (1), (2)');
+ 
+ $res = odbc_exec($conn, 'SELECT * FROM fetch_into');
+ 
+--- a/ext/odbc/tests/odbc_fetch_object_001.phpt
++++ b/ext/odbc/tests/odbc_fetch_object_001.phpt
+@@ -11,8 +11,8 @@
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+ 
+-odbc_exec($conn, 'CREATE TABLE fetch_object (foo INT)');
+-odbc_exec($conn, 'INSERT INTO fetch_object VALUES (1), (2)');
++odbc_exec($conn, 'CREATE TABLE fetch_object (foo INT, PRIMARY KEY (foo))');
++odbc_exec($conn, 'INSERT INTO fetch_object (foo) VALUES (1), (2)');
+ 
+ $res = odbc_exec($conn, 'SELECT * FROM fetch_object');
+ 
+--- a/ext/odbc/tests/odbc_fetch_row_001.phpt
++++ b/ext/odbc/tests/odbc_fetch_row_001.phpt
+@@ -11,9 +11,9 @@
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+ 
+-odbc_exec($conn, 'CREATE TABLE fetch_row (test INT)');
++odbc_exec($conn, 'CREATE TABLE fetch_row (test INT, PRIMARY KEY (test))');
+ 
+-odbc_exec($conn, 'INSERT INTO fetch_row VALUES (1), (2)');
++odbc_exec($conn, 'INSERT INTO fetch_row (test) VALUES (1), (2)');
+ 
+ $res = odbc_exec($conn, 'SELECT * FROM fetch_row');
+ 
+--- a/ext/odbc/tests/odbc_field_len_001.phpt
++++ b/ext/odbc/tests/odbc_field_len_001.phpt
+@@ -11,9 +11,9 @@
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+ 
+-odbc_exec($conn, 'CREATE TABLE field_len (foo INT, bar TEXT, baz VARBINARY(50))');
++odbc_exec($conn, 'CREATE TABLE field_len (foo INT, bar Utf8, baz String, PRIMARY KEY (foo))');
+ 
+-$res = odbc_exec($conn, 'SELECT * FROM field_len');
++$res = odbc_exec($conn, 'SELECT foo, bar, baz FROM field_len');
+ try {
+     odbc_field_len($res, 0);
+ } catch (ValueError $error) {
+--- a/ext/odbc/tests/odbc_field_name_001.phpt
++++ b/ext/odbc/tests/odbc_field_name_001.phpt
+@@ -11,9 +11,9 @@
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+ 
+-odbc_exec($conn, 'CREATE TABLE field_name (foo INT, bar INT, baz INT)');
++odbc_exec($conn, 'CREATE TABLE field_name (foo INT, bar INT, baz INT, PRIMARY KEY (foo))');
+ 
+-$res = odbc_exec($conn, 'SELECT * FROM field_name');
++$res = odbc_exec($conn, 'SELECT foo, bar, baz FROM field_name');
+ try {
+     odbc_field_name($res, 0);
+ } catch (ValueError $error) {
+--- a/ext/odbc/tests/odbc_field_num_001.phpt
++++ b/ext/odbc/tests/odbc_field_num_001.phpt
+@@ -11,9 +11,9 @@
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+ 
+-odbc_exec($conn, 'CREATE TABLE field_num (foo INT, bar REAL, baz VARBINARY(50))');
++odbc_exec($conn, 'CREATE TABLE field_num (foo INT, bar Float, baz String, PRIMARY KEY (foo))');
+ 
+-$res = odbc_exec($conn, 'SELECT * FROM field_num');
++$res = odbc_exec($conn, 'SELECT foo, bar, baz FROM field_num');
+ var_dump(odbc_field_num($res, "foo"));
+ var_dump(odbc_field_num($res, "bar"));
+ var_dump(odbc_field_num($res, "baz"));
+--- a/ext/odbc/tests/odbc_field_precision_001.phpt
++++ b/ext/odbc/tests/odbc_field_precision_001.phpt
+@@ -11,9 +11,9 @@
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+ 
+-odbc_exec($conn, 'CREATE TABLE field_precision (foo INT, bar REAL, baz VARBINARY(50))');
++odbc_exec($conn, 'CREATE TABLE field_precision (foo INT, bar Float, baz String, PRIMARY KEY (foo))');
+ 
+-$res = odbc_exec($conn, 'SELECT * FROM field_precision');
++$res = odbc_exec($conn, 'SELECT foo, bar, baz FROM field_precision');
+ try {
+     odbc_field_precision($res, 0);
+ } catch (ValueError $error) {
+--- a/ext/odbc/tests/odbc_field_scale_001.phpt
++++ b/ext/odbc/tests/odbc_field_scale_001.phpt
+@@ -11,9 +11,9 @@
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+ 
+-odbc_exec($conn, 'CREATE TABLE field_scale (foo INT, bar REAL, baz VARBINARY(50))');
++odbc_exec($conn, 'CREATE TABLE field_scale (foo INT, bar Float, baz String, PRIMARY KEY (foo))');
+ 
+-$res = odbc_exec($conn, 'SELECT * FROM field_scale');
++$res = odbc_exec($conn, 'SELECT foo, bar, baz FROM field_scale');
+ try {
+     odbc_field_scale($res, 0);
+ } catch (ValueError $error) {
+--- a/ext/odbc/tests/odbc_field_type_001.phpt
++++ b/ext/odbc/tests/odbc_field_type_001.phpt
+@@ -11,9 +11,9 @@
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+ 
+-odbc_exec($conn, 'CREATE TABLE field_type (foo INT, bar TEXT, baz VARBINARY(50))');
++odbc_exec($conn, 'CREATE TABLE field_type (foo INT, bar Utf8, baz String, PRIMARY KEY (foo))');
+ 
+-$res = odbc_exec($conn, 'SELECT * FROM field_type');
++$res = odbc_exec($conn, 'SELECT foo, bar, baz FROM field_type');
+ try {
+     odbc_field_type($res, 0);
+ } catch (ValueError $error) {
+@@ -33,9 +33,9 @@
+ ?>
+ --EXPECTF--
+ odbc_field_type(): Argument #2 ($field) must be greater than 0
+-string(3) "int"
+-string(4) "text"
+-string(9) "varbinary"
++string(7) "INTEGER"
++string(7) "VARCHAR"
++string(9) "VARBINARY"
+ 
+ Warning: odbc_field_type(): Field index larger than number of fields in %s on line %d
+ bool(false)
+--- a/ext/odbc/tests/odbc_free_result_001.phpt
++++ b/ext/odbc/tests/odbc_free_result_001.phpt
+@@ -11,9 +11,9 @@
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+ 
+-odbc_exec($conn, 'CREATE TABLE free_result (TEST INT NOT NULL)');
++odbc_exec($conn, 'CREATE TABLE free_result (test INT NOT NULL, PRIMARY KEY (test))');
+ 
+-odbc_exec($conn, 'INSERT INTO free_result VALUES (1), (2)');
++odbc_exec($conn, 'INSERT INTO free_result (test) VALUES (1), (2)');
+ 
+ $res = odbc_exec($conn, 'SELECT * FROM free_result');
+ 
+--- a/ext/odbc/tests/odbc_longreadlen_001.phpt
++++ b/ext/odbc/tests/odbc_longreadlen_001.phpt
+@@ -10,8 +10,8 @@
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+ 
+-odbc_exec($conn, "CREATE TABLE longreadlen (id INT, whatever VARBINARY(50))");
+-odbc_exec($conn, "INSERT INTO longreadlen VALUES (1, CONVERT(VARBINARY(50), 'whatever'))");
++odbc_exec($conn, "CREATE TABLE longreadlen (id INT, whatever String, PRIMARY KEY (id))");
++odbc_exec($conn, "INSERT INTO longreadlen (id, whatever) VALUES (1, CAST('whatever' AS String))");
+ 
+ $res = odbc_exec($conn, "SELECT * FROM longreadlen");
+ odbc_longreadlen($res, 4);
+--- a/ext/odbc/tests/odbc_num_fields_001.phpt
++++ b/ext/odbc/tests/odbc_num_fields_001.phpt
+@@ -11,8 +11,8 @@
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+ 
+-odbc_exec($conn, 'CREATE TABLE num_fields (foo INT, bar INT, baz INT)');
+-odbc_exec($conn, 'INSERT INTO num_fields VALUES (1, 2, 3)');
++odbc_exec($conn, 'CREATE TABLE num_fields (foo INT, bar INT, baz INT, PRIMARY KEY (foo))');
++odbc_exec($conn, 'INSERT INTO num_fields (foo, bar, baz) VALUES (1, 2, 3)');
+ 
+ $res = odbc_exec($conn, 'SELECT * FROM num_fields');
+ var_dump(odbc_num_fields($res));
+--- a/ext/odbc/tests/odbc_num_rows_001.phpt
++++ b/ext/odbc/tests/odbc_num_rows_001.phpt
+@@ -11,8 +11,8 @@
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+ 
+-odbc_exec($conn, 'CREATE TABLE num_rows (test INT)');
+-odbc_exec($conn, 'INSERT INTO num_rows VALUES (1), (2), (3)');
++odbc_exec($conn, 'CREATE TABLE num_rows (test INT, PRIMARY KEY (test))');
++odbc_exec($conn, 'INSERT INTO num_rows (test) VALUES (1), (2), (3)');
+ 
+ $res = odbc_exec($conn, 'SELECT * FROM num_rows');
+ var_dump(odbc_num_rows($res));
+--- a/ext/odbc/tests/odbc_persistent_close.phpt
++++ b/ext/odbc/tests/odbc_persistent_close.phpt
+@@ -15,6 +15,7 @@
+ // Since CI runs ODBC tests with SQL Server, just use an SQL Server specific way of testing.
+ $conn = odbc_connect($dsn, $user, $pass);
+ $result = @odbc_exec($conn, "SELECT @@Version");
++if (!$result) die("skip MS SQL specific test");
+ if ($result) {
+     $array = odbc_fetch_array($result);
+     $info = (string) reset($array);
+--- a/ext/odbc/tests/odbc_primarykeys_001.phpt
++++ b/ext/odbc/tests/odbc_primarykeys_001.phpt
+@@ -8,6 +8,7 @@
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+ $result = @odbc_exec($conn, "SELECT @@Version");
++if (!$result) die("skip MS SQL specific test");
+ if ($result) {
+     $array = odbc_fetch_array($result);
+     $info = (string) reset($array);
+@@ -25,7 +26,7 @@
+ $conn = odbc_connect($dsn, $user, $pass);
+ odbc_exec($conn, 'CREATE DATABASE PrimarykeysTest');
+ odbc_exec($conn, 'USE PrimarykeysTest');
+-odbc_exec($conn, 'CREATE TABLE primarykeys (test INT NOT NULL)');
++odbc_exec($conn, 'CREATE TABLE primarykeys (test INT NOT NULL, PRIMARY KEY (test))');
+ 
+ $res = odbc_primarykeys($conn, "PrimarykeysTest", "dbo", "primarykeys");
+ var_dump(odbc_fetch_array($res));
+--- a/ext/odbc/tests/odbc_rollback_001.phpt
++++ b/ext/odbc/tests/odbc_rollback_001.phpt
+@@ -10,10 +10,10 @@
+ include 'config.inc';
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+-odbc_exec($conn, 'CREATE TABLE rollback_table (test INT)');
++odbc_exec($conn, 'CREATE TABLE rollback_table (test INT, PRIMARY KEY (test))');
+ 
+ odbc_autocommit($conn, false);
+-odbc_exec($conn, 'INSERT INTO rollback_table VALUES(1)');
++odbc_exec($conn, 'INSERT INTO rollback_table (test) VALUES(1)');
+ var_dump(odbc_rollback($conn));
+ 
+ $res = odbc_exec($conn, 'SELECT * FROM rollback_table');
+--- a/ext/odbc/tests/skipif.inc
++++ b/ext/odbc/tests/skipif.inc
+@@ -2,7 +2,7 @@
+ 
+ include 'config.inc';
+ 
+-$conn = @odbc_connect($dsn, $user, $pass);
++$conn = odbc_connect($dsn, $user, $pass);
+ if (!$conn) {
+     die('skip could not connect');
+ }

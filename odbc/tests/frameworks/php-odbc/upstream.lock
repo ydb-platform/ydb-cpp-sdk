@@ -1,0 +1,6 @@
+kind: archive
+url: https://codeload.github.com/php/php-src/tar.gz/refs/tags/php-8.3.6
+revision: php-8.3.6
+sha256: af9ca6ea711391eaf74793beeebeb66e8bf7756297d1bc97a293166282a0ba77
+license: PHP-3.01
+ci_only: true

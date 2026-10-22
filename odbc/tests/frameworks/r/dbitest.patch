@@ -1,0 +1,143 @@
+--- a/R/spec-result-fetch.R
++++ b/R/spec-result-fetch.R
+@@ -89,7 +89,7 @@
+     #' Calling `dbFetch()` on a result set from a data manipulation query
+     #' created by [dbSendStatement()]
+     #' can be fetched and return an empty data frame, with a warning.
+-    query <- paste0("CREATE TABLE ", table_name, " (a integer)")
++    query <- paste0("CREATE TABLE ", table_name, " (a integer, PRIMARY KEY (a))")
+ 
+     res <- local_result(dbSendStatement(con, query))
+     expect_warning(rows <- check_df(dbFetch(res)))
+--- a/R/spec-meta-get-statement.R
++++ b/R/spec-meta-get-statement.R
+@@ -21,7 +21,7 @@
+   },
+   #
+   get_statement_statement = function(con, table_name) {
+-    query <- paste0("CREATE TABLE ", table_name, " (a integer)")
++    query <- paste0("CREATE TABLE ", table_name, " (a integer, PRIMARY KEY (a))")
+     #' or [dbSendStatement()].
+     res <- local_result(dbSendStatement(con, query))
+     s <- dbGetStatement(res)
+--- a/R/spec-meta-has-completed.R
++++ b/R/spec-meta-has-completed.R
+@@ -23,7 +23,7 @@
+   #
+   has_completed_statement = function(con, table_name) {
+     #' For a query initiated by [dbSendStatement()],
+-    res <- local_result(dbSendStatement(con, paste0("CREATE TABLE ", table_name, " (a integer)")))
++    res <- local_result(dbSendStatement(con, paste0("CREATE TABLE ", table_name, " (a integer, PRIMARY KEY (a))")))
+     #' `dbHasCompleted()` always returns `TRUE`.
+     expect_true(expect_visible(dbHasCompleted(res)))
+   },
+--- a/R/spec-meta-get-rows-affected.R
++++ b/R/spec-meta-get-rows-affected.R
+@@ -57,7 +57,7 @@
+   get_rows_affected_error = function(con, table_name) {
+     #' @section Failure modes:
+     query <- paste0(
+-      "CREATE TABLE ", dbQuoteIdentifier(con, table_name), " (a integer)"
++      "CREATE TABLE ", dbQuoteIdentifier(con, table_name), " (a integer, PRIMARY KEY (a))"
+     )
+     res <- dbSendStatement(con, query)
+     dbClearResult(res)
+--- a/R/spec-meta-is-valid.R
++++ b/R/spec-meta-is-valid.R
+@@ -44,7 +44,7 @@
+   },
+   #
+   is_valid_result_statement = function(con, table_name) {
+-    query <- paste0("CREATE TABLE ", table_name, " (a ", dbDataType(con, 1L), ")")
++    query <- paste0("CREATE TABLE ", table_name, " (a ", dbDataType(con, 1L), ", PRIMARY KEY (a))")
+     res <- dbSendStatement(con, query)
+     on.exit(dbClearResult(res))
+     #' A [DBIResult-class] object is also valid after a call to [dbSendStatement()],
+--- a/R/spec-result-create-table-with-data-type.R
++++ b/R/spec-result-create-table-with-data-type.R
+@@ -12,7 +12,7 @@
+       table_name <- random_table_name()
+       local_remove_test_table(con, table_name)
+       #' `"CREATE TABLE test (a ...)"`.
+-      query <- paste0("CREATE TABLE ", table_name, " (a ", dbDataType(con, value), ")")
++      query <- paste0("CREATE TABLE ", table_name, " (a ", dbDataType(con, value), ", ydb_fixture_id Int32, PRIMARY KEY (ydb_fixture_id))")
+       eval(bquote(dbExecute(con, .(query))))
+     }
+ 
+--- a/R/spec-getting-started.R
++++ b/R/spec-getting-started.R
+@@ -20,6 +20,7 @@
+   },
+   #
+   package_name = function(ctx) {
++    skip("Optional R-prefix package naming convention")
+     pkg_name <- package_name(ctx)
+ 
+     #' For better or worse, the names of many existing backends start with
+--- a/R/spec-result-roundtrip.R
++++ b/R/spec-result-roundtrip.R
+@@ -33,7 +33,7 @@
+     #' - [character] for text,
+     values <- get_texts()
+     test_funs <- rep(list(has_utf8_or_ascii_encoding), length(values))
+-    sql_names <- as.character(dbQuoteString(con, values))
++    sql_names <- paste0("CAST(",as.character(dbQuoteString(con, values))," AS Utf8)")
+ 
+     #' with NA for SQL `NULL` values
+     test_select_with_null(.ctx = ctx, con, .dots = setNames(values, sql_names))
+@@ -77,7 +77,7 @@
+     #'   (also applies to the return value of the SQL function `current_date`)
+     test_select_with_null(
+       .ctx = ctx, con,
+-      "current_date" ~ is_roughly_current_date
++      "CurrentUtcDate()" ~ is_roughly_current_date
+     )
+   },
+ 
+@@ -101,7 +101,7 @@
+     #'   (also applies to the return value of the SQL function `current_time`)
+     test_select_with_null(
+       .ctx = ctx, con,
+-      "current_time" ~ coercible_to_time
++      "CAST(DateTime::Format('%H:%M:%S')(CurrentUtcTimestamp()) AS Utf8)" ~ coercible_to_time
+     )
+   },
+ 
+@@ -124,7 +124,7 @@
+     #'   (also applies to the return value of the SQL function `current_timestamp`)
+     test_select_with_null(
+       .ctx = ctx, con,
+-      "current_timestamp" ~ function(x) {
++      "CurrentUtcTimestamp()" ~ function(x) {
+         coercible_to_timestamp <- function(x) {
+           x_timestamp <- try_silent(as.POSIXct(x))
+           !is.null(x_timestamp) && all(is.na(x) == is.na(x_timestamp))
+@@ -159,7 +159,7 @@
+ 
+     test_select_with_null(
+       .ctx = ctx, con,
+-      "current_date" ~ is_roughly_current_date_typed
++      "CurrentUtcDate()" ~ is_roughly_current_date_typed
+     )
+   },
+ 
+@@ -184,7 +184,7 @@
+ 
+     test_select_with_null(
+       .ctx = ctx, con,
+-      "current_timestamp" ~ is_roughly_current_timestamp_typed
++      "CurrentUtcTimestamp()" ~ is_roughly_current_timestamp_typed
+     )
+   },
+ 
+--- a/R/spec-meta-get-row-count.R
++++ b/R/spec-meta-get-row-count.R
+@@ -58,7 +58,7 @@
+   },
+   #
+   row_count_statement = function(con, table_name) {
+-    query <- paste0("CREATE TABLE ", table_name, " (a integer)")
++    query <- paste0("CREATE TABLE ", table_name, " (a integer, PRIMARY KEY (a))")
+     #' For data manipulation statements issued with
+     #' [dbSendStatement()],
+     res <- local_result(dbSendStatement(con, query))

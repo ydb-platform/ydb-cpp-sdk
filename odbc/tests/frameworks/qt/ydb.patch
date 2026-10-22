@@ -1079,17 +1079,26 @@ diff -ruN a/kernel/qsqlquery/tst_qsqlquery.cpp b/kernel/qsqlquery/tst_qsqlquery.
                 .arg(tableName));
          q.exec(QLatin1String("INSERT INTO %1 values(1, 'whatever')").arg(tableName));
          q.exec(QLatin1String("INSERT INTO %1 values(2, 'whatever more')").arg(tableName));
-@@ -3225,8 +3233,8 @@
+@@ -3225,13 +3233,13 @@
      const QString tableName(qTableName("more_results", __FILE__, db));
  
      QVERIFY_SQL(q, exec(QLatin1String(
 -                            "CREATE TABLE %1 (id integer, text varchar(20), "
 -                            "num numeric(6, 3), empty varchar(10));").arg(tableName)));
 +                            "CREATE TABLE %1 (id integer, text Utf8, "
-+                            "num Double, empty Utf8);").arg(tableName)));
++                            "num Double, empty Utf8, primary key (id));").arg(tableName)));
+
+-    QVERIFY_SQL(q, exec(QLatin1String("INSERT INTO %1 VALUES(1, 'one', 1.1, '');").arg(tableName)));
+-    QVERIFY_SQL(q, exec(QLatin1String("INSERT INTO %1 VALUES(2, 'two', 2.2, '');").arg(tableName)));
+-    QVERIFY_SQL(q, exec(QLatin1String("INSERT INTO %1 VALUES(3, 'three', 3.3, '');")
++    QVERIFY_SQL(q, exec(QLatin1String("INSERT INTO %1 (id, text, num, empty) VALUES(1, 'one', 1.1, '');").arg(tableName)));
++    QVERIFY_SQL(q, exec(QLatin1String("INSERT INTO %1 (id, text, num, empty) VALUES(2, 'two', 2.2, '');").arg(tableName)));
++    QVERIFY_SQL(q, exec(QLatin1String("INSERT INTO %1 (id, text, num, empty) VALUES(3, 'three', 3.3, '');")
+                         .arg(tableName)));
+-    QVERIFY_SQL(q, exec(QLatin1String("INSERT INTO %1 VALUES(4, 'four', 4.4, '');")
++    QVERIFY_SQL(q, exec(QLatin1String("INSERT INTO %1 (id, text, num, empty) VALUES(4, 'four', 4.4, '');")
+                         .arg(tableName)));
  
-     QVERIFY_SQL(q, exec(QLatin1String("INSERT INTO %1 VALUES(1, 'one', 1.1, '');").arg(tableName)));
-     QVERIFY_SQL(q, exec(QLatin1String("INSERT INTO %1 VALUES(2, 'two', 2.2, '');").arg(tableName)));
 @@ -3459,10 +3467,11 @@
      // In PostgreSQL a BLOB is not called a BLOB, but a BYTEA! :-)
      // ... and in SQL Server it can be called a lot, but IMAGE will do.

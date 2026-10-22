@@ -7,6 +7,7 @@ permissions: {contents: read}
 concurrency: {group: "odbc-integration-${{ github.event.pull_request.number }}-${{ github.event.action == 'closed' && 'merged' || 'pr' }}", cancel-in-progress: true}
 jobs:
   build:
+    timeout-minutes: 60
     name: Build and validate ydb-odbc package
     if: >-
       (github.event.action == 'closed' && github.event.pull_request.merged == true) ||
@@ -17,6 +18,7 @@ jobs:
       matrix: ${{ steps.registry.outputs.matrix }}
       config: ${{ steps.registry.outputs.config }}
       target_sha: ${{ steps.target.outputs.sha }}
+      package_sha256: ${{ steps.package.outputs.sha256 }}
     env:
       CPM_SOURCE_CACHE: ${{ github.workspace }}/.cache/cpm
       CCACHE_DIR: ${{ github.workspace }}/.cache/ccache
@@ -50,6 +52,7 @@ jobs:
           YDB_DEB_COMPONENTS: ydb-odbc
         run: ./scripts/build_cpack_deb_packages.sh build-odbc/packages
       - name: Validate and upload package
+        id: package
         shell: bash
         run: |
           shopt -s nullglob
@@ -57,6 +60,7 @@ jobs:
           test "${#packages[@]}" -eq 1
           sha256sum "${packages[0]}" > build-odbc/packages/ydb-odbc.sha256
           dpkg-deb -f "${packages[0]}" > build-odbc/packages/ydb-odbc.control
+          echo "sha256=$(sha256sum "${packages[0]}" | cut -d ' ' -f1)" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4
         with:
           name: ydb-odbc-package
@@ -82,6 +86,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
   consumers:
+    timeout-minutes: 40
     name: ${{ matrix.display_name }} (${{ matrix.mode }})
     needs: build
     runs-on: ubuntu-24.04
@@ -146,11 +151,17 @@ jobs:
           pattern: odbc-results-*
           path: collected-results
       - name: Aggregate and validate results
+        env:
+          DRIVER_COMMIT: ${{ needs.build.outputs.target_sha }}
+          ODBC_PACKAGE_SHA256: ${{ needs.build.outputs.package_sha256 }}
         id: aggregate
         continue-on-error: true
         run: >-
           set -o pipefail; python3 odbc/tests/frameworks/harness.py aggregate --input collected-results
           --output aggregated-results | tee -a "$GITHUB_STEP_SUMMARY"
+      - uses: actions/setup-node@v4
+        if: always()
+        with: {node-version: '22'}
       - name: Generate browser report
         id: allure
         if: always()
