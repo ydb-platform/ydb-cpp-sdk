@@ -10,7 +10,7 @@ Use 'apt autoremove' to remove them.
 The following packages will be REMOVED:
   ydb-odbc
 0 upgraded, 0 newly installed, 1 to remove and 32 not upgraded.
-After this operation, 25.2 MB disk space will be freed.
+After this operation, 25.5 MB disk space will be freed.
 (Reading database ... 
 (Reading database ... 5%
 (Reading database ... 10%
@@ -33,7 +33,7 @@ After this operation, 25.2 MB disk space will be freed.
 (Reading database ... 95%
 (Reading database ... 100%
 (Reading database ... 9038 files and directories currently installed.)
-Removing ydb-odbc (3.24.0) ...
+Removing ydb-odbc (3.25.0) ...
 YDB has been deleted (if it existed at all) because its usage count became zero
 Processing triggers for libc-bin (2.39-0ubuntu8.8) ...
 odbcinst: SQLGetPrivateProfileString failed with .
