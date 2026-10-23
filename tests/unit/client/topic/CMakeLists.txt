@@ -43,6 +43,6 @@ add_ydb_test(NAME client-topic-read-session-accounting_ut
   LABELS unit
 )
 
-# read_session_kafka_timestamps_ut.cpp and reset_offset_ut.cpp use the
-# upstream TTopicSdkTestSetup and ydb/core server fixtures, which are absent
-# from the standalone SDK repository.
+# read_session_kafka_timestamps_ut.cpp, reset_offset_ut.cpp, and
+# write_session_connect_ut.cpp use the upstream TTopicSdkTestSetup and
+# ydb/core server fixtures, which are absent from the standalone SDK repository.

@@ -11,7 +11,6 @@ target_link_libraries(impl-internal-db_driver_state PUBLIC
 )
 
 target_sources(impl-internal-db_driver_state PRIVATE
-  authenticator.cpp
   endpoint_pool.cpp
   state.cpp
 )
