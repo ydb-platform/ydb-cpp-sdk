@@ -8,6 +8,7 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
     branches:
       - main
+      - odbc-driver-feature
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
@@ -56,9 +57,15 @@ jobs:
       with:
         compiler: ${{ matrix.compiler }}
     - name: Test
+      if: github.event_name != 'pull_request' || github.base_ref == 'main'
       shell: bash
       run: |
         ctest -j$(nproc) --preset unit
+    - name: Test ODBC
+      if: github.event_name == 'pull_request' && github.base_ref == 'odbc-driver-feature'
+      shell: bash
+      run: |
+        ctest --test-dir build/odbc/tests/unit -j$(nproc) --output-on-failure
     - name: Package integration build
       shell: bash
       run: |
@@ -128,9 +135,10 @@ jobs:
         mkdir -p build
         tar -C build -xzf "integration-build-${{ matrix.compiler }}.tar.gz"
     - name: Test
+      if: github.event_name != 'pull_request' || github.base_ref == 'main'
       shell: bash
       run: |
-        IAM_REGEX='^(DriverAuth|TMetadataFixture|TJwtIamFixture|TOAuthIamFixture|OAuth_WithFacility)\.'
+        IAM_REGEX='^(DriverAuth|TMetadataFixture|TJwtIamFixture|TOAuthIamFixture|OAuth_WithFacility|OdbcAuthentication)\.'
 
         YDB_VERSION=${{ matrix.ydb-version }} ctest -j2 --preset integration \
           -E "${IAM_REGEX}" --output-on-failure
@@ -140,8 +148,22 @@ jobs:
             ./.github/scripts/run_iam_integration_tests.sh
             ;;
         esac
+    - name: Test ODBC
+      if: github.event_name == 'pull_request' && github.base_ref == 'odbc-driver-feature'
+      shell: bash
+      run: |
+        YDB_VERSION=${{ matrix.ydb-version }} \
+          ctest --test-dir build/odbc/tests/integration -j2 \
+            -E '^OdbcAuthentication\.' --output-on-failure
+
+        case '${{ matrix.ydb-version }}' in
+          25.1|trunk)
+            ./.github/scripts/run_iam_integration_tests.sh
+            ;;
+        esac
 
   test-install:
+    if: github.event_name != 'pull_request' || github.base_ref == 'main'
     name: "Test CMake Install"
     concurrency:
       group: test-install-${{ github.ref }}-${{ matrix.compiler }}
