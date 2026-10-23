@@ -1,7 +1,5 @@
 #include "executor_impl.h"
 
-#include <src/client/impl/internal/thread_pool/pool.h>
-
 namespace NYdb::inline V3::NTopic {
 
 void IAsyncExecutor::Post(TFunction&& f) {
