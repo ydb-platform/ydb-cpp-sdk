@@ -12,12 +12,9 @@ Each language has one binding, one pinned upstream revision, its upstream databa
 
 | Tier | Language | Binding | Tests |
 |---|---|---|---|
-| Core | Erlang | [OTP `odbc`](https://github.com/erlang/otp/tree/master/lib/odbc) | `lib/odbc/test` Common Test cases |
 | Core | PHP | [PDO_ODBC](https://github.com/php/php-src/tree/master/ext/pdo_odbc) | PDO_ODBC and generic PDO PHPT tests |
-| Core | Haskell | [HDBC-odbc](https://github.com/hdbc/HDBC-odbc) | HDBC/HUnit database tests |
 | Core | Ruby | [ruby-odbc](https://github.com/larskanis/ruby-odbc) | Upstream test scripts |
 | Core | Lua | [LuaSQL ODBC](https://github.com/lunarmodules/luasql) | Common LuaSQL and ODBC parameter tests |
-| Core | Perl | [DBD::ODBC](https://github.com/perl5-dbi/DBD-ODBC) | Upstream TAP tests |
 | Core | R | [odbc](https://github.com/r-dbi/odbc) | `testthat` and DBItest |
 | Expansion | Dart | [dart_odbc](https://pub.dev/packages/dart_odbc) | `dart test` |
 | Expansion | D | [odbc](https://github.com/singingbush/odbc) | Upstream unit and integration tests |

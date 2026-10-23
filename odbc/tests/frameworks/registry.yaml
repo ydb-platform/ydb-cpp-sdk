@@ -15,11 +15,6 @@ classifications:
     tests:
       php-odbc: ['php-odbc.*.ext%2Fodbc%2Ftests%2Fbug60616.phpt']
   - outcome: skipped
-    reason: YDB has no stored procedures or output parameters.
-    match: 'YDB has no stored procedures or output parameters'
-    tests:
-      erlang: [erlang.*.odbc_query_SUITE.stored_proc]
-  - outcome: skipped
     reason: These upstream scenarios explicitly require SQL Server catalog or session behavior.
     match: 'MS SQL specific test'
     tests:
@@ -34,11 +29,6 @@ classifications:
     match: 'Maintenance assertion for a future odbc API removal'
     tests:
       r: ['r.*.test-odbc-connection.R%3AodbcConnectionColumns_%20is%20eventually%20removed%20%28%23699%29']
-  - outcome: skipped
-    reason: This case describes declared CHAR/VARCHAR widths, which YDB does not have.
-    match: 'Bounded character metadata is not supported by YDB'
-    tests:
-      erlang: [erlang.*.odbc_query_SUITE.describe_string]
   - outcome: skipped
     reason: Requires Qt's Oracle plugin and Oracle-specific SQL rather than QODBC.
     match: No\ database\ drivers\ of\ type\ QOCI\ are\ available\ in\ this\ Qt\ configuration
@@ -262,11 +252,6 @@ classifications:
       php-odbc: ['php-odbc.*.ext%2Fodbc%2Ftests%2Fbug44618.phpt']
       php-pdo: ['php-pdo.*.ext%2Fpdo_odbc%2Ftests%2Fbug80783a.phpt']
   - outcome: skipped
-    reason: Exercises Microsoft SQL Server or Oracle rather than YDB.
-    match: '(?i)(Microsoft SQL Server|Oracle) tests not supported using YDB'
-    tests:
-      perl: ['perl.*.{20SqlServer,30Oracle}.t']
-  - outcome: skipped
     reason: This upstream model test explicitly uses SQLite, outside the QODBC contract.
     match: "Exercises Qt's hardcoded SQLite in-memory model"
     tests:
@@ -287,35 +272,11 @@ classifications:
     tests:
       php-pdo: ['php-pdo.*.ext%2Fpdo%2Ftests%2Fpdo_dsn_containing_credentials.phpt']
   - outcome: skipped
-    reason: Exercises Microsoft SQL Server or Access-specific behavior.
-    match: '(?i)(not (?:MS )?SQL Server|Microsoft (?:SQL Server|Access) tests? not supported using YDB)'
-    tests:
-      perl: ['perl.*.{45_unicode_varchar,87_odbc_lob_read,rt_38977,rt_39841,rt_43384,rt_46597,rt_50852,rt_59621,rt_null_nvarchar}.t']
-  - outcome: skipped
     reason: This generic binding test explicitly requires SQLite.
     match: "Reason: env var 'ODBC_CS_SQLITE' not set"
     tests:
       r: ['r.*.test-odbc-connection.R%3AodbcConnectionColumns%20warns%20on%20usage%20%28%23699%29']
-  - outcome: unsupported
-    reason: YDB has no bounded CHAR/VARCHAR types, fixed padding or declared length enforcement.
-    match: "mismatched input '\\(' expecting"
-    tests:
-      erlang: ['erlang.*.odbc_data_type_SUITE.{char_fixed_lower_limit,char_fixed_padding,varchar_lower_limit,binary_char_fixed_lower_limit,binary_char_fixed_padding,binary_varchar_lower_limit}']
-  - outcome: skipped
-    reason: YDB has no declared string width whose upper bound these cases could test.
-    match: 'tc_user_skip,"Limit unknown"'
-    tests:
-      erlang: ['erlang.*.odbc_data_type_SUITE.{varchar_upper_limit,char_fixed_upper_limit,binary_varchar_upper_limit,binary_char_fixed_upper_limit}']
-  - outcome: skipped
-    reason: Upstream disables the multi-gigabyte string boundary cases for resource use.
-    match: 'tc_user_skip,"Consumes too much resources"'
-    tests:
-      erlang: ['erlang.*.odbc_data_type_SUITE.{text_upper_limit,binary_text_upper_limit}']
-  - outcome: skipped
-    reason: The unprivileged runner cannot chmod the system Erlang ODBC executable.
-    match: 'tc_user_skip,"File permission issues"'
-    tests:
-      erlang: [erlang.*.odbc_connect_SUITE.no_c_executable]
+
 consumers:
   - id: package-contract
     display_name: Debian package contract
@@ -364,25 +325,6 @@ consumers:
       discovered: true
       required:
         - qt.*.*.*
-  - id: erlang
-    display_name: Erlang OTP ODBC tests
-    kind: framework
-    language: Erlang
-    tier: core
-    dockerfile: bindings/Dockerfile
-    runtime_image: ubuntu:24.04@sha256:019e8eb29a85e74d64925745884f2ec79aa27e3feab36353d24656f4d6b89467
-    runtime_version: ["erl", "-noshell", "-eval", "io:format(\"~s\", [erlang:system_info(otp_release)]), halt()."]
-    source:
-      kind: "archive"
-      url: "https://codeload.github.com/erlang/otp/tar.gz/refs/tags/OTP-25.3.2.8"
-      revision: "OTP-25.3.2.8"
-      sha256: "6b8a6dcfd294ee9d88e47721a6f897603532575329fea587240776c02b232d38"
-      license: "Apache-2.0"
-      ci_only: true
-    modes: [dsn, connection_string]
-    expected:
-      discovered: true
-      required: [erlang.*]
   - id: php-odbc
     display_name: PHP ext/odbc tests
     kind: framework
@@ -421,25 +363,6 @@ consumers:
     expected:
       discovered: true
       required: [php-pdo.*]
-  - id: haskell
-    display_name: Haskell HDBC-odbc tests
-    kind: framework
-    language: Haskell
-    tier: core
-    dockerfile: bindings/Dockerfile
-    runtime_image: ubuntu:24.04@sha256:019e8eb29a85e74d64925745884f2ec79aa27e3feab36353d24656f4d6b89467
-    runtime_version: ["ghc", "--numeric-version"]
-    source:
-      kind: "archive"
-      url: "https://codeload.github.com/hdbc/hdbc-odbc/tar.gz/059a78a797f0ed3c0b3097b73f644e2012dc7efc"
-      revision: "059a78a797f0ed3c0b3097b73f644e2012dc7efc"
-      sha256: "646894391a7a6cd69a871b58e98802d815b9f42370f6020525a4814229f5e453"
-      license: "BSD-3-Clause"
-      ci_only: true
-    modes: [dsn, connection_string]
-    expected:
-      discovered: true
-      required: [haskell.*]
   - id: ruby
     display_name: Ruby ANSI and UTF-8 ODBC tests
     kind: framework
@@ -478,25 +401,6 @@ consumers:
     expected:
       discovered: true
       required: [lua.*]
-  - id: perl
-    display_name: Perl DBD::ODBC tests
-    kind: framework
-    language: Perl
-    tier: core
-    dockerfile: bindings/Dockerfile
-    runtime_image: ubuntu:24.04@sha256:019e8eb29a85e74d64925745884f2ec79aa27e3feab36353d24656f4d6b89467
-    runtime_version: ["perl", "-MDBD::ODBC", "-e", "print $DBD::ODBC::VERSION"]
-    source:
-      kind: "archive"
-      url: "https://cpan.metacpan.org/authors/id/M/MJ/MJEVANS/DBD-ODBC-1.61.tar.gz"
-      revision: "1.61"
-      sha256: "96def438c9610d72d0e24d007ea0eacd0059b5203c17eadb623bdea22fa9f40a"
-      license: "Artistic-1.0-Perl OR GPL-1.0-or-later"
-      ci_only: true
-    modes: [dsn, connection_string]
-    expected:
-      discovered: true
-      required: [perl.*]
   - id: r
     display_name: R odbc and DBItest
     kind: framework
