@@ -89,6 +89,7 @@ if (YDB_SDK_TESTS)
       generic/overloaded_ut.cpp
       generic/ptr_ut.cpp
       generic/queue_ut.cpp
+      generic/ranges_ut.cpp
       generic/scope_ut.cpp
       generic/serialized_enum_ut.cpp
       generic/set_ut.cpp
@@ -501,6 +502,7 @@ target_joined_source(yutil
   ${YDB_SDK_SOURCE_DIR}/util/generic/overloaded.cpp
   ${YDB_SDK_SOURCE_DIR}/util/generic/ptr.cpp
   ${YDB_SDK_SOURCE_DIR}/util/generic/queue.cpp
+  ${YDB_SDK_SOURCE_DIR}/util/generic/ranges.cpp
   ${YDB_SDK_SOURCE_DIR}/util/generic/refcount.cpp
   ${YDB_SDK_SOURCE_DIR}/util/generic/scope.cpp
   ${YDB_SDK_SOURCE_DIR}/util/generic/serialized_enum.cpp

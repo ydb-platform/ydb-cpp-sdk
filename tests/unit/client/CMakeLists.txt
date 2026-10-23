@@ -2,6 +2,10 @@ add_subdirectory(federated_topic)
 add_subdirectory(oauth2_token_exchange/helpers)
 add_subdirectory(topic)
 
+# src/client/persqueue_public/ut/compress_executor_ut.cpp requires the
+# upstream TPersQueueYdbSdkTestSetup and ydb/core server fixtures, which are
+# absent from the standalone SDK repository.
+
 add_ydb_test(NAME client-embedding_ut GTEST
   SOURCES value/embedding_ut.cpp
   LINK_LIBRARIES YDB-CPP-SDK::Value
@@ -205,6 +209,17 @@ add_ydb_test(NAME client-query_session_ut
     client-ydb_query-impl
     impl-session
     library-operation_id
+  LABELS
+    unit
+)
+
+add_ydb_test(NAME client-exec_query_ut
+  SOURCES
+    query/exec_query_ut.cpp
+  LINK_LIBRARIES
+    api-grpc
+    cpp-testing-common
+    YDB-CPP-SDK::Query
   LABELS
     unit
 )

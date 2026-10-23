@@ -15,16 +15,10 @@ target_sources(yt-assert PRIVATE
 _ydb_sdk_install_targets(TARGETS yt-assert)
 
 
-_ydb_sdk_add_library(yt-threading)
+_ydb_sdk_add_library(yt-threading INTERFACE)
 target_link_libraries(yt-threading
-  PUBLIC
-    yutil
-    yt-assert
-)
-target_sources(yt-threading
-  PRIVATE
-    threading/event_count.cpp
-    threading/futex.cpp
+  INTERFACE
+    yt-system
 )
 _ydb_sdk_install_targets(TARGETS yt-threading)
 
@@ -136,12 +130,15 @@ _ydb_sdk_add_library(yt-system)
 target_link_libraries(yt-system
   PUBLIC
     yutil
+    yt-assert
     yt-exception
     yt-misc
 )
 target_sources(yt-system
   PRIVATE
+    system/event_count.cpp
     system/exit.cpp
+    system/futex.cpp
     system/thread_name.cpp
 )
 _ydb_sdk_install_targets(TARGETS yt-system)
