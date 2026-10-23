@@ -1,0 +1,6 @@
+001- array(1) {
+002-   ["VARCHAR_COL"]=>
+003-   string(3) "foo"
+004- }
+001+ bool(false)
+     ready

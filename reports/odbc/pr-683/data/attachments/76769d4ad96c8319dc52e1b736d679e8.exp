@@ -1,0 +1,6 @@
+bool(true)
+string(1) "1"
+bool(true)
+odbc_free_result(): supplied resource is not a valid ODBC result resource
+odbc_fetch_row(): supplied resource is not a valid ODBC result resource
+odbc_result(): supplied resource is not a valid ODBC result resource

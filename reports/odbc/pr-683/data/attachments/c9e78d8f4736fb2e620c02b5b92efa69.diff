@@ -1,0 +1,6 @@
+001- Finished
+001+ Fatal error: Uncaught PDOException: SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo_odbc/tests/max_columns.php:21
+002+ Stack trace:
+003+ #0 /work/source/ext/pdo_odbc/tests/max_columns.php(21): PDOStatement->execute(Array)
+004+ #1 {main}
+005+   thrown in /work/source/ext/pdo_odbc/tests/max_columns.php on line 21

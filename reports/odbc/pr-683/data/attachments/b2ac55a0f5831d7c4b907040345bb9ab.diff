@@ -1,0 +1,52 @@
+001- The unexpected!
+001+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_022.php on line 20
+002+ 
+003+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_022.php on line 20
+004+ 
+005+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_022.php on line 20
+006+ 
+007+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_022.php on line 20
+008+ 
+009+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_022.php on line 20
+010+ 
+011+ Warning: PDOStatement::execute(): SQLSTATE[07006]: Restricted data type attribute violation: Invalid ODBC parameter 1 in parameter set 1 (C type 1, SQL type 0) (SQLExecute[0] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_022.php on line 20
+012+ array(4) {
+013+   ["pdo_type"]=>
+014+   int(2)
+015+   ["name"]=>
+016+   string(2) "id"
+017+   ["len"]=>
+018+   int(10)
+019+   ["precision"]=>
+020+   int(0)
+021+ }
+022+ array(4) {
+023+   ["pdo_type"]=>
+024+   int(2)
+025+   ["name"]=>
+026+   string(3) "val"
+027+   ["len"]=>
+028+   int(255)
+029+   ["precision"]=>
+030+   int(0)
+031+ }
+032+ array(4) {
+033+   ["pdo_type"]=>
+034+   int(2)
+035+   ["name"]=>
+036+   string(4) "val2"
+037+   ["len"]=>
+038+   int(255)
+039+   ["precision"]=>
+040+   int(0)
+041+ }
+042+ array(4) {
+043+   ["pdo_type"]=>
+044+   int(2)
+045+   ["name"]=>
+046+   string(7) "column0"
+047+   ["len"]=>
+048+   int(19)
+049+   ["precision"]=>
+050+   int(0)
+051+ }
