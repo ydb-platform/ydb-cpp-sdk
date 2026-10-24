@@ -1,0 +1,70 @@
+name: CodeQL
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  merge_group:
+  schedule:
+    - cron: '23 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codeql-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: c-cpp
+            build-mode: manual
+            config: .github/codeql/sdk.yml
+          - language: actions
+            build-mode: none
+            config: .github/codeql/actions.yml
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install C++ build dependencies
+        if: matrix.language == 'c-cpp'
+        uses: ./.github/actions/prepare_vm
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          config-file: ${{ matrix.config }}
+
+      - name: Build C++ SDK, plugins and examples without compiler cache
+        if: matrix.language == 'c-cpp'
+        env:
+          CCACHE_DISABLE: '1'
+        run: |
+          cmake --preset release-clang \
+            -DYDB_SDK_TESTS=OFF \
+            -DYDB_SDK_EXAMPLES=ON \
+            -DYDB_SDK_ENABLE_OTEL_METRICS=ON \
+            -DYDB_SDK_ENABLE_OTEL_TRACE=ON \
+            -DCMAKE_C_COMPILER_LAUNCHER= \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=
+          cmake --build --preset default --parallel 2
+
+      - name: Analyze and upload results
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:${{ matrix.language }}
