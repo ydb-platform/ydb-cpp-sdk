@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite name="tst_QSqlDriver" timestamp="2026&#x002D;10&#x002D;26T18:26:05" hostname="runnervmtai0g" tests="5" failures="0" errors="0" skipped="0" time="0.117">
+  <properties>
+    <property name="QTestVersion" value="6.4.2"/>
+    <property name="QtVersion" value="6.4.2"/>
+    <property name="QtBuild" value="Qt 6.4.2 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 13.2.0)"/>
+  </properties>
+  <testcase name="initTestCase" classname="tst_QSqlDriver" time="0.093">
+    <system-out>
+      <![CDATA[Opening: "0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous"]]>
+    </system-out>
+    <system-err>
+      <![CDATA[Driver "QSQLITE" is not installed]]>
+    </system-err>
+  </testcase>
+  <testcase name="record" classname="tst_QSqlDriver" time="0.004"/>
+  <testcase name="primaryIndex" classname="tst_QSqlDriver" time="0.003"/>
+  <testcase name="formatValue" classname="tst_QSqlDriver" time="0.006"/>
+  <testcase name="cleanupTestCase" classname="tst_QSqlDriver" time="0.011"/>
+</testsuite>
