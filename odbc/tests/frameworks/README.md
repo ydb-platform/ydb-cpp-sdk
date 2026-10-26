@@ -20,8 +20,9 @@ separate APIs and are outside this ODBC contract. Julia and Tcl are outside the 
 
 ## Sources and fixtures
 
-Runtime bases and YDB are digest-pinned. Each consumer has a checksum-locked source
-archive and `upstream.lock`. PHP sources match the installed Ubuntu runtime
+Runtime bases and YDB are digest-pinned. Consumers with archived upstream suites
+have checksum-locked source archives and `upstream.lock`. `package-contract` and
+`isql` use installed system packages. PHP sources match the installed Ubuntu runtime
 release. Ruby, Lua and R bindings build from their locked source.
 R additionally locks DBItest in `test-sources.lock`.
 
