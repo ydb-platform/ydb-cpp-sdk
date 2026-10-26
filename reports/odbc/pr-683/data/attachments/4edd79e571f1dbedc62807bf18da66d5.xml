@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite name="tst_QSqlThread" timestamp="2026&#x002D;10&#x002D;23T13:44:20" hostname="runnervm8k3b6" tests="8" failures="0" errors="0" skipped="0" time="0.400">
+<testsuite name="tst_QSqlThread" timestamp="2026&#x002D;10&#x002D;26T12:08:17" hostname="runnervmtai0g" tests="8" failures="0" errors="0" skipped="0" time="0.321">
   <properties>
     <property name="QTestVersion" value="6.4.2"/>
     <property name="QtVersion" value="6.4.2"/>
     <property name="QtBuild" value="Qt 6.4.2 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 13.2.0)"/>
   </properties>
-  <testcase name="initTestCase" classname="tst_QSqlThread" time="0.167">
+  <testcase name="initTestCase" classname="tst_QSqlThread" time="0.139">
     <system-out>
       <![CDATA[Opening: "0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous"]]>
     </system-out>
@@ -23,7 +23,7 @@
   <testcase name="readWriteFromSingleConnection(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlThread" time="0.000"/>
   <testcase name="preparedReadWriteFromSingleConnection(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlThread" time="0.000"/>
   <testcase name="transactionsFromSingleConnection(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlThread" time="0.000"/>
-  <testcase name="readWriteThreading(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlThread" time="0.152">
+  <testcase name="readWriteThreading(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlThread" time="0.101">
     <system-out>
       <![CDATA[Thread finished, total finished: 1]]>
       <![CDATA[Thread finished, total finished: 2]]>
