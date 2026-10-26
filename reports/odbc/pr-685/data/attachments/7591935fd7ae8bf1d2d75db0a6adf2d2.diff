@@ -1,0 +1,3 @@
+     bool(true)
+002- string(1) "1"
+002+ bool(false)

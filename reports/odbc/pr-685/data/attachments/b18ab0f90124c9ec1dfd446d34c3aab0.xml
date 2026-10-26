@@ -1,0 +1,617 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="php" tests="46" failures="24" errors="0" skip="5" time="2.5736">
+<testsuite name="php.ext.odbc.tests" tests="46" failures="24" errors="0" skip="5" time="2.5736">
+<testcase name='ext/odbc/tests/bug44618.phpt (Bug #44618 (Fetching may rely on uninitialized data))' time='0.0360'>
+<skipped>Fails with unixODBC</skipped>
+</testcase>
+<testcase name='ext/odbc/tests/bug46050.phpt (Bug #46050 (odbc_next_result corrupts prepared resource))' time='0.0875'>
+<failure type='FAILED' message=''>     bool(true)
+002- array(1) {
+003-   [&quot;1&quot;]=&gt;
+004-   string(1) &quot;1&quot;
+005- }
+     bool(false)
+003+ bool(false)
+     bool(true)
+008- array(1) {
+009-   [&quot;1&quot;]=&gt;
+010-   string(1) &quot;1&quot;
+011- }
+005+ bool(false)
+</failure>
+</testcase>
+<testcase name='ext/odbc/tests/bug47803.phpt (Bug #47803 Executing prepared statements is successful only for the first two statements)' time='0.1816'>
+<failure type='FAILED' message=''>001- array(3) {
+002-   [&quot;PAR_ID&quot;]=&gt;
+003-   string(1) &quot;1&quot;
+004-   [&quot;PAR_INT&quot;]=&gt;
+005-   string(2) &quot;14&quot;
+006-   [&quot;PAR_CHR&quot;]=&gt;
+007-   string(6) &quot;test 1&quot;
+008- }
+009- array(3) {
+010-   [&quot;PAR_ID&quot;]=&gt;
+011-   string(1) &quot;2&quot;
+012-   [&quot;PAR_INT&quot;]=&gt;
+013-   string(2) &quot;30&quot;
+014-   [&quot;PAR_CHR&quot;]=&gt;
+015-   string(6) &quot;test 2&quot;
+016- }
+017- array(3) {
+018-   [&quot;PAR_ID&quot;]=&gt;
+019-   string(1) &quot;3&quot;
+020-   [&quot;PAR_INT&quot;]=&gt;
+021-   string(1) &quot;7&quot;
+022-   [&quot;PAR_CHR&quot;]=&gt;
+023-   string(6) &quot;test 3&quot;
+024- }
+025- array(3) {
+026-   [&quot;PAR_ID&quot;]=&gt;
+027-   string(1) &quot;4&quot;
+028-   [&quot;PAR_INT&quot;]=&gt;
+029-   string(1) &quot;7&quot;
+030-   [&quot;PAR_CHR&quot;]=&gt;
+031-   string(6) &quot;test 4&quot;
+032- }
+033- array(3) {
+034-   [&quot;PAR_ID&quot;]=&gt;
+035-   string(1) &quot;5&quot;
+036-   [&quot;PAR_INT&quot;]=&gt;
+037-   string(1) &quot;0&quot;
+038-   [&quot;PAR_CHR&quot;]=&gt;
+039-   string(6) &quot;test 5&quot;
+040- }
+041- array(3) {
+042-   [&quot;PAR_ID&quot;]=&gt;
+043-   string(2) &quot;10&quot;
+044-   [&quot;PAR_INT&quot;]=&gt;
+045-   string(8) &quot;20140620&quot;
+046-   [&quot;PAR_CHR&quot;]=&gt;
+047-   string(7) &quot;test 10&quot;
+048- }
+049- array(3) {
+050-   [&quot;PAR_ID&quot;]=&gt;
+051-   string(1) &quot;9&quot;
+052-   [&quot;PAR_INT&quot;]=&gt;
+053-   string(8) &quot;20140201&quot;
+054-   [&quot;PAR_CHR&quot;]=&gt;
+055-   string(6) &quot;test 9&quot;
+056- }
+057- array(3) {
+058-   [&quot;PAR_ID&quot;]=&gt;
+059-   string(1) &quot;8&quot;
+060-   [&quot;PAR_INT&quot;]=&gt;
+061-   string(8) &quot;20140201&quot;
+062-   [&quot;PAR_CHR&quot;]=&gt;
+063-   string(6) &quot;test 8&quot;
+064- }
+065- array(3) {
+066-   [&quot;PAR_ID&quot;]=&gt;
+067-   string(1) &quot;7&quot;
+068-   [&quot;PAR_INT&quot;]=&gt;
+069-   string(8) &quot;20130901&quot;
+070-   [&quot;PAR_CHR&quot;]=&gt;
+071-   string(6) &quot;test 7&quot;
+072- }
+073- array(3) {
+074-   [&quot;PAR_ID&quot;]=&gt;
+075-   string(1) &quot;7&quot;
+076-   [&quot;PAR_INT&quot;]=&gt;
+077-   string(8) &quot;20130901&quot;
+078-   [&quot;PAR_CHR&quot;]=&gt;
+079-   string(6) &quot;test 7&quot;
+080- }
+001+ 
+</failure>
+</testcase>
+<testcase name='ext/odbc/tests/bug60616.phpt (odbc_exec(): Getting accurate unicode data from query)' time='0.0339'>
+<skipped>YDB databases require UTF-8, not EUC_JP</skipped>
+</testcase>
+<testcase name='ext/odbc/tests/bug68087.phpt (odbc_exec(): Getting accurate date data from query)' time='0.0645'>
+<failure type='FAILED' message=''>001- Date_1 matched
+002- Date_2 matched
+001+ 
+</failure>
+</testcase>
+<testcase name='ext/odbc/tests/bug69354.phpt (Bug #69354 Incorrect use of SQLColAttributes with ODBC 3.0)' time='0.0669'>
+<failure type='FAILED' message=''>001- 100
+002- a
+003- a
+001+ 
+</failure>
+</testcase>
+<testcase name='ext/odbc/tests/bug69975.phpt (Bug #69975 (PHP segfaults when accessing nvarchar(max) defined columns))' time='0.0640'>
+<failure type='FAILED' message=''>001- array(1) {
+002-   [&quot;VARCHAR_COL&quot;]=&gt;
+003-   string(3) &quot;foo&quot;
+004- }
+001+ bool(false)
+     ready
+</failure>
+</testcase>
+<testcase name='ext/odbc/tests/bug71171.phpt (Bug #71171 odbc_fetch_array generates SIGFAULT, variant 0)' time='0.0489'>
+<failure type='FAILED' message=''>001- array(1) {
+002-   [&quot;ID&quot;]=&gt;
+003-   string(1) &quot;1&quot;
+004- }
+001+ [libprotobuf ERROR google/protobuf/wire_format_lite.cc:618] String field &#039;Ydb.Query.QueryContent.text&#039; contains invalid UTF-8 data when serializing a protocol buffer. Use the &#039;bytes&#039; type if you intend to send raw bytes. 
+002+ 
+003+ Warning: odbc_exec(): SQL error: General error: &lt;main&gt;: Error: GRpc error: (13): Unable to parse request
+004+ , SQL state S1000 in SQLExecDirect in /work/source/ext/odbc/tests/bug71171.php on line 9
+005+ [libprotobuf ERROR google/protobuf/wire_format_lite.cc:618] String field &#039;Ydb.Query.QueryContent.text&#039; contains invalid UTF-8 data when serializing a protocol buffer. Use the &#039;bytes&#039; type if you intend to send raw bytes. 
+006+ 
+007+ Warning: odbc_exec(): SQL error: General error: &lt;main&gt;: Error: GRpc error: (13): Unable to parse request
+008+ , SQL state S1000 in SQLExecDirect in /work/source/ext/odbc/tests/bug71171.php on line 11
+</failure>
+</testcase>
+<testcase name='ext/odbc/tests/bug73448.phpt (Bug #73448 odbc_errormsg returns trash, always 513 bytes)' time='0.0401'>
+<failure type='FAILED' message=''>001+ string(34) &quot;/* empty batch is without error */&quot;
+002+ string(5) &quot;S1000&quot;
+003+ string(356) &quot;General error: &lt;main&gt;:1:34: Error: mismatched input &#039;&lt;EOF&gt;&#039; expecting {&#039;;&#039;, &#039;(&#039;, &#039;$&#039;, ALTER, ANALYZE, BACKUP, BATCH, COMMIT, CREATE, DECLARE, DEFINE, DELETE, DISCARD, DO, DROP, EVALUATE, EXPLAIN, EXPORT, FOR, FROM, GRANT, IF, IMPORT, INSERT, PARALLEL, PRAGMA, PROCESS, REDUCE, REPLACE, RESTORE, REVOKE, ROLLBACK, SELECT, SHOW, UPDATE, UPSERT, USE, VALUES}
+004+ &quot;
+005+ 
+     string(42) &quot;/* non existent procedure xy */ execute xy&quot;
+002- string(5) &quot;37000&quot;
+003- string(%d) &quot;[Microsoft][%s][SQL Server]Could not find stored procedure &#039;xy&#039;.&quot;
+007+ string(5) &quot;S1000&quot;
+008+ string(358) &quot;General error: &lt;main&gt;:1:32: Error: mismatched input &#039;execute&#039; expecting {&#039;;&#039;, &#039;(&#039;, &#039;$&#039;, ALTER, ANALYZE, BACKUP, BATCH, COMMIT, CREATE, DECLARE, DEFINE, DELETE, DISCARD, DO, DROP, EVALUATE, EXPLAIN, EXPORT, FOR, FROM, GRANT, IF, IMPORT, INSERT, PARALLEL, PRAGMA, PROCESS, REDUCE, REPLACE, RESTORE, REVOKE, ROLLBACK, SELECT, SHOW, UPDATE, UPSERT, USE, VALUES}
+009+ &quot;
+     
+011+ string(44) &quot;/* empty batch,error message is not empty */&quot;
+012+ string(5) &quot;S1000&quot;
+013+ string(356) &quot;General error: &lt;main&gt;:1:44: Error: mismatched input &#039;&lt;EOF&gt;&#039; expecting {&#039;;&#039;, &#039;(&#039;, &#039;$&#039;, ALTER, ANALYZE, BACKUP, BATCH, COMMIT, CREATE, DECLARE, DEFINE, DELETE, DISCARD, DO, DROP, EVALUATE, EXPLAIN, EXPORT, FOR, FROM, GRANT, IF, IMPORT, INSERT, PARALLEL, PRAGMA, PROCESS, REDUCE, REPLACE, RESTORE, REVOKE, ROLLBACK, SELECT, SHOW, UPDATE, UPSERT, USE, VALUES}
+014+ &quot;
+015+ 
+016+ string(59) &quot;/* valid select with result */ select * from sys.sysobjects&quot;
+017+ string(5) &quot;S1000&quot;
+018+ string(56) &quot;General error: &lt;main&gt;:1:46: Error: Unknown cluster: sys
+019+ &quot;
+020+ 
+     string(58) &quot;/* another erroneous query */ SELECT * FROM zwiebelfleisch&quot;
+     string(5) &quot;S0002&quot;
+007- string(%d) &quot;[Microsoft][%s][SQL Server]Invalid object name &#039;zwiebelfleisch&#039;.&quot;
+023+ string(336) &quot;Base table or view not found: &lt;main&gt;: Error: Type annotation, code: 1030
+024+     &lt;main&gt;:1:31: Error: At function: KiReadTable!
+025+         &lt;main&gt;:1:31: Error: Cannot find table &#039;db.[/local/zwiebelfleisch]&#039; because it does not exist or you do not have access permissions. Please check correctness of table path and user permissions., code: 2003
+026+ &quot;
+027+ 
+028+ string(59) &quot;/* valid select with result */ select * from sys.sysobjects&quot;
+029+ string(5) &quot;S1000&quot;
+030+ string(56) &quot;General error: &lt;main&gt;:1:46: Error: Unknown cluster: sys
+031+ &quot;
+</failure>
+</testcase>
+<testcase name='ext/odbc/tests/bug73725.phpt (Bug #73725 Unable to retrieve value of varchar(max) type)' time='0.0611'>
+<failure type='FAILED' message=''>001- array(3) {
+002-   [&quot;i&quot;]=&gt;
+003-   string(3) &quot;101&quot;
+004-   [&quot;txt&quot;]=&gt;
+005-   string(8) &quot;Any text&quot;
+006-   [&quot;k&quot;]=&gt;
+007-   string(2) &quot;33&quot;
+008- }
+009- array(3) {
+010-   [&quot;i&quot;]=&gt;
+011-   string(3) &quot;102&quot;
+012-   [&quot;txt&quot;]=&gt;
+013-   string(17) &quot;Lorem ipsum dolor&quot;
+014-   [&quot;k&quot;]=&gt;
+015-   string(2) &quot;34&quot;
+016- }
+001+ bool(false)
+002+ bool(false)
+</failure>
+</testcase>
+<testcase name='ext/odbc/tests/bug78470.phpt (Bug #78470 (odbc_specialcolumns() no longer accepts $nullable))' time='0.0316'>
+</testcase>
+<testcase name='ext/odbc/tests/bug78473.phpt (Bug #78473 (odbc_close() closes arbitrary resources))' time='0.0108'>
+</testcase>
+<testcase name='ext/odbc/tests/bug80147.phpt (Bug #80147 (BINARY strings may not be properly zero-terminated))' time='0.0588'>
+<failure type='FAILED' message=''>001- string(8) &quot;whatever&quot;
+001+ bool(false)
+</failure>
+</testcase>
+<testcase name='ext/odbc/tests/bug80152.phpt (Bug #80152 (odbc_execute() moves internal pointer of $params))' time='0.0582'>
+</testcase>
+<testcase name='ext/odbc/tests/bug80592.phpt (Bug #80592 (all floats are the same in ODBC parameters))' time='0.1009'>
+<failure type='FAILED' message=''>001- array(3) {
+002-   [&quot;f1&quot;]=&gt;
+003-   string(3) &quot;1.0&quot;
+004-   [&quot;f2&quot;]=&gt;
+005-   string(3) &quot;2.0&quot;
+006-   [&quot;f3&quot;]=&gt;
+007-   string(3) &quot;3.0&quot;
+008- }
+001+ Warning: odbc_execute(): SQL error: Integrity constraint violation: &lt;main&gt;: Error: Type annotation, code: 1030
+002+     &lt;main&gt;:4:13: Error: At function: KiWriteTable!
+003+         &lt;main&gt;:4:13: Error: Missing key column in input: ydb_fixture_id for table: /local/bug80592, code: 2029
+004+ , SQL state 23000 in SQLExecute in /work/source/ext/odbc/tests/bug80592.php on line 7
+005+ bool(false)
+</failure>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_autocommit_001.phpt (odbc_autocommit(): Basic test)' time='0.0322'>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_close_all_001.phpt (odbc_close_all(): Basic test)' time='0.0374'>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_columnprivileges_001.phpt (odbc_columnprivileges(): Basic test)' time='0.0340'>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_columns_001.phpt (odbc_columns(): Basic test)' time='0.0382'>
+<skipped>MS SQL specific test</skipped>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_commit_001.phpt (odbc_commit(): Basic test for odbc_commit())' time='0.0630'>
+<failure type='FAILED' message=''>     bool(true)
+002- string(1) &quot;1&quot;
+002+ bool(false)
+</failure>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_cursor_001.phpt (Test odbc_cursor())' time='0.0650'>
+<failure type='FAILED' message=''>001- string(%d) &quot;SQL_CUR%s&quot;
+001+ string(0) &quot;&quot;
+</failure>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_data_source_001.phpt (odbc_data_source(): Basic test)' time='0.0687'>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_exec_001.phpt (odbc_exec(): Basic test)' time='0.0788'>
+<failure type='FAILED' message=''>001+ Warning: odbc_exec(): SQL error: General error: &lt;main&gt;:1:0: Error: mismatched input &#039;foo&#039; expecting {&#039;;&#039;, &#039;(&#039;, &#039;$&#039;, ALTER, ANALYZE, BACKUP, BATCH, COMMIT, CREATE, DECLARE, DEFINE, DELETE, DISCARD, DO, DROP, EVALUATE, EXPLAIN, EXPORT, FOR, FROM, GRANT, IF, IMPORT, INSERT, PARALLEL, PRAGMA, PROCESS, REDUCE, REPLACE, RESTORE, REVOKE, ROLLBACK, SELECT, SHOW, UPDATE, UPSERT, USE, VALUES}
+002+ , SQL state S1000 in SQLExecDirect in /work/source/ext/odbc/tests/odbc_exec_001.php on line 7
+003+ 
+     Warning: odbc_exec(): SQL error: No prepared statement, SQL state S1007 in SQLExecDirect in /work/source/ext/odbc/tests/odbc_exec_001.php on line 9
+     
+003- Warning: odbc_exec(): SQL error: %s in %s on line %d
+006+ Warning: odbc_exec(): SQL error: General error: &lt;main&gt;:1:0: Error: mismatched input &#039;1&#039; expecting {&#039;;&#039;, &#039;(&#039;, &#039;$&#039;, ALTER, ANALYZE, BACKUP, BATCH, COMMIT, CREATE, DECLARE, DEFINE, DELETE, DISCARD, DO, DROP, EVALUATE, EXPLAIN, EXPORT, FOR, FROM, GRANT, IF, IMPORT, INSERT, PARALLEL, PRAGMA, PROCESS, REDUCE, REPLACE, RESTORE, REVOKE, ROLLBACK, SELECT, SHOW, UPDATE, UPSERT, USE, VALUES}
+007+ , SQL state S1000 in SQLExecDirect in /work/source/ext/odbc/tests/odbc_exec_001.php on line 11
+</failure>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_exec_002.phpt (odbc_exec(): Getting data from query)' time='0.0629'>
+<failure type='FAILED' message=''>001- bool(true)
+002- string(1) &quot;1&quot;
+003- array(1) {
+004-   [&quot;TEST&quot;]=&gt;
+005-   string(1) &quot;2&quot;
+006- }
+001+ bool(false)
+002+ bool(false)
+003+ bool(false)
+</failure>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_fetch_array_001.phpt (odbc_fetch_array(): Getting data from query)' time='0.0629'>
+<failure type='FAILED' message=''>001- array(1) {
+002-   [&quot;foo&quot;]=&gt;
+003-   string(1) &quot;1&quot;
+004- }
+005- array(1) {
+006-   [&quot;foo&quot;]=&gt;
+007-   string(1) &quot;2&quot;
+008- }
+009- array(1) {
+010-   [&quot;foo&quot;]=&gt;
+011-   string(1) &quot;2&quot;
+012- }
+001+ bool(false)
+002+ bool(false)
+003+ bool(false)
+     bool(false)
+</failure>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_fetch_into_001.phpt (odbc_fetch_into(): Getting data from query)' time='0.0651'>
+<failure type='FAILED' message=''>001- int(1)
+002- array(1) {
+003-   [0]=&gt;
+004-   string(1) &quot;1&quot;
+001+ bool(false)
+002+ array(0) {
+     }
+006- int(1)
+007- array(1) {
+008-   [0]=&gt;
+009-   string(1) &quot;2&quot;
+004+ bool(false)
+005+ array(0) {
+     }
+011- int(1)
+012- array(1) {
+013-   [0]=&gt;
+014-   string(1) &quot;2&quot;
+007+ bool(false)
+008+ array(0) {
+     }
+     bool(false)
+     array(0) {
+--
+</failure>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_fetch_object_001.phpt (odbc_fetch_object(): Getting data from query)' time='0.0685'>
+<failure type='FAILED' message=''>001- object(stdClass)#%d (%d) {
+002-   [&quot;foo&quot;]=&gt;
+003-   string(1) &quot;1&quot;
+004- }
+005- object(stdClass)#%d (%d) {
+006-   [&quot;foo&quot;]=&gt;
+007-   string(1) &quot;2&quot;
+008- }
+009- object(stdClass)#%d (%d) {
+010-   [&quot;foo&quot;]=&gt;
+011-   string(1) &quot;2&quot;
+012- }
+001+ bool(false)
+002+ bool(false)
+003+ bool(false)
+     bool(false)
+</failure>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_fetch_row_001.phpt (odbc_fetch_row(): Getting data from query)' time='0.0617'>
+<failure type='FAILED' message=''>     bool(false)
+002- bool(true)
+003- string(1) &quot;1&quot;
+004- bool(true)
+005- string(1) &quot;2&quot;
+006- bool(true)
+007- string(1) &quot;2&quot;
+002+ bool(false)
+003+ bool(false)
+004+ bool(false)
+005+ bool(false)
+006+ bool(false)
+007+ bool(false)
+     bool(false)
+</failure>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_field_len_001.phpt (odbc_field_len(): Getting the length of the field)' time='0.0505'>
+<failure type='FAILED' message=''>     odbc_field_len(): Argument #2 ($field) must be greater than 0
+     int(10)
+003- int(2147483647)
+004- int(50)
+003+ int(255)
+004+ int(4096)
+     
+     Warning: odbc_field_len(): Field index larger than number of fields in %s on line %d
+     bool(false)
+</failure>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_field_name_001.phpt (odbc_field_name(): Getting the name of the field)' time='0.0502'>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_field_num_001.phpt (odbc_field_scale(): Getting the scale of the field)' time='0.0528'>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_field_precision_001.phpt (odbc_field_precision(): Getting the precision of the field)' time='0.0485'>
+<failure type='FAILED' message=''>     odbc_field_precision(): Argument #2 ($field) must be greater than 0
+     int(10)
+     int(7)
+004- int(50)
+004+ int(4096)
+     
+     Warning: odbc_field_precision(): Field index larger than number of fields in %s on line %d
+     bool(false)
+</failure>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_field_scale_001.phpt (odbc_field_scale(): Getting the scale of the field)' time='0.0495'>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_field_type_001.phpt (odbc_field_type(): Getting the type of the field)' time='0.0499'>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_free_result_001.phpt (odbc_free_result(): Basic test)' time='0.0837'>
+<failure type='FAILED' message=''>001- bool(true)
+002- string(1) &quot;1&quot;
+001+ bool(false)
+002+ bool(false)
+     bool(true)
+     odbc_free_result(): supplied resource is not a valid ODBC result resource
+     odbc_fetch_row(): supplied resource is not a valid ODBC result resource
+--
+</failure>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_gettypeinfo_001.phpt (odbc_gettypeinfo(): Getting info about data types)' time='0.0402'>
+<failure type='FAILED' message=''>001- array(20) {
+001+ array(19) {
+       [&quot;TYPE_NAME&quot;]=&gt;
+003-   string(14) &quot;datetimeoffset&quot;
+003+   string(5) &quot;Int64&quot;
+       [&quot;DATA_TYPE&quot;]=&gt;
+005-   string(4) &quot;-155&quot;
+005+   string(2) &quot;[[0x00]]0&quot;
+       [&quot;COLUMN_SIZE&quot;]=&gt;
+007-   string(2) &quot;34&quot;
+007+   string(2) &quot;[[0x00]]0&quot;
+       [&quot;LITERAL_PREFIX&quot;]=&gt;
+009-   string(1) &quot;&#039;&quot;
+009+   NULL
+       [&quot;LITERAL_SUFFIX&quot;]=&gt;
+011-   string(1) &quot;&#039;&quot;
+011+   NULL
+       [&quot;CREATE_PARAMS&quot;]=&gt;
+013-   string(5) &quot;scale&quot;
+013+   NULL
+       [&quot;NULLABLE&quot;]=&gt;
+015-   string(1) &quot;1&quot;
+015+   string(1) &quot;[[0x00]]&quot;
+       [&quot;CASE_SENSITIVE&quot;]=&gt;
+017-   string(1) &quot;0&quot;
+017+   string(1) &quot;[[0x00]]&quot;
+       [&quot;SEARCHABLE&quot;]=&gt;
+019-   string(1) &quot;3&quot;
+019+   string(1) &quot;[[0x00]]&quot;
+       [&quot;UNSIGNED_ATTRIBUTE&quot;]=&gt;
+       NULL
+       [&quot;FIXED_PREC_SCALE&quot;]=&gt;
+023-   string(1) &quot;0&quot;
+023+   string(1) &quot;[[0x00]]&quot;
+       [&quot;AUTO_UNIQUE_VALUE&quot;]=&gt;
+025-   NULL
+025+   string(1) &quot;[[0x00]]&quot;
+       [&quot;LOCAL_TYPE_NAME&quot;]=&gt;
+027-   string(14) &quot;datetimeoffset&quot;
+027+   string(5) &quot;Int64&quot;
+       [&quot;MINIMUM_SCALE&quot;]=&gt;
+029-   string(1) &quot;0&quot;
+029+   string(1) &quot;[[0x00]]&quot;
+       [&quot;MAXIMUM_SCALE&quot;]=&gt;
+031-   string(1) &quot;7&quot;
+031+   string(1) &quot;[[0x00]]&quot;
+       [&quot;SQL_DATA_TYPE&quot;]=&gt;
+033-   string(4) &quot;-155&quot;
+033+   string(2) &quot;[[0x00]]0&quot;
+       [&quot;SQL_DATETIME_SUB&quot;]=&gt;
+035-   string(1) &quot;0&quot;
+035+   string(1) &quot;[[0x00]]&quot;
+       [&quot;NUM_PREC_RADIX&quot;]=&gt;
+037-   NULL
+037+   string(2) &quot;[[0x00]]0&quot;
+       [&quot;INTERVAL_PRECISION&quot;]=&gt;
+039-   NULL
+040-   [&quot;USERTYPE&quot;]=&gt;
+041-   string(1) &quot;0&quot;
+039+   string(1) &quot;[[0x00]]&quot;
+     }
+043- array(20) {
+041+ array(19) {
+       [&quot;TYPE_NAME&quot;]=&gt;
+045-   string(4) &quot;char&quot;
+043+   string(4) &quot;Utf8&quot;
+       [&quot;DATA_TYPE&quot;]=&gt;
+047-   string(1) &quot;1&quot;
+045+   string(1) &quot;[[0x00]]&quot;
+       [&quot;COLUMN_SIZE&quot;]=&gt;
+049-   string(4) &quot;8000&quot;
+047+   string(3) &quot;[[0x00]]0 &quot;
+       [&quot;LITERAL_PREFIX&quot;]=&gt;
+051-   string(1) &quot;&#039;&quot;
+049+   NULL
+       [&quot;LITERAL_SUFFIX&quot;]=&gt;
+053-   string(1) &quot;&#039;&quot;
+051+   NULL
+       [&quot;CREATE_PARAMS&quot;]=&gt;
+055-   string(6) &quot;length&quot;
+053+   NULL
+       [&quot;NULLABLE&quot;]=&gt;
+057-   string(1) &quot;1&quot;
+055+   string(1) &quot;[[0x00]]&quot;
+       [&quot;CASE_SENSITIVE&quot;]=&gt;
+059-   string(1) &quot;0&quot;
+057+   string(1) &quot;[[0x00]]&quot;
+       [&quot;SEARCHABLE&quot;]=&gt;
+061-   string(1) &quot;3&quot;
+059+   string(1) &quot;[[0x00]]&quot;
+       [&quot;UNSIGNED_ATTRIBUTE&quot;]=&gt;
+       NULL
+       [&quot;FIXED_PREC_SCALE&quot;]=&gt;
+065-   string(1) &quot;0&quot;
+063+   string(1) &quot;[[0x00]]&quot;
+       [&quot;AUTO_UNIQUE_VALUE&quot;]=&gt;
+067-   NULL
+065+   string(1) &quot;[[0x00]]&quot;
+       [&quot;LOCAL_TYPE_NAME&quot;]=&gt;
+069-   string(4) &quot;char&quot;
+067+   string(4) &quot;Utf8&quot;
+       [&quot;MINIMUM_SCALE&quot;]=&gt;
+071-   NULL
+069+   string(1) &quot;[[0x00]]&quot;
+       [&quot;MAXIMUM_SCALE&quot;]=&gt;
+073-   NULL
+071+   string(1) &quot;[[0x00]]&quot;
+       [&quot;SQL_DATA_TYPE&quot;]=&gt;
+075-   string(1) &quot;1&quot;
+073+   string(1) &quot;[[0x00]]&quot;
+       [&quot;SQL_DATETIME_SUB&quot;]=&gt;
+077-   NULL
+075+   string(1) &quot;[[0x00]]&quot;
+       [&quot;NUM_PREC_RADIX&quot;]=&gt;
+079-   NULL
+077+   string(2) &quot;[[0x00]]0&quot;
+       [&quot;INTERVAL_PRECISION&quot;]=&gt;
+081-   NULL
+082-   [&quot;USERTYPE&quot;]=&gt;
+083-   string(1) &quot;1&quot;
+079+   string(1) &quot;[[0x00]]&quot;
+     }
+085- array(20) {
+081+ array(19) {
+       [&quot;TYPE_NAME&quot;]=&gt;
+087-   string(7) &quot;numeric&quot;
+083+   string(14) &quot;Decimal(22, 9)&quot;
+       [&quot;DATA_TYPE&quot;]=&gt;
+089-   string(1) &quot;2&quot;
+085+   string(1) &quot;[[0x00]]&quot;
+       [&quot;COLUMN_SIZE&quot;]=&gt;
+091-   string(2) &quot;38&quot;
+087+   string(2) &quot;[[0x00]]0&quot;
+       [&quot;LITERAL_PREFIX&quot;]=&gt;
+       NULL
+       [&quot;LITERAL_SUFFIX&quot;]=&gt;
+       NULL
+       [&quot;CREATE_PARAMS&quot;]=&gt;
+097-   string(15) &quot;precision,scale&quot;
+093+   NULL
+       [&quot;NULLABLE&quot;]=&gt;
+099-   string(1) &quot;1&quot;
+095+   string(1) &quot;[[0x00]]&quot;
+       [&quot;CASE_SENSITIVE&quot;]=&gt;
+101-   string(1) &quot;0&quot;
+097+   string(1) &quot;[[0x00]]&quot;
+       [&quot;SEARCHABLE&quot;]=&gt;
+103-   string(1) &quot;2&quot;
+099+   string(1) &quot;[[0x00]]&quot;
+       [&quot;UNSIGNED_ATTRIBUTE&quot;]=&gt;
+105-   string(1) &quot;0&quot;
+101+   NULL
+       [&quot;FIXED_PREC_SCALE&quot;]=&gt;
+107-   string(1) &quot;0&quot;
+103+   string(1) &quot;[[0x00]]&quot;
+       [&quot;AUTO_UNIQUE_VALUE&quot;]=&gt;
+109-   string(1) &quot;0&quot;
+105+   string(1) &quot;[[0x00]]&quot;
+       [&quot;LOCAL_TYPE_NAME&quot;]=&gt;
+111-   string(7) &quot;numeric&quot;
+107+   string(14) &quot;Decimal(22, 9)&quot;
+       [&quot;MINIMUM_SCALE&quot;]=&gt;
+113-   string(1) &quot;0&quot;
+109+   string(1) &quot;[[0x00]]&quot;
+       [&quot;MAXIMUM_SCALE&quot;]=&gt;
+115-   string(2) &quot;38&quot;
+111+   string(1) &quot;[[0x00]]&quot;
+       [&quot;SQL_DATA_TYPE&quot;]=&gt;
+117-   string(1) &quot;2&quot;
+113+   string(1) &quot;[[0x00]]&quot;
+       [&quot;SQL_DATETIME_SUB&quot;]=&gt;
+119-   NULL
+115+   string(1) &quot;[[0x00]]&quot;
+       [&quot;NUM_PREC_RADIX&quot;]=&gt;
+121-   string(2) &quot;10&quot;
+117+   string(2) &quot;[[0x00]]0&quot;
+       [&quot;INTERVAL_PRECISION&quot;]=&gt;
+123-   NULL
+124-   [&quot;USERTYPE&quot;]=&gt;
+125-   string(2) &quot;10&quot;
+119+   string(1) &quot;[[0x00]]&quot;
+     }
+</failure>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_longreadlen_001.phpt (Test odbc_longreadlen())' time='0.0677'>
+<failure type='FAILED' message=''>001- string(4) &quot;what&quot;
+001+ bool(false)
+</failure>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_num_fields_001.phpt (odbc_num_fields(): Getting the number of fields)' time='0.0706'>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_num_rows_001.phpt (odbc_num_rows(): Getting the number of rows)' time='0.0673'>
+<failure type='FAILED' message=''>001- int(3)
+002- int(0)
+001+ int(-1)
+002+ int(-1)
+</failure>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_persistent_close.phpt (odbc_pconnect(): Make sure closing a persistent connection works)' time='0.0395'>
+<skipped>MS SQL specific test</skipped>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_primarykeys_001.phpt (odbc_primarykeys(): Basic test for odbc_primarykeys())' time='0.0383'>
+<skipped>MS SQL specific test</skipped>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_rollback_001.phpt (odbc_rollback(): Basic test for odbc_rollback())' time='0.0623'>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_setoption_001.phpt (odbc_setoption(): Basic test for odbc_setoption())' time='0.0350'>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_setoption_002.phpt (odbc_setoption(): Test for odbc_setoption() with persistent connection)' time='0.0348'>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_tables_001.phpt (odbc_tables(): Basic test)' time='0.0378'>
+</testcase>
+<testcase name='ext/odbc/tests/odbc_utils.phpt (Test common ODBC string functionality)' time='0.0118'>
+</testcase>
+</testsuite>
+</testsuites>

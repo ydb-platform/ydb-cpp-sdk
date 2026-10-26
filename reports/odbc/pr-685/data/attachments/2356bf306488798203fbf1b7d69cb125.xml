@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite name="tst_QSqlQuery" timestamp="2026&#x002D;10&#x002D;26T18:26:05" hostname="runnervmtai0g" tests="104" failures="3" errors="0" skipped="58" time="2.105">
+<testsuite name="tst_QSqlQuery" timestamp="2026&#x002D;10&#x002D;26T18:45:09" hostname="runnervmtai0g" tests="104" failures="3" errors="0" skipped="58" time="2.148">
   <properties>
     <property name="QTestVersion" value="6.4.2"/>
     <property name="QtVersion" value="6.4.2"/>
     <property name="QtBuild" value="Qt 6.4.2 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 13.2.0)"/>
   </properties>
-  <testcase name="initTestCase" classname="tst_QSqlQuery" time="0.198">
+  <testcase name="initTestCase" classname="tst_QSqlQuery" time="0.195">
     <system-out>
       <![CDATA[Opening: "0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous"]]>
     </system-out>
@@ -15,16 +15,16 @@
   </testcase>
   <testcase name="value(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.006"/>
   <testcase name="isValid(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.004"/>
-  <testcase name="isActive(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.055"/>
-  <testcase name="isSelect(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.010"/>
+  <testcase name="isActive(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.053"/>
+  <testcase name="isSelect(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.009"/>
   <testcase name="numRowsAffected(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.023">
     <skipped message="Database doesn&apos;t support numRowsAffected"/>
   </testcase>
   <testcase name="size(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.027"/>
-  <testcase name="isNull(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.007"/>
-  <testcase name="writeNull(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.360"/>
+  <testcase name="isNull(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.006"/>
+  <testcase name="writeNull(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.341"/>
   <testcase name="query_exec(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.001"/>
-  <testcase name="execErrorRecovery(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.037">
+  <testcase name="execErrorRecovery(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.036">
     <system-err>
       <![CDATA[QODBCResult::exec: Unable to execute statement: "Integrity constraint violation: <main>: Error: Conflict with existing key., code: 2012\n"]]>
     </system-err>
@@ -33,7 +33,7 @@
   <testcase name="next(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.001"/>
   <testcase name="prev(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.001"/>
   <testcase name="last(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.001"/>
-  <testcase name="seek(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.007"/>
+  <testcase name="seek(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.006"/>
   <testcase name="transaction(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.000">
     <skipped message="only tested manually by trained staff"/>
   </testcase>
@@ -46,15 +46,15 @@
   <testcase name="record_sqlite" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
   </testcase>
-  <testcase name="finish(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.013"/>
+  <testcase name="finish(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.012"/>
   <testcase name="sqlite_finish" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
   </testcase>
-  <testcase name="nextResult(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.088">
+  <testcase name="nextResult(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.093">
     <failure type="fail" message="&apos;!q.isSelect()&apos; returned FALSE. ()"/>
   </testcase>
-  <testcase name="forwardOnly(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.009"/>
-  <testcase name="forwardOnlyMultipleResultSet(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.035">
+  <testcase name="forwardOnly(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.008"/>
+  <testcase name="forwardOnlyMultipleResultSet(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.037">
     <failure type="fail" message="Compared values are not the same">
       <![CDATA[   Actual   (record.field(0).tableName()): ""
    Expected (qtest)                      : "dbtst_qtest635b97162c9e522e"]]>
@@ -75,17 +75,17 @@
   <testcase name="oci_rawField" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QOCI are available in this Qt configuration"/>
   </testcase>
-  <testcase name="precision(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.034"/>
-  <testcase name="nullResult(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.005"/>
+  <testcase name="precision(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.029"/>
+  <testcase name="nullResult(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.004"/>
   <testcase name="joins(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.000">
     <skipped message="DBMS cannot understand standard SQL"/>
   </testcase>
   <testcase name="outValues(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.000">
     <skipped message="Don&apos;t know how to create a stored procedure for this database server, please fix this test"/>
   </testcase>
-  <testcase name="char1Select(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.028"/>
-  <testcase name="char1SelectUnicode(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.027"/>
-  <testcase name="synonyms(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.005"/>
+  <testcase name="char1Select(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.026"/>
+  <testcase name="char1SelectUnicode(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.028"/>
+  <testcase name="synonyms(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.006"/>
   <testcase name="oraOutValues" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QOCI are available in this Qt configuration"/>
   </testcase>
@@ -113,7 +113,7 @@
   <testcase name="oraRowId" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QOCI are available in this Qt configuration"/>
   </testcase>
-  <testcase name="prepare_bind_exec(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.216">
+  <testcase name="prepare_bind_exec(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.221">
     <system-err>
       <![CDATA[QODBCResult::exec: Unable to execute statement: "General error: <main>: Error: Type annotation, code: 1030\n    <main>:3:13: Error: At function: KiWriteTable!\n        <main>:3:61: Error: Failed to convert type: Struct<'id':Int32,'name':Int32> to Struct<'id':Int32?,'name':Utf8?>\n            <main>:3:61: Error: Failed to convert 'name': Int32 to Optional<Utf8>\n        <main>:3:61: Error: Failed to convert input columns types to scheme types, code: 2031\n"]]>
       <![CDATA[QODBCResult::exec: Unable to execute statement: "Integrity constraint violation: <main>: Error: Conflict with existing key., code: 2012\n"]]>
@@ -129,17 +129,17 @@
       <![CDATA[QODBCResult::exec: Unable to execute statement: "[unixODBC][Driver Manager]Function sequence error"]]>
     </system-err>
   </testcase>
-  <testcase name="batchExec(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.066"/>
-  <testcase name="QTBUG_43874(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.043"/>
+  <testcase name="batchExec(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.118"/>
+  <testcase name="QTBUG_43874(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.035"/>
   <testcase name="oraArrayBind" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QOCI are available in this Qt configuration"/>
   </testcase>
-  <testcase name="lastInsertId(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.024">
+  <testcase name="lastInsertId(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.023">
     <skipped message="Database doesn&apos;t support lastInsertId"/>
   </testcase>
   <testcase name="lastQuery(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.001"/>
-  <testcase name="lastQueryTwoQueries(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.006"/>
-  <testcase name="bindBool(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.046"/>
+  <testcase name="lastQueryTwoQueries(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.005"/>
+  <testcase name="bindBool(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.043"/>
   <testcase name="psql_bindWithDoubleColonCastOperator" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QPSQL are available in this Qt configuration"/>
   </testcase>
@@ -151,11 +151,11 @@
     <skipped message="Test is specific for PostgreSQL, Oracle, MySql and DB2"/>
   </testcase>
   <testcase name="seekForwardOnlyQuery(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.001"/>
-  <testcase name="reExecutePreparedForwardOnlyQuery(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.007"/>
+  <testcase name="reExecutePreparedForwardOnlyQuery(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.006"/>
   <testcase name="blobsPreparedQuery(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.000">
     <skipped message="DBMS does not support BLOBs or prepared queries"/>
   </testcase>
-  <testcase name="emptyTableNavigate(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.016"/>
+  <testcase name="emptyTableNavigate(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.015"/>
   <testcase name="timeStampParsing(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.035"/>
   <testcase name="sqliteVirtualTable" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
@@ -166,8 +166,8 @@
   <testcase name="ibase_executeBlock" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QIBASE are available in this Qt configuration"/>
   </testcase>
-  <testcase name="task_217003(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.069"/>
-  <testcase name="task_250026(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.029"/>
+  <testcase name="task_217003(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.081"/>
+  <testcase name="task_250026(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.032"/>
   <testcase name="crashQueryOnCloseDatabase" classname="tst_QSqlQuery" time="0.002">
     <system-out>
       <![CDATA[Testing crash in sqlquery dtor for driver "QODBC"]]>
@@ -221,7 +221,7 @@
   <testcase name="QTBUG_14904" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
   </testcase>
-  <testcase name="QTBUG_2192(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.028"/>
+  <testcase name="QTBUG_2192(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.077"/>
   <testcase name="QTBUG_36211" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QPSQL are available in this Qt configuration"/>
   </testcase>
@@ -237,14 +237,14 @@
   <testcase name="sqlite_real" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
   </testcase>
-  <testcase name="aggregateFunctionTypes(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.313"/>
+  <testcase name="aggregateFunctionTypes(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.288"/>
   <testcase name="integralTypesMysql" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QMYSQL are available in this Qt configuration"/>
   </testcase>
   <testcase name="QTBUG_57138" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
   </testcase>
-  <testcase name="QTBUG_73286(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.030"/>
+  <testcase name="QTBUG_73286(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.028"/>
   <testcase name="dateTime(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous timestamp with time zone)" classname="tst_QSqlQuery" time="0.000">
     <skipped message="Implemented only for Oracle"/>
   </testcase>
@@ -261,5 +261,5 @@
     <skipped message="No database drivers of type QIBASE are available in this Qt configuration"/>
   </testcase>
   <testcase name="prematureExec(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlQuery" time="0.000"/>
-  <testcase name="cleanupTestCase" classname="tst_QSqlQuery" time="0.170"/>
+  <testcase name="cleanupTestCase" classname="tst_QSqlQuery" time="0.167"/>
 </testsuite>

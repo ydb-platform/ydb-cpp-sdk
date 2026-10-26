@@ -1,0 +1,14 @@
+     bool(false)
+002- bool(true)
+003- string(1) "1"
+004- bool(true)
+005- string(1) "2"
+006- bool(true)
+007- string(1) "2"
+002+ bool(false)
+003+ bool(false)
+004+ bool(false)
+005+ bool(false)
+006+ bool(false)
+007+ bool(false)
+     bool(false)

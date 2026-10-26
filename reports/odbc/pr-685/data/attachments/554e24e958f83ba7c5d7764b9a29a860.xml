@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite name="tst_QSqlTableModel" timestamp="2026&#x002D;10&#x002D;26T18:45:09" hostname="runnervmtai0g" tests="48" failures="3" errors="0" skipped="8" time="16.797">
+  <properties>
+    <property name="QTestVersion" value="6.4.2"/>
+    <property name="QtVersion" value="6.4.2"/>
+    <property name="QtBuild" value="Qt 6.4.2 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 13.2.0)"/>
+  </properties>
+  <testcase name="initTestCase" classname="tst_QSqlTableModel" time="0.268"/>
+  <testcase name="select(0_QODBC@YDB_qt)" classname="tst_QSqlTableModel" time="0.371"/>
+  <testcase name="selectRow(0_QODBC@YDB_qt)" classname="tst_QSqlTableModel" time="0.534"/>
+  <testcase name="selectRowOverride(0_QODBC@YDB_qt)" classname="tst_QSqlTableModel" time="0.429"/>
+  <testcase name="insertColumns(0_QODBC@YDB_qt [field])" classname="tst_QSqlTableModel" time="0.399"/>
+  <testcase name="insertColumns(0_QODBC@YDB_qt [row])" classname="tst_QSqlTableModel" time="0.377"/>
+  <testcase name="insertColumns(0_QODBC@YDB_qt [manual])" classname="tst_QSqlTableModel" time="0.352"/>
+  <testcase name="submitAll(0_QODBC@YDB_qt)" classname="tst_QSqlTableModel" time="0.419"/>
+  <testcase name="setData(0_QODBC@YDB_qt)" classname="tst_QSqlTableModel" time="0.339">
+    <failure type="fail" message="&apos;(model).submitAll()&apos; returned FALSE. (QODBC@YDB_qt: (400080) &apos;QODBC: Unable to execute statement&apos; || &apos;General error: &lt;main&gt;: Error: Type annotation, code: 1030">
+      <![CDATA[    <main>:3:104: Error: At function: KiUpdateTable!
+        <main>:3:104: Error: Cannot update primary key column: id
+')]]>
+    </failure>
+    <system-err>
+      <![CDATA[QODBCResult::exec: Unable to execute statement: "General error: <main>: Error: Type annotation, code: 1030\n    <main>:3:104: Error: At function: KiUpdateTable!\n        <main>:3:104: Error: Cannot update primary key column: id\n"]]>
+    </system-err>
+  </testcase>
+  <testcase name="setRecord(0_QODBC@YDB_qt)" classname="tst_QSqlTableModel" time="0.401"/>
+  <testcase name="setRecordReimpl(0_QODBC@YDB_qt)" classname="tst_QSqlTableModel" time="0.353"/>
+  <testcase name="recordReimpl(0_QODBC@YDB_qt)" classname="tst_QSqlTableModel" time="0.346"/>
+  <testcase name="insertRow(0_QODBC@YDB_qt [field])" classname="tst_QSqlTableModel" time="0.400"/>
+  <testcase name="insertRow(0_QODBC@YDB_qt [row])" classname="tst_QSqlTableModel" time="0.382"/>
+  <testcase name="insertRow(0_QODBC@YDB_qt [manual])" classname="tst_QSqlTableModel" time="0.359"/>
+  <testcase name="insertRowFailure(0_QODBC@YDB_qt [field])" classname="tst_QSqlTableModel" time="0.378">
+    <system-err>
+      <![CDATA[QODBCResult::exec: Unable to execute statement: "Integrity constraint violation: <main>: Error: Conflict with existing key., code: 2012\n"]]>
+    </system-err>
+  </testcase>
+  <testcase name="insertRowFailure(0_QODBC@YDB_qt [row])" classname="tst_QSqlTableModel" time="0.382">
+    <system-err>
+      <![CDATA[QODBCResult::exec: Unable to execute statement: "Integrity constraint violation: <main>: Error: Conflict with existing key., code: 2012\n"]]>
+    </system-err>
+  </testcase>
+  <testcase name="insertRowFailure(0_QODBC@YDB_qt [manual])" classname="tst_QSqlTableModel" time="0.355">
+    <system-err>
+      <![CDATA[QODBCResult::exec: Unable to execute statement: "Integrity constraint violation: <main>: Error: Conflict with existing key., code: 2012\n"]]>
+    </system-err>
+  </testcase>
+  <testcase name="insertRecord(0_QODBC@YDB_qt)" classname="tst_QSqlTableModel" time="0.364"/>
+  <testcase name="insertMultiRecords(0_QODBC@YDB_qt)" classname="tst_QSqlTableModel" time="0.429"/>
+  <testcase name="insertWithAutoColumn" classname="tst_QSqlTableModel" time="0.000">
+    <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
+  </testcase>
+  <testcase name="removeRow(0_QODBC@YDB_qt)" classname="tst_QSqlTableModel" time="0.711"/>
+  <testcase name="removeRows(0_QODBC@YDB_qt)" classname="tst_QSqlTableModel" time="0.730"/>
+  <testcase name="removeInsertedRow(0_QODBC@YDB_qt [field])" classname="tst_QSqlTableModel" time="0.374"/>
+  <testcase name="removeInsertedRow(0_QODBC@YDB_qt [row])" classname="tst_QSqlTableModel" time="0.389"/>
+  <testcase name="removeInsertedRow(0_QODBC@YDB_qt [manual])" classname="tst_QSqlTableModel" time="0.369"/>
+  <testcase name="removeInsertedRows(0_QODBC@YDB_qt)" classname="tst_QSqlTableModel" time="1.083"/>
+  <testcase name="revert" classname="tst_QSqlTableModel" time="0.000">
+    <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
+  </testcase>
+  <testcase name="isDirty(0_QODBC@YDB_qt [field])" classname="tst_QSqlTableModel" time="0.448"/>
+  <testcase name="isDirty(0_QODBC@YDB_qt [row])" classname="tst_QSqlTableModel" time="0.408"/>
+  <testcase name="isDirty(0_QODBC@YDB_qt [manual])" classname="tst_QSqlTableModel" time="0.413"/>
+  <testcase name="setFilter(0_QODBC@YDB_qt)" classname="tst_QSqlTableModel" time="0.349"/>
+  <testcase name="setInvalidFilter(0_QODBC@YDB_qt)" classname="tst_QSqlTableModel" time="0.350"/>
+  <testcase name="emptyTable(0_QODBC@YDB_qt)" classname="tst_QSqlTableModel" time="0.346"/>
+  <testcase name="tablesAndSchemas" classname="tst_QSqlTableModel" time="0.000">
+    <skipped message="No database drivers of type QPSQL are available in this Qt configuration"/>
+  </testcase>
+  <testcase name="whitespaceInIdentifiers(0_QODBC@YDB_qt)" classname="tst_QSqlTableModel" time="0.339">
+    <skipped message="DBMS doesn&apos;t support whitespaces in identifiers"/>
+  </testcase>
+  <testcase name="primaryKeyOrder" classname="tst_QSqlTableModel" time="0.000">
+    <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
+  </testcase>
+  <testcase name="sqlite_bigTable" classname="tst_QSqlTableModel" time="0.000">
+    <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
+  </testcase>
+  <testcase name="insertRecordBeforeSelect(0_QODBC@YDB_qt)" classname="tst_QSqlTableModel" time="0.399"/>
+  <testcase name="submitAllOnInvalidTable(0_QODBC@YDB_qt)" classname="tst_QSqlTableModel" time="0.343">
+    <system-out>
+      <![CDATA[The table doesn't exist: submitAll() shall fail]]>
+      <![CDATA[The table doesn't exist: select() shall fail]]>
+    </system-out>
+  </testcase>
+  <testcase name="insertRecordsInLoop(0_QODBC@YDB_qt)" classname="tst_QSqlTableModel" time="0.363">
+    <failure type="fail" message="Compared values are not the same">
+      <![CDATA[   Actual   (modelAboutToBeResetSpy.size()): 0
+   Expected (1)                            : 1]]>
+    </failure>
+    <system-err>
+      <![CDATA[QODBCResult::exec: Unable to execute statement: "Integrity constraint violation: <main>: Error: Conflict with existing key., code: 2012\n"]]>
+    </system-err>
+  </testcase>
+  <testcase name="sqlite_attachedDatabase" classname="tst_QSqlTableModel" time="0.000">
+    <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
+  </testcase>
+  <testcase name="tableModifyWithBlank(0_QODBC@YDB_qt)" classname="tst_QSqlTableModel" time="0.475"/>
+  <testcase name="removeColumnAndRow(0_QODBC@YDB_qt)" classname="tst_QSqlTableModel" time="0.395">
+    <failure type="fail" message="Compared values are not the same">
+      <![CDATA[   Actual   (model.rowCount()): 3
+   Expected (2)               : 2]]>
+    </failure>
+  </testcase>
+  <testcase name="insertBeforeDelete(0_QODBC@YDB_qt)" classname="tst_QSqlTableModel" time="0.433"/>
+  <testcase name="invalidFilterAndHeaderData(0_QODBC@YDB_qt)" classname="tst_QSqlTableModel" time="0.362"/>
+  <testcase name="sqlite_selectFromIdentifierWithDot" classname="tst_QSqlTableModel" time="0.000">
+    <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
+  </testcase>
+  <testcase name="cleanupTestCase" classname="tst_QSqlTableModel" time="0.080"/>
+</testsuite>
