@@ -148,9 +148,21 @@ std::optional<std::string> ReadText(const TBoundParam& param) {
     if (param.ValueType == SQL_C_TYPE_DATE || param.ValueType == SQL_C_DATE
         || param.ValueType == SQL_C_TYPE_TIMESTAMP || param.ValueType == SQL_C_TIMESTAMP) {
         const bool date = param.ValueType == SQL_C_TYPE_DATE || param.ValueType == SQL_C_DATE;
+        const auto fraction = date ? 0U : static_cast<const SQL_TIMESTAMP_STRUCT*>(param.ParameterValuePtr)->fraction;
+        if (fraction >= 1000000000U) {
+            Error("22007");
+            return std::nullopt;
+        }
         const auto value = ReadTemporal(param, date ? EParamType::Date : EParamType::Timestamp);
-        return value ? std::optional{FormatInstant(*value, date ? "%Y-%m-%d" : "%Y-%m-%d %H:%M:%S", !date)}
-                     : std::nullopt;
+        if (!value) return std::nullopt;
+        auto text = FormatInstant(*value, date ? "%Y-%m-%d" : "%Y-%m-%d %H:%M:%S", false);
+        if (fraction) {
+            char suffix[11];
+            std::snprintf(suffix, sizeof(suffix), ".%09u", fraction);
+            text += suffix;
+            while (text.back() == '0') text.pop_back();
+        }
+        return text;
     }
     if (param.ValueType == SQL_C_TYPE_TIME || param.ValueType == SQL_C_TIME) {
         const auto time = *static_cast<const SQL_TIME_STRUCT*>(param.ParameterValuePtr);

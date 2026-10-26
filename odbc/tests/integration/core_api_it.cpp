@@ -827,8 +827,17 @@ TEST(CoreApi, SQLParamDataPutDataNts) {
         CHECK_ODBC_OK(SQLGetData(statements[i], 1, SQL_C_CHAR, actual, sizeof(actual), nullptr),
                       statements[i], SQL_HANDLE_STMT);
         EXPECT_STREQ(actual, expected[i]);
-        SQLFreeHandle(SQL_HANDLE_STMT, statements[i]);
     }
+    SQLLEN nullInput = SQL_NULL_DATA;
+    CHECK_ODBC_OK(SQLFreeStmt(first, SQL_CLOSE), first, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLSetDescField(sharedApd, 1, SQL_DESC_INDICATOR_PTR, &nullInput, 0), sharedApd, SQL_HANDLE_DESC);
+    CHECK_ODBC_OK(SQLExecute(first), first, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(first), SQL_SUCCESS);
+    char value = 0;
+    SQLLEN length = 0;
+    CHECK_ODBC_OK(SQLGetData(first, 1, SQL_C_CHAR, &value, sizeof(value), &length), first, SQL_HANDLE_STMT);
+    EXPECT_EQ(length, SQL_NULL_DATA);
+    for (auto statement : statements) SQLFreeHandle(SQL_HANDLE_STMT, statement);
     SQLFreeHandle(SQL_HANDLE_DESC, sharedApd);
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);

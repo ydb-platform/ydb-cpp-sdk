@@ -42,7 +42,8 @@ struct TResolvedBinding {
     SQLLEN* OctetLength = nullptr;
 
     bool IsDataAtExec() const noexcept {
-        return OctetLength && (*OctetLength == SQL_DATA_AT_EXEC || *OctetLength <= SQL_LEN_DATA_AT_EXEC_OFFSET);
+        return (!Indicator || *Indicator != SQL_NULL_DATA) && OctetLength
+            && (*OctetLength == SQL_DATA_AT_EXEC || *OctetLength <= SQL_LEN_DATA_AT_EXEC_OFFSET);
     }
 };
 

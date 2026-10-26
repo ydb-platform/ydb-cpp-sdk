@@ -155,13 +155,13 @@ TEST(OdbcConvert, NativeValuesToCharacterParameters) {
     SQLINTEGER integer = 42;
     SQLDOUBLE real = 1.25;
     SQL_DATE_STRUCT date{2026, 10, 26};
-    SQL_TIMESTAMP_STRUCT timestamp{2026, 10, 26, 12, 34, 56, 0};
+    SQL_TIMESTAMP_STRUCT timestamp{2026, 10, 26, 12, 34, 56, 123456789};
     SQL_TIME_STRUCT time{12, 34, 56};
     const std::pair<TBoundParam, const char*> cases[] = {
         {{1, SQL_C_LONG, SQL_VARCHAR, 0, 0, &integer, 0, nullptr}, "42"},
         {{1, SQL_C_DOUBLE, SQL_VARCHAR, 0, 0, &real, 0, nullptr}, "1.25"},
         {{1, SQL_C_TYPE_DATE, SQL_VARCHAR, 0, 0, &date, 0, nullptr}, "2026-10-26"},
-        {{1, SQL_C_TYPE_TIMESTAMP, SQL_VARCHAR, 0, 0, &timestamp, 0, nullptr}, "2026-10-26 12:34:56"},
+        {{1, SQL_C_TYPE_TIMESTAMP, SQL_VARCHAR, 0, 0, &timestamp, 0, nullptr}, "2026-10-26 12:34:56.123456789"},
         {{1, SQL_C_TYPE_TIME, SQL_VARCHAR, 0, 0, &time, 0, nullptr}, "12:34:56"},
     };
     for (const auto& [parameter, expected] : cases) {
