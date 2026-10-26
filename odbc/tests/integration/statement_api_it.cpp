@@ -1074,19 +1074,22 @@ TEST(StatementApi, ParameterArrays) {
     }
 
     CHECK_ODBC_OK(SQLPrepare(stmt, (SQLCHAR*)"SELECT ? + 0", SQL_NTS), stmt, SQL_HANDLE_STMT);
-    char numbers[][8] = {"1", "ignored", "bad"};
-    SQLLEN lengths[] = {SQL_NTS, SQL_NTS, SQL_NTS};
+    operations[0] = SQL_PARAM_IGNORE;
+    operations[1] = SQL_PARAM_PROCEED;
+    char numbers[][8] = {"ignored", "1", "bad"};
+    SQLLEN lengths[] = {SQL_DATA_AT_EXEC, SQL_NTS, SQL_NTS};
     CHECK_ODBC_OK(SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_INTEGER,
         10, 0, numbers, sizeof(numbers[0]), lengths), stmt, SQL_HANDLE_STMT);
     EXPECT_EQ(SQLExecute(stmt), SQL_ERROR);
     EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "22018"));
-    EXPECT_EQ(statuses[0], SQL_PARAM_SUCCESS);
-    EXPECT_EQ(statuses[1], SQL_PARAM_UNUSED);
+    EXPECT_EQ(statuses[0], SQL_PARAM_UNUSED);
+    EXPECT_EQ(statuses[1], SQL_PARAM_SUCCESS);
     EXPECT_EQ(statuses[2], SQL_PARAM_ERROR);
     EXPECT_EQ(processed, 3);
     EXPECT_EQ(SQLMoreResults(stmt), SQL_NO_DATA);
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_PARAM_OPERATION_PTR, nullptr, 0), stmt, SQL_HANDLE_STMT);
     SQLFreeStmt(stmt, SQL_RESET_PARAMS);
-    SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE row_count_param_test", SQL_NTS);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE row_count_param_test", SQL_NTS), stmt, SQL_HANDLE_STMT);
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);

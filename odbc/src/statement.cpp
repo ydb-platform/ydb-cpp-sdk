@@ -324,6 +324,10 @@ SQLRETURN TStatement::MoreResults() {
 }
 
 SQLUSMALLINT TStatement::FindNextNeedDataParam() const {
+    if (const auto* operations = ParamBindings_.GetArrayStatusPtr();
+        ParamCount_ > 0 && operations && operations[0] != SQL_PARAM_PROCEED) {
+        return 0;
+    }
     for (SQLUSMALLINT i = 1; i <= ParamCount_; ++i) {
         const auto* record = ParamBindings_.FindRecord(i);
         if (record && ImpParamBindings_.FindRecord(i) && ParamBindings_.ResolveBinding(*record, 0).IsDataAtExec()
