@@ -166,6 +166,8 @@ private:
     SQLRETURN FillBoundColumns(SQLULEN row);
     std::vector<TBoundParam> GetBoundParams(SQLULEN paramSet) const;
     void EnsurePreparedColumnMeta();
+    std::vector<TColumnMeta> ReadQueryMetadata(const std::string& sql);
+    void InvalidateUnboundParamMetadata();
     void InvalidatePreparedColumnMeta();
     void SetImpRowDesc(const std::vector<TColumnMeta>& columns);
     void SetAppDescriptor(SQLINTEGER attr, TDescriptor* descriptor);

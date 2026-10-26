@@ -9,6 +9,7 @@ using NYdb::NOdbc::GetDeclaredParamOptionality;
 using NYdb::NOdbc::HasMultipleSqlStatements;
 using NYdb::NOdbc::StartsWithSqlStatement;
 using NYdb::NOdbc::TBoundParam;
+using NYdb::NOdbc::BuildParamMetadataQuery;
 
 namespace {
 
@@ -39,6 +40,38 @@ TEST(OdbcParamRewrite, RewritesQuestionMarks) {
         "DECLARE $p1 AS Int32;\n"
         "DECLARE $p2 AS Int32;\n"
         "SELECT $p1 + $p2 AS result");
+}
+
+TEST(OdbcParamRewrite, ParameterMetadataProbes) {
+    const std::pair<const char*, const char*> cases[] = {
+        {"/* ? */ INSERT INTO `test` (`id`, str) VALUES (?, ?)",
+         "SELECT `id` AS __p1, str AS __p2 FROM `test` LIMIT 0"},
+        {"SELECT * FROM t AS x WHERE x.id = ? AND x.str = ? ORDER BY id, str",
+         "SELECT x.id AS __p1, x.str AS __p2 FROM t AS x LIMIT 0"},
+        {"UPDATE t SET value = ?, id = ? WHERE id = ?",
+         "SELECT value AS __p1, id AS __p2, id AS __p3 FROM t LIMIT 0"},
+        {"SELECT CASE WHEN (? = 1) THEN 1.5 ELSE 2.5 END, (? = 'x'), ? IS NULL",
+         "SELECT Just(1) AS __p1, CAST(NULL AS Utf8) AS __p2, NULL AS __p3 LIMIT 0"},
+        {"SELECT {fn CONVERT(?, SQL_INTEGER)}, CAST(? AS DECIMAL(7,2))",
+         "SELECT CAST(NULL AS Int32) AS __p1, CAST(NULL AS Decimal(7,2)) AS __p2 LIMIT 0"},
+        {"DECLARE $p1 AS Int32?; SELECT $p1 = 1",
+         "SELECT CAST(NULL AS Int32?) AS __p1 LIMIT 0"},
+        {"SELECT (? = -1), (? = Date('2026-10-26')), (? = Utf8('12:34:56'))",
+         "SELECT Just(-1) AS __p1, CAST(NULL AS Date) AS __p2, CAST(NULL AS Utf8) AS __p3 LIMIT 0"},
+        {"SELECT (? = {d '2026-10-26'}), (? = {ts '2026-10-26 12:34:56'})",
+         "SELECT CAST(NULL AS Date) AS __p1, CAST(NULL AS Timestamp) AS __p2 LIMIT 0"},
+    };
+    for (const auto& [sql, expected] : cases) {
+        SCOPED_TRACE(sql);
+        EXPECT_EQ(BuildParamMetadataQuery(sql, true), expected);
+    }
+    for (const char* sql : {"SELECT ?", "SELECT (? = DangerousFunction())",
+            "SELECT * FROM t WHERE ? = DangerousFunction()",
+            "SELECT (? = 1 + 2)", "SELECT (? = 1); DELETE FROM t", "SELECT * FROM t, u WHERE t.id = ?",
+            "SELECT * FROM t JOIN u ON t.id = u.id WHERE t.id = ?"}) {
+        SCOPED_TRACE(sql);
+        EXPECT_FALSE(BuildParamMetadataQuery(sql, true));
+    }
 }
 
 TEST(OdbcParamRewrite, RewritesEscapesAndParametersInOnePass) {

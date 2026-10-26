@@ -9,6 +9,8 @@
 
 #include <gtest/gtest.h>
 
+#include <tuple>
+
 using namespace NYdb::NOdbc;
 using namespace NYdb;
 
@@ -147,6 +149,50 @@ TEST(OdbcConvert, StringToYdbBinary) {
     ASSERT_TRUE(value);
     CheckProto(value->GetType().GetProto(), "type_id: STRING\n");
     CheckProto(value->GetProto(), "bytes_value: \"bin\\001\\002\"\n");
+}
+
+TEST(OdbcConvert, NativeValuesToCharacterParameters) {
+    SQLINTEGER integer = 42;
+    SQLDOUBLE real = 1.25;
+    SQL_DATE_STRUCT date{2026, 10, 26};
+    SQL_TIMESTAMP_STRUCT timestamp{2026, 10, 26, 12, 34, 56, 0};
+    SQL_TIME_STRUCT time{12, 34, 56};
+    const std::pair<TBoundParam, const char*> cases[] = {
+        {{1, SQL_C_LONG, SQL_VARCHAR, 0, 0, &integer, 0, nullptr}, "42"},
+        {{1, SQL_C_DOUBLE, SQL_VARCHAR, 0, 0, &real, 0, nullptr}, "1.25"},
+        {{1, SQL_C_TYPE_DATE, SQL_VARCHAR, 0, 0, &date, 0, nullptr}, "2026-10-26"},
+        {{1, SQL_C_TYPE_TIMESTAMP, SQL_VARCHAR, 0, 0, &timestamp, 0, nullptr}, "2026-10-26 12:34:56"},
+        {{1, SQL_C_TYPE_TIME, SQL_VARCHAR, 0, 0, &time, 0, nullptr}, "12:34:56"},
+    };
+    for (const auto& [parameter, expected] : cases) {
+        TParamsBuilder builder;
+        ASSERT_EQ(ConvertParam(parameter, builder.AddParam("$p1")), SQL_SUCCESS);
+        const auto value = builder.Build().GetValue("$p1");
+        TValueParser parser(*value);
+        EXPECT_EQ(parser.GetUtf8(), expected);
+    }
+}
+
+TEST(OdbcConvert, CharacterToNumericParameters) {
+    const std::tuple<const char*, SQLSMALLINT, const char*> cases[] = {
+        {" +42 ", SQL_INTEGER, ""}, {"2147483648", SQL_INTEGER, "22003"}, {"bad", SQL_INTEGER, "22018"},
+        {"1.25", SQL_DOUBLE, ""}, {"1e999", SQL_DOUBLE, "22003"},
+    };
+    for (const auto& [text, type, state] : cases) {
+        SQLLEN length = SQL_NTS;
+        const TBoundParam parameter{1, SQL_C_CHAR, type, 10, 0,
+            const_cast<char*>(text), 0, &length};
+        TParamsBuilder builder;
+        EXPECT_EQ(ConvertParam(parameter, builder.AddParam("$p1")), *state ? SQL_ERROR : SQL_SUCCESS);
+        if (*state) {
+            EXPECT_STREQ(ConsumeLastConvertSqlState(), state);
+        } else {
+            const auto value = builder.Build().GetValue("$p1");
+            TValueParser parser(*value);
+            if (type == SQL_INTEGER) EXPECT_EQ(parser.GetInt32(), 42);
+            else EXPECT_EQ(parser.GetDouble(), 1.25);
+        }
+    }
 }
 
 TEST(OdbcConvert, Int64NullToYdb) {

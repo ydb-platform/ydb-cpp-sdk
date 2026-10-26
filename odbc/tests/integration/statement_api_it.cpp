@@ -995,7 +995,7 @@ TEST(StatementApi, RowCount) {
     SQLFreeHandle(SQL_HANDLE_ENV, env);
 }
 
-TEST(StatementApi, RowCountAggregatesParameterArrays) {
+TEST(StatementApi, ParameterArrays) {
     SQLHENV env;
     SQLHDBC dbc;
     SQLHSTMT stmt;
@@ -1045,6 +1045,47 @@ TEST(StatementApi, RowCountAggregatesParameterArrays) {
     EXPECT_EQ(statuses[2], SQL_PARAM_SUCCESS);
 
     SQLFreeStmt(stmt, SQL_CLOSE);
+    SQLFreeStmt(stmt, SQL_RESET_PARAMS);
+    CHECK_ODBC_OK(SQLPrepare(stmt, (SQLCHAR*)
+        "SELECT CASE WHEN (? = 1) THEN 1.5 ELSE 2.5 END AS value", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    SQLSMALLINT type = SQL_UNKNOWN_TYPE;
+    CHECK_ODBC_OK(SQLDescribeParam(stmt, 1, &type, nullptr, nullptr, nullptr), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(type, SQL_INTEGER);
+    idLengths[2] = SQL_NULL_DATA;
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_LONG, type,
+        0, 0, ids, 0, idLengths), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(rowCount, -1);
+    EXPECT_EQ(processed, 3);
+    EXPECT_EQ(statuses[0], SQL_PARAM_SUCCESS);
+    EXPECT_EQ(statuses[1], SQL_PARAM_UNUSED);
+    EXPECT_EQ(statuses[2], SQL_PARAM_SUCCESS);
+    SQLUINTEGER arraySelects = 0;
+    CHECK_ODBC_OK(SQLGetInfo(dbc, SQL_PARAM_ARRAY_SELECTS, &arraySelects, 0, nullptr), dbc, SQL_HANDLE_DBC);
+    EXPECT_EQ(arraySelects, SQL_PAS_BATCH);
+    for (double expected : {1.5, 2.5}) {
+        ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+        double value = 0;
+        CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_DOUBLE, &value, sizeof(value), nullptr), stmt, SQL_HANDLE_STMT);
+        EXPECT_EQ(value, expected);
+        EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
+        EXPECT_EQ(SQLMoreResults(stmt), expected == 1.5 ? SQL_SUCCESS : SQL_NO_DATA);
+    }
+
+    CHECK_ODBC_OK(SQLPrepare(stmt, (SQLCHAR*)"SELECT ? + 0", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    char numbers[][8] = {"1", "ignored", "bad"};
+    SQLLEN lengths[] = {SQL_NTS, SQL_NTS, SQL_NTS};
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_INTEGER,
+        10, 0, numbers, sizeof(numbers[0]), lengths), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(SQLExecute(stmt), SQL_ERROR);
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "22018"));
+    EXPECT_EQ(statuses[0], SQL_PARAM_SUCCESS);
+    EXPECT_EQ(statuses[1], SQL_PARAM_UNUSED);
+    EXPECT_EQ(statuses[2], SQL_PARAM_ERROR);
+    EXPECT_EQ(processed, 3);
+    EXPECT_EQ(SQLMoreResults(stmt), SQL_NO_DATA);
+    SQLFreeStmt(stmt, SQL_RESET_PARAMS);
     SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE row_count_param_test", SQL_NTS);
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
@@ -1071,9 +1112,22 @@ TEST(StatementApi, PreparedInsertUsesPerSetParameterNullability) {
     CHECK_ODBC_OK(SQLPrepare(stmt,
         (SQLCHAR*)"INSERT INTO prepared_insert_nullability_test (id, name) VALUES (?, ?)",
         SQL_NTS), stmt, SQL_HANDLE_STMT);
-    SQLBIGINT ids[] = {1, 2};
+    SQLSMALLINT idType = SQL_UNKNOWN_TYPE, nameType = SQL_UNKNOWN_TYPE, nullable = SQL_NULLABLE_UNKNOWN;
+    CHECK_ODBC_OK(SQLDescribeParam(stmt, 1, &idType, nullptr, nullptr, &nullable), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(idType, SQL_BIGINT);
+    EXPECT_EQ(nullable, SQL_NO_NULLS);
+    CHECK_ODBC_OK(SQLDescribeParam(stmt, 2, &nameType, nullptr, nullptr, &nullable), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(nameType, SQL_VARCHAR);
+    EXPECT_EQ(nullable, SQL_NULLABLE);
+    CHECK_ODBC_OK(SQLPrepare(stmt, (SQLCHAR*)
+        "INSERT INTO prepared_insert_nullability_test (name, id) VALUES (?, ?)", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLDescribeParam(stmt, 1, &nameType, nullptr, nullptr, nullptr), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(nameType, SQL_VARCHAR);
+    CHECK_ODBC_OK(SQLPrepare(stmt, (SQLCHAR*)
+        "INSERT INTO prepared_insert_nullability_test (id, name) VALUES (?, ?)", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    char ids[][2] = {"1", "2"};
     char names[][16] = {"alpha", "ignored"};
-    SQLLEN idLengths[] = {sizeof(SQLBIGINT), sizeof(SQLBIGINT)};
+    SQLLEN idLengths[] = {1, 1};
     SQLLEN nameLengths[] = {5, SQL_NULL_DATA};
     SQLUSMALLINT statuses[] = {SQL_PARAM_UNUSED, SQL_PARAM_UNUSED};
     SQLULEN processed = 0;
@@ -1085,10 +1139,10 @@ TEST(StatementApi, PreparedInsertUsesPerSetParameterNullability) {
     CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_PARAMS_PROCESSED_PTR,
         &processed, 0), stmt, SQL_HANDLE_STMT);
     CHECK_ODBC_OK(SQLBindParameter(stmt, 1, SQL_PARAM_INPUT,
-        SQL_C_SBIGINT, SQL_BIGINT, 19, 0, ids, sizeof(SQLBIGINT), idLengths),
+        SQL_C_CHAR, idType, 19, 0, ids, sizeof(ids[0]), idLengths),
         stmt, SQL_HANDLE_STMT);
     CHECK_ODBC_OK(SQLBindParameter(stmt, 2, SQL_PARAM_INPUT,
-        SQL_C_CHAR, SQL_VARCHAR, 16, 0, names, sizeof(names[0]), nameLengths),
+        SQL_C_CHAR, nameType, 16, 0, names, sizeof(names[0]), nameLengths),
         stmt, SQL_HANDLE_STMT);
     CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
     EXPECT_EQ(processed, 2);

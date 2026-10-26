@@ -34,13 +34,16 @@ struct TDescRecord {
     SQLLEN* OctetLengthPtr = nullptr;
     SQLSMALLINT ParameterType = SQL_PARAM_INPUT;
     bool Active = false;
-    bool AtExec = false;
 };
 
 struct TResolvedBinding {
     SQLPOINTER Data = nullptr;
     SQLLEN* Indicator = nullptr;
     SQLLEN* OctetLength = nullptr;
+
+    bool IsDataAtExec() const noexcept {
+        return OctetLength && (*OctetLength == SQL_DATA_AT_EXEC || *OctetLength <= SQL_LEN_DATA_AT_EXEC_OFFSET);
+    }
 };
 
 class TDescriptorState {

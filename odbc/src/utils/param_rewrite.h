@@ -28,6 +28,8 @@ std::optional<bool> GetDeclaredParamOptionality(
     std::string_view sql,
     SQLUSMALLINT paramNumber);
 
+std::optional<std::string> BuildParamMetadataQuery(std::string_view sql, bool rewriteEscapes);
+
 std::string_view TrimTrailingSqlTrivia(std::string_view sql);
 std::string_view GetSqlStatement(std::string_view sql);
 bool HasMultipleSqlStatements(std::string_view sql);

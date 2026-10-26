@@ -4,14 +4,15 @@
 
 #include <util/charset/wide.h>
 #include <util/datetime/base.h>
+#include <util/string/cast.h>
 
 #include <algorithm>
+#include <charconv>
+#include <cmath>
 #include <cstdio>
 #include <cstring>
-#include <iomanip>
 #include <limits>
 #include <optional>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -81,7 +82,7 @@ std::optional<std::string> ReadBytes(const TBoundParam& param) {
     return std::string(data, static_cast<size_t>(length));
 }
 
-std::optional<std::string> ReadText(const TBoundParam& param) {
+std::optional<std::string> ReadCharacterText(const TBoundParam& param) {
     if (param.ValueType == SQL_C_CHAR) {
         return ReadBytes(param);
     }
@@ -126,25 +127,45 @@ std::string ReadNumericStruct(const SQL_NUMERIC_STRUCT& numeric) {
     return digits;
 }
 
-std::optional<std::string> ReadDecimalText(const TBoundParam& param) {
-    if (auto text = ReadText(param)) {
+std::optional<TInstant> ReadTemporal(const TBoundParam& param, EParamType type);
+std::string FormatInstant(TInstant value, const char* format, bool fraction);
+
+std::optional<std::string> ReadText(const TBoundParam& param) {
+    if (!param.ParameterValuePtr) {
+        return std::nullopt;
+    }
+    if (auto text = ReadCharacterText(param)) {
         return text;
     }
     if (param.ValueType == SQL_C_NUMERIC && param.ParameterValuePtr) {
         return ReadNumericStruct(*static_cast<const SQL_NUMERIC_STRUCT*>(param.ParameterValuePtr));
     }
-    if (const auto value = ReadInteger<int64_t>(param)) {
-        return std::to_string(*value);
+    if (const auto value = VisitCInteger(param.ValueType, [&](auto type) {
+            return std::to_string(*static_cast<const typename decltype(type)::type*>(param.ParameterValuePtr));
+        })) {
+        return value;
     }
-    std::ostringstream out;
-    if (const auto value = ReadReal<double>(param)) {
-        if (param.ValueType == SQL_C_FLOAT) {
-            out << std::setprecision(std::numeric_limits<float>::max_digits10);
-        } else {
-            out << std::setprecision(std::numeric_limits<double>::max_digits10);
+    if (param.ValueType == SQL_C_TYPE_DATE || param.ValueType == SQL_C_DATE
+        || param.ValueType == SQL_C_TYPE_TIMESTAMP || param.ValueType == SQL_C_TIMESTAMP) {
+        const bool date = param.ValueType == SQL_C_TYPE_DATE || param.ValueType == SQL_C_DATE;
+        const auto value = ReadTemporal(param, date ? EParamType::Date : EParamType::Timestamp);
+        return value ? std::optional{FormatInstant(*value, date ? "%Y-%m-%d" : "%Y-%m-%d %H:%M:%S", !date)}
+                     : std::nullopt;
+    }
+    if (param.ValueType == SQL_C_TYPE_TIME || param.ValueType == SQL_C_TIME) {
+        const auto time = *static_cast<const SQL_TIME_STRUCT*>(param.ParameterValuePtr);
+        if (time.hour > 23 || time.minute > 59 || time.second > 59) {
+            Error("22007");
+            return std::nullopt;
         }
-        out << *value;
-        return out.str();
+        char text[9];
+        std::snprintf(text, sizeof(text), "%02u:%02u:%02u", time.hour, time.minute, time.second);
+        return text;
+    }
+    if (const auto value = ReadReal<double>(param)) {
+        const auto text = FloatToString(*value, PREC_NDIGITS, param.ValueType == SQL_C_FLOAT
+            ? std::numeric_limits<float>::max_digits10 : std::numeric_limits<double>::max_digits10);
+        return std::string(text.data(), text.size());
     }
     return std::nullopt;
 }
@@ -500,6 +521,37 @@ TOdbcScalar MakeScalar(Value value) {
 
 template <typename Value>
 std::optional<Value> ReadScalar(const TBoundParam& param) {
+    if (param.ValueType == SQL_C_CHAR || param.ValueType == SQL_C_WCHAR) {
+        const auto text = ReadCharacterText(param);
+        if (!text) {
+            return std::nullopt;
+        }
+        const auto first = text->find_first_not_of(" \t\r\n");
+        const auto last = text->find_last_not_of(" \t\r\n");
+        if (first != std::string::npos) {
+            const char* begin = text->data() + first;
+            const char* end = text->data() + last + 1;
+            if (*begin == '+') ++begin;
+            Value value{};
+            if constexpr (std::is_floating_point_v<Value>) {
+                if (TryFromString<Value>(begin, end - begin, value)) {
+                    if (std::isfinite(value)) return value;
+                    Error("22003");
+                    return std::nullopt;
+                }
+                Error("22018");
+            } else {
+                const auto parsed = std::from_chars(begin, end, value);
+                if (parsed.ec == std::errc{} && parsed.ptr == end) {
+                    return value;
+                }
+                Error(parsed.ec == std::errc::result_out_of_range ? "22003" : "22018");
+            }
+        } else {
+            Error("22018");
+        }
+        return std::nullopt;
+    }
     if constexpr (std::is_floating_point_v<Value>) {
         return ReadReal<Value>(param);
     } else {
@@ -653,14 +705,19 @@ bool ConvertParamValue(
         return *converted;
     }
     switch (type) {
-        case EParamType::Bool:
-            if (const auto value = ReadInteger<int64_t>(param); value && *value >= 0 && *value <= 1) {
+        case EParamType::Bool: {
+            const auto value = ReadScalar<int64_t>(param);
+            if (!value) {
+                return false;
+            }
+            if (*value >= 0 && *value <= 1) {
                 PutParamValue(builder, optional,
                     [&](TParamValueBuilder& item) { item.Bool(*value != 0); });
                 return true;
             }
             Error("22003");
             return false;
+        }
         case EParamType::Utf8:
             return PutValue(ReadText(param), [&](const auto& v) {
                 PutParamValue(builder, optional,
@@ -727,7 +784,7 @@ SQLRETURN ConvertParam(
         return SQL_SUCCESS;
     }
     if (type->Type == EParamType::Decimal) {
-        const auto text = ReadDecimalText(param);
+        const auto text = ReadText(param);
         if (!text) {
             return SQL_ERROR;
         }
