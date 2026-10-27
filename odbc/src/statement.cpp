@@ -129,12 +129,12 @@ SQLRETURN TStatement::Prepare(const std::string& statementText) {
     PreparedQuery_ = statementText;
     IsPrepared_ = true;
     ParamCount_ = CountOdbcParams(PreparedQuery_);
-    InvalidateUnboundParamMetadata();
     ImpParamDesc_.WithLock([&](TDescriptor& desc) {
         while (desc.GetRecordCount() > ParamCount_) {
             desc.RemoveRecord(desc.GetRecordCount());
         }
         for (SQLSMALLINT i = 1; i <= ParamCount_; ++i) {
+            desc.RemoveInferredRecord(i);
             desc.Record(i).Nullable = SQL_NULLABLE_UNKNOWN;
         }
     });
@@ -146,20 +146,28 @@ SQLRETURN TStatement::Execute() {
         throw TOdbcException("HY007", 0, "No prepared statement");
     }
     RefreshParamBindings();
+    const SQLULEN paramsetSize = ParamCount_ > 0 ? ParamBindings_.GetArraySize() : 1;
     ClearResults();
     RowCount_ = -1;
-    if (ParamCount_ > 0 && ParamBindings_.GetArraySize() > 1
+    if (auto* processed = ImpParamBindings_.GetRowsProcessedPtr()) {
+        *processed = 0;
+    }
+    if (auto* statuses = ImpParamBindings_.GetArrayStatusPtr()) {
+        std::fill_n(statuses, paramsetSize, SQL_PARAM_UNUSED);
+    }
+    if (paramsetSize > 1
         && !StartsWithSqlStatement(PreparedQuery_, {"SELECT", "INSERT", "UPDATE", "DELETE", "UPSERT", "REPLACE"})) {
         return AddError("HYC00", 0, "Parameter arrays are supported only for SELECT and data-modification statements");
     }
-    const SQLUSMALLINT next = FindNextNeedDataParam();
-    if (next != 0) {
-        if (ParamBindings_.GetArraySize() > 1) {
-            return AddError("HYC00", 0, "Data-at-execution parameter arrays are not supported");
+    for (SQLULEN paramSet = 0; paramSet < paramsetSize; ++paramSet) {
+        if (FindNextNeedDataParam(paramSet)) {
+            if (paramsetSize > 1) {
+                return AddError("HYC00", 0, "Data-at-execution parameter arrays are not supported");
+            }
+            NeedDataParam_ = 0;
+            InAtExec_ = true;
+            return SQL_NEED_DATA;
         }
-        NeedDataParam_ = 0;
-        InAtExec_ = true;
-        return SQL_NEED_DATA;
     }
     InAtExec_ = false;
     NeedDataParam_ = 0;
@@ -185,13 +193,6 @@ SQLRETURN TStatement::ExecuteInternal() {
     SQLUSMALLINT* const operations = ParamBindings_.GetArrayStatusPtr();
     SQLUSMALLINT* const statuses = ImpParamBindings_.GetArrayStatusPtr();
     SQLULEN* const processed = ImpParamBindings_.GetRowsProcessedPtr();
-    if (processed) {
-        *processed = 0;
-    }
-    if (statuses) {
-        std::fill_n(statuses, paramsetSize, SQL_PARAM_UNUSED);
-    }
-
     SQLRETURN result = SQL_SUCCESS;
     for (SQLULEN paramSet = 0; paramSet < paramsetSize; ++paramSet) {
         if (operations && operations[paramSet] == SQL_PARAM_IGNORE) {
@@ -323,14 +324,14 @@ SQLRETURN TStatement::MoreResults() {
     return SQL_NO_DATA;
 }
 
-SQLUSMALLINT TStatement::FindNextNeedDataParam() const {
+SQLUSMALLINT TStatement::FindNextNeedDataParam(SQLULEN paramSet) const {
     if (const auto* operations = ParamBindings_.GetArrayStatusPtr();
-        ParamCount_ > 0 && operations && operations[0] != SQL_PARAM_PROCEED) {
+        ParamCount_ > 0 && operations && operations[paramSet] != SQL_PARAM_PROCEED) {
         return 0;
     }
     for (SQLUSMALLINT i = 1; i <= ParamCount_; ++i) {
         const auto* record = ParamBindings_.FindRecord(i);
-        if (record && ImpParamBindings_.FindRecord(i) && ParamBindings_.ResolveBinding(*record, 0).IsDataAtExec()
+        if (record && ImpParamBindings_.FindRecord(i) && ParamBindings_.ResolveBinding(*record, paramSet).IsDataAtExec()
             && (AtExecValues_.size() <= i || !AtExecValues_[i].Complete)) {
             return i;
         }
@@ -606,6 +607,7 @@ SQLRETURN TStatement::BindParameter(SQLUSMALLINT paramNumber,
 
         TDescRecord& imp = impDesc.Record(static_cast<SQLSMALLINT>(paramNumber));
         imp.Type = parameterType;
+        imp.Inferred = false;
         imp.Length = static_cast<SQLLEN>(columnSize);
         imp.OctetLength = static_cast<SQLLEN>(columnSize);
         imp.Precision = static_cast<SQLSMALLINT>(columnSize);
@@ -672,9 +674,6 @@ SQLRETURN TStatement::BuildParams(NYdb::TParams& out, SQLULEN paramSet) {
     for (const TBoundParam& param : GetBoundParams(paramSet)) {
         const std::string paramName = "$p" + std::to_string(param.ParamNumber);
         if (param.AtExec) {
-            if (ParamBindings_.GetArraySize() > 1) {
-                return AddError("HYC00", 0, "Data-at-execution parameter arrays are not supported");
-            }
             if (AtExecValues_.size() <= param.ParamNumber
                 || !AtExecValues_[param.ParamNumber].Complete) {
                 return AddError("HY000", 0, "Missing data-at-execution parameter value");
@@ -739,19 +738,22 @@ SQLRETURN TStatement::DescribeParam(SQLUSMALLINT paramNumber, SQLSMALLINT* dataT
     }
     RefreshParamBindings();
     const TDescRecord* record = ImpParamBindings_.FindRecord(static_cast<SQLSMALLINT>(paramNumber));
-    if (!record || record->Type == SQL_UNKNOWN_TYPE) {
+    if (!record || (record->Type == SQL_UNKNOWN_TYPE && !record->Inferred)) {
         if (const auto query = BuildParamMetadataQuery(
-                PreparedQuery_, Attributes_.GetNoScanMode() != SQL_NOSCAN_ON)) {
-            const auto columns = ReadQueryMetadata(*query);
-            if (columns.size() != static_cast<size_t>(ParamCount_)) {
-                throw TOdbcException("HY000", 0, "Parameter metadata count mismatch");
+                PreparedQuery_, Attributes_.GetNoScanMode() != SQL_NOSCAN_ON, paramNumber, ParamCount_)) {
+            auto columns = ReadQueryMetadata(*query, true);
+            // Column nullability constrains insert targets, not predicate parameters.
+            if (!StartsWithSqlStatement(PreparedQuery_, {"INSERT", "UPSERT", "REPLACE"})) {
+                for (auto& column : columns) {
+                    column.Nullable = SQL_NULLABLE_UNKNOWN;
+                }
             }
             ImpParamDesc_.WithLock([&](TDescriptor& desc) {
                 for (size_t index = 0; index < columns.size(); ++index) {
                     const auto i = static_cast<SQLSMALLINT>(index + 1);
                     const auto& column = columns[index];
                     const auto* current = desc.FindRecord(i);
-                    if (column.SqlType == SQL_UNKNOWN_TYPE || (current && current->Type != SQL_UNKNOWN_TYPE)) {
+                    if (current && current->Type != SQL_UNKNOWN_TYPE) {
                         continue;
                     }
                     auto& parameter = desc.Record(i);
@@ -760,14 +762,15 @@ SQLRETURN TStatement::DescribeParam(SQLUSMALLINT paramNumber, SQLSMALLINT* dataT
                     parameter.Precision = static_cast<SQLSMALLINT>(column.Size);
                     parameter.Scale = column.DecimalDigits;
                     parameter.Nullable = column.Nullable;
+                    parameter.Inferred = true;
                 }
+                desc.SnapshotUnlocked(ImpParamBindings_, ImpParamGeneration_);
             });
-            RefreshParamBindings();
             record = ImpParamBindings_.FindRecord(static_cast<SQLSMALLINT>(paramNumber));
         }
-        if (!record || record->Type == SQL_UNKNOWN_TYPE) {
-            throw TOdbcException("HYC00", 0, "Parameter metadata is unavailable for this SQL expression");
-        }
+    }
+    if (!record || record->Type == SQL_UNKNOWN_TYPE) {
+        throw TOdbcException("HYC00", 0, "Parameter metadata is unavailable for this SQL expression");
     }
     if (dataTypePtr) {
         *dataTypePtr = record->Type;
@@ -1035,7 +1038,7 @@ void TStatement::EnsurePreparedColumnMeta() {
     SetImpRowDesc(*PreparedColumnMeta_);
 }
 
-std::vector<TColumnMeta> TStatement::ReadQueryMetadata(const std::string& sql) {
+std::vector<TColumnMeta> TStatement::ReadQueryMetadata(const std::string& sql, bool parameters) {
     auto client = GetConnection().GetClient();
     if (!client) {
         throw TOdbcException("HY000", 0, "No client connection");
@@ -1053,7 +1056,7 @@ std::vector<TColumnMeta> TStatement::ReadQueryMetadata(const std::string& sql) {
 
     std::optional<std::vector<TColumnMeta>> columns;
     const NYdb::TStatus execStatus = client->RetryQuerySync(
-        [this, &queryText, &params, &columns, queryTimeoutSec](
+        [this, &queryText, &params, &columns, queryTimeoutSec, parameters](
             NQuery::TSession session) -> NYdb::TStatus {
             CheckCancellation();
             NQuery::TExecuteQuerySettings execSettings;
@@ -1076,8 +1079,7 @@ std::vector<TColumnMeta> TStatement::ReadQueryMetadata(const std::string& sql) {
                     NYdb::NIssue::TIssues{NYdb::NIssue::TIssue(
                         "Result metadata query did not return exactly one result set")});
             }
-            const auto metadataCursor = CreateExecCursor(result.GetResultSet(0), false);
-            columns = metadataCursor->GetColumnMeta();
+            columns = MakeColumnMeta(result.GetResultSet(0), parameters);
             return NYdb::TStatus(EStatus::SUCCESS, NYdb::NIssue::TIssues());
         },
         retrySettings);
@@ -1088,15 +1090,11 @@ std::vector<TColumnMeta> TStatement::ReadQueryMetadata(const std::string& sql) {
     return std::move(*columns);
 }
 
-void TStatement::InvalidateUnboundParamMetadata() {
-    GetAppParamDesc().WithLock(ImpParamDesc_, [&](TDescriptor& app, TDescriptor& imp) {
-        for (SQLSMALLINT i = imp.GetRecordCount(); i > 0; --i) {
-            const auto* binding = app.FindRecord(i);
-            if (!binding || (!binding->DataPtr && !binding->IndicatorPtr && !binding->OctetLengthPtr)) {
-                imp.RemoveRecord(i);
-            }
-        }
-    });
+void TStatement::InvalidateInferredParamMetadata() {
+    // The caller holds the exclusive connection lifecycle gate.
+    for (SQLSMALLINT i = ImpParamDesc_.GetRecordCount(); i > 0; --i) {
+        ImpParamDesc_.RemoveInferredRecord(i);
+    }
 }
 
 void TStatement::InvalidatePreparedColumnMeta() {

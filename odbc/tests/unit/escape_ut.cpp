@@ -27,13 +27,13 @@ TEST(OdbcEscapeRewrite, TimeLiteral) {
 TEST(OdbcEscapeRewrite, TimestampLiteralNormalizesSpaceToT) {
     EXPECT_EQ(
         RewriteOdbcEscapes("SELECT {ts '2024-06-15 14:30:00'} AS v"),
-        "SELECT CAST('2024-06-15T14:30:00Z' AS Timestamp) AS v");
+        "SELECT CAST('2024-06-15T14:30:00Z' AS Datetime) AS v");
 }
 
 TEST(OdbcEscapeRewrite, TimestampLiteralKeepsExistingZ) {
     EXPECT_EQ(
         RewriteOdbcEscapes("SELECT {ts '2024-06-15T14:30:00Z'} AS v"),
-        "SELECT CAST('2024-06-15T14:30:00Z' AS Timestamp) AS v");
+        "SELECT CAST('2024-06-15T14:30:00Z' AS Datetime) AS v");
 }
 
 TEST(OdbcEscapeRewrite, Call) {

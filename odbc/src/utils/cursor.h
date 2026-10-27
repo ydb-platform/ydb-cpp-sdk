@@ -57,6 +57,8 @@ private:
     TCursorWindow Window_;
 };
 
+std::vector<TColumnMeta> MakeColumnMeta(const TResultSet& resultSet, bool parameters = false);
+
 std::unique_ptr<ICursor> CreateExecCursor(TResultSet resultSet, bool scrollable);
 
 std::unique_ptr<ICursor> CreateVirtualCursor(

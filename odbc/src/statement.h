@@ -166,8 +166,8 @@ private:
     SQLRETURN FillBoundColumns(SQLULEN row);
     std::vector<TBoundParam> GetBoundParams(SQLULEN paramSet) const;
     void EnsurePreparedColumnMeta();
-    std::vector<TColumnMeta> ReadQueryMetadata(const std::string& sql);
-    void InvalidateUnboundParamMetadata();
+    std::vector<TColumnMeta> ReadQueryMetadata(const std::string& sql, bool parameters = false);
+    void InvalidateInferredParamMetadata();
     void InvalidatePreparedColumnMeta();
     void SetImpRowDesc(const std::vector<TColumnMeta>& columns);
     void SetAppDescriptor(SQLINTEGER attr, TDescriptor* descriptor);
@@ -191,7 +191,7 @@ private:
     };
     std::optional<TDescriptorAttribute> ResolveDescriptorAttribute(SQLINTEGER attr);
 
-    SQLUSMALLINT FindNextNeedDataParam() const;
+    SQLUSMALLINT FindNextNeedDataParam(SQLULEN paramSet = 0) const;
     std::string GetMetadataTableName(const std::string& path) const;
     bool MetadataNamespaceMatches(const TMetadataArgument& catalog,
                                   const TMetadataArgument& schema,

@@ -34,6 +34,7 @@ struct TDescRecord {
     SQLLEN* OctetLengthPtr = nullptr;
     SQLSMALLINT ParameterType = SQL_PARAM_INPUT;
     bool Active = false;
+    bool Inferred = false;
 };
 
 struct TResolvedBinding {
@@ -124,6 +125,11 @@ private:
 
     TDescRecord& Record(SQLSMALLINT number);
     void RemoveRecord(SQLSMALLINT number);
+    void RemoveInferredRecord(SQLSMALLINT number) {
+        if (const auto* record = FindRecord(number); record && record->Inferred) {
+            RemoveRecord(number);
+        }
+    }
     void ClearRecords() noexcept { Records_.clear(); Changed(); }
     void SnapshotUnlocked(TDescriptorState& state, uint64_t& generation) const;
     SQLRETURN CopyDesc(TDescriptor& target);

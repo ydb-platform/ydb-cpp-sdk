@@ -184,7 +184,7 @@ void TConnection::InvalidatePreparedStatementMetadata() {
     for (auto* child : GetChildren()) {
         if (auto* stmt = dynamic_cast<TStatement*>(child)) {
             stmt->InvalidatePreparedColumnMeta();
-            stmt->InvalidateUnboundParamMetadata();
+            stmt->InvalidateInferredParamMetadata();
         }
     }
 }

@@ -48,30 +48,32 @@ TEST(OdbcParamRewrite, ParameterMetadataProbes) {
          "SELECT `id` AS __p1, str AS __p2 FROM `test` LIMIT 0"},
         {"SELECT * FROM t AS x WHERE x.id = ? AND x.str = ? ORDER BY id, str",
          "SELECT x.id AS __p1, x.str AS __p2 FROM t AS x LIMIT 0"},
+        {"SELECT * FROM t x WHERE x.id = ?", "SELECT x.id AS __p1 FROM t AS x LIMIT 0"},
         {"UPDATE t SET value = ?, id = ? WHERE id = ?",
          "SELECT value AS __p1, id AS __p2, id AS __p3 FROM t LIMIT 0"},
         {"SELECT CASE WHEN (? = 1) THEN 1.5 ELSE 2.5 END, (? = 'x'), ? IS NULL",
-         "SELECT Just(1) AS __p1, CAST(NULL AS Utf8) AS __p2, NULL AS __p3 LIMIT 0"},
-        {"SELECT {fn CONVERT(?, SQL_INTEGER)}, CAST(? AS DECIMAL(7,2))",
-         "SELECT CAST(NULL AS Int32) AS __p1, CAST(NULL AS Decimal(7,2)) AS __p2 LIMIT 0"},
-        {"DECLARE $p1 AS Int32?; SELECT $p1 = 1",
-         "SELECT CAST(NULL AS Int32?) AS __p1 LIMIT 0"},
-        {"SELECT (? = -1), (? = Date('2026-10-26')), (? = Utf8('12:34:56'))",
-         "SELECT Just(-1) AS __p1, CAST(NULL AS Date) AS __p2, CAST(NULL AS Utf8) AS __p3 LIMIT 0"},
-        {"SELECT (? = {d '2026-10-26'}), (? = {ts '2026-10-26 12:34:56'})",
-         "SELECT CAST(NULL AS Date) AS __p1, CAST(NULL AS Timestamp) AS __p2 LIMIT 0"},
+         "SELECT Just(1) AS __p1, NULL AS __p2, NULL AS __p3 LIMIT 0"},
+        {"SELECT (? = -1)", "SELECT Just(-1) AS __p1 LIMIT 0"},
     };
     for (const auto& [sql, expected] : cases) {
         SCOPED_TRACE(sql);
-        EXPECT_EQ(BuildParamMetadataQuery(sql, true), expected);
+        EXPECT_EQ(BuildParamMetadataQuery(sql, true, 1, CountOdbcParams(sql)), expected);
     }
     for (const char* sql : {"SELECT ?", "SELECT (? = DangerousFunction())",
             "SELECT * FROM t WHERE ? = DangerousFunction()",
             "SELECT (? = 1 + 2)", "SELECT (? = 1); DELETE FROM t", "SELECT * FROM t, u WHERE t.id = ?",
+            "SELECT * FROM t WHERE price * ? > 100", "SELECT * FROM t WHERE ts - ? > Timestamp('2026-01-01')",
+            "PRAGMA TablePathPrefix = '/local'; SELECT ? = 1",
+            "SELECT * FROM t VIEW idx WHERE id = ?", "SELECT * FROM t SAMPLE 0.1 WHERE id = ?",
+            "SELECT * FROM t TABLESAMPLE SYSTEM(1) WHERE id = ?", "SELECT * FROM t FLATTEN BY a WHERE id = ?",
+            "SELECT ? = 'x'", "SELECT CAST(? AS Int32)",
+            "DECLARE $p1 AS Int32?; SELECT $p1 = 1",
             "SELECT * FROM t JOIN u ON t.id = u.id WHERE t.id = ?"}) {
         SCOPED_TRACE(sql);
-        EXPECT_FALSE(BuildParamMetadataQuery(sql, true));
+        EXPECT_FALSE(BuildParamMetadataQuery(sql, true, 1, CountOdbcParams(sql)));
     }
+    EXPECT_FALSE(BuildParamMetadataQuery("SELECT * FROM t WHERE id = ? AND ? IS NULL", true, 2, 2));
+    EXPECT_FALSE(BuildParamMetadataQuery("SELECT ?, {fn CONVERT(?, SQL_INTEGER)}", true, 1, 1));
 }
 
 TEST(OdbcParamRewrite, RewritesEscapesAndParametersInOnePass) {

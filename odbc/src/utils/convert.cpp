@@ -7,7 +7,9 @@
 #include <util/string/cast.h>
 
 #include <algorithm>
+#include <cctype>
 #include <charconv>
+#include <chrono>
 #include <cmath>
 #include <cstdio>
 #include <cstring>
@@ -101,6 +103,51 @@ std::optional<std::string> ReadCharacterText(const TBoundParam& param) {
                      static_cast<SQLINTEGER>(length / sizeof(SQLWCHAR)));
 }
 
+std::optional<std::string> NormalizeIntegerText(std::string_view text) {
+    std::string digits(text);
+    int exponent = 0;
+    bool largeExponent = false;
+    const auto e = digits.find_first_of("eE");
+    if (e != std::string::npos) {
+        const char* begin = digits.data() + e + 1;
+        const char* end = digits.data() + digits.size();
+        const bool negative = begin != end && *begin == '-';
+        if (begin != end && (*begin == '+' || *begin == '-')) ++begin;
+        if (begin == end || !std::isdigit(static_cast<unsigned char>(*begin))) {
+            Error("22018");
+            return std::nullopt;
+        }
+        const auto parsed = std::from_chars(begin, end, exponent);
+        if (parsed.ptr != end || parsed.ec == std::errc::invalid_argument) {
+            Error("22018");
+            return std::nullopt;
+        }
+        largeExponent = parsed.ec == std::errc::result_out_of_range;
+        if (negative) exponent = -exponent;
+        digits.resize(e);
+    }
+    const auto dot = digits.find('.');
+    const auto fraction = dot == std::string::npos ? 0 : digits.size() - dot - 1;
+    if (dot != std::string::npos) digits.erase(dot, 1);
+    const size_t sign = digits.starts_with('-') ? 1 : 0;
+    if (digits.size() == sign || !std::all_of(digits.begin() + sign, digits.end(), [](unsigned char ch) { return std::isdigit(ch); })) {
+        Error("22018");
+        return std::nullopt;
+    }
+    const auto first = digits.find_first_not_of('0', sign);
+    if (first == std::string::npos) return "0";
+    digits.erase(sign, first - sign);
+    const int64_t shift = static_cast<int64_t>(exponent) - static_cast<int64_t>(fraction);
+    if (largeExponent || shift > 20 || (shift < 0 && (static_cast<uint64_t>(-shift) >= digits.size() - sign
+            || digits.find_first_not_of('0', digits.size() - static_cast<size_t>(-shift)) != std::string::npos))) {
+        Error("22001");
+        return std::nullopt;
+    }
+    if (shift < 0) digits.resize(digits.size() - static_cast<size_t>(-shift));
+    else digits.append(static_cast<size_t>(shift), '0');
+    return digits;
+}
+
 std::string ReadNumericStruct(const SQL_NUMERIC_STRUCT& numeric) {
     unsigned __int128 magnitude = 0;
     for (size_t i = 0; i < SQL_MAX_NUMERIC_LEN; ++i) {
@@ -127,7 +174,6 @@ std::string ReadNumericStruct(const SQL_NUMERIC_STRUCT& numeric) {
     return digits;
 }
 
-std::optional<TInstant> ReadTemporal(const TBoundParam& param, EParamType type);
 std::string FormatInstant(TInstant value, const char* format, bool fraction);
 
 std::optional<std::string> ReadText(const TBoundParam& param) {
@@ -137,7 +183,7 @@ std::optional<std::string> ReadText(const TBoundParam& param) {
     if (auto text = ReadCharacterText(param)) {
         return text;
     }
-    if (param.ValueType == SQL_C_NUMERIC && param.ParameterValuePtr) {
+    if (param.ValueType == SQL_C_NUMERIC) {
         return ReadNumericStruct(*static_cast<const SQL_NUMERIC_STRUCT*>(param.ParameterValuePtr));
     }
     if (const auto value = VisitCInteger(param.ValueType, [&](auto type) {
@@ -148,17 +194,27 @@ std::optional<std::string> ReadText(const TBoundParam& param) {
     if (param.ValueType == SQL_C_TYPE_DATE || param.ValueType == SQL_C_DATE
         || param.ValueType == SQL_C_TYPE_TIMESTAMP || param.ValueType == SQL_C_TIMESTAMP) {
         const bool date = param.ValueType == SQL_C_TYPE_DATE || param.ValueType == SQL_C_DATE;
-        const auto fraction = date ? 0U : static_cast<const SQL_TIMESTAMP_STRUCT*>(param.ParameterValuePtr)->fraction;
-        if (fraction >= 1000000000U) {
-            Error("22007");
+        SQL_TIMESTAMP_STRUCT value{};
+        if (date) {
+            const auto& v = *static_cast<const SQL_DATE_STRUCT*>(param.ParameterValuePtr);
+            value = {v.year, v.month, v.day, 0, 0, 0, 0};
+        } else {
+            value = *static_cast<const SQL_TIMESTAMP_STRUCT*>(param.ParameterValuePtr);
+        }
+        if (value.year < 1 || value.year > 9999 || value.month > 12 || value.day > 31
+            || !std::chrono::year_month_day(std::chrono::year(value.year),
+                std::chrono::month(value.month), std::chrono::day(value.day)).ok()
+            || value.hour > 23 || value.minute > 59 || value.second > 59 || value.fraction >= 1000000000U) {
+            Error("22008");
             return std::nullopt;
         }
-        const auto value = ReadTemporal(param, date ? EParamType::Date : EParamType::Timestamp);
-        if (!value) return std::nullopt;
-        auto text = FormatInstant(*value, date ? "%Y-%m-%d" : "%Y-%m-%d %H:%M:%S", false);
-        if (fraction) {
+        char buffer[64];
+        std::snprintf(buffer, sizeof(buffer), "%04d-%02u-%02u %02u:%02u:%02u",
+            value.year, value.month, value.day, value.hour, value.minute, value.second);
+        std::string text(buffer, date ? 10 : 19);
+        if (value.fraction) {
             char suffix[11];
-            std::snprintf(suffix, sizeof(suffix), ".%09u", fraction);
+            std::snprintf(suffix, sizeof(suffix), ".%09u", value.fraction);
             text += suffix;
             while (text.back() == '0') text.pop_back();
         }
@@ -167,16 +223,17 @@ std::optional<std::string> ReadText(const TBoundParam& param) {
     if (param.ValueType == SQL_C_TYPE_TIME || param.ValueType == SQL_C_TIME) {
         const auto time = *static_cast<const SQL_TIME_STRUCT*>(param.ParameterValuePtr);
         if (time.hour > 23 || time.minute > 59 || time.second > 59) {
-            Error("22007");
+            Error("22008");
             return std::nullopt;
         }
-        char text[9];
+        char text[32];
         std::snprintf(text, sizeof(text), "%02u:%02u:%02u", time.hour, time.minute, time.second);
         return text;
     }
-    if (const auto value = ReadReal<double>(param)) {
-        const auto text = FloatToString(*value, PREC_NDIGITS, param.ValueType == SQL_C_FLOAT
-            ? std::numeric_limits<float>::max_digits10 : std::numeric_limits<double>::max_digits10);
+    if (param.ValueType == SQL_C_FLOAT || param.ValueType == SQL_C_DOUBLE) {
+        const auto text = param.ValueType == SQL_C_FLOAT
+            ? FloatToString(*static_cast<const SQLREAL*>(param.ParameterValuePtr))
+            : FloatToString(*static_cast<const SQLDOUBLE*>(param.ParameterValuePtr));
         return std::string(text.data(), text.size());
     }
     return std::nullopt;
@@ -198,6 +255,45 @@ std::string FormatDecimalText(const TDecimalValue& decimal) {
 std::optional<TInstant> ReadTemporal(const TBoundParam& param, EParamType type) {
     if (!param.ParameterValuePtr) {
         return std::nullopt;
+    }
+    if (param.ValueType == SQL_C_CHAR || param.ValueType == SQL_C_WCHAR) {
+        auto text = ReadCharacterText(param);
+        if (!text) return std::nullopt;
+        const auto first = text->find_first_not_of(" \t\r\n");
+        if (first == std::string::npos) {
+            Error("22018");
+            return std::nullopt;
+        }
+        text->erase(text->find_last_not_of(" \t\r\n") + 1);
+        text->erase(0, first);
+        if (text->size() == 10 && (*text)[4] == '-') {
+            if (type == EParamType::Datetime) {
+                Error("22018");
+                return std::nullopt;
+            }
+            *text += "T00:00:00";
+        } else if (text->size() >= 19 && (*text)[10] == ' ') {
+            (*text)[10] = 'T';
+        } else if (type != EParamType::Date && text->size() >= 8 && (*text)[2] == ':' && (*text)[5] == ':') {
+            *text = (type == EParamType::Datetime ? "1970-01-01T"
+                : FormatInstant(TInstant::Now(), "%Y-%m-%dT", false)) + *text;
+        }
+        *text += 'Z';
+        TInstant instant;
+        if (!TInstant::TryParseIso8601(TStringBuf(text->data(), text->size()), instant)) {
+            Error("22018");
+            return std::nullopt;
+        }
+        const auto fraction = text->find('.');
+        if ((fraction != std::string::npos && text->size() > fraction + 8
+                && std::any_of(text->begin() + fraction + 7, text->end() - 1, [](char ch) { return ch != '0'; }))
+            || (type == EParamType::Date && instant.MicroSeconds() % TDuration::Days(1).MicroSeconds())
+            || (type == EParamType::Datetime && instant.MicroSeconds() % 1000000)) {
+            Error("22008");
+            return std::nullopt;
+        }
+        return type == EParamType::Datetime
+            ? TInstant::Seconds(instant.Seconds() % TDuration::Days(1).Seconds()) : instant;
     }
     char text[64] = {};
     if (type == EParamType::Date
@@ -533,6 +629,7 @@ TOdbcScalar MakeScalar(Value value) {
 
 template <typename Value>
 std::optional<Value> ReadScalar(const TBoundParam& param) {
+    if (!param.ParameterValuePtr) return std::nullopt;
     if (param.ValueType == SQL_C_CHAR || param.ValueType == SQL_C_WCHAR) {
         const auto text = ReadCharacterText(param);
         if (!text) {
@@ -543,21 +640,33 @@ std::optional<Value> ReadScalar(const TBoundParam& param) {
         if (first != std::string::npos) {
             const char* begin = text->data() + first;
             const char* end = text->data() + last + 1;
-            if (*begin == '+') ++begin;
+            if (*begin == '+') {
+                if (++begin == end || *begin == '+' || *begin == '-') {
+                    Error("22018");
+                    return std::nullopt;
+                }
+            }
             Value value{};
             if constexpr (std::is_floating_point_v<Value>) {
-                if (TryFromString<Value>(begin, end - begin, value)) {
+                if (std::string_view(begin, end - begin).find_first_of("xX") == std::string_view::npos
+                    && TryFromString<Value>(begin, end - begin, value)) {
                     if (std::isfinite(value)) return value;
                     Error("22003");
                     return std::nullopt;
                 }
                 Error("22018");
             } else {
-                const auto parsed = std::from_chars(begin, end, value);
+                auto parsed = std::from_chars(begin, end, value);
                 if (parsed.ec == std::errc{} && parsed.ptr == end) {
                     return value;
                 }
-                Error(parsed.ec == std::errc::result_out_of_range ? "22003" : "22018");
+                if (parsed.ptr != end) {
+                    const auto integer = NormalizeIntegerText(std::string_view(begin, end - begin));
+                    if (!integer) return std::nullopt;
+                    parsed = std::from_chars(integer->data(), integer->data() + integer->size(), value);
+                    if (parsed.ec == std::errc{} && parsed.ptr == integer->data() + integer->size()) return value;
+                }
+                Error(parsed.ec == std::errc::result_out_of_range ? "22001" : "22018");
             }
         } else {
             Error("22018");
@@ -565,8 +674,20 @@ std::optional<Value> ReadScalar(const TBoundParam& param) {
         return std::nullopt;
     }
     if constexpr (std::is_floating_point_v<Value>) {
-        return ReadReal<Value>(param);
+        if (const auto value = ReadReal<Value>(param)) return value;
+        return VisitCInteger(param.ValueType, [&](auto type) {
+            return static_cast<Value>(*static_cast<const typename decltype(type)::type*>(param.ParameterValuePtr));
+        });
     } else {
+        if (const auto real = ReadReal<double>(param)) {
+            const double value = std::trunc(*real);
+            if (!std::isfinite(value) || value < static_cast<double>(std::numeric_limits<Value>::lowest())
+                || value >= std::ldexp(1.0, std::numeric_limits<Value>::digits)) {
+                Error("22003");
+                return std::nullopt;
+            }
+            return static_cast<Value>(value);
+        }
         return ReadInteger<Value>(param);
     }
 }
@@ -718,16 +839,18 @@ bool ConvertParamValue(
     }
     switch (type) {
         case EParamType::Bool: {
-            const auto value = ReadScalar<int64_t>(param);
+            const auto value = ReadScalar<double>(param);
             if (!value) {
                 return false;
             }
-            if (*value >= 0 && *value <= 1) {
+            if (*value == 0 || *value == 1) {
+                if ((param.ValueType == SQL_C_CHAR || param.ValueType == SQL_C_WCHAR)
+                    && !ReadScalar<int64_t>(param)) return false;
                 PutParamValue(builder, optional,
                     [&](TParamValueBuilder& item) { item.Bool(*value != 0); });
                 return true;
             }
-            Error("22003");
+            Error(*value > 0 && *value < 2 ? "22001" : "22003");
             return false;
         }
         case EParamType::Utf8:

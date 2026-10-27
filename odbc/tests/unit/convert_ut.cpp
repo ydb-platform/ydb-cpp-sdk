@@ -82,6 +82,32 @@ TEST(OdbcConvert, TimestampStructToYdbTimestamp) {
     const auto value = paramsBuilder.Build().GetValue("$p1");
     ASSERT_TRUE(value);
     CheckProto(value->GetType().GetProto(), "type_id: TIMESTAMP\n");
+
+    const std::tuple<const char*, SQLSMALLINT, const char*> temporal[] = {
+        {"2024-06-15", SQL_TYPE_DATE, ""}, {"14:30:20", SQL_TYPE_TIME, ""},
+        {"2024-06-15", SQL_TYPE_TIME, "22018"},
+        {" 2024-06-15 14:30:20.123456 ", SQL_TYPE_TIMESTAMP, ""},
+        {"2024-06-15 14:30:20.123456789", SQL_TYPE_TIMESTAMP, "22008"},
+        {"14:30:20.5", SQL_TYPE_TIMESTAMP, ""},
+        {"bad", SQL_TYPE_DATE, "22018"},
+    };
+    for (const auto& [text, type, state] : temporal) {
+        SQLLEN length = SQL_NTS;
+        TParamsBuilder builder;
+        const TBoundParam parameter{1, SQL_C_CHAR, type, 0, 0, const_cast<char*>(text), 0, &length};
+        ASSERT_EQ(ConvertParam(parameter, builder.AddParam("$p1")), *state ? SQL_ERROR : SQL_SUCCESS);
+        if (*state) {
+            EXPECT_STREQ(ConsumeLastConvertSqlState(), state);
+            continue;
+        }
+        const auto converted = builder.Build().GetValue("$p1");
+        TValueParser parser(*converted);
+        if (type == SQL_TYPE_DATE) EXPECT_EQ(parser.GetDate(), TInstant::Days(19889));
+        else if (type == SQL_TYPE_TIME) EXPECT_EQ(parser.GetDatetime(), TInstant::Seconds(52220));
+        else if (text[2] == ':') {
+            EXPECT_EQ(parser.GetTimestamp().MicroSeconds() % TDuration::Days(1).MicroSeconds(), 52220500000ULL);
+        } else EXPECT_EQ(parser.GetTimestamp(), TInstant::MicroSeconds(1718461820123456));
+    }
 }
 
 TEST(OdbcConvert, DoubleToYdb) {
@@ -153,14 +179,16 @@ TEST(OdbcConvert, StringToYdbBinary) {
 
 TEST(OdbcConvert, NativeValuesToCharacterParameters) {
     SQLINTEGER integer = 42;
-    SQLDOUBLE real = 1.25;
-    SQL_DATE_STRUCT date{2026, 10, 26};
+    SQLDOUBLE real = 0.1;
+    SQLREAL single = 0.1f;
+    SQL_DATE_STRUCT date{1960, 2, 29};
     SQL_TIMESTAMP_STRUCT timestamp{2026, 10, 26, 12, 34, 56, 123456789};
     SQL_TIME_STRUCT time{12, 34, 56};
     const std::pair<TBoundParam, const char*> cases[] = {
         {{1, SQL_C_LONG, SQL_VARCHAR, 0, 0, &integer, 0, nullptr}, "42"},
-        {{1, SQL_C_DOUBLE, SQL_VARCHAR, 0, 0, &real, 0, nullptr}, "1.25"},
-        {{1, SQL_C_TYPE_DATE, SQL_VARCHAR, 0, 0, &date, 0, nullptr}, "2026-10-26"},
+        {{1, SQL_C_DOUBLE, SQL_VARCHAR, 0, 0, &real, 0, nullptr}, "0.1"},
+        {{1, SQL_C_FLOAT, SQL_VARCHAR, 0, 0, &single, 0, nullptr}, "0.1"},
+        {{1, SQL_C_TYPE_DATE, SQL_VARCHAR, 0, 0, &date, 0, nullptr}, "1960-02-29"},
         {{1, SQL_C_TYPE_TIMESTAMP, SQL_VARCHAR, 0, 0, &timestamp, 0, nullptr}, "2026-10-26 12:34:56.123456789"},
         {{1, SQL_C_TYPE_TIME, SQL_VARCHAR, 0, 0, &time, 0, nullptr}, "12:34:56"},
     };
@@ -171,14 +199,26 @@ TEST(OdbcConvert, NativeValuesToCharacterParameters) {
         TValueParser parser(*value);
         EXPECT_EQ(parser.GetUtf8(), expected);
     }
+    date.month = 257;
+    TParamsBuilder invalid;
+    EXPECT_EQ(ConvertParam({1, SQL_C_TYPE_DATE, SQL_VARCHAR, 0, 0, &date, 0, nullptr},
+        invalid.AddParam("$p1")), SQL_ERROR);
+    EXPECT_STREQ(ConsumeLastConvertSqlState(), "22008");
 }
 
 TEST(OdbcConvert, CharacterToNumericParameters) {
-    const std::tuple<const char*, SQLSMALLINT, const char*> cases[] = {
-        {" +42 ", SQL_INTEGER, ""}, {"2147483648", SQL_INTEGER, "22003"}, {"bad", SQL_INTEGER, "22018"},
-        {"1.25", SQL_DOUBLE, ""}, {"1e999", SQL_DOUBLE, "22003"},
+    const std::tuple<const char*, SQLSMALLINT, const char*, int64_t> cases[] = {
+        {" +42 ", SQL_INTEGER, "", 42}, {"2147483648", SQL_INTEGER, "22001", 0}, {"bad", SQL_INTEGER, "22018", 0},
+        {"+-42", SQL_INTEGER, "22018", 0}, {"1.0", SQL_INTEGER, "", 1}, {"1e2", SQL_INTEGER, "", 100},
+        {"1.5", SQL_INTEGER, "22001", 0}, {"1e+-2", SQL_INTEGER, "22018", 0},
+        {"9007199254740993.0", SQL_BIGINT, "", 9007199254740993LL},
+        {"9.223372036854775807e18", SQL_BIGINT, "", 9223372036854775807LL},
+        {"0e999999999999", SQL_INTEGER, "", 0}, {"1.00000000000000000001", SQL_INTEGER, "22001", 0},
+        {"1.00000000000000000001", SQL_BIT, "22001", 0},
+        {"1.25", SQL_DOUBLE, "", 0}, {"1e999", SQL_DOUBLE, "22003", 0},
+        {"0x10", SQL_DOUBLE, "22018", 0}, {"0X2", SQL_BIT, "22018", 0},
     };
-    for (const auto& [text, type, state] : cases) {
+    for (const auto& [text, type, state, expected] : cases) {
         SQLLEN length = SQL_NTS;
         const TBoundParam parameter{1, SQL_C_CHAR, type, 10, 0,
             const_cast<char*>(text), 0, &length};
@@ -189,8 +229,27 @@ TEST(OdbcConvert, CharacterToNumericParameters) {
         } else {
             const auto value = builder.Build().GetValue("$p1");
             TValueParser parser(*value);
-            if (type == SQL_INTEGER) EXPECT_EQ(parser.GetInt32(), 42);
+            if (type == SQL_INTEGER) EXPECT_EQ(parser.GetInt32(), expected);
+            else if (type == SQL_BIGINT) EXPECT_EQ(parser.GetInt64(), expected);
             else EXPECT_EQ(parser.GetDouble(), 1.25);
+        }
+    }
+    SQLINTEGER integer = 42;
+    SQLDOUBLE real = 42.75, overflow = 9223372036854775808.0;
+    const std::pair<TBoundParam, const char*> numeric[] = {
+        {{1, SQL_C_LONG, SQL_DOUBLE, 0, 0, &integer, 0, nullptr}, ""},
+        {{1, SQL_C_DOUBLE, SQL_INTEGER, 0, 0, &real, 0, nullptr}, ""},
+        {{1, SQL_C_DOUBLE, SQL_BIGINT, 0, 0, &overflow, 0, nullptr}, "22003"},
+    };
+    for (const auto& [parameter, state] : numeric) {
+        TParamsBuilder builder;
+        EXPECT_EQ(ConvertParam(parameter, builder.AddParam("$p1")), *state ? SQL_ERROR : SQL_SUCCESS);
+        if (*state) EXPECT_STREQ(ConsumeLastConvertSqlState(), state);
+        else {
+            const auto value = builder.Build().GetValue("$p1");
+            TValueParser parser(*value);
+            if (parameter.ParameterType == SQL_DOUBLE) EXPECT_EQ(parser.GetDouble(), 42);
+            else EXPECT_EQ(parser.GetInt32(), 42);
         }
     }
 }

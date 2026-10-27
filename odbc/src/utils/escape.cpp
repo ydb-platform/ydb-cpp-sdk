@@ -284,7 +284,7 @@ struct TSqlScanner {
             Append("CAST('");
             AppendDecoded(valueBegin, valueEnd, EqualNoCase(keyword, "ts"));
             Append(EqualNoCase(keyword, "d") ? "' AS Date)"
-                : EqualNoCase(keyword, "t") ? "' AS Time)" : "' AS Timestamp)");
+                : EqualNoCase(keyword, "t") ? "' AS Time)" : "' AS Datetime)");
         }
         pos = close + 1;
         return true;
@@ -559,7 +559,8 @@ bool StartsWithSqlStatement(
     });
 }
 
-std::optional<std::string> BuildParamMetadataQuery(std::string_view input, bool rewriteEscapes) {
+std::optional<std::string> BuildParamMetadataQuery(
+    std::string_view input, bool rewriteEscapes, SQLUSMALLINT paramNumber, SQLSMALLINT paramCount) {
     const std::string sql = rewriteEscapes ? RewriteOdbcEscapes(std::string(input)) : std::string(input);
     if (HasMultipleSqlStatements(sql)) {
         return std::nullopt;
@@ -617,81 +618,18 @@ std::optional<std::string> BuildParamMetadataQuery(std::string_view input, bool 
         return std::string(tokens[begin].Text.data(),
             tokens[end - 1].Text.data() + tokens[end - 1].Text.size());
     };
-    const auto typeExpression = [&](size_t begin, size_t end) -> std::string {
-        if (begin >= end) {
-            return {};
-        }
-        const auto name = tokens[begin].Text;
-        std::string type;
-        for (const auto& spec : GetSqlTypeSpecs()) {
-            if (EqualNoCase(name, spec.Name) || EqualNoCase(name, spec.YqlType)
-                || EqualNoCase(name, "SQL_" + std::string(spec.Name))) {
-                type = spec.YqlType;
-                break;
-            }
-        }
-        if (type.empty()) {
-            return {};
-        }
-        if (++begin < end && is(begin, "(")) {
-            if (type != "Decimal(22, 9)" || begin + 5 > end || !is(begin + 2, ",")
-                || !is(begin + 4, ")")
-                || !std::ranges::all_of(tokens[begin + 1].Text, [](unsigned char ch) { return std::isdigit(ch); })
-                || !std::ranges::all_of(tokens[begin + 3].Text, [](unsigned char ch) { return std::isdigit(ch); })) {
-                return {};
-            }
-            type = "Decimal" + span(begin, begin + 5);
-            begin += 5;
-        }
-        if (begin < end && is(begin, "?") && !tokens[begin].Parameter) {
-            type += '?';
-            ++begin;
-        }
-        return begin == end ? type : std::string{};
-    };
     const auto count = CountOdbcParams(sql);
-    if (count <= 0) {
+    if (count != paramCount || paramNumber < 1 || paramNumber > count) {
         return std::nullopt;
     }
     std::vector<std::string> sources(static_cast<size_t>(count));
-    std::vector<bool> declared(sources.size());
-    const auto assign = [&](SQLUSMALLINT parameter, std::string expression, bool declaration = false) {
+    const auto assign = [&](SQLUSMALLINT parameter, std::string expression) {
         if (parameter > 0 && parameter <= sources.size() && !expression.empty()) {
             auto& source = sources[parameter - 1];
-            if (declaration || !declared[parameter - 1]) {
-                source = declaration || source.empty() || source == expression ? std::move(expression) : "NULL";
-                declared[parameter - 1] = declaration;
-            }
+            source = source.empty() || source == expression ? std::move(expression) : "NULL";
         }
     };
-    const size_t bodyOffset = sql.size() - GetSqlStatement(sql).size();
-    size_t body = 0;
-    std::string prologue;
-    for (; body < tokens.size() && static_cast<size_t>(tokens[body].Text.data() - sql.data()) < bodyOffset;) {
-        size_t end = body;
-        while (end < tokens.size() && !is(end, ";")) {
-            ++end;
-        }
-        if (end == tokens.size()) return std::nullopt;
-        if (is(body, "DECLARE") && body + 3 < end && tokens[body + 1].Parameter && is(body + 2, "AS")) {
-            const auto type = typeExpression(body + 3, end);
-            if (!type.empty()) {
-                assign(tokens[body + 1].Parameter, "CAST(NULL AS " + type + ")", true);
-            } else if (tokens[body + 1].Parameter <= declared.size()) {
-                declared[tokens[body + 1].Parameter - 1] = true;
-            }
-        } else if (is(body, "PRAGMA") && ((is(body + 1, "TablePathPrefix") && is(body + 2, "=")
-                    && body + 4 == end && (tokens[body + 3].Text.front() == '\'' || tokens[body + 3].Text.front() == '"'))
-                || (is(body + 1, "UnicodeLiterals") && body + 2 == end))) {
-            prologue += span(body, end + 1) + "\n";
-        } else {
-            return std::nullopt;
-        }
-        body = end + 1;
-    }
-    if (body == tokens.size()) {
-        return std::nullopt;
-    }
+    constexpr size_t body = 0;
     if (!is(body, "SELECT") && !is(body, "INSERT") && !is(body, "UPSERT") && !is(body, "REPLACE")
         && !is(body, "UPDATE") && !is(body, "DELETE")) {
         return std::nullopt;
@@ -710,16 +648,19 @@ std::optional<std::string> BuildParamMetadataQuery(std::string_view input, bool 
             table = span(i + 1, end);
             tableEnd = end;
             if (is(body, "SELECT") || is(body, "DELETE")) {
+                const auto clause = [&](size_t i) {
+                    return i == tokens.size() || is(i, ";") || is(i, "WHERE") || is(i, "ORDER")
+                        || is(i, "GROUP") || is(i, "HAVING") || is(i, "LIMIT") || is(i, "OFFSET")
+                        || is(i, "UNION") || is(i, "WINDOW");
+                };
                 size_t tail = end;
                 if (is(tail, "AS")) {
                     if (!identifier(++tail)) return std::nullopt;
                     table += " AS " + std::string(tokens[tail++].Text);
-                } else if (identifier(tail) && !is(tail, "WHERE") && !is(tail, "ORDER")
-                           && !is(tail, "GROUP") && !is(tail, "HAVING") && !is(tail, "LIMIT")
-                           && !is(tail, "OFFSET") && !is(tail, "UNION") && !is(tail, "WINDOW")) {
+                } else if (identifier(tail) && !clause(tail)) {
                     table += " AS " + std::string(tokens[tail++].Text);
                 }
-                if (is(tail, ",") || is(tail, "(")) return std::nullopt;
+                if (!clause(tail)) return std::nullopt;
             }
         }
         if (is(i, "JOIN") || (is(i, "SELECT") && i != body)) {
@@ -767,56 +708,30 @@ std::optional<std::string> BuildParamMetadataQuery(std::string_view input, bool 
     for (size_t i = body; i < tokens.size(); ++i) {
         size_t end = i + 1;
         std::string expression;
-        if (is(i, "CAST") && is(i + 1, "(") && i + 3 < tokens.size()
-            && is(i + 3, "AS")) {
-            size_t close = i + 4;
-            int nested = 0;
-            for (; close < tokens.size(); ++close) {
-                if (is(close, ")") && nested-- == 0) break;
-                if (is(close, "(")) ++nested;
-            }
-            const auto type = typeExpression(i + 4, close);
-            if (close < tokens.size() && !type.empty()) {
-                if (tokens[i + 2].Parameter) {
-                    assign(tokens[i + 2].Parameter, "CAST(NULL AS " + type + ")");
-                } else if (tokens[i + 2].Text.front() == '\'' || tokens[i + 2].Text.front() == '"'
-                           || std::isdigit(static_cast<unsigned char>(tokens[i + 2].Text.front()))) {
-                    expression = "CAST(NULL AS " + type + ")";
-                    end = close + 1;
-                }
-            }
-        }
-        if (expression.empty()) {
-            const auto text = tokens[i].Text;
-            if (text.front() == '\'' || text.front() == '"') {
-                expression = "CAST(NULL AS Utf8)";
-            } else if (std::isdigit(static_cast<unsigned char>(text.front())) || is(i, "TRUE") || is(i, "FALSE")) {
-                expression = "Just(" + std::string(text) + ")";
-            } else if ((is(i, "-") || is(i, "+")) && i + 1 < tokens.size()
-                       && std::isdigit(static_cast<unsigned char>(tokens[i + 1].Text.front()))) {
-                expression = "Just(" + span(i, ++end) + ")";
-            } else if ((is(i, "Date") || is(i, "Datetime") || is(i, "Timestamp") || is(i, "Utf8") || is(i, "String"))
-                       && is(i + 1, "(") && i + 3 < tokens.size() && tokens[i + 2].Text.front() == '\'' && is(i + 3, ")")) {
-                end = i + 4;
-                expression = "CAST(NULL AS " + std::string(text) + ")";
-            } else if (!table.empty() && identifier(i)) {
-                end = nameEnd(i);
-                expression = span(i, end);
-            }
+        const auto text = tokens[i].Text;
+        if (std::isdigit(static_cast<unsigned char>(text.front())) || is(i, "TRUE") || is(i, "FALSE")) {
+            expression = "Just(" + std::string(text) + ")";
+        } else if ((is(i, "-") || is(i, "+")) && i + 1 < tokens.size()
+                   && std::isdigit(static_cast<unsigned char>(tokens[i + 1].Text.front()))) {
+            expression = "Just(" + span(i, ++end) + ")";
+        } else if (!table.empty() && identifier(i)) {
+            end = nameEnd(i);
+            expression = span(i, end);
         }
         if (expression.empty()) continue;
         if ((i == body || boundary(i - 1)) && comparison(end) && end + 1 < tokens.size()
             && tokens[end + 1].Parameter && boundary(end + 2)) {
             assign(tokens[end + 1].Parameter, expression);
         }
-        if (i >= body + 2 && tokens[i - 2].Parameter && comparison(i - 1) && !is(end, "(") && boundary(end)) {
+        if (i >= body + 3 && (i == body + 3 || boundary(i - 3))
+            && tokens[i - 2].Parameter && comparison(i - 1) && !is(end, "(") && boundary(end)) {
             assign(tokens[i - 2].Parameter, expression);
         }
     }
-    if (sources.empty() || std::ranges::all_of(sources, [](const auto& source) { return source.empty() || source == "NULL"; })) {
+    if (sources[paramNumber - 1].empty() || sources[paramNumber - 1] == "NULL") {
         return std::nullopt;
     }
-    std::string query = prologue + "SELECT ";
+    std::string query = "SELECT ";
     for (size_t i = 0; i < sources.size(); ++i) {
         if (i) query += ", ";
         query += (sources[i].empty() ? "NULL" : sources[i]) + " AS __p" + std::to_string(i + 1);

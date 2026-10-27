@@ -1035,6 +1035,11 @@ TEST(StatementApi, ParameterArrays) {
     CHECK_ODBC_OK(SQLBindParameter(stmt, 2, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER,
         0, 0, values, 0, valueLengths), stmt, SQL_HANDLE_STMT);
 
+    idLengths[2] = SQL_DATA_AT_EXEC;
+    EXPECT_EQ(SQLExecute(stmt), SQL_ERROR);
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "HYC00"));
+    EXPECT_EQ(processed, 0);
+    idLengths[2] = 0;
     CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
     SQLLEN rowCount = -1;
     CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
@@ -1108,10 +1113,14 @@ TEST(StatementApi, PreparedInsertUsesPerSetParameterNullability) {
     SQLFreeStmt(stmt, SQL_CLOSE);
     CHECK_ODBC_OK(SQLExecDirect(stmt,
         (SQLCHAR*)"CREATE TABLE prepared_insert_nullability_test ("
-                  "id Int64 NOT NULL, name Utf8, PRIMARY KEY (id))",
+                  "id Int64 NOT NULL, name Utf8, uid Uuid, u Uint64, dt Datetime, j Json, PRIMARY KEY (id))",
         SQL_NTS), stmt, SQL_HANDLE_STMT);
     SQLFreeStmt(stmt, SQL_CLOSE);
 
+    SQLHDESC app;
+    SQLINTEGER placeholder = 0;
+    CHECK_ODBC_OK(SQLGetStmtAttr(stmt, SQL_ATTR_APP_PARAM_DESC, &app, 0, nullptr), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLSetDescRec(app, 1, SQL_C_LONG, 0, 0, 0, 0, &placeholder, nullptr, nullptr), app, SQL_HANDLE_DESC);
     CHECK_ODBC_OK(SQLPrepare(stmt,
         (SQLCHAR*)"INSERT INTO prepared_insert_nullability_test (id, name) VALUES (?, ?)",
         SQL_NTS), stmt, SQL_HANDLE_STMT);
@@ -1122,10 +1131,21 @@ TEST(StatementApi, PreparedInsertUsesPerSetParameterNullability) {
     CHECK_ODBC_OK(SQLDescribeParam(stmt, 2, &nameType, nullptr, nullptr, &nullable), stmt, SQL_HANDLE_STMT);
     EXPECT_EQ(nameType, SQL_VARCHAR);
     EXPECT_EQ(nullable, SQL_NULLABLE);
+    SQLHDESC imp;
+    CHECK_ODBC_OK(SQLGetStmtAttr(stmt, SQL_ATTR_IMP_PARAM_DESC, &imp, 0, nullptr), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLSetDescField(imp, 1, SQL_DESC_NAME, (SQLPOINTER)"id", SQL_NTS), imp, SQL_HANDLE_DESC);
+    CHECK_ODBC_OK(SQLCopyDesc(imp, imp), imp, SQL_HANDLE_DESC);
     CHECK_ODBC_OK(SQLPrepare(stmt, (SQLCHAR*)
         "INSERT INTO prepared_insert_nullability_test (name, id) VALUES (?, ?)", SQL_NTS), stmt, SQL_HANDLE_STMT);
     CHECK_ODBC_OK(SQLDescribeParam(stmt, 1, &nameType, nullptr, nullptr, nullptr), stmt, SQL_HANDLE_STMT);
     EXPECT_EQ(nameType, SQL_VARCHAR);
+    CHECK_ODBC_OK(SQLPrepare(stmt, (SQLCHAR*)
+        "INSERT INTO prepared_insert_nullability_test (id, uid, u, dt, j) VALUES (1, ?, ?, ?, ?)",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    for (SQLUSMALLINT i = 1; i <= 4; ++i) {
+        EXPECT_EQ(SQLDescribeParam(stmt, i, &nameType, nullptr, nullptr, nullptr), SQL_ERROR);
+        EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "HYC00"));
+    }
     CHECK_ODBC_OK(SQLPrepare(stmt, (SQLCHAR*)
         "INSERT INTO prepared_insert_nullability_test (id, name) VALUES (?, ?)", SQL_NTS), stmt, SQL_HANDLE_STMT);
     char ids[][2] = {"1", "2"};
