@@ -1,0 +1,6 @@
+kind: archive
+url: https://codeload.github.com/lunarmodules/luasql/tar.gz/491fea76b9d9ee613fcd7de6b8a1c902e3668d11
+revision: 491fea76b9d9ee613fcd7de6b8a1c902e3668d11
+sha256: f777c75dec5effeb51c8206fc87c88d6a9c6eca59da148777b2815e825f14b27
+license: MIT
+ci_only: true

@@ -1,0 +1,6 @@
+kind: archive
+url: https://codeload.github.com/qt/qtbase/tar.gz/e3e40c44d3f998a433a6a1080297c5f28e9a768f
+revision: e3e40c44d3f998a433a6a1080297c5f28e9a768f
+sha256: 31968efe5280ca254b66a60fe2d717e6bc3367e1bd7ff404b256c2a27eb003ba
+license: GPL-3.0-only WITH Qt-GPL-exception-1.0
+ci_only: true

@@ -1,0 +1,13 @@
+#!/bin/sh
+set -e
+
+case "${1:-}" in
+    remove|upgrade|deconfigure)
+        if odbcinst -q -d -n YDB 2>/dev/null \
+                | grep -Fx "Driver=@YDB_ODBC_DRIVER_PATH@" >/dev/null; then
+            odbcinst -u -d -n YDB
+        fi
+        ;;
+esac
+
+exit 0
