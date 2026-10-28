@@ -1,2 +1,0 @@
-Driver "QSQLITE" is not installed
-Opening: "0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous"

@@ -1,8 +1,0 @@
-001- bool(true)
-002- string(1) "1"
-001+ bool(false)
-002+ bool(false)
-     bool(true)
-     odbc_free_result(): supplied resource is not a valid ODBC result resource
-     odbc_fetch_row(): supplied resource is not a valid ODBC result resource
---

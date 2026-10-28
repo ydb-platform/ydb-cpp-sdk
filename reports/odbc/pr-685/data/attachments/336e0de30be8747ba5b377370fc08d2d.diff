@@ -1,8 +1,0 @@
-001+ Warning: odbc_exec(): SQL error: General error: <main>:1:0: Error: mismatched input 'foo' expecting {';', '(', '$', ALTER, ANALYZE, BACKUP, BATCH, COMMIT, CREATE, DECLARE, DEFINE, DELETE, DISCARD, DO, DROP, EVALUATE, EXPLAIN, EXPORT, FOR, FROM, GRANT, IF, IMPORT, INSERT, PARALLEL, PRAGMA, PROCESS, REDUCE, REPLACE, RESTORE, REVOKE, ROLLBACK, SELECT, SHOW, UPDATE, UPSERT, USE, VALUES}
-002+ , SQL state S1000 in SQLExecDirect in /work/source/ext/odbc/tests/odbc_exec_001.php on line 7
-003+ 
-     Warning: odbc_exec(): SQL error: No prepared statement, SQL state S1007 in SQLExecDirect in /work/source/ext/odbc/tests/odbc_exec_001.php on line 9
-     
-003- Warning: odbc_exec(): SQL error: %s in %s on line %d
-006+ Warning: odbc_exec(): SQL error: General error: <main>:1:0: Error: mismatched input '1' expecting {';', '(', '$', ALTER, ANALYZE, BACKUP, BATCH, COMMIT, CREATE, DECLARE, DEFINE, DELETE, DISCARD, DO, DROP, EVALUATE, EXPLAIN, EXPORT, FOR, FROM, GRANT, IF, IMPORT, INSERT, PARALLEL, PRAGMA, PROCESS, REDUCE, REPLACE, RESTORE, REVOKE, ROLLBACK, SELECT, SHOW, UPDATE, UPSERT, USE, VALUES}
-007+ , SQL state S1000 in SQLExecDirect in /work/source/ext/odbc/tests/odbc_exec_001.php on line 11

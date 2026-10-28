@@ -1,8 +1,0 @@
-$ isql -b -v YDB_isql
-+-----------+
-| value     |
-+-----------+
-| 42        |
-+-----------+
-SQLRowCount returns -1
-1 rows fetched

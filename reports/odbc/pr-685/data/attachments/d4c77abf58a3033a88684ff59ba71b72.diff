@@ -1,9 +1,0 @@
---
-     bool(true)
-     bool(true)
-     bool(true)
-006- bool(true)
-007- bool(true)
-006+ bool(false)
-007+ bool(false)
-     bool(true)

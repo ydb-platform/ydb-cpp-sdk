@@ -1,8 +1,0 @@
-[libprotobuf ERROR google/protobuf/wire_format_lite.cc:618] String field 'Ydb.Query.QueryContent.text' contains invalid UTF-8 data when serializing a protocol buffer. Use the 'bytes' type if you intend to send raw bytes. 
-
-Warning: odbc_exec(): SQL error: General error: <main>: Error: GRpc error: (13): Unable to parse request
-, SQL state S1000 in SQLExecDirect in /work/source/ext/odbc/tests/bug71171.php on line 9
-[libprotobuf ERROR google/protobuf/wire_format_lite.cc:618] String field 'Ydb.Query.QueryContent.text' contains invalid UTF-8 data when serializing a protocol buffer. Use the 'bytes' type if you intend to send raw bytes. 
-
-Warning: odbc_exec(): SQL error: General error: <main>: Error: GRpc error: (13): Unable to parse request
-, SQL state S1000 in SQLExecDirect in /work/source/ext/odbc/tests/bug71171.php on line 11

@@ -1,9 +1,0 @@
-Warning: PDOStatement::execute(): SQLSTATE[23000]: Integrity constraint violation: 400120 Integrity constraint violation: <main>: Error: Conflict with existing key., code: 2012
- (SQLExecute[400120] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/bug_73234.php on line 24
-array(1) {
-  [0]=>
-  array(1) {
-    ["id"]=>
-    NULL
-  }
-}

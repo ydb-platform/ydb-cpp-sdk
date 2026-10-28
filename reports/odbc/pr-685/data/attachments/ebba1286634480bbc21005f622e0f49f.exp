@@ -1,8 +1,0 @@
-bool(false)
-bool(true)
-string(1) "1"
-bool(true)
-string(1) "2"
-bool(true)
-string(1) "2"
-bool(false)
