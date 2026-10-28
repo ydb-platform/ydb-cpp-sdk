@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite name="tst_QSqlThread" timestamp="2026&#x002D;10&#x002D;28T11:14:27" hostname="runnervmtai0g" tests="8" failures="0" errors="0" skipped="0" time="0.339">
+<testsuite name="tst_QSqlThread" timestamp="2026&#x002D;10&#x002D;28T13:43:08" hostname="runnervmtai0g" tests="8" failures="0" errors="0" skipped="0" time="0.369">
   <properties>
     <property name="QTestVersion" value="6.4.2"/>
     <property name="QtVersion" value="6.4.2"/>
     <property name="QtBuild" value="Qt 6.4.2 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 13.2.0)"/>
   </properties>
-  <testcase name="initTestCase" classname="tst_QSqlThread" time="0.153">
+  <testcase name="initTestCase" classname="tst_QSqlThread" time="0.186">
     <system-out>
       <![CDATA[Opening: "0_QODBC@YDB_qt"]]>
     </system-out>
@@ -29,5 +29,5 @@
       <![CDATA[Thread finished, total finished: 2]]>
     </system-out>
   </testcase>
-  <testcase name="cleanupTestCase" classname="tst_QSqlThread" time="0.034"/>
+  <testcase name="cleanupTestCase" classname="tst_QSqlThread" time="0.031"/>
 </testsuite>

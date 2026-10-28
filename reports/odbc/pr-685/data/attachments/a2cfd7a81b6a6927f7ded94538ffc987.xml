@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite name="tst_QSqlTableModel" timestamp="2026&#x002D;10&#x002D;28T11:10:53" hostname="runnervmtai0g" tests="48" failures="3" errors="0" skipped="8" time="15.033">
+<testsuite name="tst_QSqlTableModel" timestamp="2026&#x002D;10&#x002D;28T13:41:01" hostname="runnervm48cm3" tests="48" failures="3" errors="0" skipped="8" time="18.688">
   <properties>
     <property name="QTestVersion" value="6.4.2"/>
     <property name="QtVersion" value="6.4.2"/>
     <property name="QtBuild" value="Qt 6.4.2 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 13.2.0)"/>
   </properties>
-  <testcase name="initTestCase" classname="tst_QSqlTableModel" time="0.217"/>
-  <testcase name="select(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.343"/>
-  <testcase name="selectRow(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.464"/>
-  <testcase name="selectRowOverride(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.369"/>
-  <testcase name="insertColumns(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [field])" classname="tst_QSqlTableModel" time="0.256"/>
-  <testcase name="insertColumns(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [row])" classname="tst_QSqlTableModel" time="0.324"/>
-  <testcase name="insertColumns(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [manual])" classname="tst_QSqlTableModel" time="0.312"/>
-  <testcase name="submitAll(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.297"/>
-  <testcase name="setData(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.293">
+  <testcase name="initTestCase" classname="tst_QSqlTableModel" time="0.329"/>
+  <testcase name="select(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.449"/>
+  <testcase name="selectRow(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.467"/>
+  <testcase name="selectRowOverride(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.498"/>
+  <testcase name="insertColumns(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [field])" classname="tst_QSqlTableModel" time="0.368"/>
+  <testcase name="insertColumns(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [row])" classname="tst_QSqlTableModel" time="0.396"/>
+  <testcase name="insertColumns(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [manual])" classname="tst_QSqlTableModel" time="0.402"/>
+  <testcase name="submitAll(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.435"/>
+  <testcase name="setData(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.447">
     <failure type="fail" message="&apos;(model).submitAll()&apos; returned FALSE. (QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous: (400080) &apos;QODBC: Unable to execute statement&apos; || &apos;General error: &lt;main&gt;: Error: Type annotation, code: 1030">
       <![CDATA[    <main>:3:104: Error: At function: KiUpdateTable!
         <main>:3:104: Error: Cannot update primary key column: id
@@ -23,51 +23,51 @@
       <![CDATA[QODBCResult::exec: Unable to execute statement: "General error: <main>: Error: Type annotation, code: 1030\n    <main>:3:104: Error: At function: KiUpdateTable!\n        <main>:3:104: Error: Cannot update primary key column: id\n"]]>
     </system-err>
   </testcase>
-  <testcase name="setRecord(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.393"/>
-  <testcase name="setRecordReimpl(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.341"/>
-  <testcase name="recordReimpl(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.313"/>
-  <testcase name="insertRow(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [field])" classname="tst_QSqlTableModel" time="0.379"/>
-  <testcase name="insertRow(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [row])" classname="tst_QSqlTableModel" time="0.348"/>
-  <testcase name="insertRow(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [manual])" classname="tst_QSqlTableModel" time="0.308"/>
-  <testcase name="insertRowFailure(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [field])" classname="tst_QSqlTableModel" time="0.362">
+  <testcase name="setRecord(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.464"/>
+  <testcase name="setRecordReimpl(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.368"/>
+  <testcase name="recordReimpl(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.378"/>
+  <testcase name="insertRow(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [field])" classname="tst_QSqlTableModel" time="0.419"/>
+  <testcase name="insertRow(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [row])" classname="tst_QSqlTableModel" time="0.431"/>
+  <testcase name="insertRow(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [manual])" classname="tst_QSqlTableModel" time="0.379"/>
+  <testcase name="insertRowFailure(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [field])" classname="tst_QSqlTableModel" time="0.429">
     <system-err>
       <![CDATA[QODBCResult::exec: Unable to execute statement: "Integrity constraint violation: <main>: Error: Conflict with existing key., code: 2012\n"]]>
     </system-err>
   </testcase>
-  <testcase name="insertRowFailure(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [row])" classname="tst_QSqlTableModel" time="0.404">
+  <testcase name="insertRowFailure(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [row])" classname="tst_QSqlTableModel" time="0.402">
     <system-err>
       <![CDATA[QODBCResult::exec: Unable to execute statement: "Integrity constraint violation: <main>: Error: Conflict with existing key., code: 2012\n"]]>
     </system-err>
   </testcase>
-  <testcase name="insertRowFailure(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [manual])" classname="tst_QSqlTableModel" time="0.330">
+  <testcase name="insertRowFailure(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [manual])" classname="tst_QSqlTableModel" time="0.409">
     <system-err>
       <![CDATA[QODBCResult::exec: Unable to execute statement: "Integrity constraint violation: <main>: Error: Conflict with existing key., code: 2012\n"]]>
     </system-err>
   </testcase>
-  <testcase name="insertRecord(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.382"/>
-  <testcase name="insertMultiRecords(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.378"/>
+  <testcase name="insertRecord(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.471"/>
+  <testcase name="insertMultiRecords(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.448"/>
   <testcase name="insertWithAutoColumn" classname="tst_QSqlTableModel" time="0.000">
     <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
   </testcase>
-  <testcase name="removeRow(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.651"/>
-  <testcase name="removeRows(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.658"/>
-  <testcase name="removeInsertedRow(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [field])" classname="tst_QSqlTableModel" time="0.402"/>
-  <testcase name="removeInsertedRow(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [row])" classname="tst_QSqlTableModel" time="0.349"/>
-  <testcase name="removeInsertedRow(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [manual])" classname="tst_QSqlTableModel" time="0.307"/>
-  <testcase name="removeInsertedRows(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="1.052"/>
+  <testcase name="removeRow(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.779"/>
+  <testcase name="removeRows(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.832"/>
+  <testcase name="removeInsertedRow(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [field])" classname="tst_QSqlTableModel" time="0.416"/>
+  <testcase name="removeInsertedRow(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [row])" classname="tst_QSqlTableModel" time="0.410"/>
+  <testcase name="removeInsertedRow(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [manual])" classname="tst_QSqlTableModel" time="0.402"/>
+  <testcase name="removeInsertedRows(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="1.269"/>
   <testcase name="revert" classname="tst_QSqlTableModel" time="0.000">
     <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
   </testcase>
-  <testcase name="isDirty(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [field])" classname="tst_QSqlTableModel" time="0.401"/>
-  <testcase name="isDirty(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [row])" classname="tst_QSqlTableModel" time="0.355"/>
-  <testcase name="isDirty(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [manual])" classname="tst_QSqlTableModel" time="0.391"/>
-  <testcase name="setFilter(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.292"/>
-  <testcase name="setInvalidFilter(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.300"/>
-  <testcase name="emptyTable(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.318"/>
+  <testcase name="isDirty(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [field])" classname="tst_QSqlTableModel" time="0.457"/>
+  <testcase name="isDirty(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [row])" classname="tst_QSqlTableModel" time="0.449"/>
+  <testcase name="isDirty(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous [manual])" classname="tst_QSqlTableModel" time="0.471"/>
+  <testcase name="setFilter(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.366"/>
+  <testcase name="setInvalidFilter(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.364"/>
+  <testcase name="emptyTable(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.444"/>
   <testcase name="tablesAndSchemas" classname="tst_QSqlTableModel" time="0.000">
     <skipped message="No database drivers of type QPSQL are available in this Qt configuration"/>
   </testcase>
-  <testcase name="whitespaceInIdentifiers(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.319">
+  <testcase name="whitespaceInIdentifiers(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.393">
     <skipped message="DBMS doesn&apos;t support whitespaces in identifiers"/>
   </testcase>
   <testcase name="primaryKeyOrder" classname="tst_QSqlTableModel" time="0.000">
@@ -76,14 +76,14 @@
   <testcase name="sqlite_bigTable" classname="tst_QSqlTableModel" time="0.000">
     <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
   </testcase>
-  <testcase name="insertRecordBeforeSelect(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.319"/>
-  <testcase name="submitAllOnInvalidTable(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.305">
+  <testcase name="insertRecordBeforeSelect(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.469"/>
+  <testcase name="submitAllOnInvalidTable(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.380">
     <system-out>
       <![CDATA[The table doesn't exist: submitAll() shall fail]]>
       <![CDATA[The table doesn't exist: select() shall fail]]>
     </system-out>
   </testcase>
-  <testcase name="insertRecordsInLoop(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.357">
+  <testcase name="insertRecordsInLoop(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.392">
     <failure type="fail" message="Compared values are not the same">
       <![CDATA[   Actual   (modelAboutToBeResetSpy.size()): 0
    Expected (1)                            : 1]]>
@@ -95,17 +95,17 @@
   <testcase name="sqlite_attachedDatabase" classname="tst_QSqlTableModel" time="0.000">
     <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
   </testcase>
-  <testcase name="tableModifyWithBlank(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.392"/>
-  <testcase name="removeColumnAndRow(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.320">
+  <testcase name="tableModifyWithBlank(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.499"/>
+  <testcase name="removeColumnAndRow(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.457">
     <failure type="fail" message="Compared values are not the same">
       <![CDATA[   Actual   (model.rowCount()): 3
    Expected (2)               : 2]]>
     </failure>
   </testcase>
-  <testcase name="insertBeforeDelete(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.388"/>
-  <testcase name="invalidFilterAndHeaderData(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.276"/>
+  <testcase name="insertBeforeDelete(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.522"/>
+  <testcase name="invalidFilterAndHeaderData(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous)" classname="tst_QSqlTableModel" time="0.449"/>
   <testcase name="sqlite_selectFromIdentifierWithDot" classname="tst_QSqlTableModel" time="0.000">
     <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
   </testcase>
-  <testcase name="cleanupTestCase" classname="tst_QSqlTableModel" time="0.065"/>
+  <testcase name="cleanupTestCase" classname="tst_QSqlTableModel" time="0.080"/>
 </testsuite>
