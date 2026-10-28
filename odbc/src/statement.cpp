@@ -406,6 +406,25 @@ SQLRETURN TStatement::FetchScroll(SQLSMALLINT orientation, SQLLEN offset) {
     if (!Cursor_) {
         return SQL_NO_DATA;
     }
+    RefreshRowBindings();
+    return FetchRows(orientation, offset, RowBindings_.GetArraySize(),
+                     ImpRowBindings_.GetRowsProcessedPtr(), ImpRowBindings_.GetArrayStatusPtr(), false);
+}
+
+SQLRETURN TStatement::ExtendedFetch(SQLUSMALLINT orientation, SQLLEN offset,
+                                    SQLULEN* fetched, SQLUSMALLINT* statuses) {
+    if (!statuses) {
+        return AddError("HY009", 0, "Invalid use of null pointer");
+    }
+    if (!Cursor_) {
+        return AddError("24000", 0, "Invalid cursor state");
+    }
+    RefreshRowBindings();
+    return FetchRows(orientation, offset, Attributes_.RowsetSize, fetched, statuses, true);
+}
+
+SQLRETURN TStatement::FetchRows(SQLSMALLINT orientation, SQLLEN offset, SQLULEN rowArraySize,
+                                SQLULEN* fetched, SQLUSMALLINT* statuses, bool extended) {
     switch (orientation) {
         case SQL_FETCH_NEXT:
         case SQL_FETCH_PRIOR:
@@ -422,10 +441,6 @@ SQLRETURN TStatement::FetchScroll(SQLSMALLINT orientation, SQLLEN offset) {
         return AddError("HY106", 0, "Fetch type out of range for a forward-only cursor");
     }
 
-    RefreshRowBindings();
-    const SQLULEN rowArraySize = RowBindings_.GetArraySize();
-    SQLUSMALLINT* const statuses = ImpRowBindings_.GetArrayStatusPtr();
-    SQLULEN* const fetched = ImpRowBindings_.GetRowsProcessedPtr();
     if (fetched) {
         *fetched = 0;
     }
@@ -453,7 +468,9 @@ SQLRETURN TStatement::FetchScroll(SQLSMALLINT orientation, SQLLEN offset) {
                 : rowResult == SQL_SUCCESS ? SQL_ROW_SUCCESS : SQL_ROW_ERROR;
         }
         if (rowResult == SQL_ERROR) {
-            result = SQL_ERROR;
+            result = extended
+                ? AddError("01S01", 0, "Error in row", SQL_SUCCESS_WITH_INFO)
+                : SQL_ERROR;
         } else if (rowResult == SQL_SUCCESS_WITH_INFO && result == SQL_SUCCESS) {
             result = SQL_SUCCESS_WITH_INFO;
         }
@@ -1235,6 +1252,10 @@ SQLRETURN TStatement::SetStmtAttr(
         return Diag::AddInvalidAttrValue(*this, name);
     };
     switch (attr) {
+        case SQL_ROWSET_SIZE:
+            return SetCheckedAttribute<SQLULEN>(
+                value, Attributes_.RowsetSize, *this, "SQL_ROWSET_SIZE",
+                [](SQLULEN input) { return input > 0; });
         case SQL_ATTR_QUERY_TIMEOUT:
             return SetCheckedAttribute<SQLINTEGER>(
                 value, Attributes_.QueryTimeoutSec, *this, "SQL_ATTR_QUERY_TIMEOUT",

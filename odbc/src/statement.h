@@ -34,6 +34,8 @@ public:
 
     SQLRETURN Fetch();
     SQLRETURN FetchScroll(SQLSMALLINT orientation, SQLLEN offset);
+    SQLRETURN ExtendedFetch(SQLUSMALLINT orientation, SQLLEN offset,
+                            SQLULEN* fetched, SQLUSMALLINT* statuses);
     SQLRETURN GetData(SQLUSMALLINT columnNumber, SQLSMALLINT targetType, 
                      SQLPOINTER targetValue, SQLLEN bufferLength, SQLLEN* strLenOrInd);
 
@@ -109,6 +111,7 @@ private:
         SQLULEN MetadataId = SQL_FALSE;
         SQLULEN CursorType = SQL_CURSOR_FORWARD_ONLY;
         SQLULEN Concurrency = SQL_CONCUR_READ_ONLY;
+        SQLULEN RowsetSize = 1;
 
         SQLUINTEGER GetQueryTimeoutSec() const noexcept { return QueryTimeoutSec; }
         SQLULEN GetMaxRows() const noexcept { return MaxRows; }
@@ -122,7 +125,8 @@ private:
         TScalarProperty<SQL_ATTR_NOSCAN, &TAttributes::NoScan>,
         TScalarProperty<SQL_ATTR_METADATA_ID, &TAttributes::MetadataId>,
         TScalarProperty<SQL_ATTR_CURSOR_TYPE, &TAttributes::CursorType>,
-        TScalarProperty<SQL_ATTR_CONCURRENCY, &TAttributes::Concurrency>>;
+        TScalarProperty<SQL_ATTR_CONCURRENCY, &TAttributes::Concurrency>,
+        TScalarProperty<SQL_ROWSET_SIZE, &TAttributes::RowsetSize>>;
 
     struct TAtExecValue {
         std::string Data;
@@ -164,6 +168,8 @@ private:
     SQLRETURN ExecuteParamSet(SQLULEN paramSet, std::optional<SQLLEN>& affectedRows);
     SQLRETURN ExecuteInternal();
     SQLRETURN FillBoundColumns(SQLULEN row);
+    SQLRETURN FetchRows(SQLSMALLINT orientation, SQLLEN offset, SQLULEN rowArraySize,
+                        SQLULEN* fetched, SQLUSMALLINT* statuses, bool extended);
     std::vector<TBoundParam> GetBoundParams(SQLULEN paramSet) const;
     void EnsurePreparedColumnMeta();
     std::vector<TColumnMeta> ReadQueryMetadata(const std::string& sql, bool parameters = false);
