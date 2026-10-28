@@ -1,0 +1,15 @@
+--
+       [1]=>
+       int(%i)
+       [2]=>
+009-   string(%d) "%s%w%S"
+009+   string(430) "General error: <main>: Error: Type annotation, code: 1030
+010+     <main>:2:13: Error: At function: KiWriteTable!
+011+         <main>:2:19: Error: Failed to convert type: Struct<'x':Int32?> to Struct<'x':Int32>
+012+             <main>:2:19: Error: Failed to convert 'x': Optional<Int32> to Int32
+013+         <main>:2:19: Error: Failed to convert input columns types to scheme types, code: 2031
+014+  (SQLExecute[400080] at ./ext/pdo_odbc/odbc_stmt.c:263)"
+     }
+     bool(true)
+     string(5) "00000"
+--

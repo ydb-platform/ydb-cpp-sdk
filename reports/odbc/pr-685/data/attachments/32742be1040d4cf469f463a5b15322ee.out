@@ -1,0 +1,5 @@
+Warning: odbc_execute(): SQL error: Integrity constraint violation: <main>: Error: Type annotation, code: 1030
+    <main>:4:13: Error: At function: KiWriteTable!
+        <main>:4:13: Error: Missing key column in input: ydb_fixture_id for table: /local/bug80592, code: 2029
+, SQL state 23000 in SQLExecute in /work/source/ext/odbc/tests/bug80592.php on line 7
+bool(false)

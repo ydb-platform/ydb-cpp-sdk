@@ -1,0 +1,13 @@
+     bool(true)
+002- array(1) {
+003-   ["1"]=>
+004-   string(1) "1"
+005- }
+     bool(false)
+003+ bool(false)
+     bool(true)
+008- array(1) {
+009-   ["1"]=>
+010-   string(1) "1"
+011- }
+005+ bool(false)

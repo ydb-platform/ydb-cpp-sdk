@@ -1,0 +1,16 @@
+001- object(stdClass)#%d (%d) {
+002-   ["foo"]=>
+003-   string(1) "1"
+004- }
+005- object(stdClass)#%d (%d) {
+006-   ["foo"]=>
+007-   string(1) "2"
+008- }
+009- object(stdClass)#%d (%d) {
+010-   ["foo"]=>
+011-   string(1) "2"
+012- }
+001+ bool(false)
+002+ bool(false)
+003+ bool(false)
+     bool(false)

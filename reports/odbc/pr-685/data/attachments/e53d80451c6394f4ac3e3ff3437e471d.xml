@@ -1,0 +1,535 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="php" tests="95" failures="12" errors="0" skip="7" time="7.5872">
+<testsuite name="php.ext.pdo.tests" tests="85" failures="8" errors="0" skip="6" time="6.5394">
+<testcase name='ext/pdo/tests/bug_34630.phpt (PDO Common: Bug #34630 (inserting streams as LOBs))' time='0.1118'>
+</testcase>
+<testcase name='ext/pdo/tests/bug_34687.phpt (PDO Common: Bug #34687 (query doesn&#039;t return error information))' time='0.0466'>
+</testcase>
+<testcase name='ext/pdo/tests/bug_35671.phpt (PDO Common: Bug #35671 (binding by name breakage))' time='0.1173'>
+</testcase>
+<testcase name='ext/pdo/tests/bug_36428.phpt (PDO Common: Bug #36428 (Incorrect error message for PDO::fetchAll()))' time='0.0769'>
+</testcase>
+<testcase name='ext/pdo/tests/bug_36798.phpt (PDO Common: Bug #36798 (Error parsing named parameters with queries containing high-ascii chars))' time='0.0532'>
+<skipped>not for pdo_odbc</skipped>
+</testcase>
+<testcase name='ext/pdo/tests/bug_38253.phpt (PDO Common: Bug #38253 (PDO produces segfault with default fetch mode))' time='0.0703'>
+</testcase>
+<testcase name='ext/pdo/tests/bug_38394.phpt (PDO Common: Bug #38394 (Prepared statement error stops subsequent statements))' time='0.1137'>
+</testcase>
+<testcase name='ext/pdo/tests/bug_39398.phpt (PDO Common: Bug #39398 (Booleans are not automatically translated to integers))' time='0.0833'>
+</testcase>
+<testcase name='ext/pdo/tests/bug_39656.phpt (PDO Common: Bug #39656 (Crash when calling fetch() on a PDO statement object after closeCursor()))' time='0.0813'>
+</testcase>
+<testcase name='ext/pdo/tests/bug_40285.phpt (PDO Common: Bug #40285 (The prepare parser goes into an infinite loop on &#039;: or &quot;:))' time='0.0638'>
+</testcase>
+<testcase name='ext/pdo/tests/bug_42917.phpt (PDO Common: Bug #42917 (PDO::FETCH_KEY_PAIR doesn&#039;t work with setFetchMode))' time='0.1242'>
+</testcase>
+<testcase name='ext/pdo/tests/bug_43130.phpt (PDO Common: Bug #43130 (Bound parameters cannot have - in their name))' time='0.0140'>
+<skipped>not relevant for odbc driver</skipped>
+</testcase>
+<testcase name='ext/pdo/tests/bug_43139.phpt (PDO Common: Bug #43139 (PDO ignore ATTR_DEFAULT_FETCH_MODE in some cases with fetchAll()))' time='0.0458'>
+</testcase>
+<testcase name='ext/pdo/tests/bug_43663.phpt (PDO Common: Bug #43663 (__call on classes derived from PDO))' time='0.0429'>
+</testcase>
+<testcase name='ext/pdo/tests/bug_44159.phpt (PDO Common: Bug #44159 (Crash: $pdo-&gt;setAttribute(PDO::STATEMENT_ATTR_CLASS, NULL)))' time='0.0420'>
+</testcase>
+<testcase name='ext/pdo/tests/bug_44173.phpt (PDO Common: Bug #44173 (PDO-&gt;query() parameter parsing/checking needs an update))' time='0.0573'>
+</testcase>
+<testcase name='ext/pdo/tests/bug_44409.phpt (PDO Common: Bug #44409 (PDO::FETCH_SERIALIZE calls __construct()))' time='0.0694'>
+</testcase>
+<testcase name='ext/pdo/tests/bug_44861.phpt (PDO Common: Bug #44861 (scrollable cursor don&#039;t work with pgsql))' time='0.0144'>
+<skipped>Scrollable cursors not supported</skipped>
+</testcase>
+<testcase name='ext/pdo/tests/bug_50458.phpt (PDO Common: Bug #50458 (PDO::FETCH_FUNC fails with Closures))' time='0.0749'>
+</testcase>
+<testcase name='ext/pdo/tests/bug_52098.phpt (PDO Common: Bug #52098 Own PDOStatement implementation ignore __call())' time='0.0755'>
+</testcase>
+<testcase name='ext/pdo/tests/bug_60665.phpt (PDO Common: Bug #60665 (call to empty() on NULL result using PDO::FETCH_LAZY returns false))' time='0.0443'>
+<failure type='FAILED' message=''>--
+     bool(true)
+     bool(true)
+     bool(true)
+006- bool(true)
+007- bool(true)
+006+ bool(false)
+007+ bool(false)
+     bool(true)
+</failure>
+</testcase>
+<testcase name='ext/pdo/tests/bug_61292.phpt (PDO Common: Bug #61292 (Segfault while calling a method on an overloaded PDO object))' time='0.0344'>
+</testcase>
+<testcase name='ext/pdo/tests/bug_64172.phpt (PDO Common: Bug #64172 errorInfo is not properly cleaned up)' time='0.0766'>
+<failure type='FAILED' message=''>--
+     
+     Warning: PDO::query(): SQLSTATE[%s]: %s
+     %A
+005- ===TEST===
+005+         &lt;main&gt;:1:1: Error: Cannot find table &#039;db.[/local/bad_table]&#039; because it does not exist or you do not have access permissions. Please check correctness of table path and user permissions., code: 2003
+006+  (SQLExecute[400070] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/bug_64172.php on line 12
+007+ 
+008+ ===test===
+     bool(true)
+     bool(true)
+     bool(true)
+--
+     ===FAIL===
+     
+     Warning: PDO::exec(): SQLSTATE[HY000]: General error: 400080 General error: &lt;main&gt;:1:13: Error: INSERT INTO ... VALUES requires specification of table columns
+024+  (SQLExecDirect[400080] at ./ext/pdo_odbc/odbc_driver.c:241) in /work/source/ext/pdo/tests/bug_64172.php on line 25
+025+ 
+     ===test===
+022- ===TEST===
+     bool(true)
+     bool(true)
+     bool(true)
+--
+</failure>
+</testcase>
+<testcase name='ext/pdo/tests/bug_65946.phpt (PDO Common: Bug #65946 (pdo_sql_parser.c permanently converts values bound to strings))' time='0.0600'>
+<failure type='FAILED' message=''>001- array(1) {
+001+ Warning: PDOStatement::execute(): SQLSTATE[HY000]: General error: 400080 General error: &lt;main&gt;:2:24: Error: missing &#039;::&#039; at &#039;test&#039;
+002+  (SQLExecute[400080] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/bug_65946.php on line 28
+003+ array(4) {
+       [0]=&gt;
+003-   array(1) {
+004-     [&quot;id&quot;]=&gt;
+005-     string(1) &quot;1&quot;
+006-   }
+005+   string(5) &quot;HY000&quot;
+006+   [1]=&gt;
+007+   int(400080)
+008+   [2]=&gt;
+009+   string(113) &quot;General error: &lt;main&gt;:2:24: Error: missing &#039;::&#039; at &#039;test&#039;
+010+  (SQLExecute[400080] at ./ext/pdo_odbc/odbc_stmt.c:263)&quot;
+011+   [3]=&gt;
+012+   string(5) &quot;HY000&quot;
+013+ }
+014+ 
+015+ Warning: PDOStatement::execute(): SQLSTATE[HY000]: General error: 400080 General error: &lt;main&gt;:2:24: Error: missing &#039;::&#039; at &#039;test&#039;
+016+  (SQLExecute[400080] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/bug_65946.php on line 29
+017+ array(4) {
+018+   [0]=&gt;
+019+   string(5) &quot;HY000&quot;
+020+   [1]=&gt;
+021+   int(400080)
+022+   [2]=&gt;
+023+   string(113) &quot;General error: &lt;main&gt;:2:24: Error: missing &#039;::&#039; at &#039;test&#039;
+024+  (SQLExecute[400080] at ./ext/pdo_odbc/odbc_stmt.c:263)&quot;
+025+   [3]=&gt;
+026+   string(5) &quot;HY000&quot;
+027+ }
+028+ array(0) {
+     }
+</failure>
+</testcase>
+<testcase name='ext/pdo/tests/bug_69356.phpt (PDO Common: Bug #69356 (PDOStatement::debugDumpParams() truncates query))' time='0.0985'>
+</testcase>
+<testcase name='ext/pdo/tests/bug_71447.phpt (PDO Common: Bug #71447 (Quotes inside comments not properly handled))' time='0.0873'>
+</testcase>
+<testcase name='ext/pdo/tests/bug_71885.phpt (PDO Common: FR #71885 (Allow escaping question mark placeholders))' time='0.0930'>
+<failure type='FAILED' message=''>001- bool(true)
+002- bool(true)
+003- bool(true)
+001+ bool(false)
+002+ bool(false)
+003+ bool(false)
+</failure>
+</testcase>
+<testcase name='ext/pdo/tests/bug_72368.phpt (PDO Common: Bug #72368 (PdoStatement-&gt;execute() fails but does not throw an exception))' time='0.0888'>
+</testcase>
+<testcase name='ext/pdo/tests/bug_72788.phpt (PDO Common: Bug #72788 (Invalid memory access when using persistent PDO connection))' time='0.0452'>
+</testcase>
+<testcase name='ext/pdo/tests/bug_73234.phpt (PDO Common: Bug #73234 (Emulated statements let value dictate parameter type))' time='0.1118'>
+<failure type='FAILED' message=''>001- array(2) {
+001+ Warning: PDOStatement::execute(): SQLSTATE[23000]: Integrity constraint violation: 400120 Integrity constraint violation: &lt;main&gt;: Error: Conflict with existing key., code: 2012
+002+  (SQLExecute[400120] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/bug_73234.php on line 24
+003+ array(1) {
+       [0]=&gt;
+003-   array(1) {
+004-     [&quot;id&quot;]=&gt;
+005-     NULL
+006-   }
+007-   [1]=&gt;
+       array(1) {
+         [&quot;id&quot;]=&gt;
+         NULL
+--
+</failure>
+</testcase>
+<testcase name='ext/pdo/tests/bug_77849.phpt (PDO Common: Bug #77849 (Unexpected segfault attempting to use cloned PDO object))' time='0.0567'>
+</testcase>
+<testcase name='ext/pdo/tests/bug_77849_2.phpt (PDO Common: Bug #77849 (inconsistent state of cloned statament object))' time='0.0146'>
+</testcase>
+<testcase name='ext/pdo/tests/bug_79106.phpt (Bug #79106 (PDO may fetch wrong column indexes with PDO::FETCH_BOTH))' time='0.0885'>
+</testcase>
+<testcase name='ext/pdo/tests/bug_79106_collision.phpt (Bug #79106 (PDO may fetch wrong column indexes with PDO::FETCH_BOTH) - collision)' time='0.0429'>
+</testcase>
+<testcase name='ext/pdo/tests/debug_emulated_prepares.phpt (PDO Common: PDOStatement::debugDumpParams() with emulated prepares)' time='0.0464'>
+<skipped>driver cannot emulate prepared statements</skipped>
+</testcase>
+<testcase name='ext/pdo/tests/gh8626.phpt (GH-8626: PDOStatement-&gt;execute() failed, then execute successfully, errorInfo() information is incorrect)' time='0.1155'>
+<failure type='FAILED' message=''>--
+       [1]=&gt;
+       int(%i)
+       [2]=&gt;
+009-   string(%d) &quot;%s%w%S&quot;
+009+   string(430) &quot;General error: &lt;main&gt;: Error: Type annotation, code: 1030
+010+     &lt;main&gt;:2:13: Error: At function: KiWriteTable!
+011+         &lt;main&gt;:2:19: Error: Failed to convert type: Struct&lt;&#039;x&#039;:Int32?&gt; to Struct&lt;&#039;x&#039;:Int32&gt;
+012+             &lt;main&gt;:2:19: Error: Failed to convert &#039;x&#039;: Optional&lt;Int32&gt; to Int32
+013+         &lt;main&gt;:2:19: Error: Failed to convert input columns types to scheme types, code: 2031
+014+  (SQLExecute[400080] at ./ext/pdo_odbc/odbc_stmt.c:263)&quot;
+     }
+     bool(true)
+     string(5) &quot;00000&quot;
+--
+</failure>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_001.phpt (PDO Common: PDO::FETCH_ASSOC)' time='0.0964'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_002.phpt (PDO Common: PDO::FETCH_NUM)' time='0.0915'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_003.phpt (PDO Common: PDO::FETCH_BOTH)' time='0.1010'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_004.phpt (PDO Common: PDO::FETCH_OBJ)' time='0.0972'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_005.phpt (PDO Common: PDO::FETCH_CLASS)' time='0.0901'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_006.phpt (PDO Common: PDO::FETCH_GROUP)' time='0.0880'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_007.phpt (PDO Common: PDO::FETCH_UNIQUE)' time='0.0902'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_008.phpt (PDO Common: PDO::FETCH_UNIQUE conflict)' time='0.0921'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_009.phpt (PDO Common: PDO::FETCH_CLASSTYPE)' time='0.1471'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_010.phpt (PDO Common: PDO::FETCH_CLASSTYPE and GROUP/UNIQUE)' time='0.1593'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_011.phpt (PDO Common: PDO::FETCH_FUNC and statement overloading)' time='0.1146'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_012.phpt (PDO Common: PDOStatement::setFetchMode)' time='0.0904'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_013.phpt (PDO Common: PDOStatement iterator)' time='0.0932'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_014.phpt (PDO Common: PDOStatement SPL iterator)' time='0.0912'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_015.phpt (PDO Common: PDO::FETCH_COLUMN)' time='0.0839'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_016.phpt (PDO Common: PDO::FETCH_BOUND)' time='0.1745'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_016a.phpt (PDO Common: PDO::FETCH_BOUND w/o :)' time='0.1550'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_017.phpt (PDO Common: transactions)' time='0.1540'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_018.phpt (PDO Common: serializing)' time='0.0578'>
+<failure type='FAILED' message=''>--
+     Deprecated: %s implements the Serializable interface, which is deprecated. Implement __serialize() and __unserialize() instead (or in addition, if support for old PHP versions is necessary) in %s on line %d
+     
+     Deprecated: %s implements the Serializable interface, which is deprecated. Implement __serialize() and __unserialize() instead (or in addition, if support for old PHP versions is necessary) in %s on line %d
+006- string(1) &quot;3&quot;
+007- array(3) {
+008-   [0]=&gt;
+009-   string(8) &quot;stdClass&quot;
+010-   [1]=&gt;
+011-   string(8) &quot;TestBase&quot;
+012-   [2]=&gt;
+013-   string(11) &quot;TestDerived&quot;
+014- }
+015- ===TYPES===
+016- array(4) {
+017-   [&quot;stdClass&quot;]=&gt;
+018-   string(1) &quot;0&quot;
+019-   [&quot;TestBase&quot;]=&gt;
+020-   string(1) &quot;1&quot;
+021-   [&quot;TestDerived&quot;]=&gt;
+022-   string(1) &quot;2&quot;
+023-   [&quot;TestLeaf&quot;]=&gt;
+024-   NULL
+025- }
+026- ===INSERT===
+027- TestBase::serialize() = &#039;a:3:{s:7:&quot;BasePub&quot;;s:6:&quot;Public&quot;;s:7:&quot;BasePro&quot;;s:9:&quot;Protected&quot;;s:7:&quot;BasePri&quot;;s:7:&quot;Private&quot;;}&#039;
+028- TestDerived::serialize()
+029- TestBase::serialize() = &#039;a:5:{s:7:&quot;BasePub&quot;;s:13:&quot;DerivedPublic&quot;;s:7:&quot;BasePro&quot;;s:16:&quot;DerivdeProtected&quot;;s:7:&quot;BasePri&quot;;s:7:&quot;Private&quot;;s:10:&quot;DerivedPub&quot;;s:6:&quot;Public&quot;;s:10:&quot;DerivedPro&quot;;s:9:&quot;Protected&quot;;}&#039;
+030- TestDerived::serialize()
+031- TestBase::serialize() = &#039;a:5:{s:7:&quot;BasePub&quot;;s:13:&quot;DerivedPublic&quot;;s:7:&quot;BasePro&quot;;s:16:&quot;DerivdeProtected&quot;;s:7:&quot;BasePri&quot;;s:7:&quot;Private&quot;;s:10:&quot;DerivedPub&quot;;s:6:&quot;Public&quot;;s:10:&quot;DerivedPro&quot;;s:9:&quot;Protected&quot;;}&#039;
+032- ===DATA===
+033- array(4) {
+034-   [0]=&gt;
+035-   string(0) &quot;&quot;
+036-   [1]=&gt;
+037-   string(91) &quot;a:3:{s:7:&quot;BasePub&quot;;s:6:&quot;Public&quot;;s:7:&quot;BasePro&quot;;s:9:&quot;Protected&quot;;s:7:&quot;BasePri&quot;;s:7:&quot;Private&quot;;}&quot;
+038-   [2]=&gt;
+039-   string(172) &quot;a:5:{s:7:&quot;BasePub&quot;;s:13:&quot;DerivedPublic&quot;;s:7:&quot;BasePro&quot;;s:16:&quot;DerivdeProtected&quot;;s:7:&quot;BasePri&quot;;s:7:&quot;Private&quot;;s:10:&quot;DerivedPub&quot;;s:6:&quot;Public&quot;;s:10:&quot;DerivedPro&quot;;s:9:&quot;Protected&quot;;}&quot;
+040-   [3]=&gt;
+041-   string(172) &quot;a:5:{s:7:&quot;BasePub&quot;;s:13:&quot;DerivedPublic&quot;;s:7:&quot;BasePro&quot;;s:16:&quot;DerivdeProtected&quot;;s:7:&quot;BasePri&quot;;s:7:&quot;Private&quot;;s:10:&quot;DerivedPub&quot;;s:6:&quot;Public&quot;;s:10:&quot;DerivedPro&quot;;s:9:&quot;Protected&quot;;}&quot;
+042- }
+043- ===FAILURE===
+     
+045- Deprecated: PDOStatement::fetchAll(): The PDO::FETCH_SERIALIZE mode is deprecated in %s on line %d
+046- Exception:SQLSTATE[HY000]: General error: cannot unserialize class
+047- ===COUNT===
+048- string(1) &quot;3&quot;
+049- ===DATABASE===
+050- array(3) {
+051-   [0]=&gt;
+052-   array(2) {
+053-     [&quot;name&quot;]=&gt;
+054-     string(8) &quot;TestBase&quot;
+055-     [&quot;val&quot;]=&gt;
+056-     string(91) &quot;a:3:{s:7:&quot;BasePub&quot;;s:6:&quot;Public&quot;;s:7:&quot;BasePro&quot;;s:9:&quot;Protected&quot;;s:7:&quot;BasePri&quot;;s:7:&quot;Private&quot;;}&quot;
+057-   }
+058-   [1]=&gt;
+059-   array(2) {
+060-     [&quot;name&quot;]=&gt;
+061-     string(11) &quot;TestDerived&quot;
+062-     [&quot;val&quot;]=&gt;
+063-     string(172) &quot;a:5:{s:7:&quot;BasePub&quot;;s:13:&quot;DerivedPublic&quot;;s:7:&quot;BasePro&quot;;s:16:&quot;DerivdeProtected&quot;;s:7:&quot;BasePri&quot;;s:7:&quot;Private&quot;;s:10:&quot;DerivedPub&quot;;s:6:&quot;Public&quot;;s:10:&quot;DerivedPro&quot;;s:9:&quot;Protected&quot;;}&quot;
+064-   }
+065-   [2]=&gt;
+066-   array(2) {
+067-     [&quot;name&quot;]=&gt;
+068-     NULL
+069-     [&quot;val&quot;]=&gt;
+070-     string(172) &quot;a:5:{s:7:&quot;BasePub&quot;;s:13:&quot;DerivedPublic&quot;;s:7:&quot;BasePro&quot;;s:16:&quot;DerivdeProtected&quot;;s:7:&quot;BasePri&quot;;s:7:&quot;Private&quot;;s:10:&quot;DerivedPub&quot;;s:6:&quot;Public&quot;;s:10:&quot;DerivedPro&quot;;s:9:&quot;Protected&quot;;}&quot;
+071-   }
+072- }
+073- ===FETCHCLASS===
+007+ Warning: PDO::exec(): SQLSTATE[HY000]: General error: 400080 General error: &lt;main&gt;:1:61: Error: extraneous input &#039;UNIQUE&#039; expecting {&#039;,&#039;, &#039;)&#039;}
+008+  (SQLExecDirect[400080] at ./ext/pdo_odbc/odbc_driver.c:241) in /work/source/ext/pdo/tests/pdo_018.php on line 58
+     
+075- Deprecated: PDOStatement::fetchAll(): The PDO::FETCH_SERIALIZE mode is deprecated in %s on line %d
+076- TestBase::unserialize(a:3:{s:7:&quot;BasePub&quot;;s:6:&quot;Public&quot;;s:7:&quot;BasePro&quot;;s:9:&quot;Protected&quot;;s:7:&quot;BasePri&quot;;s:7:&quot;Private&quot;;})
+077- TestDerived::unserialize()
+078- TestBase::unserialize(a:5:{s:7:&quot;BasePub&quot;;s:13:&quot;DerivedPublic&quot;;s:7:&quot;BasePro&quot;;s:16:&quot;DerivdeProtected&quot;;s:7:&quot;BasePri&quot;;s:7:&quot;Private&quot;;s:10:&quot;DerivedPub&quot;;s:6:&quot;Public&quot;;s:10:&quot;DerivedPro&quot;;s:9:&quot;Protected&quot;;})
+079- TestDerived::unserialize()
+080- TestBase::unserialize(a:5:{s:7:&quot;BasePub&quot;;s:13:&quot;DerivedPublic&quot;;s:7:&quot;BasePro&quot;;s:16:&quot;DerivdeProtected&quot;;s:7:&quot;BasePri&quot;;s:7:&quot;Private&quot;;s:10:&quot;DerivedPub&quot;;s:6:&quot;Public&quot;;s:10:&quot;DerivedPro&quot;;s:9:&quot;Protected&quot;;})
+081- array(3) {
+082-   [0]=&gt;
+083-   object(TestBase)#%d (3) {
+084-     [&quot;BasePub&quot;]=&gt;
+085-     string(7) &quot;#Public&quot;
+086-     [&quot;BasePro&quot;:protected]=&gt;
+087-     string(10) &quot;#Protected&quot;
+088-     [&quot;BasePri&quot;:&quot;TestBase&quot;:private]=&gt;
+089-     string(8) &quot;#Private&quot;
+090-   }
+091-   [1]=&gt;
+092-   object(TestDerived)#%d (6) {
+093-     [&quot;BasePub&quot;]=&gt;
+094-     string(14) &quot;#DerivedPublic&quot;
+095-     [&quot;BasePro&quot;:protected]=&gt;
+096-     string(17) &quot;#DerivdeProtected&quot;
+097-     [&quot;BasePri&quot;:&quot;TestBase&quot;:private]=&gt;
+098-     string(8) &quot;#Private&quot;
+099-     [&quot;DerivedPub&quot;]=&gt;
+100-     string(7) &quot;#Public&quot;
+101-     [&quot;DerivedPro&quot;:protected]=&gt;
+102-     string(10) &quot;#Protected&quot;
+103-     [&quot;DerivedPri&quot;:&quot;TestDerived&quot;:private]=&gt;
+104-     string(7) &quot;Private&quot;
+105-   }
+106-   [2]=&gt;
+107-   object(TestLeaf)#%d (6) {
+108-     [&quot;BasePub&quot;]=&gt;
+109-     string(14) &quot;#DerivedPublic&quot;
+110-     [&quot;BasePro&quot;:protected]=&gt;
+111-     string(17) &quot;#DerivdeProtected&quot;
+112-     [&quot;BasePri&quot;:&quot;TestBase&quot;:private]=&gt;
+113-     string(8) &quot;#Private&quot;
+114-     [&quot;DerivedPub&quot;]=&gt;
+115-     string(7) &quot;#Public&quot;
+116-     [&quot;DerivedPro&quot;:protected]=&gt;
+117-     string(10) &quot;#Protected&quot;
+118-     [&quot;DerivedPri&quot;:&quot;TestDerived&quot;:private]=&gt;
+119-     string(7) &quot;Private&quot;
+120-   }
+121- }
+010+ Warning: PDO::exec(): SQLSTATE[42S02]: Base table or view not found: 400070 Base table or view not found: &lt;main&gt;: Error: Type annotation, code: 1030
+011+     &lt;main&gt;:1:13: Error: At function: KiWriteTable!
+012+         &lt;main&gt;:1:13: Error: Cannot find table &#039;db.[/local/classtypes]&#039; because it does not exist or you do not have access permissions. Please check correctness of table path and user permissions., code: 2003
+013+  (SQLExecDirect[400070] at ./ext/pdo_odbc/odbc_driver.c:241) in /work/source/ext/pdo/tests/pdo_018.php on line 59
+014+ 
+015+ Warning: PDO::exec(): SQLSTATE[42S02]: Base table or view not found: 400070 Base table or view not found: &lt;main&gt;: Error: Type annotation, code: 1030
+016+     &lt;main&gt;:1:13: Error: At function: KiWriteTable!
+017+         &lt;main&gt;:1:13: Error: Cannot find table &#039;db.[/local/classtypes]&#039; because it does not exist or you do not have access permissions. Please check correctness of table path and user permissions., code: 2003
+018+  (SQLExecDirect[400070] at ./ext/pdo_odbc/odbc_driver.c:241) in /work/source/ext/pdo/tests/pdo_018.php on line 60
+019+ 
+020+ Warning: PDO::exec(): SQLSTATE[42S02]: Base table or view not found: 400070 Base table or view not found: &lt;main&gt;: Error: Type annotation, code: 1030
+021+     &lt;main&gt;:1:13: Error: At function: KiWriteTable!
+022+         &lt;main&gt;:1:13: Error: Cannot find table &#039;db.[/local/classtypes]&#039; because it does not exist or you do not have access permissions. Please check correctness of table path and user permissions., code: 2003
+023+  (SQLExecDirect[400070] at ./ext/pdo_odbc/odbc_driver.c:241) in /work/source/ext/pdo/tests/pdo_018.php on line 61
+024+ 
+025+ Fatal error: Uncaught PDOException: SQLSTATE[42S02]: Base table or view not found: 400070 Base table or view not found: &lt;main&gt;: Error: Type annotation, code: 1030
+026+     &lt;main&gt;:1:1: Error: At function: KiReadTable!
+027+         &lt;main&gt;:1:1: Error: Cannot find table &#039;db.[/local/classtypes]&#039; because it does not exist or you do not have access permissions. Please check correctness of table path and user permissions., code: 2003
+028+  (SQLExecute[400070] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_018.php:77
+029+ Stack trace:
+030+ #0 /work/source/ext/pdo/tests/pdo_018.php(77): PDO-&gt;query(&#039;SELECT COUNT(*)...&#039;)
+031+ #1 {main}
+032+   thrown in /work/source/ext/pdo/tests/pdo_018.php on line 77
+</failure>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_019.phpt (PDO Common: fetch() and while())' time='0.1141'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_020.phpt (PDO Common: PDOStatement::columnCount)' time='0.1156'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_021.phpt (PDO Common: PDOStatement::execute with parameters)' time='0.1263'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_022.phpt (PDO Common: PDOStatement::getColumnMeta)' time='0.1368'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_023.phpt (PDO Common: extending PDO)' time='0.0815'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_024.phpt (PDO Common: assert that bindParam does not modify parameter)' time='0.0734'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_025.phpt (PDO Common: PDO::FETCH_INTO)' time='0.0885'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_026.phpt (PDO Common: extending PDO (2))' time='0.0767'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_027.phpt (PDO Common: PDO::FETCH_LAZY)' time='0.0792'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_028.phpt (PDO Common: bindValue)' time='0.1192'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_029.phpt (PDO Common: extending PDO (3))' time='0.0733'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_030.phpt (PDO Common: extending PDO (4))' time='0.0794'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_031.phpt (PDO Common: PDOStatement SPL iterator)' time='0.0806'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_032.phpt (PDO Common: PDO::ATTR_CASE)' time='0.0929'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_033.phpt (PDO Common: PDO::quote())' time='0.0141'>
+<skipped>odbc driver doesn&#039;t have escape API, use prepared statements</skipped>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_034.phpt (PDO Common: PDO::FETCH_KEY_PAIR fetch mode test)' time='0.1258'>
+<failure type='FAILED' message=''>--
+     
+     Warning: PDOStatement::fetch(): SQLSTATE[HY000]: General error%spdo_034.php on line %d
+     bool(false)
+022- array(5) {
+023-   [&quot;test0&quot;]=&gt;
+024-   string(5) &quot;test0&quot;
+025-   [&quot;test1&quot;]=&gt;
+026-   string(5) &quot;test1&quot;
+027-   [&quot;test2&quot;]=&gt;
+028-   string(5) &quot;test2&quot;
+029-   [&quot;test3&quot;]=&gt;
+030-   string(5) &quot;test3&quot;
+031-   [&quot;test4&quot;]=&gt;
+032-   string(5) &quot;test4&quot;
+033- }
+022+ 
+023+ Warning: PDO::query(): SQLSTATE[HY000]: General error: 400080 General error: &lt;main&gt;:1:10: Error: Unable to use duplicate column names. Collision in name: a
+024+  (SQLExecute[400080] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_034.php on line 15
+025+ 
+026+ Fatal error: Uncaught Error: Call to a member function fetchAll() on false in /work/source/ext/pdo/tests/pdo_034.php:15
+027+ Stack trace:
+028+ #0 {main}
+029+   thrown in /work/source/ext/pdo/tests/pdo_034.php on line 15
+</failure>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_035.phpt (PDO Common: PDORow + get_parent_class())' time='0.0736'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_036.phpt (Testing PDORow and PDOStatement instances with Reflection)' time='0.0146'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_037.phpt (Crash when calling a method of a class that inherits PDOStatement)' time='0.0124'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_038.phpt (PDOStatement::fetchColumn() invalid column index)' time='0.0451'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_039.phpt (PDO Common: errorCode())' time='0.0792'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_drivers_basic.phpt (Test normal operation of PDO::getAvailableDrivers / pdo_drivers)' time='0.0133'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_dsn_containing_credentials.phpt (PDO Common: Pass credentials in dsn instead of constructor params)' time='0.0133'>
+<skipped>not supported</skipped>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_quote_empty_string.phpt (PDO::quote() must accept empty string for drivers which support this feature)' time='0.0435'>
+</testcase>
+<testcase name='ext/pdo/tests/pdo_uninitialized.phpt (Uninitialized PDO objects)' time='0.0137'>
+</testcase>
+<testcase name='ext/pdo/tests/pdorow.phpt (Trying instantiate a PDORow object manually)' time='0.0125'>
+</testcase>
+<testcase name='ext/pdo/tests/pecl_bug_5217.phpt (PDO Common: PECL Bug #5217 (serialize/unserialize safety))' time='0.0399'>
+</testcase>
+<testcase name='ext/pdo/tests/pecl_bug_5772.phpt (PDO Common: PECL Bug #5772 (PDO::FETCH_FUNC breaks on mixed case func name))' time='0.0613'>
+</testcase>
+<testcase name='ext/pdo/tests/pecl_bug_5809.phpt (PDO Common: PECL Bug #5809 (PDOStatement::execute(array()) changes param))' time='0.0755'>
+</testcase>
+<testcase name='ext/pdo/tests/sensitive_parameter.phpt (Test that sensitive parameters are marked sensitive.)' time='0.0135'>
+</testcase>
+</testsuite>
+<testsuite name="php.ext.pdo.odbc.tests" tests="10" failures="4" errors="0" skip="1" time="1.0478">
+<testcase name='ext/pdo_odbc/tests/autocommit.phpt (PDO ODBC auto commit mode)' time='0.1204'>
+</testcase>
+<testcase name='ext/pdo_odbc/tests/autocommit_change_mode.phpt (PDO ODBC auto commit mode)' time='0.0423'>
+</testcase>
+<testcase name='ext/pdo_odbc/tests/bug44643.phpt (Bug #44643 (bound parameters ignore explicit type definitions))' time='0.0418'>
+<failure type='FAILED' message=''>001- bool(true)
+001+ Warning: PDOStatement::execute(): SQLSTATE[HY000]: General error: 400080 General error: &lt;main&gt;:3:45: Error: Column test is not in source column set
+002+  (SQLExecute[400080] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo_odbc/tests/bug44643.php on line 10
+003+ bool(false)
+</failure>
+</testcase>
+<testcase name='ext/pdo_odbc/tests/bug67465.phpt (Bug #67465 (NULL Pointer dereference in odbc_handle_preparer))' time='0.0393'>
+</testcase>
+<testcase name='ext/pdo_odbc/tests/bug80783.phpt (Bug #80783 (PDO ODBC truncates BLOB records at every 256th byte))' time='0.0684'>
+<failure type='FAILED' message=''>001- bool(true)
+001+ bool(false)
+</failure>
+</testcase>
+<testcase name='ext/pdo_odbc/tests/bug80783a.phpt (Bug #80783 (PDO ODBC truncates BLOB records at every 256th byte))' time='0.0450'>
+<skipped>Fails with unixODBC</skipped>
+</testcase>
+<testcase name='ext/pdo_odbc/tests/get_attribute_server.phpt (PDO ODBC getAttribute SERVER_INFO and SERVER_VERSION)' time='0.0535'>
+</testcase>
+<testcase name='ext/pdo_odbc/tests/gh9372.phpt (Bug GH-9372 (HY010 when binding overlong parameter))' time='0.0667'>
+</testcase>
+<testcase name='ext/pdo_odbc/tests/long_columns.phpt (PDO ODBC &quot;long&quot; columns)' time='0.4756'>
+<failure type='FAILED' message=''></failure>
+</testcase>
+<testcase name='ext/pdo_odbc/tests/max_columns.phpt (PDO ODBC varying character with max/no length)' time='0.0948'>
+<failure type='FAILED' message=''>001- Finished
+001+ Failed on size 256:
+002+ Expected 256 bytes, got 256
+003+ 69696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969
+004+ 69696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696900
+005+ Failed on size 257:
+006+ Expected 257 bytes, got 257
+007+ 6969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969
+008+ 6969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969690000
+009+ Failed on size 258:
+010+ Expected 258 bytes, got 258
+011+ 696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969
+012+ 6969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969690000d5
+013+ Failed on size 512:
+014+ Expected 512 bytes, got 512
+015+ 6969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969
+016+ 6969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969690000d5e879547f00000703000000000000c0c618e91d560000060000000000000018b1e679547f000006000000000000004012e779547f0000060000000000000018b1e679547f00000600000000000000c0c618e91d560000060000000000000018b1e679547f000006000000000000004012e779547f0000060000000000000090bbe679547f00000600000000000000c0c618e91d560000060000000000000090bbe679547f000006000000000000004012e779547f00000600000000000000b8bbe679547f00000600000000000000c0c618e91d5600000600000000000000b8bbe679547f00000600000000000000c0c618e91d5600000600000000000000
+017+ Failed on size 1024:
+018+ Expected 1024 bytes, got 1024
+019+ 69696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969
+020+ 6969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969690000d5e879547f00000703000000000000c0c618e91d560000060000000000000018b1e679547f000006000000000000004012e779547f0000060000000000000018b1e679547f00000600000000000000c0c618e91d560000060000000000000018b1e679547f000006000000000000004012e779547f0000060000000000000090bbe679547f00000600000000000000c0c618e91d560000060000000000000090bbe679547f000006000000000000004012e779547f00000600000000000000b8bbe679547f00000600000000000000c0c618e91d5600000600000000000000b8bbe679547f00000600000000000000c0c618e91d560000060000000000000000d6e879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d7e879547f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+021+ Failed on size 2048:
+022+ Expected 2048 bytes, got 2048
+023+ 6969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969
+024+ 6969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969690000d5e879547f00000703000000000000c0c618e91d560000060000000000000018b1e679547f000006000000000000004012e779547f0000060000000000000018b1e679547f00000600000000000000c0c618e91d560000060000000000000018b1e679547f000006000000000000004012e779547f0000060000000000000090bbe679547f00000600000000000000c0c618e91d560000060000000000000090bbe679547f000006000000000000004012e779547f00000600000000000000b8bbe679547f00000600000000000000c0c618e91d5600000600000000000000b8bbe679547f00000600000000000000c0c618e91d560000060000000000000000d6e879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d7e879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d8e879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d9e879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000dae879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000dbe879547f00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+025+ Failed on size 3998:
+026+ Expected 3998 bytes, got 3998
+027+ 6969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969
+028+ 6969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969690000d5e879547f00000703000000000000c0c618e91d560000060000000000000018b1e679547f000006000000000000004012e779547f0000060000000000000018b1e679547f00000600000000000000c0c618e91d560000060000000000000018b1e679547f000006000000000000004012e779547f0000060000000000000090bbe679547f00000600000000000000c0c618e91d560000060000000000000090bbe679547f000006000000000000004012e779547f00000600000000000000b8bbe679547f00000600000000000000c0c618e91d5600000600000000000000b8bbe679547f00000600000000000000c0c618e91d560000060000000000000000d6e879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d7e879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d8e879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d9e879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000dae879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000dbe879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000dce879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000dde879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000dee879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000dfe879547f000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e8e879547f00005000000000000000ffffffff0000000004000000160801000000000000000000600000000100000000000000010000000d0000003d0001000000000000000000020000000100000050000000000000000d000000410100000000000000000000ffffffffffffffff01000000000000000d00000081000004000000000000000001000000ffffffff02000000fa0300000d0000007b04001200000000000000000200000024000000ffffffff000000000d0000002b020000000000000000000060000000050000000800000001000000140000003d00010000000000000000000600000001000000500000000000000014000000410100000000000000000000ffffffffffffffff05000000000000001400000081000004305e84c71d560000500000000300000003000000020000001400000054080104f828a3c71d5600000300000004000000ffffffff000000001400000017040100000000000000000005000000ffffffffffffffff000000001400000089040000000000000000000060000000090000001000000001000000150000003d00010000000000000000000a00000001000000500000000000000015000000410100000000000000000000ffffffffffffffff08000000000000001500000081000004305e84c71d56000050000000070000000600000002000000150000005408010490cb438afc7f00000600000008000000ffffffff000000001500000017040100000000000000000008000000ffffffffffffffff0000000015000000890400000000000000000000600000000d0000001800000001000000160000003d00010000000000000000000e00000001000000500000000000000016000000410100000000000000000000ffffffffffffffff0b00000000000000160000008100
+029+ Failed on size 3999:
+030+ Expected 3999 bytes, got 3999
+031+ 696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969
+032+ 6969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969690000d5e879547f00000703000000000000c0c618e91d560000060000000000000018b1e679547f000006000000000000004012e779547f0000060000000000000018b1e679547f00000600000000000000c0c618e91d560000060000000000000018b1e679547f000006000000000000004012e779547f0000060000000000000090bbe679547f00000600000000000000c0c618e91d560000060000000000000090bbe679547f000006000000000000004012e779547f00000600000000000000b8bbe679547f00000600000000000000c0c618e91d5600000600000000000000b8bbe679547f00000600000000000000c0c618e91d560000060000000000000000d6e879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d7e879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d8e879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d9e879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000dae879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000dbe879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000dce879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000dde879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000dee879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000dfe879547f000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e8e879547f00005000000000000000ffffffff0000000004000000160801000000000000000000600000000100000000000000010000000d0000003d0001000000000000000000020000000100000050000000000000000d000000410100000000000000000000ffffffffffffffff01000000000000000d00000081000004000000000000000001000000ffffffff02000000fa0300000d0000007b04001200000000000000000200000024000000ffffffff000000000d0000002b020000000000000000000060000000050000000800000001000000140000003d00010000000000000000000600000001000000500000000000000014000000410100000000000000000000ffffffffffffffff05000000000000001400000081000004305e84c71d560000500000000300000003000000020000001400000054080104f828a3c71d5600000300000004000000ffffffff000000001400000017040100000000000000000005000000ffffffffffffffff000000001400000089040000000000000000000060000000090000001000000001000000150000003d00010000000000000000000a00000001000000500000000000000015000000410100000000000000000000ffffffffffffffff08000000000000001500000081000004305e84c71d56000050000000070000000600000002000000150000005408010490cb438afc7f00000600000008000000ffffffff000000001500000017040100000000000000000008000000ffffffffffffffff0000000015000000890400000000000000000000600000000d0000001800000001000000160000003d00010000000000000000000e00000001000000500000000000000016000000410100000000000000000000ffffffffffffffff0b0000000000000016000000810000
+033+ Failed on size 4000:
+034+ Expected 4000 bytes, got 4000
+035+ 69696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969
+036+ 6969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969696969690000d5e879547f00000703000000000000c0c618e91d560000060000000000000018b1e679547f000006000000000000004012e779547f0000060000000000000018b1e679547f00000600000000000000c0c618e91d560000060000000000000018b1e679547f000006000000000000004012e779547f0000060000000000000090bbe679547f00000600000000000000c0c618e91d560000060000000000000090bbe679547f000006000000000000004012e779547f00000600000000000000b8bbe679547f00000600000000000000c0c618e91d5600000600000000000000b8bbe679547f00000600000000000000c0c618e91d560000060000000000000000d6e879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d7e879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d8e879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000d9e879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000dae879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000dbe879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000dce879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000dde879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000dee879547f0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000dfe879547f000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e8e879547f00005000000000000000ffffffff0000000004000000160801000000000000000000600000000100000000000000010000000d0000003d0001000000000000000000020000000100000050000000000000000d000000410100000000000000000000ffffffffffffffff01000000000000000d00000081000004000000000000000001000000ffffffff02000000fa0300000d0000007b04001200000000000000000200000024000000ffffffff000000000d0000002b020000000000000000000060000000050000000800000001000000140000003d00010000000000000000000600000001000000500000000000000014000000410100000000000000000000ffffffffffffffff05000000000000001400000081000004305e84c71d560000500000000300000003000000020000001400000054080104f828a3c71d5600000300000004000000ffffffff000000001400000017040100000000000000000005000000ffffffffffffffff000000001400000089040000000000000000000060000000090000001000000001000000150000003d00010000000000000000000a00000001000000500000000000000015000000410100000000000000000000ffffffffffffffff08000000000000001500000081000004305e84c71d56000050000000070000000600000002000000150000005408010490cb438afc7f00000600000008000000ffffffff000000001500000017040100000000000000000008000000ffffffffffffffff0000000015000000890400000000000000000000600000000d0000001800000001000000160000003d00010000000000000000000e00000001000000500000000000000016000000410100000000000000000000ffffffffffffffff0b000000000000001600000081000004
+037+ 
+038+ Fatal error: Uncaught PDOException: SQLSTATE[01004]: String data, right truncated: String data, right truncated (SQLFetchScroll[0] at ./ext/pdo_odbc/odbc_stmt.c:547) in /work/source/ext/pdo_odbc/tests/max_columns.php:26
+039+ Stack trace:
+040+ #0 {main}
+041+   thrown in /work/source/ext/pdo_odbc/tests/max_columns.php on line 26
+</failure>
+</testcase>
+</testsuite>
+</testsuites>
