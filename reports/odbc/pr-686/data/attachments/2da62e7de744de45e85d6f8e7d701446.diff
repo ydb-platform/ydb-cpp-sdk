@@ -1,0 +1,4 @@
+001- bool(true)
+001+ Warning: PDOStatement::execute(): SQLSTATE[HY000]: General error: 400080 General error: <main>:3:45: Error: Column test is not in source column set
+002+  (SQLExecute[400080] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo_odbc/tests/bug44643.php on line 10
+003+ bool(false)
