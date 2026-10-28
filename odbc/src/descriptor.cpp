@@ -274,7 +274,11 @@ SQLRETURN TDescriptor::SetDescField(SQLSMALLINT recNumber, SQLSMALLINT field, SQ
     }
 
     if (TRecordProperties::CanSet(field)) {
-        TRecordProperties::Set(field, Record(recNumber), value);
+        auto& record = Record(recNumber);
+        TRecordProperties::Set(field, record, value);
+        if (field == SQL_DESC_TYPE || field == SQL_DESC_CONCISE_TYPE) {
+            record.Inferred = false;
+        }
         return SQL_SUCCESS;
     }
     if (field == SQL_DESC_NAME) {
@@ -302,6 +306,7 @@ SQLRETURN TDescriptor::SetDescRec(SQLSMALLINT recNumber, SQLSMALLINT type, SQLSM
     }
     TDescRecord& record = Record(recNumber);
     record.Type = type;
+    record.Inferred = false;
     record.SubType = subType;
     record.Length = length;
     record.OctetLength = length;
@@ -348,9 +353,13 @@ SQLRETURN TDescriptor::CopyDesc(TDescriptor& target) {
     if (target.Type_ == EDescType::ImpRow) {
         return AddError("HY016", 0, "Cannot modify an implementation row descriptor");
     }
+    if (&target == this) return SQL_SUCCESS;
     target.Changed();
     target.Header_ = Header_;
     target.Records_ = Records_;
+    for (auto& record : target.Records_) {
+        record.Inferred = false;
+    }
     return SQL_SUCCESS;
 }
 

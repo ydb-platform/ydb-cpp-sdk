@@ -1,5 +1,6 @@
 #include "cursor.h"
 #include "error_manager.h"
+#include "sql_type_map.h"
 #include "types.h"
 
 #include <algorithm>
@@ -9,21 +10,32 @@
 #include <utility>
 
 namespace NYdb::NOdbc {
-namespace {
 
-using TResultRow = std::vector<TValue>;
-using TResultRows = std::vector<TResultRow>;
-
-std::vector<TColumnMeta> MakeColumnMeta(const TResultSet& resultSet) {
+std::vector<TColumnMeta> MakeColumnMeta(const TResultSet& resultSet, bool parameters) {
     std::vector<TColumnMeta> columns;
     columns.reserve(resultSet.GetColumnsMeta().size());
     for (const auto& column : resultSet.GetColumnsMeta()) {
         const TYdbTypeInfo type = DescribeYdbType(column.Type);
-        columns.push_back({column.Name, type.SqlType, type.ColumnSize, type.Nullable,
-                           type.DecimalDigits.value_or(0), type.Unsigned});
+        SQLSMALLINT sqlType = type.SqlType;
+        if (parameters) {
+            const auto* spec = FindSqlTypeSpec(sqlType);
+            // YDB Datetime contains a date, unlike SQL_TYPE_TIME.
+            if (!spec || sqlType == SQL_TYPE_TIME
+                || (sqlType != SQL_DECIMAL && spec->YqlType != type.TypeName)) {
+                sqlType = SQL_UNKNOWN_TYPE;
+            }
+        }
+        columns.push_back({column.Name, sqlType, type.ColumnSize, type.Nullable,
+                           type.DecimalDigits.value_or(parameters && sqlType == SQL_TYPE_TIMESTAMP ? 6 : 0),
+                           type.Unsigned});
     }
     return columns;
 }
+
+namespace {
+
+using TResultRow = std::vector<TValue>;
+using TResultRows = std::vector<TResultRow>;
 
 TResultRow MaterializeRow(TResultSetParser& parser) {
     TResultRow row;

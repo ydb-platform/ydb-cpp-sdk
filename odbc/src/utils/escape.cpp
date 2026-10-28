@@ -559,4 +559,184 @@ bool StartsWithSqlStatement(
     });
 }
 
+std::optional<std::string> BuildParamMetadataQuery(
+    std::string_view input, bool rewriteEscapes, SQLUSMALLINT paramNumber, SQLSMALLINT paramCount) {
+    const std::string sql = rewriteEscapes ? RewriteOdbcEscapes(std::string(input)) : std::string(input);
+    if (HasMultipleSqlStatements(sql)) {
+        return std::nullopt;
+    }
+    const TSqlScanner scanner{sql, nullptr, false};
+    struct TToken {
+        std::string_view Text;
+        SQLUSMALLINT Parameter = 0;
+    };
+    std::vector<TToken> tokens;
+    SQLUSMALLINT question = 0;
+    for (size_t pos = 0; (pos = scanner.SkipSqlTrivia(pos, sql.size())) < sql.size();) {
+        const size_t begin = pos;
+        SQLUSMALLINT parameter = 0;
+        const unsigned char ch = sql[pos++];
+        if (ch == '\'' || ch == '"' || ch == '`') {
+            pos = scanner.SkipQuoted(begin, sql.size());
+            if (pos == std::string_view::npos) {
+                return std::nullopt;
+            }
+        } else if (ch == '?' && scanner.IsQuestionMark(begin)) {
+            parameter = ++question;
+        } else if (std::isalnum(ch) || ch == '_' || ch == '$') {
+            while (pos < sql.size() && (std::isalnum(static_cast<unsigned char>(sql[pos]))
+                    || sql[pos] == '_' || (std::isdigit(ch) && sql[pos] == '.')
+                    || (std::isdigit(ch) && (sql[pos - 1] == 'e' || sql[pos - 1] == 'E')
+                        && (sql[pos] == '+' || sql[pos] == '-')))) {
+                ++pos;
+            }
+            scanner.ReadDollar(begin, pos, parameter);
+        } else if (pos < sql.size() && (ch == '<' || ch == '>' || ch == '!')
+                   && (sql[pos] == '=' || (ch == '<' && sql[pos] == '>'))) {
+            ++pos;
+        }
+        tokens.push_back({std::string_view(sql).substr(begin, pos - begin), parameter});
+    }
+    const auto is = [&](size_t i, std::string_view text) {
+        return i < tokens.size() && EqualNoCase(tokens[i].Text, text);
+    };
+    const auto identifier = [&](size_t i) {
+        return i < tokens.size() && !tokens[i].Parameter
+            && (std::isalpha(static_cast<unsigned char>(tokens[i].Text.front()))
+                || tokens[i].Text.front() == '_' || tokens[i].Text.front() == '`');
+    };
+    const auto nameEnd = [&](size_t i) {
+        if (!identifier(i)) {
+            return i;
+        }
+        while (is(i + 1, ".") && identifier(i + 2)) {
+            i += 2;
+        }
+        return i + 1;
+    };
+    const auto span = [&](size_t begin, size_t end) {
+        return std::string(tokens[begin].Text.data(),
+            tokens[end - 1].Text.data() + tokens[end - 1].Text.size());
+    };
+    const auto count = CountOdbcParams(sql);
+    if (count != paramCount || paramNumber < 1 || paramNumber > count) {
+        return std::nullopt;
+    }
+    std::vector<std::string> sources(static_cast<size_t>(count));
+    const auto assign = [&](SQLUSMALLINT parameter, std::string expression) {
+        if (parameter > 0 && parameter <= sources.size() && !expression.empty()) {
+            auto& source = sources[parameter - 1];
+            source = source.empty() || source == expression ? std::move(expression) : "NULL";
+        }
+    };
+    constexpr size_t body = 0;
+    if (!is(body, "SELECT") && !is(body, "INSERT") && !is(body, "UPSERT") && !is(body, "REPLACE")
+        && !is(body, "UPDATE") && !is(body, "DELETE")) {
+        return std::nullopt;
+    }
+    std::string table;
+    size_t tableEnd = 0;
+    int depth = 0;
+    for (size_t i = body; i < tokens.size(); ++i) {
+        if (is(i, "(")) ++depth;
+        if (is(i, ")")) --depth;
+        if (depth == 0 && (is(i, "FROM") || is(i, "INTO") || (i == body && is(i, "UPDATE")))) {
+            const auto end = nameEnd(i + 1);
+            if (end == i + 1 || !table.empty()) {
+                return std::nullopt;
+            }
+            table = span(i + 1, end);
+            tableEnd = end;
+            if (is(body, "SELECT") || is(body, "DELETE")) {
+                const auto clause = [&](size_t i) {
+                    return i == tokens.size() || is(i, ";") || is(i, "WHERE") || is(i, "ORDER")
+                        || is(i, "GROUP") || is(i, "HAVING") || is(i, "LIMIT") || is(i, "OFFSET")
+                        || is(i, "UNION") || is(i, "WINDOW");
+                };
+                size_t tail = end;
+                if (is(tail, "AS")) {
+                    if (!identifier(++tail)) return std::nullopt;
+                    table += " AS " + std::string(tokens[tail++].Text);
+                } else if (identifier(tail) && !clause(tail)) {
+                    table += " AS " + std::string(tokens[tail++].Text);
+                }
+                if (!clause(tail)) return std::nullopt;
+            }
+        }
+        if (is(i, "JOIN") || (is(i, "SELECT") && i != body)) {
+            return std::nullopt;
+        }
+    }
+    if (depth != 0) return std::nullopt;
+    if ((is(body, "INSERT") || is(body, "UPSERT") || is(body, "REPLACE")) && is(tableEnd, "(")) {
+        std::vector<std::string> columns;
+        size_t pos = tableEnd + 1;
+        while (identifier(pos)) {
+            columns.emplace_back(tokens[pos++].Text);
+            if (!is(pos, ",")) break;
+            ++pos;
+        }
+        if (!columns.empty() && is(pos, ")") && is(pos + 1, "VALUES")) {
+            for (pos += 2; is(pos, "("); ++pos) {
+                size_t start = ++pos, column = 0;
+                int nested = 0;
+                for (; pos < tokens.size(); ++pos) {
+                    if (nested == 0 && (is(pos, ",") || is(pos, ")"))) {
+                        if (column < columns.size() && pos == start + 1) {
+                            assign(tokens[start].Parameter, columns[column]);
+                        }
+                        ++column;
+                        start = pos + 1;
+                        if (is(pos, ")")) break;
+                    }
+                    if (is(pos, "(")) ++nested;
+                    if (is(pos, ")")) --nested;
+                }
+                if (!is(pos + 1, ",")) break;
+                ++pos;
+            }
+        }
+    }
+    const auto boundary = [&](size_t i) {
+        return i >= tokens.size() || is(i, "(") || is(i, ")") || is(i, ",") || is(i, ";")
+            || is(i, "WHERE") || is(i, "SET") || is(i, "AND") || is(i, "OR")
+            || is(i, "WHEN") || is(i, "THEN") || is(i, "ORDER") || is(i, "LIMIT");
+    };
+    const auto comparison = [&](size_t i) {
+        return is(i, "=") || is(i, "<>") || is(i, "!=") || is(i, "<") || is(i, "<=") || is(i, ">") || is(i, ">=");
+    };
+    for (size_t i = body; i < tokens.size(); ++i) {
+        size_t end = i + 1;
+        std::string expression;
+        const auto text = tokens[i].Text;
+        if (std::isdigit(static_cast<unsigned char>(text.front())) || is(i, "TRUE") || is(i, "FALSE")) {
+            expression = "Just(" + std::string(text) + ")";
+        } else if ((is(i, "-") || is(i, "+")) && i + 1 < tokens.size()
+                   && std::isdigit(static_cast<unsigned char>(tokens[i + 1].Text.front()))) {
+            expression = "Just(" + span(i, ++end) + ")";
+        } else if (!table.empty() && identifier(i)) {
+            end = nameEnd(i);
+            expression = span(i, end);
+        }
+        if (expression.empty()) continue;
+        if ((i == body || boundary(i - 1)) && comparison(end) && end + 1 < tokens.size()
+            && tokens[end + 1].Parameter && boundary(end + 2)) {
+            assign(tokens[end + 1].Parameter, expression);
+        }
+        if (i >= body + 3 && (i == body + 3 || boundary(i - 3))
+            && tokens[i - 2].Parameter && comparison(i - 1) && !is(end, "(") && boundary(end)) {
+            assign(tokens[i - 2].Parameter, expression);
+        }
+    }
+    if (sources[paramNumber - 1].empty() || sources[paramNumber - 1] == "NULL") {
+        return std::nullopt;
+    }
+    std::string query = "SELECT ";
+    for (size_t i = 0; i < sources.size(); ++i) {
+        if (i) query += ", ";
+        query += (sources[i].empty() ? "NULL" : sources[i]) + " AS __p" + std::to_string(i + 1);
+    }
+    return query + (table.empty() ? "" : " FROM " + table) + " LIMIT 0";
+}
+
 } // namespace NYdb::NOdbc

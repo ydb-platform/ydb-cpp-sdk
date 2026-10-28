@@ -641,14 +641,25 @@ TEST(CoreApi, SQLDescribeParamUnknown) {
     AllocEnvAndConnect(&env, &dbc);
     ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
     CHECK_ODBC_OK(SQLPrepare(stmt, (SQLCHAR*)"SELECT ?", SQL_NTS), stmt, SQL_HANDLE_STMT);
-    SQLSMALLINT dataType = 0;
-    SQLULEN paramSize = 0;
-    SQLSMALLINT decimalDigits = 0;
-    SQLSMALLINT nullable = 0;
-    CHECK_ODBC_OK(SQLDescribeParam(stmt, 1, &dataType, &paramSize, &decimalDigits, &nullable),
-                  stmt, SQL_HANDLE_STMT);
-    EXPECT_EQ(dataType, SQL_UNKNOWN_TYPE);
-    EXPECT_EQ(nullable, SQL_NULLABLE_UNKNOWN);
+    SQLSMALLINT dataType = -1, decimalDigits = -1, nullable = -1;
+    SQLULEN paramSize = 123;
+    EXPECT_EQ(SQLDescribeParam(stmt, 1, &dataType, &paramSize, &decimalDigits, &nullable), SQL_ERROR);
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "HYC00"));
+    EXPECT_EQ(dataType, -1);
+    EXPECT_EQ(paramSize, 123);
+    EXPECT_EQ(decimalDigits, -1);
+    EXPECT_EQ(nullable, -1);
+    SQLINTEGER value = 42;
+    EXPECT_EQ(SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_UNKNOWN_TYPE,
+        0, 0, &value, 0, nullptr), SQL_ERROR);
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "HY004"));
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER,
+        0, 0, &value, 0, nullptr), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    SQLINTEGER actual = 0;
+    CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_LONG, &actual, sizeof(actual), nullptr), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(actual, value);
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);
@@ -722,6 +733,24 @@ TEST(CoreApi, SQLParamDataPutData) {
     char actual[16] = {};
     CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_CHAR, actual, sizeof(actual), nullptr), stmt, SQL_HANDLE_STMT);
     EXPECT_STREQ(actual, "hello world");
+    CHECK_ODBC_OK(SQLFreeStmt(stmt, SQL_CLOSE), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLPrepare(stmt, (SQLCHAR*)"SELECT ?", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    atExec = 0;
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_INTEGER,
+        10, 0, parameterToken, 0, &atExec), stmt, SQL_HANDLE_STMT);
+    atExec = SQL_DATA_AT_EXEC;
+    for (const auto& text : {std::string("bad"), std::string("4\0x", 3), std::string("42")}) {
+        ASSERT_EQ(SQLExecute(stmt), SQL_NEED_DATA);
+        ASSERT_EQ(SQLParamData(stmt, &token), SQL_NEED_DATA);
+        CHECK_ODBC_OK(SQLPutData(stmt, (SQLPOINTER)text.data(), text.size()), stmt, SQL_HANDLE_STMT);
+        const auto rc = SQLParamData(stmt, &token);
+        EXPECT_EQ(rc, text == "42" ? SQL_SUCCESS : SQL_ERROR);
+        if (rc == SQL_ERROR) EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "22018"));
+    }
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    SQLINTEGER number = 0;
+    CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_LONG, &number, sizeof(number), nullptr), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(number, 42);
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);
@@ -798,8 +827,17 @@ TEST(CoreApi, SQLParamDataPutDataNts) {
         CHECK_ODBC_OK(SQLGetData(statements[i], 1, SQL_C_CHAR, actual, sizeof(actual), nullptr),
                       statements[i], SQL_HANDLE_STMT);
         EXPECT_STREQ(actual, expected[i]);
-        SQLFreeHandle(SQL_HANDLE_STMT, statements[i]);
     }
+    SQLLEN nullInput = SQL_NULL_DATA;
+    CHECK_ODBC_OK(SQLFreeStmt(first, SQL_CLOSE), first, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLSetDescField(sharedApd, 1, SQL_DESC_INDICATOR_PTR, &nullInput, 0), sharedApd, SQL_HANDLE_DESC);
+    CHECK_ODBC_OK(SQLExecute(first), first, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(first), SQL_SUCCESS);
+    char value = 0;
+    SQLLEN length = 0;
+    CHECK_ODBC_OK(SQLGetData(first, 1, SQL_C_CHAR, &value, sizeof(value), &length), first, SQL_HANDLE_STMT);
+    EXPECT_EQ(length, SQL_NULL_DATA);
+    for (auto statement : statements) SQLFreeHandle(SQL_HANDLE_STMT, statement);
     SQLFreeHandle(SQL_HANDLE_DESC, sharedApd);
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);

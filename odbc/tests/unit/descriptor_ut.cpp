@@ -130,11 +130,12 @@ TEST_F(TOdbcDescriptor, ExecuteUsesLatestParameterBinding) {
     TStatement statement(&Connection_);
     ASSERT_EQ(statement.Prepare("SELECT ?"), SQL_SUCCESS);
     char first = 0, second = 0;
-    SQLLEN indicator = SQL_DATA_AT_EXEC;
+    SQLLEN indicator = 0;
     ASSERT_EQ(statement.BindParameter(1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR,
         16, 0, &first, 0, &indicator), SQL_SUCCESS);
     ASSERT_EQ(statement.BindParameter(1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR,
         16, 0, &second, 0, &indicator), SQL_SUCCESS);
+    indicator = SQL_DATA_AT_EXEC;
     ASSERT_EQ(statement.Execute(), SQL_NEED_DATA);
     SQLPOINTER token = nullptr;
     ASSERT_EQ(statement.ParamData(&token), SQL_NEED_DATA);

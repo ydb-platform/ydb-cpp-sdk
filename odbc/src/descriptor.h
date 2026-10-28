@@ -34,13 +34,18 @@ struct TDescRecord {
     SQLLEN* OctetLengthPtr = nullptr;
     SQLSMALLINT ParameterType = SQL_PARAM_INPUT;
     bool Active = false;
-    bool AtExec = false;
+    bool Inferred = false;
 };
 
 struct TResolvedBinding {
     SQLPOINTER Data = nullptr;
     SQLLEN* Indicator = nullptr;
     SQLLEN* OctetLength = nullptr;
+
+    bool IsDataAtExec() const noexcept {
+        return (!Indicator || *Indicator != SQL_NULL_DATA) && OctetLength
+            && (*OctetLength == SQL_DATA_AT_EXEC || *OctetLength <= SQL_LEN_DATA_AT_EXEC_OFFSET);
+    }
 };
 
 class TDescriptorState {
@@ -120,6 +125,11 @@ private:
 
     TDescRecord& Record(SQLSMALLINT number);
     void RemoveRecord(SQLSMALLINT number);
+    void RemoveInferredRecord(SQLSMALLINT number) {
+        if (const auto* record = FindRecord(number); record && record->Inferred) {
+            RemoveRecord(number);
+        }
+    }
     void ClearRecords() noexcept { Records_.clear(); Changed(); }
     void SnapshotUnlocked(TDescriptorState& state, uint64_t& generation) const;
     SQLRETURN CopyDesc(TDescriptor& target);
