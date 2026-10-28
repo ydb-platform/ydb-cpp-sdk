@@ -1,0 +1,18 @@
+001- array(3) {
+002-   ["i"]=>
+003-   string(3) "101"
+004-   ["txt"]=>
+005-   string(8) "Any text"
+006-   ["k"]=>
+007-   string(2) "33"
+008- }
+009- array(3) {
+010-   ["i"]=>
+011-   string(3) "102"
+012-   ["txt"]=>
+013-   string(17) "Lorem ipsum dolor"
+014-   ["k"]=>
+015-   string(2) "34"
+016- }
+001+ bool(false)
+002+ bool(false)

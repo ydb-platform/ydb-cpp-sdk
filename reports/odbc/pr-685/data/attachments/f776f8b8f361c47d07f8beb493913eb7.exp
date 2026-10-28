@@ -1,0 +1,5 @@
+array(1) {
+  ["VARCHAR_COL"]=>
+  string(3) "foo"
+}
+ready
