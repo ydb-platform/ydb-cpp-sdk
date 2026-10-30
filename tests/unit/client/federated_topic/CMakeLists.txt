@@ -1,3 +1,6 @@
+# read_session_membership_ut.cpp requires the in-process YDB/PersQueue test
+# server, which is not included in the standalone SDK.
+
 add_ydb_test(NAME client-federated-topic-observer_ut
   INCLUDE_DIRS
     ${YDB_SDK_SOURCE_DIR}
