@@ -458,7 +458,7 @@ SQLRETURN TStatement::FetchRows(SQLSMALLINT orientation, SQLLEN offset, SQLULEN 
     SQLRETURN result = SQL_SUCCESS;
     for (SQLULEN row = 0; row < fetch.Rows; ++row) {
         const SQLULEN rows = row + 1;
-        const SQLRETURN rowResult = FillBoundColumns(row);
+        const SQLRETURN rowResult = FillBoundColumns(row, !extended);
         if (fetched) {
             *fetched = rows;
         }
@@ -503,7 +503,7 @@ SQLRETURN TStatement::GetData(SQLUSMALLINT columnNumber, SQLSMALLINT targetType,
     return rc;
 }
 
-SQLRETURN TStatement::FillBoundColumns(SQLULEN row) {
+SQLRETURN TStatement::FillBoundColumns(SQLULEN row, bool useOffset) {
     if (!Cursor_) {
         return SQL_NO_DATA;
     }
@@ -520,7 +520,7 @@ SQLRETURN TStatement::FillBoundColumns(SQLULEN row) {
             result = SQL_ERROR;
             continue;
         }
-        const TResolvedBinding binding = RowBindings_.ResolveBinding(*col, row);
+        const TResolvedBinding binding = RowBindings_.ResolveBinding(*col, row, useOffset);
         SQLLEN* indicator = binding.Indicator;
         SQLLEN* length = binding.OctetLength;
         SQLLEN convertedLength = 0;

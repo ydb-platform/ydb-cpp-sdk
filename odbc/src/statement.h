@@ -167,7 +167,7 @@ private:
     SQLRETURN BuildParams(NYdb::TParams& out, SQLULEN paramSet);
     SQLRETURN ExecuteParamSet(SQLULEN paramSet, std::optional<SQLLEN>& affectedRows);
     SQLRETURN ExecuteInternal();
-    SQLRETURN FillBoundColumns(SQLULEN row);
+    SQLRETURN FillBoundColumns(SQLULEN row, bool useOffset);
     SQLRETURN FetchRows(SQLSMALLINT orientation, SQLLEN offset, SQLULEN rowArraySize,
                         SQLULEN* fetched, SQLUSMALLINT* statuses, bool extended);
     std::vector<TBoundParam> GetBoundParams(SQLULEN paramSet) const;

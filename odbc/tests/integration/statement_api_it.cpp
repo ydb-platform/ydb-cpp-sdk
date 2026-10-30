@@ -1823,8 +1823,11 @@ TEST(StatementApi, ExtendedFetchKeepsLegacyRowsetsSeparate) {
     SQLUSMALLINT modernStatuses[3] = {99, 99, 99};
     ASSERT_EQ(SQLSetStmtAttr(stmt, SQL_ATTR_ROWS_FETCHED_PTR, &modernFetched, 0), SQL_SUCCESS);
     ASSERT_EQ(SQLSetStmtAttr(stmt, SQL_ATTR_ROW_STATUS_PTR, modernStatuses, 0), SQL_SUCCESS);
-    SQLINTEGER values[3] = {};
-    SQLLEN indicators[3] = {};
+    constexpr size_t valueOffset = sizeof(SQLLEN) / sizeof(SQLINTEGER);
+    SQLINTEGER values[3 + valueOffset] = {};
+    SQLLEN indicators[4] = {};
+    SQLULEN bindOffset = sizeof(SQLLEN);
+    ASSERT_EQ(SQLSetStmtAttr(stmt, SQL_ATTR_ROW_BIND_OFFSET_PTR, &bindOffset, 0), SQL_SUCCESS);
     ASSERT_EQ(SQLBindCol(stmt, 1, SQL_C_LONG, values, 0, indicators), SQL_SUCCESS);
     const auto query = (SQLCHAR*)"SELECT * FROM AS_TABLE(ListMap(ListFromRange(1, 4), "
                                  "($x) -> (AsStruct($x AS value)))) ORDER BY value";
@@ -1835,6 +1838,9 @@ TEST(StatementApi, ExtendedFetchKeepsLegacyRowsetsSeparate) {
     ASSERT_EQ(SQLExtendedFetch(stmt, SQL_FETCH_NEXT, 0, &fetched, statuses), SQL_SUCCESS);
     EXPECT_EQ(fetched, 1); // SQL_ROWSET_SIZE defaults to one, independently of the ARD.
     EXPECT_EQ(values[0], 1);
+    EXPECT_EQ(values[valueOffset], 0);
+    EXPECT_EQ(indicators[0], sizeof(SQLINTEGER));
+    EXPECT_EQ(indicators[1], 0);
     EXPECT_EQ(statuses[0], SQL_ROW_SUCCESS);
     EXPECT_EQ(statuses[1], 99);
     EXPECT_EQ(modernFetched, 99);
@@ -1847,10 +1853,15 @@ TEST(StatementApi, ExtendedFetchKeepsLegacyRowsetsSeparate) {
     EXPECT_EQ(size, 2);
     ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_ROW_ARRAY_SIZE, &size, 0, nullptr), SQL_SUCCESS);
     EXPECT_EQ(size, 3);
+    SQLHDESC ard = SQL_NULL_HDESC;
+    ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_APP_ROW_DESC, &ard, 0, nullptr), SQL_SUCCESS);
+    ASSERT_EQ(SQLSetDescField(ard, 0, SQL_DESC_BIND_OFFSET_PTR, &bindOffset, 0), SQL_SUCCESS);
     ASSERT_EQ(SQLExtendedFetch(stmt, SQL_FETCH_ABSOLUTE, 2, &fetched, statuses), SQL_SUCCESS);
     EXPECT_EQ(fetched, 2);
     EXPECT_EQ(values[0], 2);
     EXPECT_EQ(values[1], 3);
+    EXPECT_EQ(indicators[1], sizeof(SQLINTEGER));
+    EXPECT_EQ(indicators[2], 0);
     EXPECT_EQ(statuses[1], SQL_ROW_SUCCESS);
     EXPECT_EQ(SQLExtendedFetch(stmt, SQL_FETCH_NEXT, 0, &fetched, statuses), SQL_NO_DATA);
     EXPECT_EQ(fetched, 0);
@@ -1861,11 +1872,20 @@ TEST(StatementApi, ExtendedFetchKeepsLegacyRowsetsSeparate) {
 
     ASSERT_EQ(SQLFreeStmt(stmt, SQL_CLOSE), SQL_SUCCESS);
     ASSERT_EQ(SQLExecDirect(stmt, query, SQL_NTS), SQL_SUCCESS);
+    values[0] = 99;
+    indicators[0] = 99;
     ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
     EXPECT_EQ(modernFetched, 3);
     EXPECT_EQ(modernStatuses[2], SQL_ROW_SUCCESS);
+    EXPECT_EQ(values[0], 99);
+    EXPECT_EQ(indicators[0], 99);
+    EXPECT_EQ(values[valueOffset], 1);
+    EXPECT_EQ(values[valueOffset + 1], 2);
+    EXPECT_EQ(values[valueOffset + 2], 3);
+    EXPECT_EQ(indicators[3], sizeof(SQLINTEGER));
 
     ASSERT_EQ(SQLFreeStmt(stmt, SQL_CLOSE), SQL_SUCCESS);
+    ASSERT_EQ(SQLSetStmtAttr(stmt, SQL_ATTR_ROW_BIND_OFFSET_PTR, nullptr, 0), SQL_SUCCESS);
     SQLSCHAR smallValues[2] = {};
     ASSERT_EQ(SQLBindCol(stmt, 1, SQL_C_STINYINT, smallValues, 0, indicators), SQL_SUCCESS);
     ASSERT_EQ(SQLExecDirect(stmt, (SQLCHAR*)"SELECT 128", SQL_NTS), SQL_SUCCESS);

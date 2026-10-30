@@ -125,8 +125,8 @@ SQLSMALLINT TDescriptorState::GetRecordCount() const noexcept {
 }
 
 TResolvedBinding TDescriptorState::ResolveBinding(
-    const TDescRecord& record, SQLULEN index) const noexcept {
-    const SQLULEN offset = Header_.BindOffsetPtr ? *Header_.BindOffsetPtr : 0;
+    const TDescRecord& record, SQLULEN index, bool useOffset) const noexcept {
+    const SQLULEN offset = useOffset && Header_.BindOffsetPtr ? *Header_.BindOffsetPtr : 0;
     const SQLULEN dataStride = Header_.BindType == SQL_BIND_BY_COLUMN
         ? GetCTypeSize(record.Type, record.OctetLength) : Header_.BindType;
     const SQLULEN lengthStride = Header_.BindType == SQL_BIND_BY_COLUMN
