@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite name="tst_QSqlRelationalTableModel" timestamp="2026&#x002D;10&#x002D;30T12:39:56" hostname="runnervm48cm3" tests="24" failures="20" errors="0" skipped="2" time="3.149">
+<testsuite name="tst_QSqlRelationalTableModel" timestamp="2026&#x002D;10&#x002D;30T12:55:03" hostname="runnervm48cm3" tests="24" failures="20" errors="0" skipped="2" time="3.181">
   <properties>
     <property name="QTestVersion" value="6.4.2"/>
     <property name="QtVersion" value="6.4.2"/>
@@ -23,7 +23,7 @@
       <![CDATA[')]]>
     </failure>
   </testcase>
-  <testcase name="multipleRelation" classname="tst_QSqlRelationalTableModel" time="0.350">
+  <testcase name="multipleRelation" classname="tst_QSqlRelationalTableModel" time="0.354">
     <failure type="fail" message="&apos;(model).select()&apos; returned FALSE. (QODBC@YDB_qt: (400080) &apos;QODBC: Unable to execute statement&apos; || &apos;General error: &lt;main&gt;:1:265: Error: Cartesian product of tables is disabled. Please use explicit CROSS JOIN or enable it via PRAGMA AnsiImplicitCrossJoin">
       <![CDATA[')]]>
     </failure>
@@ -33,42 +33,42 @@
       <![CDATA[')]]>
     </failure>
   </testcase>
-  <testcase name="setRecord" classname="tst_QSqlRelationalTableModel" time="0.338">
+  <testcase name="setRecord" classname="tst_QSqlRelationalTableModel" time="0.359">
     <failure type="fail" message="&apos;(model).select()&apos; returned FALSE. (QODBC@YDB_qt: (400080) &apos;QODBC: Unable to execute statement&apos; || &apos;General error: &lt;main&gt;:1:217: Error: Cartesian product of tables is disabled. Please use explicit CROSS JOIN or enable it via PRAGMA AnsiImplicitCrossJoin">
       <![CDATA[')]]>
     </failure>
   </testcase>
-  <testcase name="insertWithStrategies" classname="tst_QSqlRelationalTableModel" time="0.015">
+  <testcase name="insertWithStrategies" classname="tst_QSqlRelationalTableModel" time="0.013">
     <failure type="fail" message="&apos;(model).select()&apos; returned FALSE. (QODBC@YDB_qt: (400080) &apos;QODBC: Unable to execute statement&apos; || &apos;General error: &lt;main&gt;:1:267: Error: Cartesian product of tables is disabled. Please use explicit CROSS JOIN or enable it via PRAGMA AnsiImplicitCrossJoin">
       <![CDATA[')]]>
     </failure>
   </testcase>
-  <testcase name="removeColumn" classname="tst_QSqlRelationalTableModel" time="0.423">
+  <testcase name="removeColumn" classname="tst_QSqlRelationalTableModel" time="0.346">
     <failure type="fail" message="&apos;(model).select()&apos; returned FALSE. (QODBC@YDB_qt: (400080) &apos;QODBC: Unable to execute statement&apos; || &apos;General error: &lt;main&gt;:1:217: Error: Cartesian product of tables is disabled. Please use explicit CROSS JOIN or enable it via PRAGMA AnsiImplicitCrossJoin">
       <![CDATA[')]]>
     </failure>
   </testcase>
-  <testcase name="filter" classname="tst_QSqlRelationalTableModel" time="0.353">
+  <testcase name="filter" classname="tst_QSqlRelationalTableModel" time="0.364">
     <failure type="fail" message="&apos;(model).select()&apos; returned FALSE. (QODBC@YDB_qt: (400080) &apos;QODBC: Unable to execute statement&apos; || &apos;General error: &lt;main&gt;:1:217: Error: Cartesian product of tables is disabled. Please use explicit CROSS JOIN or enable it via PRAGMA AnsiImplicitCrossJoin">
       <![CDATA[')]]>
     </failure>
   </testcase>
-  <testcase name="sort" classname="tst_QSqlRelationalTableModel" time="0.013">
+  <testcase name="sort" classname="tst_QSqlRelationalTableModel" time="0.015">
     <failure type="fail" message="&apos;(model).select()&apos; returned FALSE. (QODBC@YDB_qt: (400080) &apos;QODBC: Unable to execute statement&apos; || &apos;General error: &lt;main&gt;:1:267: Error: Cartesian product of tables is disabled. Please use explicit CROSS JOIN or enable it via PRAGMA AnsiImplicitCrossJoin">
       <![CDATA[')]]>
     </failure>
   </testcase>
-  <testcase name="revert" classname="tst_QSqlRelationalTableModel" time="0.013">
+  <testcase name="revert" classname="tst_QSqlRelationalTableModel" time="0.014">
     <failure type="fail" message="&apos;(model).select()&apos; returned FALSE. (QODBC@YDB_qt: (400080) &apos;QODBC: Unable to execute statement&apos; || &apos;General error: &lt;main&gt;:1:265: Error: Cartesian product of tables is disabled. Please use explicit CROSS JOIN or enable it via PRAGMA AnsiImplicitCrossJoin">
       <![CDATA[')]]>
     </failure>
   </testcase>
-  <testcase name="clearDisplayValuesCache" classname="tst_QSqlRelationalTableModel" time="0.013">
+  <testcase name="clearDisplayValuesCache" classname="tst_QSqlRelationalTableModel" time="0.015">
     <failure type="fail" message="&apos;(model).select()&apos; returned FALSE. (QODBC@YDB_qt: (400080) &apos;QODBC: Unable to execute statement&apos; || &apos;General error: &lt;main&gt;:1:267: Error: Cartesian product of tables is disabled. Please use explicit CROSS JOIN or enable it via PRAGMA AnsiImplicitCrossJoin">
       <![CDATA[')]]>
     </failure>
   </testcase>
-  <testcase name="insertRecordDuplicateFieldNames" classname="tst_QSqlRelationalTableModel" time="0.012">
+  <testcase name="insertRecordDuplicateFieldNames" classname="tst_QSqlRelationalTableModel" time="0.016">
     <failure type="fail" message="&apos;(model).select()&apos; returned FALSE. (QODBC@YDB_qt: (400080) &apos;QODBC: Unable to execute statement&apos; || &apos;General error: &lt;main&gt;:1:206: Error: Cartesian product of tables is disabled. Please use explicit CROSS JOIN or enable it via PRAGMA AnsiImplicitCrossJoin">
       <![CDATA[')]]>
     </failure>
@@ -83,17 +83,17 @@
       <![CDATA[')]]>
     </failure>
   </testcase>
-  <testcase name="casing" classname="tst_QSqlRelationalTableModel" time="0.185">
+  <testcase name="casing" classname="tst_QSqlRelationalTableModel" time="0.184">
     <failure type="fail" message="&apos;(model).select()&apos; returned FALSE. (QODBC@YDB_qt: (400080) &apos;QODBC: Unable to execute statement&apos; || &apos;General error: &lt;main&gt;:1:197: Error: Cartesian product of tables is disabled. Please use explicit CROSS JOIN or enable it via PRAGMA AnsiImplicitCrossJoin">
       <![CDATA[')]]>
     </failure>
   </testcase>
-  <testcase name="escapedRelations" classname="tst_QSqlRelationalTableModel" time="0.400">
+  <testcase name="escapedRelations" classname="tst_QSqlRelationalTableModel" time="0.421">
     <failure type="fail" message="&apos;(model).select()&apos; returned FALSE. (QODBC@YDB_qt: (400080) &apos;QODBC: Unable to execute statement&apos; || &apos;General error: &lt;main&gt;:1:219: Error: Cartesian product of tables is disabled. Please use explicit CROSS JOIN or enable it via PRAGMA AnsiImplicitCrossJoin">
       <![CDATA[')]]>
     </failure>
   </testcase>
-  <testcase name="escapedTableName" classname="tst_QSqlRelationalTableModel" time="0.013">
+  <testcase name="escapedTableName" classname="tst_QSqlRelationalTableModel" time="0.012">
     <failure type="fail" message="&apos;(model).select()&apos; returned FALSE. (QODBC@YDB_qt: (400080) &apos;QODBC: Unable to execute statement&apos; || &apos;General error: &lt;main&gt;:1:225: Error: Cartesian product of tables is disabled. Please use explicit CROSS JOIN or enable it via PRAGMA AnsiImplicitCrossJoin">
       <![CDATA[')]]>
     </failure>
@@ -104,20 +104,20 @@
   <testcase name="psqlSchemaTest" classname="tst_QSqlRelationalTableModel" time="0.000">
     <skipped message="Postgresql specific test"/>
   </testcase>
-  <testcase name="selectAfterUpdate" classname="tst_QSqlRelationalTableModel" time="0.013">
+  <testcase name="selectAfterUpdate" classname="tst_QSqlRelationalTableModel" time="0.012">
     <failure type="fail" message="&apos;(model).select()&apos; returned FALSE. (QODBC@YDB_qt: (400080) &apos;QODBC: Unable to execute statement&apos; || &apos;General error: &lt;main&gt;:1:217: Error: Cartesian product of tables is disabled. Please use explicit CROSS JOIN or enable it via PRAGMA AnsiImplicitCrossJoin">
       <![CDATA[')]]>
     </failure>
   </testcase>
-  <testcase name="relationOnFirstColumn" classname="tst_QSqlRelationalTableModel" time="0.175">
+  <testcase name="relationOnFirstColumn" classname="tst_QSqlRelationalTableModel" time="0.183">
     <failure type="fail" message="&apos;(model).select()&apos; returned FALSE. (QODBC@YDB_qt: (400080) &apos;QODBC: Unable to execute statement&apos; || &apos;General error: &lt;main&gt;:1:176: Error: Cartesian product of tables is disabled. Please use explicit CROSS JOIN or enable it via PRAGMA AnsiImplicitCrossJoin">
       <![CDATA[')]]>
     </failure>
   </testcase>
-  <testcase name="setRelation" classname="tst_QSqlRelationalTableModel" time="0.386">
+  <testcase name="setRelation" classname="tst_QSqlRelationalTableModel" time="0.434">
     <failure type="fail" message="&apos;(model).select()&apos; returned FALSE. (QODBC@YDB_qt: (400080) &apos;QODBC: Unable to execute statement&apos; || &apos;General error: &lt;main&gt;:1:217: Error: Cartesian product of tables is disabled. Please use explicit CROSS JOIN or enable it via PRAGMA AnsiImplicitCrossJoin">
       <![CDATA[')]]>
     </failure>
   </testcase>
-  <testcase name="cleanupTestCase" classname="tst_QSqlRelationalTableModel" time="0.064"/>
+  <testcase name="cleanupTestCase" classname="tst_QSqlRelationalTableModel" time="0.056"/>
 </testsuite>
