@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite name="tst_QSql" timestamp="2026&#x002D;10&#x002D;30T14:14:39" hostname="runnervm48cm3" tests="8" failures="0" errors="0" skipped="0" time="0.112">
+<testsuite name="tst_QSql" timestamp="2026&#x002D;10&#x002D;30T14:35:34" hostname="runnervm48cm3" tests="8" failures="0" errors="0" skipped="0" time="0.105">
   <properties>
     <property name="QTestVersion" value="6.4.2"/>
     <property name="QtVersion" value="6.4.2"/>
     <property name="QtBuild" value="Qt 6.4.2 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 13.2.0)"/>
   </properties>
   <testcase name="initTestCase" classname="tst_QSql" time="0.000"/>
-  <testcase name="open" classname="tst_QSql" time="0.042">
+  <testcase name="open" classname="tst_QSql" time="0.049">
     <system-out>
       <![CDATA[Opening: "0_QODBC@YDB_qt"]]>
       <![CDATA[Opening: "0_QODBC@YDB_qt"]]>
@@ -40,7 +40,7 @@
     </system-err>
   </testcase>
   <testcase name="registerSqlDriver" classname="tst_QSql" time="0.000"/>
-  <testcase name="openErrorRecovery" classname="tst_QSql" time="0.060">
+  <testcase name="openErrorRecovery" classname="tst_QSql" time="0.044">
     <system-out>
       <![CDATA[Promiscuous database server without access control - test skipped for QODBC@YDB_qt]]>
     </system-out>
@@ -48,7 +48,7 @@
       <![CDATA[Driver "QSQLITE" is not installed]]>
     </system-err>
   </testcase>
-  <testcase name="concurrentAccess" classname="tst_QSql" time="0.006">
+  <testcase name="concurrentAccess" classname="tst_QSql" time="0.008">
     <system-out>
       <![CDATA[Opening: "0_QODBC@YDB_qt"]]>
     </system-out>
