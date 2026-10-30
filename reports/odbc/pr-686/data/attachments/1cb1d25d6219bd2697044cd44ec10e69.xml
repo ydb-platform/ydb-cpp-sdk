@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite name="tst_QSqlRelationalDelegate" timestamp="2026&#x002D;10&#x002D;30T12:55:19" hostname="runnervm48cm3" tests="3" failures="1" errors="0" skipped="0" time="0.244">
+<testsuite name="tst_QSqlRelationalDelegate" timestamp="2026&#x002D;10&#x002D;30T13:35:52" hostname="runnervm48cm3" tests="3" failures="1" errors="0" skipped="0" time="0.243">
   <properties>
     <property name="QTestVersion" value="6.4.2"/>
     <property name="QtVersion" value="6.4.2"/>
     <property name="QtBuild" value="Qt 6.4.2 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 13.2.0)"/>
   </properties>
-  <testcase name="initTestCase" classname="tst_QSqlRelationalDelegate" time="0.199">
+  <testcase name="initTestCase" classname="tst_QSqlRelationalDelegate" time="0.193">
     <system-out>
       <![CDATA[Opening: "0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous"]]>
     </system-out>
@@ -18,5 +18,5 @@
       <![CDATA[')]]>
     </failure>
   </testcase>
-  <testcase name="cleanupTestCase" classname="tst_QSqlRelationalDelegate" time="0.020"/>
+  <testcase name="cleanupTestCase" classname="tst_QSqlRelationalDelegate" time="0.025"/>
 </testsuite>
