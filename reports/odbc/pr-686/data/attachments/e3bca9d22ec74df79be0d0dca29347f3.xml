@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="php" tests="46" failures="11" errors="0" skip="5" time="3.6612">
-<testsuite name="php.ext.odbc.tests" tests="46" failures="11" errors="0" skip="5" time="3.6612">
-<testcase name='ext/odbc/tests/bug44618.phpt (Bug #44618 (Fetching may rely on uninitialized data))' time='0.0533'>
+<testsuites name="php" tests="46" failures="11" errors="0" skip="5" time="3.428">
+<testsuite name="php.ext.odbc.tests" tests="46" failures="11" errors="0" skip="5" time="3.428">
+<testcase name='ext/odbc/tests/bug44618.phpt (Bug #44618 (Fetching may rely on uninitialized data))' time='0.0483'>
 <skipped>Fails with unixODBC</skipped>
 </testcase>
-<testcase name='ext/odbc/tests/bug46050.phpt (Bug #46050 (odbc_next_result corrupts prepared resource))' time='0.1212'>
+<testcase name='ext/odbc/tests/bug46050.phpt (Bug #46050 (odbc_next_result corrupts prepared resource))' time='0.1151'>
 <failure type='FAILED' message=''>     bool(true)
      array(1) {
 003-   [&quot;1&quot;]=&gt;
@@ -20,18 +20,18 @@
      }
 </failure>
 </testcase>
-<testcase name='ext/odbc/tests/bug47803.phpt (Bug #47803 Executing prepared statements is successful only for the first two statements)' time='0.1704'>
+<testcase name='ext/odbc/tests/bug47803.phpt (Bug #47803 Executing prepared statements is successful only for the first two statements)' time='0.1538'>
 </testcase>
-<testcase name='ext/odbc/tests/bug60616.phpt (odbc_exec(): Getting accurate unicode data from query)' time='0.0519'>
+<testcase name='ext/odbc/tests/bug60616.phpt (odbc_exec(): Getting accurate unicode data from query)' time='0.0505'>
 <skipped>YDB databases require UTF-8, not EUC_JP</skipped>
 </testcase>
-<testcase name='ext/odbc/tests/bug68087.phpt (odbc_exec(): Getting accurate date data from query)' time='0.1030'>
+<testcase name='ext/odbc/tests/bug68087.phpt (odbc_exec(): Getting accurate date data from query)' time='0.0927'>
 </testcase>
-<testcase name='ext/odbc/tests/bug69354.phpt (Bug #69354 Incorrect use of SQLColAttributes with ODBC 3.0)' time='0.0934'>
+<testcase name='ext/odbc/tests/bug69354.phpt (Bug #69354 Incorrect use of SQLColAttributes with ODBC 3.0)' time='0.0921'>
 </testcase>
-<testcase name='ext/odbc/tests/bug69975.phpt (Bug #69975 (PHP segfaults when accessing nvarchar(max) defined columns))' time='0.0921'>
+<testcase name='ext/odbc/tests/bug69975.phpt (Bug #69975 (PHP segfaults when accessing nvarchar(max) defined columns))' time='0.0961'>
 </testcase>
-<testcase name='ext/odbc/tests/bug71171.phpt (Bug #71171 odbc_fetch_array generates SIGFAULT, variant 0)' time='0.0675'>
+<testcase name='ext/odbc/tests/bug71171.phpt (Bug #71171 odbc_fetch_array generates SIGFAULT, variant 0)' time='0.0665'>
 <failure type='FAILED' message=''>001- array(1) {
 002-   [&quot;ID&quot;]=&gt;
 003-   string(1) &quot;1&quot;
@@ -46,7 +46,7 @@
 008+ , SQL state S1000 in SQLExecDirect in /work/source/ext/odbc/tests/bug71171.php on line 11
 </failure>
 </testcase>
-<testcase name='ext/odbc/tests/bug73448.phpt (Bug #73448 odbc_errormsg returns trash, always 513 bytes)' time='0.0631'>
+<testcase name='ext/odbc/tests/bug73448.phpt (Bug #73448 odbc_errormsg returns trash, always 513 bytes)' time='0.0608'>
 <failure type='FAILED' message=''>001+ string(34) &quot;/* empty batch is without error */&quot;
 002+ string(5) &quot;S1000&quot;
 003+ string(356) &quot;General error: &lt;main&gt;:1:34: Error: mismatched input &#039;&lt;EOF&gt;&#039; expecting {&#039;;&#039;, &#039;(&#039;, &#039;$&#039;, ALTER, ANALYZE, BACKUP, BATCH, COMMIT, CREATE, DECLARE, DEFINE, DELETE, DISCARD, DO, DROP, EVALUATE, EXPLAIN, EXPORT, FOR, FROM, GRANT, IF, IMPORT, INSERT, PARALLEL, PRAGMA, PROCESS, REDUCE, REPLACE, RESTORE, REVOKE, ROLLBACK, SELECT, SHOW, UPDATE, UPSERT, USE, VALUES}
@@ -83,17 +83,17 @@
 031+ &quot;
 </failure>
 </testcase>
-<testcase name='ext/odbc/tests/bug73725.phpt (Bug #73725 Unable to retrieve value of varchar(max) type)' time='0.0899'>
+<testcase name='ext/odbc/tests/bug73725.phpt (Bug #73725 Unable to retrieve value of varchar(max) type)' time='0.0906'>
 </testcase>
-<testcase name='ext/odbc/tests/bug78470.phpt (Bug #78470 (odbc_specialcolumns() no longer accepts $nullable))' time='0.0513'>
+<testcase name='ext/odbc/tests/bug78470.phpt (Bug #78470 (odbc_specialcolumns() no longer accepts $nullable))' time='0.0495'>
 </testcase>
-<testcase name='ext/odbc/tests/bug78473.phpt (Bug #78473 (odbc_close() closes arbitrary resources))' time='0.0202'>
+<testcase name='ext/odbc/tests/bug78473.phpt (Bug #78473 (odbc_close() closes arbitrary resources))' time='0.0185'>
 </testcase>
-<testcase name='ext/odbc/tests/bug80147.phpt (Bug #80147 (BINARY strings may not be properly zero-terminated))' time='0.0910'>
+<testcase name='ext/odbc/tests/bug80147.phpt (Bug #80147 (BINARY strings may not be properly zero-terminated))' time='0.0860'>
 </testcase>
-<testcase name='ext/odbc/tests/bug80152.phpt (Bug #80152 (odbc_execute() moves internal pointer of $params))' time='0.1024'>
+<testcase name='ext/odbc/tests/bug80152.phpt (Bug #80152 (odbc_execute() moves internal pointer of $params))' time='0.0905'>
 </testcase>
-<testcase name='ext/odbc/tests/bug80592.phpt (Bug #80592 (all floats are the same in ODBC parameters))' time='0.0825'>
+<testcase name='ext/odbc/tests/bug80592.phpt (Bug #80592 (all floats are the same in ODBC parameters))' time='0.0764'>
 <failure type='FAILED' message=''>001- array(3) {
 002-   [&quot;f1&quot;]=&gt;
 003-   string(3) &quot;1.0&quot;
@@ -109,25 +109,25 @@
 005+ bool(false)
 </failure>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_autocommit_001.phpt (odbc_autocommit(): Basic test)' time='0.0530'>
+<testcase name='ext/odbc/tests/odbc_autocommit_001.phpt (odbc_autocommit(): Basic test)' time='0.0498'>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_close_all_001.phpt (odbc_close_all(): Basic test)' time='0.0539'>
+<testcase name='ext/odbc/tests/odbc_close_all_001.phpt (odbc_close_all(): Basic test)' time='0.0559'>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_columnprivileges_001.phpt (odbc_columnprivileges(): Basic test)' time='0.0522'>
+<testcase name='ext/odbc/tests/odbc_columnprivileges_001.phpt (odbc_columnprivileges(): Basic test)' time='0.0487'>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_columns_001.phpt (odbc_columns(): Basic test)' time='0.0608'>
+<testcase name='ext/odbc/tests/odbc_columns_001.phpt (odbc_columns(): Basic test)' time='0.0549'>
 <skipped>MS SQL specific test</skipped>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_commit_001.phpt (odbc_commit(): Basic test for odbc_commit())' time='0.1082'>
+<testcase name='ext/odbc/tests/odbc_commit_001.phpt (odbc_commit(): Basic test for odbc_commit())' time='0.0855'>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_cursor_001.phpt (Test odbc_cursor())' time='0.0932'>
+<testcase name='ext/odbc/tests/odbc_cursor_001.phpt (Test odbc_cursor())' time='0.0855'>
 <failure type='FAILED' message=''>001- string(%d) &quot;SQL_CUR%s&quot;
 001+ string(0) &quot;&quot;
 </failure>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_data_source_001.phpt (odbc_data_source(): Basic test)' time='0.1016'>
+<testcase name='ext/odbc/tests/odbc_data_source_001.phpt (odbc_data_source(): Basic test)' time='0.0985'>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_exec_001.phpt (odbc_exec(): Basic test)' time='0.1213'>
+<testcase name='ext/odbc/tests/odbc_exec_001.phpt (odbc_exec(): Basic test)' time='0.1042'>
 <failure type='FAILED' message=''>001+ Warning: odbc_exec(): SQL error: General error: &lt;main&gt;:1:0: Error: mismatched input &#039;foo&#039; expecting {&#039;;&#039;, &#039;(&#039;, &#039;$&#039;, ALTER, ANALYZE, BACKUP, BATCH, COMMIT, CREATE, DECLARE, DEFINE, DELETE, DISCARD, DO, DROP, EVALUATE, EXPLAIN, EXPORT, FOR, FROM, GRANT, IF, IMPORT, INSERT, PARALLEL, PRAGMA, PROCESS, REDUCE, REPLACE, RESTORE, REVOKE, ROLLBACK, SELECT, SHOW, UPDATE, UPSERT, USE, VALUES}
 002+ , SQL state S1000 in SQLExecDirect in /work/source/ext/odbc/tests/odbc_exec_001.php on line 7
 003+ 
@@ -138,7 +138,7 @@
 007+ , SQL state S1000 in SQLExecDirect in /work/source/ext/odbc/tests/odbc_exec_001.php on line 11
 </failure>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_exec_002.phpt (odbc_exec(): Getting data from query)' time='0.0933'>
+<testcase name='ext/odbc/tests/odbc_exec_002.phpt (odbc_exec(): Getting data from query)' time='0.0861'>
 <failure type='FAILED' message=''>     bool(true)
      string(1) &quot;1&quot;
      array(1) {
@@ -148,15 +148,15 @@
      }
 </failure>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_fetch_array_001.phpt (odbc_fetch_array(): Getting data from query)' time='0.0931'>
+<testcase name='ext/odbc/tests/odbc_fetch_array_001.phpt (odbc_fetch_array(): Getting data from query)' time='0.0916'>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_fetch_into_001.phpt (odbc_fetch_into(): Getting data from query)' time='0.0875'>
+<testcase name='ext/odbc/tests/odbc_fetch_into_001.phpt (odbc_fetch_into(): Getting data from query)' time='0.0955'>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_fetch_object_001.phpt (odbc_fetch_object(): Getting data from query)' time='0.0947'>
+<testcase name='ext/odbc/tests/odbc_fetch_object_001.phpt (odbc_fetch_object(): Getting data from query)' time='0.0847'>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_fetch_row_001.phpt (odbc_fetch_row(): Getting data from query)' time='0.0894'>
+<testcase name='ext/odbc/tests/odbc_fetch_row_001.phpt (odbc_fetch_row(): Getting data from query)' time='0.0844'>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_field_len_001.phpt (odbc_field_len(): Getting the length of the field)' time='0.0756'>
+<testcase name='ext/odbc/tests/odbc_field_len_001.phpt (odbc_field_len(): Getting the length of the field)' time='0.0852'>
 <failure type='FAILED' message=''>     odbc_field_len(): Argument #2 ($field) must be greater than 0
      int(10)
 003- int(2147483647)
@@ -168,11 +168,11 @@
      bool(false)
 </failure>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_field_name_001.phpt (odbc_field_name(): Getting the name of the field)' time='0.0860'>
+<testcase name='ext/odbc/tests/odbc_field_name_001.phpt (odbc_field_name(): Getting the name of the field)' time='0.0695'>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_field_num_001.phpt (odbc_field_scale(): Getting the scale of the field)' time='0.0761'>
+<testcase name='ext/odbc/tests/odbc_field_num_001.phpt (odbc_field_scale(): Getting the scale of the field)' time='0.0735'>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_field_precision_001.phpt (odbc_field_precision(): Getting the precision of the field)' time='0.0769'>
+<testcase name='ext/odbc/tests/odbc_field_precision_001.phpt (odbc_field_precision(): Getting the precision of the field)' time='0.0722'>
 <failure type='FAILED' message=''>     odbc_field_precision(): Argument #2 ($field) must be greater than 0
      int(10)
      int(7)
@@ -183,13 +183,13 @@
      bool(false)
 </failure>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_field_scale_001.phpt (odbc_field_scale(): Getting the scale of the field)' time='0.0747'>
+<testcase name='ext/odbc/tests/odbc_field_scale_001.phpt (odbc_field_scale(): Getting the scale of the field)' time='0.0700'>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_field_type_001.phpt (odbc_field_type(): Getting the type of the field)' time='0.0757'>
+<testcase name='ext/odbc/tests/odbc_field_type_001.phpt (odbc_field_type(): Getting the type of the field)' time='0.0698'>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_free_result_001.phpt (odbc_free_result(): Basic test)' time='0.0941'>
+<testcase name='ext/odbc/tests/odbc_free_result_001.phpt (odbc_free_result(): Basic test)' time='0.0835'>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_gettypeinfo_001.phpt (odbc_gettypeinfo(): Getting info about data types)' time='0.0527'>
+<testcase name='ext/odbc/tests/odbc_gettypeinfo_001.phpt (odbc_gettypeinfo(): Getting info about data types)' time='0.0491'>
 <failure type='FAILED' message=''>001- array(20) {
 001+ array(19) {
        [&quot;TYPE_NAME&quot;]=&gt;
@@ -261,7 +261,7 @@
 045+   string(1) &quot;[[0x00]]&quot;
        [&quot;COLUMN_SIZE&quot;]=&gt;
 049-   string(4) &quot;8000&quot;
-047+   string(3) &quot;[[0x00]]0[[0x00]]&quot;
+047+   string(3) &quot;[[0x00]]0`&quot;
        [&quot;LITERAL_PREFIX&quot;]=&gt;
 051-   string(1) &quot;&#039;&quot;
 049+   NULL
@@ -374,32 +374,32 @@
      }
 </failure>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_longreadlen_001.phpt (Test odbc_longreadlen())' time='0.0924'>
+<testcase name='ext/odbc/tests/odbc_longreadlen_001.phpt (Test odbc_longreadlen())' time='0.1002'>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_num_fields_001.phpt (odbc_num_fields(): Getting the number of fields)' time='0.1141'>
+<testcase name='ext/odbc/tests/odbc_num_fields_001.phpt (odbc_num_fields(): Getting the number of fields)' time='0.0969'>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_num_rows_001.phpt (odbc_num_rows(): Getting the number of rows)' time='0.1004'>
+<testcase name='ext/odbc/tests/odbc_num_rows_001.phpt (odbc_num_rows(): Getting the number of rows)' time='0.0925'>
 <failure type='FAILED' message=''>001- int(3)
 002- int(0)
 001+ int(-1)
 002+ int(-1)
 </failure>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_persistent_close.phpt (odbc_pconnect(): Make sure closing a persistent connection works)' time='0.0588'>
+<testcase name='ext/odbc/tests/odbc_persistent_close.phpt (odbc_pconnect(): Make sure closing a persistent connection works)' time='0.0546'>
 <skipped>MS SQL specific test</skipped>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_primarykeys_001.phpt (odbc_primarykeys(): Basic test for odbc_primarykeys())' time='0.0578'>
+<testcase name='ext/odbc/tests/odbc_primarykeys_001.phpt (odbc_primarykeys(): Basic test for odbc_primarykeys())' time='0.0536'>
 <skipped>MS SQL specific test</skipped>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_rollback_001.phpt (odbc_rollback(): Basic test for odbc_rollback())' time='0.0887'>
+<testcase name='ext/odbc/tests/odbc_rollback_001.phpt (odbc_rollback(): Basic test for odbc_rollback())' time='0.0788'>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_setoption_001.phpt (odbc_setoption(): Basic test for odbc_setoption())' time='0.0527'>
+<testcase name='ext/odbc/tests/odbc_setoption_001.phpt (odbc_setoption(): Basic test for odbc_setoption())' time='0.0479'>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_setoption_002.phpt (odbc_setoption(): Test for odbc_setoption() with persistent connection)' time='0.0522'>
+<testcase name='ext/odbc/tests/odbc_setoption_002.phpt (odbc_setoption(): Test for odbc_setoption() with persistent connection)' time='0.0474'>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_tables_001.phpt (odbc_tables(): Basic test)' time='0.0567'>
+<testcase name='ext/odbc/tests/odbc_tables_001.phpt (odbc_tables(): Basic test)' time='0.0524'>
 </testcase>
-<testcase name='ext/odbc/tests/odbc_utils.phpt (Test common ODBC string functionality)' time='0.0202'>
+<testcase name='ext/odbc/tests/odbc_utils.phpt (Test common ODBC string functionality)' time='0.0182'>
 </testcase>
 </testsuite>
 </testsuites>
