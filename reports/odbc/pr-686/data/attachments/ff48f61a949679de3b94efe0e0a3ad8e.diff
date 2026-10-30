@@ -1,0 +1,7 @@
+     bool(true)
+     string(1) "1"
+     array(1) {
+004-   ["TEST"]=>
+004+   ["test"]=>
+       string(1) "2"
+     }
