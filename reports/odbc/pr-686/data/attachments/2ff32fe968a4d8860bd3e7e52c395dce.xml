@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite name="tst_QSqlQueryModel" timestamp="2026&#x002D;10&#x002D;30T11:11:01" hostname="runnervm48cm3" tests="13" failures="0" errors="0" skipped="0" time="1.390">
+<testsuite name="tst_QSqlQueryModel" timestamp="2026&#x002D;10&#x002D;30T12:39:54" hostname="runnervm48cm3" tests="13" failures="0" errors="0" skipped="0" time="1.562">
   <properties>
     <property name="QTestVersion" value="6.4.2"/>
     <property name="QtVersion" value="6.4.2"/>
     <property name="QtBuild" value="Qt 6.4.2 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 13.2.0)"/>
   </properties>
-  <testcase name="initTestCase" classname="tst_QSqlQueryModel" time="0.355">
+  <testcase name="initTestCase" classname="tst_QSqlQueryModel" time="0.508">
     <system-out>
       <![CDATA[Opening: "0_QODBC@YDB_qt"]]>
     </system-out>
@@ -14,16 +14,16 @@
       <![CDATA[Populating test tables, this can take quite a while... ZZZzzz...]]>
     </system-err>
   </testcase>
-  <testcase name="insertColumn(0_QODBC@YDB_qt)" classname="tst_QSqlQueryModel" time="0.005"/>
+  <testcase name="insertColumn(0_QODBC@YDB_qt)" classname="tst_QSqlQueryModel" time="0.007"/>
   <testcase name="removeColumn(0_QODBC@YDB_qt)" classname="tst_QSqlQueryModel" time="0.001"/>
   <testcase name="record(0_QODBC@YDB_qt)" classname="tst_QSqlQueryModel" time="0.001"/>
   <testcase name="setHeaderData(0_QODBC@YDB_qt)" classname="tst_QSqlQueryModel" time="0.001"/>
-  <testcase name="fetchMore(0_QODBC@YDB_qt)" classname="tst_QSqlQueryModel" time="0.006"/>
-  <testcase name="withSortFilterProxyModel(0_QODBC@YDB_qt)" classname="tst_QSqlQueryModel" time="0.963"/>
-  <testcase name="setQuerySignalEmission(0_QODBC@YDB_qt)" classname="tst_QSqlQueryModel" time="0.006"/>
-  <testcase name="setQueryWithNoRowsInResultSet(0_QODBC@YDB_qt)" classname="tst_QSqlQueryModel" time="0.004"/>
+  <testcase name="fetchMore(0_QODBC@YDB_qt)" classname="tst_QSqlQueryModel" time="0.010"/>
+  <testcase name="withSortFilterProxyModel(0_QODBC@YDB_qt)" classname="tst_QSqlQueryModel" time="0.971"/>
+  <testcase name="setQuerySignalEmission(0_QODBC@YDB_qt)" classname="tst_QSqlQueryModel" time="0.009"/>
+  <testcase name="setQueryWithNoRowsInResultSet(0_QODBC@YDB_qt)" classname="tst_QSqlQueryModel" time="0.006"/>
   <testcase name="nestedResets(0_QODBC@YDB_qt)" classname="tst_QSqlQueryModel" time="0.000"/>
-  <testcase name="task_180617(0_QODBC@YDB_qt)" classname="tst_QSqlQueryModel" time="0.005"/>
+  <testcase name="task_180617(0_QODBC@YDB_qt)" classname="tst_QSqlQueryModel" time="0.007"/>
   <testcase name="task_QTBUG_4963_setHeaderDataWithProxyModel" classname="tst_QSqlQueryModel" time="0.000"/>
-  <testcase name="cleanupTestCase" classname="tst_QSqlQueryModel" time="0.042"/>
+  <testcase name="cleanupTestCase" classname="tst_QSqlQueryModel" time="0.040"/>
 </testsuite>
