@@ -95,7 +95,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ydb-version: [24.1, 24.2, 24.3, 24.4, 25.1, trunk]
+        ydb-version: ${{ fromJSON(github.event_name == 'pull_request' && github.base_ref == 'odbc-driver-feature' && '["latest"]' || '[24.1, 24.2, 24.3, 24.4, 25.1, "trunk"]') }}
         compiler: [clang, gcc]
     services:
       ydb:
@@ -151,16 +151,14 @@ jobs:
     - name: Test ODBC
       if: github.event_name == 'pull_request' && github.base_ref == 'odbc-driver-feature'
       shell: bash
+      env:
+        IAM_YDB_IMAGE: ydbplatform/local-ydb:latest
       run: |
         YDB_VERSION=${{ matrix.ydb-version }} \
           ctest --test-dir build/odbc/tests/integration -j2 \
             -E '^OdbcAuthentication\.' --output-on-failure
 
-        case '${{ matrix.ydb-version }}' in
-          25.1|trunk)
-            ./.github/scripts/run_iam_integration_tests.sh
-            ;;
-        esac
+        ./.github/scripts/run_iam_integration_tests.sh
 
   test-install:
     if: github.event_name != 'pull_request' || github.base_ref == 'main'

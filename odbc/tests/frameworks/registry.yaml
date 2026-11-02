@@ -1,6 +1,6 @@
 schema_version: 2
 ydb:
-  image: ydbplatform/local-ydb:25.2.1@sha256:f65076231c056659f85d5399ae79e98ecc6278dc0f97dbbde3d2d0a1c79d5412
+  image: ydbplatform/local-ydb:latest
   endpoint: localhost:2136
   database: /local
 classifications:

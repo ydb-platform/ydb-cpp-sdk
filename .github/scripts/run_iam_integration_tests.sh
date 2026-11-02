@@ -49,7 +49,7 @@ docker run -d --name "${IAM_CONTAINER_NAME}" --hostname localhost \
   -e YDB_TABLE_ENABLE_PREPARED_DDL=true \
   -e YDB_ENFORCE_USER_TOKEN_REQUIREMENT=true \
   -e YDB_DEFAULT_CLUSTERADMIN=root@builtin \
-  ghcr.io/ydb-platform/local-ydb:trunk
+  "${IAM_YDB_IMAGE:-ghcr.io/ydb-platform/local-ydb:trunk}"
 
 wait_for_iam_ydb
 provision_odbc_static_user

@@ -338,18 +338,27 @@ TEST(ConnectionApi, ConnAttrCurrentCatalogAffectsQueries) {
     CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"UPSERT INTO `/local/cat_b/probe` (id, value) VALUES (1, 200)", SQL_NTS),
                   stmt, SQL_HANDLE_STMT);
     SQLFreeStmt(stmt, SQL_CLOSE);
-    CHECK_ODBC_OK(SQLSetConnectAttr(dbc, SQL_ATTR_CURRENT_CATALOG, (SQLPOINTER)"/local/cat_a", SQL_NTS),
-                  dbc, SQL_HANDLE_DBC);
-    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT value FROM probe WHERE id = 1", SQL_NTS),
-                  stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)
+        "SELECT a.value FROM `/local/cat_a/probe` a,`/local/cat_a/probe` b WHERE a.id = b.id", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
     ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
     SQLINTEGER value;
     ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_LONG, &value, 0, nullptr), SQL_SUCCESS);
     ASSERT_EQ(value, 100);
     SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLSetConnectAttr(dbc, SQL_ATTR_CURRENT_CATALOG, (SQLPOINTER)"/local/cat_a", SQL_NTS),
+                  dbc, SQL_HANDLE_DBC);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT a.value FROM probe a, probe b WHERE a.id = b.id AND a.id = 1", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_LONG, &value, 0, nullptr), SQL_SUCCESS);
+    ASSERT_EQ(value, 100);
+    SQLFreeStmt(stmt, SQL_CLOSE);
     CHECK_ODBC_OK(SQLSetConnectAttr(dbc, SQL_ATTR_CURRENT_CATALOG, (SQLPOINTER)"/local/cat_b", SQL_NTS),
                   dbc, SQL_HANDLE_DBC);
-    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT value FROM probe WHERE id = 1", SQL_NTS),
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_NOSCAN, (SQLPOINTER)SQL_NOSCAN_ON, 0),
+                  stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT a.value FROM probe a, probe b WHERE a.id = b.id AND a.id = 1", SQL_NTS),
                   stmt, SQL_HANDLE_STMT);
     ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
     ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_LONG, &value, 0, nullptr), SQL_SUCCESS);
