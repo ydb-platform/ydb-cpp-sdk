@@ -1,0 +1,8 @@
+     odbc_field_precision(): Argument #2 ($field) must be greater than 0
+     int(10)
+     int(7)
+004- int(50)
+004+ int(4096)
+     
+     Warning: odbc_field_precision(): Field index larger than number of fields in %s on line %d
+     bool(false)

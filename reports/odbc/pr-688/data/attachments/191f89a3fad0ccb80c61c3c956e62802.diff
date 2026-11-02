@@ -1,0 +1,153 @@
+001- array(20) {
+001+ array(19) {
+       ["TYPE_NAME"]=>
+003-   string(14) "datetimeoffset"
+003+   string(5) "Int64"
+       ["DATA_TYPE"]=>
+005-   string(4) "-155"
+005+   string(2) "-5"
+       ["COLUMN_SIZE"]=>
+007-   string(2) "34"
+007+   string(2) "19"
+       ["LITERAL_PREFIX"]=>
+009-   string(1) "'"
+009+   NULL
+       ["LITERAL_SUFFIX"]=>
+011-   string(1) "'"
+011+   NULL
+       ["CREATE_PARAMS"]=>
+013-   string(5) "scale"
+013+   NULL
+       ["NULLABLE"]=>
+       string(1) "1"
+       ["CASE_SENSITIVE"]=>
+--
+       ["FIXED_PREC_SCALE"]=>
+       string(1) "0"
+       ["AUTO_UNIQUE_VALUE"]=>
+025-   NULL
+025+   string(1) "0"
+       ["LOCAL_TYPE_NAME"]=>
+027-   string(14) "datetimeoffset"
+027+   string(5) "Int64"
+       ["MINIMUM_SCALE"]=>
+       string(1) "0"
+       ["MAXIMUM_SCALE"]=>
+031-   string(1) "7"
+031+   string(1) "0"
+       ["SQL_DATA_TYPE"]=>
+033-   string(4) "-155"
+033+   string(2) "-5"
+       ["SQL_DATETIME_SUB"]=>
+       string(1) "0"
+       ["NUM_PREC_RADIX"]=>
+037-   NULL
+037+   string(2) "10"
+       ["INTERVAL_PRECISION"]=>
+039-   NULL
+040-   ["USERTYPE"]=>
+       string(1) "0"
+     }
+043- array(20) {
+041+ array(19) {
+       ["TYPE_NAME"]=>
+045-   string(4) "char"
+043+   string(4) "Utf8"
+       ["DATA_TYPE"]=>
+       string(1) "1"
+       ["COLUMN_SIZE"]=>
+049-   string(4) "8000"
+047+   string(3) "255"
+       ["LITERAL_PREFIX"]=>
+051-   string(1) "'"
+049+   NULL
+       ["LITERAL_SUFFIX"]=>
+053-   string(1) "'"
+051+   NULL
+       ["CREATE_PARAMS"]=>
+055-   string(6) "length"
+053+   NULL
+       ["NULLABLE"]=>
+       string(1) "1"
+       ["CASE_SENSITIVE"]=>
+--
+       ["FIXED_PREC_SCALE"]=>
+       string(1) "0"
+       ["AUTO_UNIQUE_VALUE"]=>
+067-   NULL
+065+   string(1) "0"
+       ["LOCAL_TYPE_NAME"]=>
+069-   string(4) "char"
+067+   string(4) "Utf8"
+       ["MINIMUM_SCALE"]=>
+071-   NULL
+069+   string(1) "0"
+       ["MAXIMUM_SCALE"]=>
+073-   NULL
+071+   string(1) "0"
+       ["SQL_DATA_TYPE"]=>
+       string(1) "1"
+       ["SQL_DATETIME_SUB"]=>
+077-   NULL
+075+   string(1) "0"
+       ["NUM_PREC_RADIX"]=>
+079-   NULL
+077+   string(2) "10"
+       ["INTERVAL_PRECISION"]=>
+081-   NULL
+082-   ["USERTYPE"]=>
+083-   string(1) "1"
+079+   string(1) "0"
+     }
+085- array(20) {
+081+ array(19) {
+       ["TYPE_NAME"]=>
+087-   string(7) "numeric"
+083+   string(14) "Decimal(22, 9)"
+       ["DATA_TYPE"]=>
+       string(1) "2"
+       ["COLUMN_SIZE"]=>
+091-   string(2) "38"
+087+   string(2) "22"
+       ["LITERAL_PREFIX"]=>
+       NULL
+       ["LITERAL_SUFFIX"]=>
+       NULL
+       ["CREATE_PARAMS"]=>
+097-   string(15) "precision,scale"
+093+   NULL
+       ["NULLABLE"]=>
+       string(1) "1"
+       ["CASE_SENSITIVE"]=>
+       string(1) "0"
+       ["SEARCHABLE"]=>
+103-   string(1) "2"
+099+   string(1) "3"
+       ["UNSIGNED_ATTRIBUTE"]=>
+105-   string(1) "0"
+101+   NULL
+       ["FIXED_PREC_SCALE"]=>
+       string(1) "0"
+       ["AUTO_UNIQUE_VALUE"]=>
+       string(1) "0"
+       ["LOCAL_TYPE_NAME"]=>
+111-   string(7) "numeric"
+107+   string(14) "Decimal(22, 9)"
+       ["MINIMUM_SCALE"]=>
+       string(1) "0"
+       ["MAXIMUM_SCALE"]=>
+115-   string(2) "38"
+111+   string(1) "0"
+       ["SQL_DATA_TYPE"]=>
+       string(1) "2"
+       ["SQL_DATETIME_SUB"]=>
+119-   NULL
+115+   string(1) "0"
+       ["NUM_PREC_RADIX"]=>
+       string(2) "10"
+       ["INTERVAL_PRECISION"]=>
+123-   NULL
+124-   ["USERTYPE"]=>
+125-   string(2) "10"
+119+   string(1) "0"
+     }

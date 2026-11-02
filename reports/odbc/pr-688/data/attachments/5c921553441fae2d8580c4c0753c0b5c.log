@@ -1,0 +1,85 @@
+
+=====================================================================
+PHP         : /usr/bin/php 
+PHP_SAPI    : cli
+PHP_VERSION : 8.3.6
+ZEND_VERSION: 4.3.6
+PHP_OS      : Linux - Linux runnervm48cm3 7.0.0-1017-azure #17~24.04.1-Ubuntu SMP PREEMPT Thu Sep 24 18:46:57 UTC 2026 x86_64
+INI actual  : /etc/php/8.3/cli/php.ini
+More .INIs  : /etc/php/8.3/cli/conf.d/10-opcache.ini,/etc/php/8.3/cli/conf.d/10-pdo.ini,/etc/php/8.3/cli/conf.d/15-xml.ini,/etc/php/8.3/cli/conf.d/20-calendar.ini,/etc/php/8.3/cli/conf.d/20-ctype.ini,/etc/php/8.3/cli/conf.d/20-dom.ini,/etc/php/8.3/cli/conf.d/20-exif.ini,/etc/php/8.3/cli/conf.d/20-ffi.ini,/etc/php/8.3/cli/conf.d/20-fileinfo.ini,/etc/php/8.3/cli/conf.d/20-ftp.ini,/etc/php/8.3/cli/conf.d/20-gettext.ini,/etc/php/8.3/cli/conf.d/20-iconv.ini,/etc/php/8.3/cli/conf.d/20-mbstring.ini,/etc/php/8.3/cli/conf.d/20-odbc.ini,/etc/php/8.3/cli/conf.d/20-pdo_odbc.ini,/etc/php/8.3/cli/conf.d/20-phar.ini,/etc/php/8.3/cli/conf.d/20-posix.ini,/etc/php/8.3/cli/conf.d/20-readline.ini,/etc/php/8.3/cli/conf.d/20-shmop.ini,/etc/php/8.3/cli/conf.d/20-simplexml.ini,/etc/php/8.3/cli/conf.d/20-sockets.ini,/etc/php/8.3/cli/conf.d/20-sysvmsg.ini,/etc/php/8.3/cli/conf.d/20-sysvsem.ini,/etc/php/8.3/cli/conf.d/20-sysvshm.ini,/etc/php/8.3/cli/conf.d/20-tokenizer.ini,/etc/php/8.3/cli/conf.d/20-xmlreader.ini,/etc/php/8.3/cli/conf.d/20-xmlwriter.ini,/etc/php/8.3/cli/conf.d/20-xsl.ini  
+CWD         : /work/source
+Extra dirs  : 
+VALGRIND    : Not used
+=====================================================================
+Running selected tests.
+TEST 1/46 [ext/odbc/tests/bug44618.phpt][1;33mSKIP[0m Bug #44618 (Fetching may rely on uninitialized data) [ext/odbc/tests/bug44618.phpt] reason: Fails with unixODBC
+TEST 2/46 [ext/odbc/tests/bug46050.phpt][1;31mFAIL[0m Bug #46050 (odbc_next_result corrupts prepared resource) [ext/odbc/tests/bug46050.phpt] 
+TEST 3/46 [ext/odbc/tests/bug47803.phpt][1;32mPASS[0m Bug #47803 Executing prepared statements is successful only for the first two statements [ext/odbc/tests/bug47803.phpt] 
+TEST 4/46 [ext/odbc/tests/bug60616.phpt][1;33mSKIP[0m odbc_exec(): Getting accurate unicode data from query [ext/odbc/tests/bug60616.phpt] reason: YDB databases require UTF-8, not EUC_JP
+TEST 5/46 [ext/odbc/tests/bug68087.phpt][1;32mPASS[0m odbc_exec(): Getting accurate date data from query [ext/odbc/tests/bug68087.phpt] 
+TEST 6/46 [ext/odbc/tests/bug69354.phpt][1;32mPASS[0m Bug #69354 Incorrect use of SQLColAttributes with ODBC 3.0 [ext/odbc/tests/bug69354.phpt] 
+TEST 7/46 [ext/odbc/tests/bug69975.phpt][1;32mPASS[0m Bug #69975 (PHP segfaults when accessing nvarchar(max) defined columns) [ext/odbc/tests/bug69975.phpt] 
+TEST 8/46 [ext/odbc/tests/bug71171.phpt][1;31mFAIL[0m Bug #71171 odbc_fetch_array generates SIGFAULT, variant 0 [ext/odbc/tests/bug71171.phpt] 
+TEST 9/46 [ext/odbc/tests/bug73448.phpt][1;31mFAIL[0m Bug #73448 odbc_errormsg returns trash, always 513 bytes [ext/odbc/tests/bug73448.phpt] 
+TEST 10/46 [ext/odbc/tests/bug73725.phpt][1;32mPASS[0m Bug #73725 Unable to retrieve value of varchar(max) type [ext/odbc/tests/bug73725.phpt] 
+TEST 11/46 [ext/odbc/tests/bug78470.phpt][1;32mPASS[0m Bug #78470 (odbc_specialcolumns() no longer accepts $nullable) [ext/odbc/tests/bug78470.phpt] 
+TEST 12/46 [ext/odbc/tests/bug78473.phpt][1;32mPASS[0m Bug #78473 (odbc_close() closes arbitrary resources) [ext/odbc/tests/bug78473.phpt] 
+TEST 13/46 [ext/odbc/tests/bug80147.phpt][1;32mPASS[0m Bug #80147 (BINARY strings may not be properly zero-terminated) [ext/odbc/tests/bug80147.phpt] 
+TEST 14/46 [ext/odbc/tests/bug80152.phpt][1;32mPASS[0m Bug #80152 (odbc_execute() moves internal pointer of $params) [ext/odbc/tests/bug80152.phpt] 
+TEST 15/46 [ext/odbc/tests/bug80592.phpt][1;31mFAIL[0m Bug #80592 (all floats are the same in ODBC parameters) [ext/odbc/tests/bug80592.phpt] 
+TEST 16/46 [ext/odbc/tests/odbc_autocommit_001.phpt][1;32mPASS[0m odbc_autocommit(): Basic test [ext/odbc/tests/odbc_autocommit_001.phpt] 
+TEST 17/46 [ext/odbc/tests/odbc_close_all_001.phpt][1;32mPASS[0m odbc_close_all(): Basic test [ext/odbc/tests/odbc_close_all_001.phpt] 
+TEST 18/46 [ext/odbc/tests/odbc_columnprivileges_001.phpt][1;32mPASS[0m odbc_columnprivileges(): Basic test [ext/odbc/tests/odbc_columnprivileges_001.phpt] 
+TEST 19/46 [ext/odbc/tests/odbc_columns_001.phpt][1;33mSKIP[0m odbc_columns(): Basic test [ext/odbc/tests/odbc_columns_001.phpt] reason: MS SQL specific test
+TEST 20/46 [ext/odbc/tests/odbc_commit_001.phpt][1;32mPASS[0m odbc_commit(): Basic test for odbc_commit() [ext/odbc/tests/odbc_commit_001.phpt] 
+TEST 21/46 [ext/odbc/tests/odbc_cursor_001.phpt][1;31mFAIL[0m Test odbc_cursor() [ext/odbc/tests/odbc_cursor_001.phpt] 
+TEST 22/46 [ext/odbc/tests/odbc_data_source_001.phpt][1;32mPASS[0m odbc_data_source(): Basic test [ext/odbc/tests/odbc_data_source_001.phpt] 
+TEST 23/46 [ext/odbc/tests/odbc_exec_001.phpt][1;31mFAIL[0m odbc_exec(): Basic test [ext/odbc/tests/odbc_exec_001.phpt] 
+TEST 24/46 [ext/odbc/tests/odbc_exec_002.phpt][1;31mFAIL[0m odbc_exec(): Getting data from query [ext/odbc/tests/odbc_exec_002.phpt] 
+TEST 25/46 [ext/odbc/tests/odbc_fetch_array_001.phpt][1;32mPASS[0m odbc_fetch_array(): Getting data from query [ext/odbc/tests/odbc_fetch_array_001.phpt] 
+TEST 26/46 [ext/odbc/tests/odbc_fetch_into_001.phpt][1;32mPASS[0m odbc_fetch_into(): Getting data from query [ext/odbc/tests/odbc_fetch_into_001.phpt] 
+TEST 27/46 [ext/odbc/tests/odbc_fetch_object_001.phpt][1;32mPASS[0m odbc_fetch_object(): Getting data from query [ext/odbc/tests/odbc_fetch_object_001.phpt] 
+TEST 28/46 [ext/odbc/tests/odbc_fetch_row_001.phpt][1;32mPASS[0m odbc_fetch_row(): Getting data from query [ext/odbc/tests/odbc_fetch_row_001.phpt] 
+TEST 29/46 [ext/odbc/tests/odbc_field_len_001.phpt][1;31mFAIL[0m odbc_field_len(): Getting the length of the field [ext/odbc/tests/odbc_field_len_001.phpt] 
+TEST 30/46 [ext/odbc/tests/odbc_field_name_001.phpt][1;32mPASS[0m odbc_field_name(): Getting the name of the field [ext/odbc/tests/odbc_field_name_001.phpt] 
+TEST 31/46 [ext/odbc/tests/odbc_field_num_001.phpt][1;32mPASS[0m odbc_field_scale(): Getting the scale of the field [ext/odbc/tests/odbc_field_num_001.phpt] 
+TEST 32/46 [ext/odbc/tests/odbc_field_precision_001.phpt][1;31mFAIL[0m odbc_field_precision(): Getting the precision of the field [ext/odbc/tests/odbc_field_precision_001.phpt] 
+TEST 33/46 [ext/odbc/tests/odbc_field_scale_001.phpt][1;32mPASS[0m odbc_field_scale(): Getting the scale of the field [ext/odbc/tests/odbc_field_scale_001.phpt] 
+TEST 34/46 [ext/odbc/tests/odbc_field_type_001.phpt][1;32mPASS[0m odbc_field_type(): Getting the type of the field [ext/odbc/tests/odbc_field_type_001.phpt] 
+TEST 35/46 [ext/odbc/tests/odbc_free_result_001.phpt][1;32mPASS[0m odbc_free_result(): Basic test [ext/odbc/tests/odbc_free_result_001.phpt] 
+TEST 36/46 [ext/odbc/tests/odbc_gettypeinfo_001.phpt][1;31mFAIL[0m odbc_gettypeinfo(): Getting info about data types [ext/odbc/tests/odbc_gettypeinfo_001.phpt] 
+TEST 37/46 [ext/odbc/tests/odbc_longreadlen_001.phpt][1;32mPASS[0m Test odbc_longreadlen() [ext/odbc/tests/odbc_longreadlen_001.phpt] 
+TEST 38/46 [ext/odbc/tests/odbc_num_fields_001.phpt][1;32mPASS[0m odbc_num_fields(): Getting the number of fields [ext/odbc/tests/odbc_num_fields_001.phpt] 
+TEST 39/46 [ext/odbc/tests/odbc_num_rows_001.phpt][1;31mFAIL[0m odbc_num_rows(): Getting the number of rows [ext/odbc/tests/odbc_num_rows_001.phpt] 
+TEST 40/46 [ext/odbc/tests/odbc_persistent_close.phpt][1;33mSKIP[0m odbc_pconnect(): Make sure closing a persistent connection works [ext/odbc/tests/odbc_persistent_close.phpt] reason: MS SQL specific test
+TEST 41/46 [ext/odbc/tests/odbc_primarykeys_001.phpt][1;33mSKIP[0m odbc_primarykeys(): Basic test for odbc_primarykeys() [ext/odbc/tests/odbc_primarykeys_001.phpt] reason: MS SQL specific test
+TEST 42/46 [ext/odbc/tests/odbc_rollback_001.phpt][1;32mPASS[0m odbc_rollback(): Basic test for odbc_rollback() [ext/odbc/tests/odbc_rollback_001.phpt] 
+TEST 43/46 [ext/odbc/tests/odbc_setoption_001.phpt][1;32mPASS[0m odbc_setoption(): Basic test for odbc_setoption() [ext/odbc/tests/odbc_setoption_001.phpt] 
+TEST 44/46 [ext/odbc/tests/odbc_setoption_002.phpt][1;32mPASS[0m odbc_setoption(): Test for odbc_setoption() with persistent connection [ext/odbc/tests/odbc_setoption_002.phpt] 
+TEST 45/46 [ext/odbc/tests/odbc_tables_001.phpt][1;32mPASS[0m odbc_tables(): Basic test [ext/odbc/tests/odbc_tables_001.phpt] 
+TEST 46/46 [ext/odbc/tests/odbc_utils.phpt][1;32mPASS[0m Test common ODBC string functionality [ext/odbc/tests/odbc_utils.phpt] 
+=====================================================================
+Number of tests :    46                41
+Tests skipped   :     5 ( 10.9%) --------
+Tests warned    :     0 (  0.0%) (  0.0%)
+Tests failed    :    11 ( 23.9%) ( 26.8%)
+Tests passed    :    30 ( 65.2%) ( 73.2%)
+---------------------------------------------------------------------
+Time taken      :     6 seconds
+=====================================================================
+
+=====================================================================
+FAILED TEST SUMMARY
+---------------------------------------------------------------------
+Bug #46050 (odbc_next_result corrupts prepared resource) [ext/odbc/tests/bug46050.phpt]
+Bug #71171 odbc_fetch_array generates SIGFAULT, variant 0 [ext/odbc/tests/bug71171.phpt]
+Bug #73448 odbc_errormsg returns trash, always 513 bytes [ext/odbc/tests/bug73448.phpt]
+Bug #80592 (all floats are the same in ODBC parameters) [ext/odbc/tests/bug80592.phpt]
+Test odbc_cursor() [ext/odbc/tests/odbc_cursor_001.phpt]
+odbc_exec(): Basic test [ext/odbc/tests/odbc_exec_001.phpt]
+odbc_exec(): Getting data from query [ext/odbc/tests/odbc_exec_002.phpt]
+odbc_field_len(): Getting the length of the field [ext/odbc/tests/odbc_field_len_001.phpt]
+odbc_field_precision(): Getting the precision of the field [ext/odbc/tests/odbc_field_precision_001.phpt]
+odbc_gettypeinfo(): Getting info about data types [ext/odbc/tests/odbc_gettypeinfo_001.phpt]
+odbc_num_rows(): Getting the number of rows [ext/odbc/tests/odbc_num_rows_001.phpt]
+=====================================================================
