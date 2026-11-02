@@ -5,6 +5,7 @@ sys.path.insert(0,'/harness/bindings')
 from adapter import run
 
 def main(s):
+    s.command(['patch','--batch','--forward','--fuzz=0','-p1','-i',s.adapter/'upstream.patch'], 'upstream-patch')
     s.command(['make','odbc','LUA_SYS_VER=5.4'], 'build')
     module=Path('/work/modules/luasql');module.mkdir(parents=True)
     shutil.copyfile(s.source/'src/odbc.so',module/'odbc.so')

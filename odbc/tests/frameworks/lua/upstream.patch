@@ -1,0 +1,28 @@
+# Temporary backport of https://github.com/lunarmodules/luasql/pull/219
+# Remove when upstream.lock includes the fix.
+
+diff --git a/src/ls_odbc.c b/src/ls_odbc.c
+index 36556e5..e0d469e 100644
+--- a/src/ls_odbc.c
++++ b/src/ls_odbc.c
+@@ -372,9 +372,9 @@ static int push_column(lua_State *L, int coltypes, const SQLHSTMT hstmt,
+ #if LUA_VERSION_NUM>=503
+ 		/* iNteger */
+ 		case 'n': {
+-			SQLLEN num;
++			SQLBIGINT num;
+ 			SQLLEN got;
+-			SQLRETURN rc = SQLGetData(hstmt, i, SQL_C_SLONG, &num, 0, &got);
++			SQLRETURN rc = SQLGetData(hstmt, i, SQL_C_SBIGINT, &num, 0, &got);
+ 			if (error(rc))
+ 				return fail(L, hSTMT, hstmt);
+ 			if (got == SQL_NULL_DATA)
+@@ -410,6 +410,8 @@ static int push_column(lua_State *L, int coltypes, const SQLHSTMT hstmt,
+ 			buffer = luaL_prepbuffer(&b);
+ 			rc = SQLGetData(hstmt, i, stype, buffer, LUAL_BUFFERSIZE, &got);
+ 			if (got == SQL_NULL_DATA) {
++				luaL_pushresult(&b);
++				lua_pop(L, 1);
+ 				lua_pushnil(L);
+ 				return 0;
+ 			}

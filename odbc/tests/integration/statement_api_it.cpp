@@ -1806,6 +1806,107 @@ TEST(StatementApi, ForwardCursorCapsRowsetReservationToAvailableRows) {
     SQLFreeHandle(SQL_HANDLE_ENV, env);
 }
 
+TEST(StatementApi, ExtendedFetchKeepsLegacyRowsetsSeparate) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+
+    SQLUSMALLINT supported = SQL_FALSE;
+    ASSERT_EQ(SQLGetFunctions(dbc, SQL_API_SQLEXTENDEDFETCH, &supported), SQL_SUCCESS);
+    EXPECT_EQ(supported, SQL_TRUE);
+    ASSERT_EQ(SQLSetStmtAttr(stmt, SQL_ATTR_CURSOR_TYPE,
+                            (SQLPOINTER)SQL_CURSOR_STATIC, 0), SQL_SUCCESS);
+    ASSERT_EQ(SQLSetStmtAttr(stmt, SQL_ATTR_ROW_ARRAY_SIZE, (SQLPOINTER)3, 0), SQL_SUCCESS);
+    SQLULEN modernFetched = 99;
+    SQLUSMALLINT modernStatuses[3] = {99, 99, 99};
+    ASSERT_EQ(SQLSetStmtAttr(stmt, SQL_ATTR_ROWS_FETCHED_PTR, &modernFetched, 0), SQL_SUCCESS);
+    ASSERT_EQ(SQLSetStmtAttr(stmt, SQL_ATTR_ROW_STATUS_PTR, modernStatuses, 0), SQL_SUCCESS);
+    constexpr size_t valueOffset = sizeof(SQLLEN) / sizeof(SQLINTEGER);
+    SQLINTEGER values[3 + valueOffset] = {};
+    SQLLEN indicators[4] = {};
+    SQLULEN bindOffset = sizeof(SQLLEN);
+    ASSERT_EQ(SQLSetStmtAttr(stmt, SQL_ATTR_ROW_BIND_OFFSET_PTR, &bindOffset, 0), SQL_SUCCESS);
+    ASSERT_EQ(SQLBindCol(stmt, 1, SQL_C_LONG, values, 0, indicators), SQL_SUCCESS);
+    const auto query = (SQLCHAR*)"SELECT * FROM AS_TABLE(ListMap(ListFromRange(1, 4), "
+                                 "($x) -> (AsStruct($x AS value)))) ORDER BY value";
+    ASSERT_EQ(SQLExecDirect(stmt, query, SQL_NTS), SQL_SUCCESS);
+
+    SQLULEN fetched = 99;
+    SQLUSMALLINT statuses[2] = {99, 99};
+    ASSERT_EQ(SQLExtendedFetch(stmt, SQL_FETCH_NEXT, 0, &fetched, statuses), SQL_SUCCESS);
+    EXPECT_EQ(fetched, 1); // SQL_ROWSET_SIZE defaults to one, independently of the ARD.
+    EXPECT_EQ(values[0], 1);
+    EXPECT_EQ(values[valueOffset], 0);
+    EXPECT_EQ(indicators[0], sizeof(SQLINTEGER));
+    EXPECT_EQ(indicators[1], 0);
+    EXPECT_EQ(statuses[0], SQL_ROW_SUCCESS);
+    EXPECT_EQ(statuses[1], 99);
+    EXPECT_EQ(modernFetched, 99);
+    EXPECT_EQ(modernStatuses[0], 99);
+
+    ASSERT_EQ(SQLSetStmtOption(stmt, SQL_ROWSET_SIZE, 2), SQL_SUCCESS);
+    EXPECT_EQ(SQLSetStmtOption(stmt, SQL_ROWSET_SIZE, 0), SQL_ERROR);
+    SQLULEN size = 0;
+    ASSERT_EQ(SQLGetStmtOption(stmt, SQL_ROWSET_SIZE, &size), SQL_SUCCESS);
+    EXPECT_EQ(size, 2);
+    ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_ROW_ARRAY_SIZE, &size, 0, nullptr), SQL_SUCCESS);
+    EXPECT_EQ(size, 3);
+    SQLHDESC ard = SQL_NULL_HDESC;
+    ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_APP_ROW_DESC, &ard, 0, nullptr), SQL_SUCCESS);
+    ASSERT_EQ(SQLSetDescField(ard, 0, SQL_DESC_BIND_OFFSET_PTR, &bindOffset, 0), SQL_SUCCESS);
+    ASSERT_EQ(SQLExtendedFetch(stmt, SQL_FETCH_ABSOLUTE, 2, &fetched, statuses), SQL_SUCCESS);
+    EXPECT_EQ(fetched, 2);
+    EXPECT_EQ(values[0], 2);
+    EXPECT_EQ(values[1], 3);
+    EXPECT_EQ(indicators[1], sizeof(SQLINTEGER));
+    EXPECT_EQ(indicators[2], 0);
+    EXPECT_EQ(statuses[1], SQL_ROW_SUCCESS);
+    EXPECT_EQ(SQLExtendedFetch(stmt, SQL_FETCH_NEXT, 0, &fetched, statuses), SQL_NO_DATA);
+    EXPECT_EQ(fetched, 0);
+    EXPECT_EQ(statuses[0], SQL_ROW_NOROW);
+    EXPECT_EQ(statuses[1], SQL_ROW_NOROW);
+    EXPECT_EQ(modernFetched, 99);
+    EXPECT_EQ(modernStatuses[1], 99);
+
+    ASSERT_EQ(SQLFreeStmt(stmt, SQL_CLOSE), SQL_SUCCESS);
+    ASSERT_EQ(SQLExecDirect(stmt, query, SQL_NTS), SQL_SUCCESS);
+    values[0] = 99;
+    indicators[0] = 99;
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    EXPECT_EQ(modernFetched, 3);
+    EXPECT_EQ(modernStatuses[2], SQL_ROW_SUCCESS);
+    EXPECT_EQ(values[0], 99);
+    EXPECT_EQ(indicators[0], 99);
+    EXPECT_EQ(values[valueOffset], 1);
+    EXPECT_EQ(values[valueOffset + 1], 2);
+    EXPECT_EQ(values[valueOffset + 2], 3);
+    EXPECT_EQ(indicators[3], sizeof(SQLINTEGER));
+
+    ASSERT_EQ(SQLFreeStmt(stmt, SQL_CLOSE), SQL_SUCCESS);
+    ASSERT_EQ(SQLSetStmtAttr(stmt, SQL_ATTR_ROW_BIND_OFFSET_PTR, nullptr, 0), SQL_SUCCESS);
+    SQLSCHAR smallValues[2] = {};
+    ASSERT_EQ(SQLBindCol(stmt, 1, SQL_C_STINYINT, smallValues, 0, indicators), SQL_SUCCESS);
+    ASSERT_EQ(SQLExecDirect(stmt, (SQLCHAR*)"SELECT 128", SQL_NTS), SQL_SUCCESS);
+    EXPECT_EQ(SQLExtendedFetch(stmt, SQL_FETCH_NEXT, 0, &fetched, statuses), SQL_SUCCESS_WITH_INFO);
+    EXPECT_EQ(fetched, 1);
+    EXPECT_EQ(statuses[0], SQL_ROW_ERROR);
+    EXPECT_EQ(statuses[1], SQL_ROW_NOROW);
+    bool rowError = false;
+    SQLCHAR state[6] = {};
+    for (SQLSMALLINT record = 1; SQL_SUCCEEDED(SQLGetDiagRec(
+            SQL_HANDLE_STMT, stmt, record, state, nullptr, nullptr, 0, nullptr)); ++record) {
+        rowError |= std::strcmp((char*)state, "01S01") == 0;
+    }
+    EXPECT_TRUE(rowError);
+
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
 TEST(StatementApi, StaticCursorScrollsRowsets) {
     SQLHENV env;
     SQLHDBC dbc;

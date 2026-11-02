@@ -366,6 +366,11 @@ SQLRETURN SQL_API SQLFetchScroll(SQLHSTMT statementHandle, SQLSMALLINT fetchOrie
         statementHandle, fetchOrientation, fetchOffset);
 }
 
+ODBC_FORWARD(SQLExtendedFetch, TStatement, TStatement::ExtendedFetch,
+    (SQLHSTMT statementHandle, SQLUSMALLINT fetchOrientation, SQLLEN fetchOffset,
+     SQLULEN* rowCount, SQLUSMALLINT* rowStatus),
+    (statementHandle, fetchOrientation, fetchOffset, rowCount, rowStatus))
+
 ODBC_FORWARD(SQLRowCount, TStatement, TStatement::RowCount,
     (SQLHSTMT statementHandle, SQLLEN* rowCount), (statementHandle, rowCount))
 

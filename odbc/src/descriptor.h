@@ -70,7 +70,7 @@ public:
     uint64_t GetSchemaGeneration() const noexcept { return SchemaGeneration_; }
     const TDescRecord* FindRecord(SQLSMALLINT number) const noexcept;
     SQLSMALLINT GetRecordCount() const noexcept;
-    TResolvedBinding ResolveBinding(const TDescRecord& record, SQLULEN index) const noexcept;
+    TResolvedBinding ResolveBinding(const TDescRecord& record, SQLULEN index, bool useOffset = true) const noexcept;
 };
 
 class TDescriptor : public THandle, private TDescriptorState {
