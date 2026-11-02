@@ -41,6 +41,8 @@ class HarnessTests(unittest.TestCase):
             data["consumers"].append(dict(data["consumers"][0]))
         def unpinned(data, _):
             data["consumers"][0]["runtime_image"] = "ubuntu:24.04"
+        def unpinned_ydb(data, _):
+            data["ydb"]["image"] = "ydbplatform/local-ydb:25.2.1"
         def changed_source(data, _):
             framework(data)["source"]["sha256"] = "0" * 64
         def add_classification(data, outcome, reason, consumer, pattern):
@@ -62,6 +64,7 @@ class HarnessTests(unittest.TestCase):
                                f"{consumer['id']}.*.future_suite.case")
         cases = [(duplicate, "duplicate consumer"),
                  (unpinned, "digest-pinned"),
+                 (unpinned_ydb, "YDB image must use latest"),
                  (changed_source, "upstream.lock"),
                  (broad_failure, "suite-wide expected-result patterns"),
                  (duplicate_classification, "duplicate or unexplained expectations"),

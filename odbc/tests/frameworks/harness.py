@@ -72,7 +72,7 @@ def load_registry(path=REGISTRY):
     data = read_yaml(path); require(isinstance(data, dict) and data.get("schema_version") == 2,
                                     "unsupported registry schema")
     ydb = data.get("ydb", {}); consumers = data.get("consumers")
-    require(IMAGE_RE.match(str(ydb.get("image", ""))), "YDB image must be digest-pinned")
+    require(ydb.get("image") == "ydbplatform/local-ydb:latest", "YDB image must use latest")
     require(ydb.get("endpoint") and str(ydb.get("database", "")).startswith("/"),
             "YDB endpoint and absolute database are required")
     require(isinstance(consumers, list) and consumers, "registry has no consumers")
