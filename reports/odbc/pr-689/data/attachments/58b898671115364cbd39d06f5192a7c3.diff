@@ -1,0 +1,24 @@
+     string(42) "/* non existent procedure xy */ execute xy"
+002- string(5) "37000"
+003- string(%d) "[Microsoft][%s][SQL Server]Could not find stored procedure 'xy'."
+002+ string(5) "S1000"
+003+ string(111) "General error: <main>:2:32: Error: no viable alternative at input ';\n/* non existent procedure xy */ execute'
+004+ "
+     
+006+ string(59) "/* valid select with result */ select * from sys.sysobjects"
+007+ string(5) "S1000"
+008+ string(56) "General error: <main>:2:46: Error: Unknown cluster: sys
+009+ "
+010+ 
+     string(58) "/* another erroneous query */ SELECT * FROM zwiebelfleisch"
+     string(5) "S0002"
+007- string(%d) "[Microsoft][%s][SQL Server]Invalid object name 'zwiebelfleisch'."
+013+ string(336) "Base table or view not found: <main>: Error: Type annotation, code: 1030
+014+     <main>:2:31: Error: At function: KiReadTable!
+015+         <main>:2:31: Error: Cannot find table 'db.[/local/zwiebelfleisch]' because it does not exist or you do not have access permissions. Please check correctness of table path and user permissions., code: 2003
+016+ "
+017+ 
+018+ string(59) "/* valid select with result */ select * from sys.sysobjects"
+019+ string(5) "S1000"
+020+ string(56) "General error: <main>:2:46: Error: Unknown cluster: sys
+021+ "
