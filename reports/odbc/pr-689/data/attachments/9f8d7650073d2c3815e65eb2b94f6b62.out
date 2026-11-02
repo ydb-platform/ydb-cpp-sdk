@@ -1,0 +1,38 @@
+===FAIL===
+
+Warning: PDO::query(): SQLSTATE[42S02]: Base table or view not found: 400070 Base table or view not found: <main>: Error: Type annotation, code: 1030
+    <main>:1:1: Error: At function: KiReadTable!
+        <main>:1:1: Error: Cannot find table 'db.[/local/bad_table]' because it does not exist or you do not have access permissions. Please check correctness of table path and user permissions., code: 2003
+ (SQLExecute[400070] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/bug_64172.php on line 12
+
+===test===
+bool(true)
+bool(true)
+bool(true)
+===GOOD===
+array(3) {
+  [0]=>
+  string(5) "00000"
+  [1]=>
+  NULL
+  [2]=>
+  NULL
+}
+===FAIL===
+
+Warning: PDO::exec(): SQLSTATE[HY000]: General error: 400080 General error: <main>:1:13: Error: INSERT INTO ... VALUES requires specification of table columns
+ (SQLExecDirect[400080] at ./ext/pdo_odbc/odbc_driver.c:241) in /work/source/ext/pdo/tests/bug_64172.php on line 25
+
+===test===
+bool(true)
+bool(true)
+bool(true)
+===GOOD===
+array(3) {
+  [0]=>
+  string(5) "00000"
+  [1]=>
+  NULL
+  [2]=>
+  NULL
+}

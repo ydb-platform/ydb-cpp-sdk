@@ -1,0 +1,13 @@
+001- array(3) {
+002-   ["f1"]=>
+003-   string(3) "1.0"
+004-   ["f2"]=>
+005-   string(3) "2.0"
+006-   ["f3"]=>
+007-   string(3) "3.0"
+008- }
+001+ Warning: odbc_execute(): SQL error: Integrity constraint violation: <main>: Error: Type annotation, code: 1030
+002+     <main>:4:13: Error: At function: KiWriteTable!
+003+         <main>:4:13: Error: Missing key column in input: ydb_fixture_id for table: /local/bug80592, code: 2029
+004+ , SQL state 23000 in SQLExecute in /work/source/ext/odbc/tests/bug80592.php on line 7
+005+ bool(false)

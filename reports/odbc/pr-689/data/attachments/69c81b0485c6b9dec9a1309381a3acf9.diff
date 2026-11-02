@@ -1,0 +1,6 @@
+001- bool(true)
+002- bool(true)
+003- bool(true)
+001+ bool(false)
+002+ bool(false)
+003+ bool(false)
