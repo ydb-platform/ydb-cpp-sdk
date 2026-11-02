@@ -125,6 +125,9 @@ TEST(CoreApi, SQLGetTypeInfoSchema) {
         EXPECT_EQ(nameLength, static_cast<SQLSMALLINT>(std::strlen(expected[index].Name)));
         EXPECT_EQ(type, expected[index].Type);
         EXPECT_EQ(nullable, expected[index].Nullable);
+        if (type == SQL_SMALLINT || type == SQL_INTEGER) {
+            EXPECT_EQ(size, type == SQL_SMALLINT ? 5 : 10);
+        }
     }
 
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
@@ -140,12 +143,22 @@ TEST(CoreApi, SQLGetTypeInfoFilter) {
     AllocEnvAndConnect(&env, &dbc);
     ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
     CHECK_ODBC_OK(SQLGetTypeInfo(stmt, SQL_INTEGER), stmt, SQL_HANDLE_STMT);
-    SQLINTEGER dataType = 0;
-    SQLLEN indicator = 0;
-    SQLBindCol(stmt, 2, SQL_C_LONG, &dataType, 0, &indicator);
+    std::array<std::string, 2> values;
+    std::array<SQLLEN, 2> indicators{};
+    for (SQLUSMALLINT index = 0; index < values.size(); ++index) {
+        SQLLEN displaySize = 0;
+        CHECK_ODBC_OK(SQLColAttribute(stmt, index + 2, SQL_DESC_DISPLAY_SIZE,
+                                      nullptr, 0, nullptr, &displaySize), stmt, SQL_HANDLE_STMT);
+        values[index].resize(displaySize + 1);
+        CHECK_ODBC_OK(SQLBindCol(stmt, index + 2, SQL_C_CHAR, values[index].data(),
+                                 values[index].size(), &indicators[index]), stmt, SQL_HANDLE_STMT);
+    }
     int rowCount = 0;
     while (SQLFetch(stmt) == SQL_SUCCESS) {
-        ASSERT_EQ(dataType, SQL_INTEGER);
+        EXPECT_STREQ(values[0].c_str(), "4");
+        EXPECT_STREQ(values[1].c_str(), "10");
+        EXPECT_EQ(indicators[0], 1);
+        EXPECT_EQ(indicators[1], 2);
         ++rowCount;
     }
     ASSERT_GT(rowCount, 0);

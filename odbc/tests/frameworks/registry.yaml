@@ -5,6 +5,11 @@ ydb:
   database: /local
 classifications:
   - outcome: unsupported
+    reason: YDB result metadata has no table origins; ODBC permits an empty table name when its origin is unavailable.
+    match: 'Actual[^\n]*tableName\(\)[^\n]*:\s*""\s+Expected'
+    tests:
+      qt: ['qt.*.qsqlquery.{record,forwardOnlyMultipleResultSet}']
+  - outcome: unsupported
     reason: This case updates the table's primary key, which YDB makes immutable.
     match: 'Cannot update primary key column: id'
     tests:

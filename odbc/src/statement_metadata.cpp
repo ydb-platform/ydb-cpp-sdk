@@ -28,7 +28,8 @@ TColumnMeta V(std::string_view name, SQLULEN size = 128,
 
 TColumnMeta N(std::string_view name, SQLSMALLINT type,
               SQLSMALLINT nullable = SQL_NULLABLE) {
-    return C(name, type, 0, nullable);
+    const auto* spec = FindSqlTypeSpec(type);
+    return C(name, type, spec ? spec->ColumnSize : 0, nullable);
 }
 
 const TColumnMeta kColumnsSchema[] = {
