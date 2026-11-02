@@ -20,7 +20,7 @@ Warning: PDOStatement::fetch(): SQLSTATE[HY000]: General error: PDO::FETCH_KEY_P
 Warning: PDOStatement::fetch(): SQLSTATE[HY000]: General error:  ((null)[0] at (null):0) in /work/source/ext/pdo/tests/pdo_034.php on line 14
 bool(false)
 
-Warning: PDO::query(): SQLSTATE[HY000]: General error: 400080 General error: <main>:1:10: Error: Unable to use duplicate column names. Collision in name: a
+Warning: PDO::query(): SQLSTATE[HY000]: General error: 400080 General error: <main>:2:10: Error: Unable to use duplicate column names. Collision in name: a
  (SQLExecute[400080] at ./ext/pdo_odbc/odbc_stmt.c:263) in /work/source/ext/pdo/tests/pdo_034.php on line 15
 
 Fatal error: Uncaught Error: Call to a member function fetchAll() on false in /work/source/ext/pdo/tests/pdo_034.php:15
