@@ -27,6 +27,12 @@ public:
         std::cerr << "==== TMockDiscovery server started on port " << discoveryPort << std::endl;
     }
 
+    ~TMockDiscoveryService() override {
+        // RPC handlers use Lock, Delay and MockResults; finish them before member destruction.
+        Server->Shutdown(std::chrono::system_clock::now());
+        Server->Wait();
+    }
+
     void SetGoodEndpoints(ITopicTestSetup& fixture) {
         std::lock_guard lock(Lock);
         std::cerr << "==== TMockDiscovery set good endpoint nodes " << std::endl;
@@ -69,7 +75,7 @@ public:
         if (Delay != std::chrono::milliseconds::zero()) {
             std::cerr << "==== Delay " << Delay << " before ListEndpoints request" << std::endl;
             auto start = std::chrono::steady_clock::now();
-            while (start + Delay < std::chrono::steady_clock::now()) {
+            while (std::chrono::steady_clock::now() < start + Delay) {
                 if (context->IsCancelled()) {
                     return grpc::Status::CANCELLED;
                 }
@@ -94,6 +100,7 @@ public:
     }
 
     void SetDelay(std::chrono::milliseconds delay) {
+        std::lock_guard lock(Lock);
         Delay = delay;
     }
 
