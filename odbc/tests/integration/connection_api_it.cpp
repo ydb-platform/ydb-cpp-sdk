@@ -339,7 +339,7 @@ TEST(ConnectionApi, ConnAttrCurrentCatalogAffectsQueries) {
                   stmt, SQL_HANDLE_STMT);
     SQLFreeStmt(stmt, SQL_CLOSE);
     CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)
-        "SELECT a.value FROM `/local/cat_a/probe` a,`/local/cat_a/probe` b WHERE a.id = b.id", SQL_NTS),
+        "--!ansi_lexer\nSELECT a.\"value\" FROM `/local/cat_a/probe` a,`/local/cat_a/probe` b WHERE a.id = b.id", SQL_NTS),
         stmt, SQL_HANDLE_STMT);
     ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
     SQLINTEGER value;
@@ -348,7 +348,7 @@ TEST(ConnectionApi, ConnAttrCurrentCatalogAffectsQueries) {
     SQLFreeStmt(stmt, SQL_CLOSE);
     CHECK_ODBC_OK(SQLSetConnectAttr(dbc, SQL_ATTR_CURRENT_CATALOG, (SQLPOINTER)"/local/cat_a", SQL_NTS),
                   dbc, SQL_HANDLE_DBC);
-    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT a.value FROM probe a, probe b WHERE a.id = b.id AND a.id = 1", SQL_NTS),
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"--!ansi_lexer\nSELECT a.\"value\" FROM probe a, probe b WHERE a.id = b.id AND a.id = 1", SQL_NTS),
                   stmt, SQL_HANDLE_STMT);
     ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
     ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_LONG, &value, 0, nullptr), SQL_SUCCESS);
@@ -358,7 +358,7 @@ TEST(ConnectionApi, ConnAttrCurrentCatalogAffectsQueries) {
                   dbc, SQL_HANDLE_DBC);
     CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_NOSCAN, (SQLPOINTER)SQL_NOSCAN_ON, 0),
                   stmt, SQL_HANDLE_STMT);
-    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT a.value FROM probe a, probe b WHERE a.id = b.id AND a.id = 1", SQL_NTS),
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"--!ansi_lexer\nSELECT a.\"value\" FROM probe a, probe b WHERE a.id = b.id AND a.id = 1", SQL_NTS),
                   stmt, SQL_HANDLE_STMT);
     ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
     ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_LONG, &value, 0, nullptr), SQL_SUCCESS);

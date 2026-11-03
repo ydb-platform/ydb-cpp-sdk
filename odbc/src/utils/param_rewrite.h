@@ -18,6 +18,7 @@ struct TParamRewriteResult {
 };
 
 std::string RewriteOdbcEscapes(const std::string& sql);
+std::string AddSqlPreamble(std::string_view sql, std::string_view preamble);
 
 TParamRewriteResult RewriteOdbcSql(
     std::string_view sql,

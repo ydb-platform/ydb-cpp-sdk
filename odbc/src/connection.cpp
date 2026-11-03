@@ -364,7 +364,7 @@ void TConnection::RebindToDatabase(std::string_view newDatabase) {
 std::string TConnection::WrapQueryForCurrentCatalog(const std::string& sql) const {
     std::optional<std::string> rel = Attributes_.ResolveCatalogRoute(Database_).TablePathPrefix;
     if (!rel) {
-        return "PRAGMA AnsiImplicitCrossJoin;\n" + sql;
+        return AddSqlPreamble(sql, "PRAGMA AnsiImplicitCrossJoin;\n");
     }
     std::string escapedPrefix;
     escapedPrefix.reserve(rel->size() + 8);
@@ -374,7 +374,7 @@ std::string TConnection::WrapQueryForCurrentCatalog(const std::string& sql) cons
         }
         escapedPrefix.push_back(ch);
     }
-    return "PRAGMA AnsiImplicitCrossJoin;\nPRAGMA TablePathPrefix = \"" + escapedPrefix + "\";\n" + sql;
+    return AddSqlPreamble(sql, "PRAGMA AnsiImplicitCrossJoin;\nPRAGMA TablePathPrefix = \"" + escapedPrefix + "\";\n");
 }
 
 TConnectionAttributes::TCatalogBinding TConnection::GetCatalogBinding() const {
