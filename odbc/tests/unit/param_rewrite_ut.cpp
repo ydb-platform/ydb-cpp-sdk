@@ -40,6 +40,8 @@ TEST(OdbcParamRewrite, RewritesQuestionMarks) {
         "DECLARE $p1 AS Int32;\n"
         "DECLARE $p2 AS Int32;\n"
         "SELECT $p1 + $p2 AS result");
+    EXPECT_EQ(RewriteParams("--!ansi_lexer\n/* header */ SELECT ? AS \"result\"", {IntParam(1)}).Sql,
+        "--!ansi_lexer\n/* header */ DECLARE $p1 AS Int32;\nSELECT $p1 AS \"result\"");
 }
 
 TEST(OdbcParamRewrite, ParameterMetadataProbes) {

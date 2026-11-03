@@ -441,10 +441,22 @@ TParamRewriteResult RewriteSql(
         declarations += prefix + " " + type->YqlType
             + (BoundParamIsNull(*bound) ? "?;\n" : ";\n");
     }
-    return {.Sql = declarations.empty() ? std::move(body) : declarations + body};
+    return {.Sql = declarations.empty() ? std::move(body) : AddSqlPreamble(body, declarations)};
 }
 
 } // namespace
+
+std::string AddSqlPreamble(std::string_view sql, std::string_view preamble) {
+    // Lexer directives must precede generated statements.
+    const TSqlScanner scanner{sql, nullptr, false};
+    const size_t pos = scanner.SkipSqlTrivia(0, sql.size());
+    std::string result;
+    result.reserve(sql.size() + preamble.size());
+    result.append(sql.substr(0, pos));
+    result.append(preamble);
+    result.append(sql.substr(pos));
+    return result;
+}
 
 std::string RewriteOdbcEscapes(const std::string& sql) {
     std::string result;

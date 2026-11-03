@@ -842,8 +842,8 @@ TEST(StatementApi, PreparedResultMetadataTracksCurrentCatalog) {
         dbc, SQL_ATTR_CURRENT_CATALOG, (SQLPOINTER)"/local/cat_a", SQL_NTS),
         dbc, SQL_HANDLE_DBC);
     CHECK_ODBC_OK(SQLPrepare(stmt,
-        (SQLCHAR*)"SELECT a.* FROM prepared_catalog_metadata AS a, "
-                  "prepared_catalog_metadata AS b WHERE a.id = b.id", SQL_NTS),
+        (SQLCHAR*)"--!ansi_lexer\nSELECT a.* FROM prepared_catalog_metadata AS a, "
+                  "prepared_catalog_metadata AS b WHERE a.\"id\" = b.\"id\"", SQL_NTS),
         stmt, SQL_HANDLE_STMT);
 
     SQLSMALLINT columnCount = 0;
