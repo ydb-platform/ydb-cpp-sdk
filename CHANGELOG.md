@@ -1,4 +1,4 @@
-* Fixed Topic and PersQueue writers unnecessarily refreshing the initial authentication token and failing against servers with authentication disabled.
+* Fixed redundant initial token refreshes in Topic and PersQueue writers.
 
 ## v3.26.0
 
