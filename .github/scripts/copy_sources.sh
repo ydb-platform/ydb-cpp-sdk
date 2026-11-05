@@ -259,7 +259,7 @@ rm -rf $tmp_dir/adapters $tmp_dir/client
 
 SED_INCLUDE='(^\s*#include\s*)(<|\")'
 
-find $tmp_dir -type f -regex ".*\(h\|cpp\|cpp.in\|c\|ipp\|jnj\|rl6\|h.txt\|proto\)$" | while read f;
+find $tmp_dir -type f -regex ".*\.\(h\|cpp\|cpp\.in\|c\|ipp\|jnj\|rl6\|h\.txt\|proto\)$" | while read f;
 do
     sed -i -E \
         's/'$SED_INCLUDE'ydb\/public\/api\//\1\2src\/api\//g;
