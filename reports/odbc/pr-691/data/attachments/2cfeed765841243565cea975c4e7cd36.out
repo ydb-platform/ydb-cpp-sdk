@@ -1,0 +1,25 @@
+string(42) "/* non existent procedure xy */ execute xy"
+string(5) "S1000"
+string(78) "General error: <main>:2:0: Error: no viable alternative at input ';\nexecute'
+"
+
+string(59) "/* valid select with result */ select * from sys.sysobjects"
+string(5) "S0002"
+string(333) "Base table or view not found: <main>: Error: Type annotation, code: 1030
+    <main>:2:15: Error: At function: KiReadTable!
+        <main>:2:15: Error: Cannot find table '/local/sys.[sysobjects]' because it does not exist or you do not have access permissions. Please check correctness of table path and user permissions., code: 2003
+"
+
+string(58) "/* another erroneous query */ SELECT * FROM zwiebelfleisch"
+string(5) "S0002"
+string(334) "Base table or view not found: <main>: Error: Type annotation, code: 1030
+    <main>:2:1: Error: At function: KiReadTable!
+        <main>:2:1: Error: Cannot find table 'db.[/local/zwiebelfleisch]' because it does not exist or you do not have access permissions. Please check correctness of table path and user permissions., code: 2003
+"
+
+string(59) "/* valid select with result */ select * from sys.sysobjects"
+string(5) "S0002"
+string(333) "Base table or view not found: <main>: Error: Type annotation, code: 1030
+    <main>:2:15: Error: At function: KiReadTable!
+        <main>:2:15: Error: Cannot find table '/local/sys.[sysobjects]' because it does not exist or you do not have access permissions. Please check correctness of table path and user permissions., code: 2003
+"

@@ -1,0 +1,1 @@
+{"id":"1d514a1b1481065b3c39a34f578e7b6e","fullName":"r.r.connection_string.test-odbc-config.R%3AodbcListConfig%20returns%20an%20empty%20vector%20on%20Windows","name":"test-odbc-config.R:odbcListConfig returns an empty vector on Windows","status":"passed","testResultsByEnv":{"default":"a19552b5729a5d4cf74f3ce4696ab9ac"}}
