@@ -2,6 +2,19 @@ add_subdirectory(federated_topic)
 add_subdirectory(oauth2_token_exchange/helpers)
 add_subdirectory(topic)
 
+add_ydb_test(NAME client-persqueue-replication-attributes_ut
+  INCLUDE_DIRS ${YDB_SDK_SOURCE_DIR}
+  SOURCES ${YDB_SDK_SOURCE_DIR}/src/client/persqueue_public/ut/control_plane/replication_attributes_ut.cpp
+  LINK_LIBRARIES cpp-client-ydb_persqueue_public
+  LABELS unit
+)
+
+add_ydb_test(NAME client-persqueue-federation-endpoint_ut
+  SOURCES ${YDB_SDK_SOURCE_DIR}/src/client/persqueue_public/ut_cds/endpoint_ut.cpp
+  LINK_LIBRARIES cpp-client-ydb_persqueue_public
+  LABELS unit
+)
+
 # src/client/persqueue_public/ut/compress_executor_ut.cpp requires the
 # upstream TPersQueueYdbSdkTestSetup and ydb/core server fixtures, which are
 # absent from the standalone SDK repository.
