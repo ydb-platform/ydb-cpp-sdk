@@ -268,6 +268,7 @@ do
          s/'$SED_INCLUDE'ydb\/public\/sdk\/cpp\//\1\2/g;
          s/'$SED_INCLUDE'library\/cpp\/retry\/retry_policy\.h/\1\2ydb-cpp-sdk\/library\/retry\/retry_policy\.h/g;
          s/'$SED_INCLUDE'library\/cpp\/string_utils\/base64\/base64\.h/\1\2src\/library\/string_utils\/base64\/base64\.h/g;
+         s/NYdb::Dev::/NYdb::V3::/g;
          s/(inline\s*)Dev/\1V3/g;
          s/(inline\s*namespace\s*)Dev/\1V3/g;' $f
 done
