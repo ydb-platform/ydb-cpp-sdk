@@ -25,11 +25,7 @@ namespace NYdb::NOdbc {
 
 namespace {
 
-    std::optional<SQLLEN> ExtractAffectedRows(const NQuery::TExecuteQueryResult& result, std::string_view query) {
-        if (!HasMultipleSqlStatements(query)
-            && StartsWithSqlStatement(query, {"CREATE", "DROP", "ALTER", "GRANT", "REVOKE"})) {
-            return 0;
-        }
+    std::optional<SQLLEN> ExtractAffectedRows(const NQuery::TExecuteQueryResult& result) {
         const auto& stats = result.GetStats();
         if (!stats) {
             return std::nullopt;
@@ -293,7 +289,7 @@ SQLRETURN TStatement::ExecuteParamSet(
                 if (!result.IsSuccess()) {
                     return StatusFrom(result);
                 }
-                affectedRows = ExtractAffectedRows(result, PreparedQuery_);
+                affectedRows = ExtractAffectedRows(result);
                 if (!IsCancelRequested()) {
                     SetResults(result);
                 }
@@ -307,7 +303,7 @@ SQLRETURN TStatement::ExecuteParamSet(
         CheckCancellation();
         NQuery::TExecuteQueryResult result = ExecuteQuery(session, params, paramSet);
         NStatusHelpers::ThrowOnError(result);
-        affectedRows = ExtractAffectedRows(result, PreparedQuery_);
+        affectedRows = ExtractAffectedRows(result);
         if (!IsCancelRequested()) {
             SetResults(result);
         }

@@ -924,7 +924,7 @@ TEST(StatementApi, RowCount) {
     CHECK_ODBC_OK(SQLNumResultCols(stmt, &resultColumns), stmt, SQL_HANDLE_STMT);
     EXPECT_EQ(resultColumns, 0);
     CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
-    EXPECT_EQ(rowCount, 0);
+    EXPECT_EQ(rowCount, -1);
     SQLFreeStmt(stmt, SQL_CLOSE);
 
     CHECK_ODBC_OK(SQLExecDirect(stmt,
