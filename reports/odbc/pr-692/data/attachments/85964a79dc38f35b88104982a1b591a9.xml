@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite name="tst_QSqlRelationalTableModel" timestamp="2026&#x002D;11&#x002D;05T13:01:22" hostname="runnervm48cm3" tests="24" failures="14" errors="0" skipped="2" time="3.026">
+  <properties>
+    <property name="QTestVersion" value="6.4.2"/>
+    <property name="QtVersion" value="6.4.2"/>
+    <property name="QtBuild" value="Qt 6.4.2 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 13.2.0)"/>
+  </properties>
+  <testcase name="initTestCase" classname="tst_QSqlRelationalTableModel" time="0.191">
+    <system-out>
+      <![CDATA[Opening: "0_QODBC@YDB_qt"]]>
+    </system-out>
+    <system-err>
+      <![CDATA[Driver "QSQLITE" is not installed]]>
+    </system-err>
+  </testcase>
+  <testcase name="data" classname="tst_QSqlRelationalTableModel" time="0.050">
+    <failure type="fail" message="Compared values are not the same">
+      <![CDATA[   Actual   (model.data(model.index(4, 0)).toInt()): 2
+   Expected (5)                                    : 5]]>
+    </failure>
+  </testcase>
+  <testcase name="setData" classname="tst_QSqlRelationalTableModel" time="0.032">
+    <failure type="fail" message="&apos;model.setData(model.index(3,1), QString(&quot;boris2&quot;))&apos; returned FALSE. ()"/>
+    <system-err>
+      <![CDATA[QODBCResult::exec: Unable to execute statement: "Syntax error or access rule violation: <main>: Error: Type annotation, code: 1030\n    <main>:5:145: Error: At function: KiUpdateTable!\n        <main>:5:145: Error: Column 'dbtst_reltest17f7b3f9649e4aea9.name' does not exist in table '/local/dbtst_reltest17f7b3f9649e4aea9'., code: 2017\n"]]>
+    </system-err>
+  </testcase>
+  <testcase name="multipleRelation" classname="tst_QSqlRelationalTableModel" time="0.294"/>
+  <testcase name="insertRecord" classname="tst_QSqlRelationalTableModel" time="0.028">
+    <failure type="fail" message="&apos;(model).insertRecord(&#x002D;1, rec)&apos; returned FALSE. (QODBC@YDB_qt: (400080) &apos;QODBC: Unable to execute statement&apos; || &apos;General error: &lt;main&gt;:7:78: Error: mismatched input &apos;.&apos; expecting {&apos;,&apos;, &apos;)&apos;}">
+      <![CDATA[')]]>
+    </failure>
+    <system-err>
+      <![CDATA[QODBCResult::exec: Unable to execute statement: "General error: <main>:7:78: Error: mismatched input '.' expecting {',', ')'}\n"]]>
+    </system-err>
+  </testcase>
+  <testcase name="setRecord" classname="tst_QSqlRelationalTableModel" time="0.220">
+    <failure type="fail" message="&apos;(model).setRecord(1, rec)&apos; returned FALSE. (QODBC@YDB_qt: (400010) &apos;QODBC: Unable to execute statement&apos; || &apos;Syntax error or access rule violation: &lt;main&gt;: Error: Type annotation, code: 1030">
+      <![CDATA[    <main>:7:246: Error: At function: KiUpdateTable!
+        <main>:7:246: Error: Column 'dbtst_reltest17f7b3f9649e4aea9.another_title_key' does not exist in table '/local/dbtst_reltest17f7b3f9649e4aea9'., code: 2017
+')]]>
+    </failure>
+    <system-err>
+      <![CDATA[QODBCResult::exec: Unable to execute statement: "Syntax error or access rule violation: <main>: Error: Type annotation, code: 1030\n    <main>:7:246: Error: At function: KiUpdateTable!\n        <main>:7:246: Error: Column 'dbtst_reltest17f7b3f9649e4aea9.another_title_key' does not exist in table '/local/dbtst_reltest17f7b3f9649e4aea9'., code: 2017\n"]]>
+    </system-err>
+  </testcase>
+  <testcase name="insertWithStrategies" classname="tst_QSqlRelationalTableModel" time="0.049">
+    <failure type="fail" message="&apos;(model).submitAll()&apos; returned FALSE. (QODBC@YDB_qt: (400080) &apos;QODBC: Unable to execute statement&apos; || &apos;General error: &lt;main&gt;:7:78: Error: mismatched input &apos;.&apos; expecting {&apos;,&apos;, &apos;)&apos;}">
+      <![CDATA[')]]>
+    </failure>
+    <system-err>
+      <![CDATA[QODBCResult::exec: Unable to execute statement: "General error: <main>:7:78: Error: mismatched input '.' expecting {',', ')'}\n"]]>
+    </system-err>
+  </testcase>
+  <testcase name="removeColumn" classname="tst_QSqlRelationalTableModel" time="0.538">
+    <failure type="fail" message="Compared values are not the same">
+      <![CDATA[   Actual   (lmodel.data(lmodel.index(0, 0)).toInt()): 5
+   Expected (1)                                      : 1]]>
+    </failure>
+  </testcase>
+  <testcase name="filter" classname="tst_QSqlRelationalTableModel" time="0.258"/>
+  <testcase name="sort" classname="tst_QSqlRelationalTableModel" time="0.140"/>
+  <testcase name="revert" classname="tst_QSqlRelationalTableModel" time="0.053">
+    <failure type="fail" message="&apos;(model).select()&apos; returned FALSE. (QODBC@YDB_qt: (400080) &apos;QODBC: Unable to execute statement&apos; || &apos;General error: &lt;main&gt;: Error: Type annotation, code: 1030">
+      <![CDATA[    <main>:3:1: Error: At function: RemovePrefixMembers, At function: OrderedMap, At function: Sort, At function: PersistableRepr, At function: SqlProject, At tuple, At function: SqlProjectItem
+        <main>:3:433: Error: At lambda, At function: SqlColumn
+            <main>:3:433: Error: Member not found: dbtst_reltest17f7b3f9649e4aea9.dbtst_reltest17f7b3f9649e4aea9
+')]]>
+    </failure>
+  </testcase>
+  <testcase name="clearDisplayValuesCache" classname="tst_QSqlRelationalTableModel" time="0.049">
+    <failure type="fail" message="Compared values are not the same">
+      <![CDATA[   Actual   (model.data(model.index(0, 0)).toInt()): 4
+   Expected (7)                                    : 7]]>
+    </failure>
+    <system-err>
+      <![CDATA[QODBCResult::exec: Unable to execute statement: "General error: <main>:7:78: Error: mismatched input '.' expecting {',', ')'}\n"]]>
+    </system-err>
+  </testcase>
+  <testcase name="insertRecordDuplicateFieldNames" classname="tst_QSqlRelationalTableModel" time="0.025">
+    <failure type="fail" message="Compared values are not the same">
+      <![CDATA[   Actual   (rec.fieldName(0))   : "dbtst_reltest37f7b3f9649e4aea9.id"
+   Expected (QLatin1String("id")): "id"]]>
+    </failure>
+  </testcase>
+  <testcase name="invalidData" classname="tst_QSqlRelationalTableModel" time="0.039">
+    <failure type="fail" message="Compared values are not the same">
+      <![CDATA[   Actual   (model.data(model.index(0, 2)).toString()): ""
+   Expected (QString("herr"))                         : "herr"]]>
+    </failure>
+  </testcase>
+  <testcase name="relationModel" classname="tst_QSqlRelationalTableModel" time="0.076"/>
+  <testcase name="casing" classname="tst_QSqlRelationalTableModel" time="0.116"/>
+  <testcase name="escapedRelations" classname="tst_QSqlRelationalTableModel" time="0.297">
+    <failure type="fail" message="Compared values are not the same">
+      <![CDATA[   Actual   (model.data(model.index(0, 0)).toInt()): 5
+   Expected (1)                                    : 1]]>
+    </failure>
+  </testcase>
+  <testcase name="escapedTableName" classname="tst_QSqlRelationalTableModel" time="0.038">
+    <failure type="fail" message="&apos;model.setData(model.index(3,1), QString(&quot;boris2&quot;))&apos; returned FALSE. ()"/>
+    <system-err>
+      <![CDATA[QODBCResult::exec: Unable to execute statement: "Syntax error or access rule violation: <main>: Error: Type annotation, code: 1030\n    <main>:5:145: Error: At function: KiUpdateTable!\n        <main>:5:145: Error: Column 'dbtst_reltest17f7b3f9649e4aea9.name' does not exist in table '/local/dbtst_reltest17f7b3f9649e4aea9'., code: 2017\n"]]>
+    </system-err>
+  </testcase>
+  <testcase name="whiteSpaceInIdentifiers" classname="tst_QSqlRelationalTableModel" time="0.000">
+    <skipped message="White space test irrelevant for driver"/>
+  </testcase>
+  <testcase name="psqlSchemaTest" classname="tst_QSqlRelationalTableModel" time="0.000">
+    <skipped message="Postgresql specific test"/>
+  </testcase>
+  <testcase name="selectAfterUpdate" classname="tst_QSqlRelationalTableModel" time="0.061">
+    <failure type="fail" message="Compared values are not the same">
+      <![CDATA[   Actual   (model.data(model.index(0,2))): QVariant()
+   Expected (QVariant("mrs"))             : QVariant(QString,mrs)]]>
+    </failure>
+  </testcase>
+  <testcase name="relationOnFirstColumn" classname="tst_QSqlRelationalTableModel" time="0.153">
+    <failure type="fail" message="Compared values are not the same">
+      <![CDATA[   Actual   (model.data(model.index(0, 0))): QVariant()
+   Expected (QVariant("Tammela"))          : QVariant(QString,Tammela)]]>
+    </failure>
+  </testcase>
+  <testcase name="setRelation" classname="tst_QSqlRelationalTableModel" time="0.249"/>
+  <testcase name="cleanupTestCase" classname="tst_QSqlRelationalTableModel" time="0.069"/>
+</testsuite>

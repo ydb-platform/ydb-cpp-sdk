@@ -1,0 +1,8 @@
+001+ Warning: odbc_exec(): SQL error: General error: <main>:3:0: Error: no viable alternative at input ';\nfoo'
+002+ , SQL state S1000 in SQLExecDirect in /work/source/ext/odbc/tests/odbc_exec_001.php on line 7
+003+ 
+     Warning: odbc_exec(): SQL error: No prepared statement, SQL state S1007 in SQLExecDirect in /work/source/ext/odbc/tests/odbc_exec_001.php on line 9
+     
+003- Warning: odbc_exec(): SQL error: %s in %s on line %d
+006+ Warning: odbc_exec(): SQL error: General error: <main>:3:0: Error: no viable alternative at input ';\n1'
+007+ , SQL state S1000 in SQLExecDirect in /work/source/ext/odbc/tests/odbc_exec_001.php on line 11
