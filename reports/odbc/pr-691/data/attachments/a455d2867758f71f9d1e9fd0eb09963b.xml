@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite name="tst_QSqlDriver" timestamp="2026&#x002D;11&#x002D;05T11:21:34" hostname="runnervm7aw5e" tests="5" failures="0" errors="0" skipped="0" time="0.111">
+<testsuite name="tst_QSqlDriver" timestamp="2026&#x002D;11&#x002D;05T12:29:13" hostname="runnervm48cm3" tests="5" failures="0" errors="0" skipped="0" time="0.108">
   <properties>
     <property name="QTestVersion" value="6.4.2"/>
     <property name="QtVersion" value="6.4.2"/>
@@ -15,6 +15,6 @@
   </testcase>
   <testcase name="record" classname="tst_QSqlDriver" time="0.005"/>
   <testcase name="primaryIndex" classname="tst_QSqlDriver" time="0.004"/>
-  <testcase name="formatValue" classname="tst_QSqlDriver" time="0.010"/>
-  <testcase name="cleanupTestCase" classname="tst_QSqlDriver" time="0.015"/>
+  <testcase name="formatValue" classname="tst_QSqlDriver" time="0.009"/>
+  <testcase name="cleanupTestCase" classname="tst_QSqlDriver" time="0.013"/>
 </testsuite>

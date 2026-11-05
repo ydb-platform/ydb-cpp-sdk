@@ -18,15 +18,26 @@ basic checking ...
 @YDB_CASE	basic checking	passed	
  OK !
 create table ...
-@YDB_CASE	create table	failed	74657374732f746573742e6c75613a35393a2077726f6e672076616c756520283020696e7374656164206f66202d31290a737461636b2074726163656261636b3a0a095b435d3a20696e2066756e6374696f6e2027617373657274270a0974657374732f746573742e6c75613a35393a20696e2066756e6374696f6e202761737365727432270a0974657374732f746573742e6c75613a3138323a20696e2066756e6374696f6e20276372656174655f7461626c65270a095b435d3a20696e2066756e6374696f6e2027787063616c6c270a0974657374732f746573742e6c75613a3834323a20696e206d61696e206368756e6b0a095b435d3a20696e203f
+@YDB_CASE	create table	passed	
+ OK !
+fetch two values ...
+@YDB_CASE	fetch two values	passed	
+ OK !
+fetch new table ...reusing a table...with alpha keys...with both keys...
+@YDB_CASE	fetch new table	passed	
+ OK !
+fetch many ...
+@YDB_CASE	fetch many	failed	74657374732f746573742e6c75613a35393a2077726f6e672076616c7565202876313020696e7374656164206f66207632290a737461636b2074726163656261636b3a0a095b435d3a20696e2066756e6374696f6e2027617373657274270a0974657374732f746573742e6c75613a35393a20696e2066756e6374696f6e202761737365727432270a0974657374732f746573742e6c75613a3338323a20696e2066756e6374696f6e202766657463685f6d616e79270a095b435d3a20696e2066756e6374696f6e2027787063616c6c270a0974657374732f746573742e6c75613a3834323a20696e206d61696e206368756e6b0a095b435d3a20696e203f
 
-tests/test.lua:59: wrong value (0 instead of -1)
+tests/test.lua:59: wrong value (v10 instead of v2)
 stack traceback:
 	[C]: in function 'assert'
 	tests/test.lua:59: in function 'assert2'
-	tests/test.lua:182: in function 'create_table'
+	tests/test.lua:382: in function 'fetch_many'
 	[C]: in function 'xpcall'
 	tests/test.lua:842: in main chunk
 	[C]: in ?
-... trying to drop test table ... failed: tests/test.lua:59: wrong value (0 instead of -1)
+... trying to drop test table ... OK !
+... and to close the connection ... failed: tests/test.lua:59: There are open cursors
+wrong value (false instead of true)
 The test failed!

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite name="tst_QSqlRelationalDelegate" timestamp="2026&#x002D;11&#x002D;05T11:21:39" hostname="runnervm7aw5e" tests="3" failures="1" errors="0" skipped="0" time="0.254">
+<testsuite name="tst_QSqlRelationalDelegate" timestamp="2026&#x002D;11&#x002D;05T12:29:18" hostname="runnervm48cm3" tests="3" failures="1" errors="0" skipped="0" time="0.248">
   <properties>
     <property name="QTestVersion" value="6.4.2"/>
     <property name="QtVersion" value="6.4.2"/>
     <property name="QtBuild" value="Qt 6.4.2 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 13.2.0)"/>
   </properties>
-  <testcase name="initTestCase" classname="tst_QSqlRelationalDelegate" time="0.138">
+  <testcase name="initTestCase" classname="tst_QSqlRelationalDelegate" time="0.140">
     <system-out>
       <![CDATA[Opening: "0_QODBC@YDB_qt"]]>
     </system-out>
@@ -13,11 +13,11 @@
       <![CDATA[Driver "QSQLITE" is not installed]]>
     </system-err>
   </testcase>
-  <testcase name="comboBoxEditor" classname="tst_QSqlRelationalDelegate" time="0.092">
+  <testcase name="comboBoxEditor" classname="tst_QSqlRelationalDelegate" time="0.079">
     <failure type="fail" message="Compared values are not the same">
       <![CDATA[   Actual   (editor->currentText()): "mister"
    Expected ("herr")               : herr]]>
     </failure>
   </testcase>
-  <testcase name="cleanupTestCase" classname="tst_QSqlRelationalDelegate" time="0.023"/>
+  <testcase name="cleanupTestCase" classname="tst_QSqlRelationalDelegate" time="0.029"/>
 </testsuite>
