@@ -39,6 +39,7 @@ mkdir -p "$MONOREPO/tools/enum_parser"
 
 echo "MONOREPO_TRACE" > "$MONOREPO/ydb/public/sdk/cpp/plugins/trace/otel/trace.cpp"
 echo "MONOREPO_METRICS" > "$MONOREPO/ydb/public/sdk/cpp/plugins/metrics/otel/metrics.cpp"
+printf 'namespace NYdb::inline Dev { struct TProbe {}; }\nusing TImportedProbe = NYdb::Dev::TProbe;\n' > "$MONOREPO/ydb/public/sdk/cpp/src/client/qualified_namespace.cpp"
 echo "MONOREPO_AGENTS" > "$MONOREPO/ydb/public/sdk/cpp/AGENTS.md"
 echo "# MONOREPO_PLUGINS_CMAKE" > "$MONOREPO/ydb/public/sdk/cpp/plugins/CMakeLists.txt"
 echo "// monorepo type_switcher" > "$MONOREPO/ydb/public/sdk/cpp/include/ydb-cpp-sdk/type_switcher.h"
@@ -144,6 +145,8 @@ assert_contains() {
 
 assert_contains "$OSS/plugins/trace/otel/trace.cpp" "MONOREPO_TRACE" "OSS_TRACE"
 assert_contains "$OSS/plugins/metrics/otel/metrics.cpp" "MONOREPO_METRICS" "OSS_METRICS"
+assert_contains "$OSS/src/client/qualified_namespace.cpp" "inline V3" "inline Dev"
+assert_contains "$OSS/src/client/qualified_namespace.cpp" "NYdb::V3::TProbe" "NYdb::Dev::"
 assert_contains "$OSS/AGENTS.md" "OSS_AGENTS" "MONOREPO_AGENTS"
 assert_contains "$OSS/tests/slo_workloads/key_value/main.cpp" "OSS_SLO_WORKLOAD" ""
 assert_contains "$OSS/tests/deb_package/Dockerfile" "OSS_DEB_PACKAGE" ""
