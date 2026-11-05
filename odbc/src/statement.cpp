@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <cstring>
 #include <limits>
+#include <ranges>
 #include <string_view>
 
 namespace NYdb::NOdbc {
@@ -31,27 +32,32 @@ namespace {
         }
 
         const uint64_t maxSqlLen = static_cast<uint64_t>(std::numeric_limits<SQLLEN>::max());
-        uint64_t affectedRows = 0;
-        bool hasTableAccess = false;
-        for (const auto& phase : stats->GetQueryPhases()) {
-            for (const auto& table : phase.GetTableAccess()) {
-                hasTableAccess = true;
-                const uint64_t updates = table.GetUpdates().GetRows();
-                const uint64_t deletes = table.GetDeletes().GetRows();
-                if (updates > maxSqlLen - affectedRows) {
-                    return std::nullopt;
-                }
-                affectedRows += updates;
-                if (deletes > maxSqlLen - affectedRows) {
-                    return std::nullopt;
-                }
-                affectedRows += deletes;
+        std::optional<SQLLEN> affectedRows;
+        const auto phases = stats->GetQueryPhases();
+        const auto tables = phases | std::views::transform(&NQuery::TQueryPhaseStats::GetTableAccess)
+            | std::views::join;
+        for (const auto& table : tables) {
+            // An accessed table below another accessed table is an internal index table.
+            if (std::ranges::any_of(tables, [&](const auto& parent) {
+                const std::string_view name = table.GetName(), prefix = parent.GetName();
+                return !prefix.empty() && name.size() > prefix.size()
+                    && name.starts_with(prefix) && name[prefix.size()] == '/';
+            })) {
+                continue;
             }
+            const auto rows = table.GetAffectedRows();
+            if (!rows) {
+                continue;
+            }
+            if (*rows > maxSqlLen - affectedRows.value_or(0)) {
+                return std::nullopt;
+            }
+            affectedRows = affectedRows.value_or(0) + *rows;
         }
-        if (affectedRows == 0 && (!hasTableAccess || !result.GetResultSets().empty())) {
+        if (affectedRows == 0 && !result.GetResultSets().empty()) {
             return std::nullopt;
         }
-        return static_cast<SQLLEN>(affectedRows);
+        return affectedRows;
     }
 
     std::string BuildResultMetadataQuery(std::string_view query) {
@@ -365,7 +371,7 @@ NQuery::TExecuteQueryResult TStatement::ExecuteQuery(
         rewritten.Sql, {"CREATE", "DROP", "ALTER", "GRANT", "REVOKE"});
     const std::string queryText = GetConnection().WrapQueryForCurrentCatalog(rewritten.Sql);
     NQuery::TExecuteQuerySettings execSettings;
-    execSettings.StatsMode(NQuery::EStatsMode::Basic);
+    execSettings.StatsMode(NQuery::EStatsMode::Basic).CollectAffectedRows(true);
     const SQLUINTEGER queryTimeoutSec = Attributes_.GetQueryTimeoutSec();
     if (queryTimeoutSec > 0) {
         execSettings.ClientTimeout(TDuration::Seconds(queryTimeoutSec));

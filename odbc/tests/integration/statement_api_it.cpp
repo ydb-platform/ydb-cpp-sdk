@@ -915,7 +915,8 @@ TEST(StatementApi, RowCount) {
     SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE IF EXISTS row_count_test", SQL_NTS);
     SQLFreeStmt(stmt, SQL_CLOSE);
     CHECK_ODBC_OK(SQLExecDirect(stmt,
-        (SQLCHAR*)"CREATE TABLE row_count_test (id Int32, value Int32, PRIMARY KEY (id))",
+        (SQLCHAR*)"CREATE TABLE row_count_test (id Int32, value Int32, "
+                  "INDEX by_value GLOBAL ON (value), PRIMARY KEY (id))",
         SQL_NTS), stmt, SQL_HANDLE_STMT);
 
     SQLLEN rowCount = -2;
@@ -951,6 +952,13 @@ TEST(StatementApi, RowCount) {
         SQL_NTS), stmt, SQL_HANDLE_STMT);
     CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
     EXPECT_EQ(rowCount, 1);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"DELETE FROM row_count_test WHERE id = 100",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(rowCount, 0);
     SQLFreeStmt(stmt, SQL_CLOSE);
 
     CHECK_ODBC_OK(SQLExecDirect(stmt,
@@ -1045,6 +1053,21 @@ TEST(StatementApi, ParameterArrays) {
     SQLLEN rowCount = -1;
     CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
     EXPECT_EQ(rowCount, 2);
+    EXPECT_EQ(processed, 3);
+    EXPECT_EQ(statuses[0], SQL_PARAM_SUCCESS);
+    EXPECT_EQ(statuses[1], SQL_PARAM_UNUSED);
+    EXPECT_EQ(statuses[2], SQL_PARAM_SUCCESS);
+
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    SQLFreeStmt(stmt, SQL_RESET_PARAMS);
+    CHECK_ODBC_OK(SQLPrepare(stmt, (SQLCHAR*)"DELETE FROM row_count_param_test WHERE id = ?", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
+    ids[2] = 100;
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER,
+        0, 0, ids, 0, idLengths), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(rowCount, 1);
     EXPECT_EQ(processed, 3);
     EXPECT_EQ(statuses[0], SQL_PARAM_SUCCESS);
     EXPECT_EQ(statuses[1], SQL_PARAM_UNUSED);

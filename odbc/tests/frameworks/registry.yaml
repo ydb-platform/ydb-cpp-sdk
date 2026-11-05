@@ -1,6 +1,6 @@
 schema_version: 2
 ydb:
-  image: ydbplatform/local-ydb:latest
+  image: ydbplatform/local-ydb:trunk
   endpoint: localhost:2136
   database: /local
 classifications:
