@@ -23,7 +23,7 @@ unit_names <- unlist(lapply(files,function(file) paste0(basename(file), ":", col
 jsonlite::write_json(c(names(specs),unit_names), file.path(native,"r-inventory.json"), auto_unbox=FALSE)
 if ("--list" %in% commandArgs(TRUE)) quit(status=0)
 context <- DBItest::make_context(odbc::odbc(),
-    list(.connection_string=Sys.getenv("YDB_R_CONNECTION")), name="YDB", default_skip=NULL,
+    list(.connection_string=Sys.getenv("YDB_R_CONNECTION"), encoding="UTF-8"), name="YDB", default_skip=NULL,
     tweaks=DBItest::tweaks(dbitest_version="1.8.0", union=function(x) paste(x,collapse=" UNION ALL "),
         # DBItest needs a valid DDL statement here; these cases do not inspect table data.
         create_table_as=function(table_name, query)
@@ -31,6 +31,7 @@ context <- DBItest::make_context(odbc::odbc(),
         placeholder_pattern="?", date_cast=function(x) paste0("Date('",x,"')"),
         time_cast=function(x) paste0("Utf8('",x,"')"),
         blob_cast=function(x) {
+            if (all(x == "?")) return(paste0("CAST(",x," AS String)"))
             hex <- sub("^(?:[xX]'([0-9A-Fa-f]*)'|0[xX]([0-9A-Fa-f]*))$", "\\1\\2",as.character(x),perl=TRUE)
             stopifnot(all(grepl("^[0-9A-Fa-f]*$",hex)))
             paste0("String::HexDecode('",hex,"')")

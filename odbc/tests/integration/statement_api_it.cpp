@@ -637,7 +637,7 @@ TEST(StatementApi, PreparedResultMetadataBeforeExecute) {
 
     // Applications commonly inspect a prepared zero-row query before execution.
     CHECK_ODBC_OK(SQLPrepare(stmt,
-        (SQLCHAR*)"SELECT * FROM `result_metadata_before_execute_test` "
+        (SQLCHAR*)"SELECT id AS z, name AS a FROM `result_metadata_before_execute_test` "
                   "WHERE ( 0 = 1 )",
         SQL_NTS), stmt, SQL_HANDLE_STMT);
     CHECK_ODBC_OK(SQLNumResultCols(stmt, &columnCount), stmt, SQL_HANDLE_STMT);
@@ -652,13 +652,13 @@ TEST(StatementApi, PreparedResultMetadataBeforeExecute) {
     CHECK_ODBC_OK(SQLDescribeCol(
         stmt, 1, reinterpret_cast<SQLCHAR*>(columnName), sizeof(columnName), &nameLength,
         &dataType, &columnSize, &decimalDigits, &nullable), stmt, SQL_HANDLE_STMT);
-    EXPECT_STREQ(columnName, "id");
+    EXPECT_STREQ(columnName, "z");
     EXPECT_EQ(dataType, SQL_BIGINT);
     EXPECT_EQ(nullable, SQL_NO_NULLS);
     CHECK_ODBC_OK(SQLDescribeCol(
         stmt, 2, reinterpret_cast<SQLCHAR*>(columnName), sizeof(columnName), &nameLength,
         &dataType, &columnSize, &decimalDigits, &nullable), stmt, SQL_HANDLE_STMT);
-    EXPECT_STREQ(columnName, "name");
+    EXPECT_STREQ(columnName, "a");
     EXPECT_EQ(dataType, SQL_VARCHAR);
     EXPECT_EQ(nullable, SQL_NULLABLE);
 
