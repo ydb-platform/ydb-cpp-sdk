@@ -9,7 +9,7 @@ The following packages were automatically installed and are no longer required:
 Use 'apt autoremove' to remove them.
 The following packages will be REMOVED:
   ydb-odbc
-0 upgraded, 0 newly installed, 1 to remove and 32 not upgraded.
+0 upgraded, 0 newly installed, 1 to remove and 35 not upgraded.
 After this operation, 25.6 MB disk space will be freed.
 (Reading database ... 
 (Reading database ... 5%
