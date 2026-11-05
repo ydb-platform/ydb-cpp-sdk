@@ -20,7 +20,7 @@ separate APIs and are outside this ODBC contract. Julia and Tcl are outside the 
 
 ## Sources and fixtures
 
-YDB follows `ydbplatform/local-ydb:latest`. Runtime bases are digest-pinned.
+YDB follows `ydbplatform/local-ydb:trunk` for logical affected-row statistics. Runtime bases are digest-pinned.
 Consumers with archived upstream suites
 have checksum-locked source archives and `upstream.lock`. `package-contract` and
 `isql` use installed system packages. PHP sources match the installed Ubuntu runtime

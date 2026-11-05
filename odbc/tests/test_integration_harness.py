@@ -64,7 +64,7 @@ class HarnessTests(unittest.TestCase):
                                f"{consumer['id']}.*.future_suite.case")
         cases = [(duplicate, "duplicate consumer"),
                  (unpinned, "digest-pinned"),
-                 (unpinned_ydb, "YDB image must use latest"),
+                 (unpinned_ydb, "YDB image must use trunk"),
                  (changed_source, "upstream.lock"),
                  (broad_failure, "suite-wide expected-result patterns"),
                  (duplicate_classification, "duplicate or unexplained expectations"),
