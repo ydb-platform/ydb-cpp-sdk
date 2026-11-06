@@ -1,0 +1,102 @@
+#!/usr/bin/env python3
+"""Build Qt's upstream QtSql tests and preserve every reported data row."""
+import json, os, shutil, subprocess, time
+import xml.etree.ElementTree as ET
+from pathlib import Path
+from urllib.parse import quote
+ADAPTER = Path(os.environ["ODBC_ADAPTER_DIR"])
+UPSTREAM = Path(os.environ["ODBC_UPSTREAM_DIR"])
+NATIVE = Path(os.environ["ODBC_NATIVE_RESULTS_DIR"])
+PRISTINE = next(UPSTREAM.glob("*/tests/auto/sql"))
+SOURCE, BUILD = Path("/work/qt-sql"), Path("/work/qt-build")
+TARGETS = ("qsql", "qsqldatabase", "qsqldriver", "qsqlquery", "qsqlthread",
+           "qsqlquerymodel", "qsqlrelationaldelegate", "qsqlrelationaltablemodel", "qsqltablemodel")
+RUN_LAST = {"qsqldatabase": {"transaction"}, "qsqlthread": {"readWriteThreading"},
+            "qsqltablemodel": {"modelInAnotherThread"}}
+INAPPLICABLE = {("qsqltablemodel", "modelInAnotherThread"):
+                "Exercises Qt's hardcoded SQLite in-memory model, outside the QODBC suite."}
+# Data-row counts in the locked Qt source with this single QODBC fixture.
+ROWS = {"qsqldatabase.errorReporting": 2, "qsqlquery.dateTime": 4,
+        **{"qsqltablemodel." + name: 3 for name in
+           ("insertColumns", "insertRow", "insertRowFailure", "removeInsertedRow", "isDirty")}}
+MODE = os.environ["ODBC_TEST_MODE"]
+DATABASES = {"dsn": os.environ["YDB_ODBC_DSN"], "connection_string": os.environ["YDB_ODBC_CONNECTION_STRING"]}
+def run(args, **options):
+    return subprocess.run([str(arg) for arg in args], text=True, **options)
+def problem_details(problem):
+    message = (problem.get("message") or "").strip()
+    trace = "".join(problem.itertext()).strip()
+    return message or trace or problem.tag, "" if trace == message else trace
+def prepare_source():
+    shutil.copytree(PRISTINE, SOURCE, copy_function=shutil.copyfile)
+    for root, _, _ in os.walk(SOURCE): Path(root).chmod(0o755)
+    patch = ADAPTER / "ydb.patch"
+    applied = run(["patch", "--batch", "--forward", "-p1", "-i", patch], cwd=SOURCE,
+                  stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    (NATIVE / "fixture-patch.log").write_text(applied.stdout or "")
+    if applied.returncode:
+        raise RuntimeError(f"fixture patch exited {applied.returncode}:\n{(applied.stdout or '').strip()}")
+def main():
+    if MODE not in DATABASES: raise RuntimeError(f"unsupported ODBC test mode: {MODE}")
+    prepare_source()
+    run(["cmake", "-G", "Ninja", "-S", ADAPTER, "-B", BUILD, f"-DQT_SQL_SOURCE={SOURCE}"], check=True)
+    run(["cmake", "--build", BUILD, "--parallel", "2"], check=True)
+    results, inventory, inventory_rows = [], [], {}
+    database = DATABASES[MODE]
+    config = Path(f"/work/qt-databases-{MODE}.json")
+    config.write_text(json.dumps({"entries": [{"driver": "QODBC", "name": database}]}) + "\n")
+    env = os.environ | {"QT_TEST_DATABASES_FILE": str(config), "QT_QPA_PLATFORM": "offscreen"}
+    def save():
+        (NATIVE / "results.json").write_text(json.dumps({"schema_version": 1, "inventory_kind": "parents",
+             "inventory": inventory, "inventory_rows": inventory_rows, "tests": results}, indent=2) + "\n")
+    for target in TARGETS:
+        binary, xml = BUILD / f"tst_{target}", NATIVE / f"{MODE}-{target}.xml"
+        functions = [line.removesuffix("()") for line in run([binary, "-functions"], env=env, check=True,
+                     stdout=subprocess.PIPE).stdout.splitlines() if line.endswith("()")]
+        if not functions: raise RuntimeError(f"Empty Qt suite: {target}")
+        inventory += [f"qt.{MODE}.{target}.{function}" for function in functions]
+        inventory_rows.update({f"qt.{MODE}.{target}.{function}": ROWS.get(f"{target}.{function}", 1)
+                               for function in functions})
+        save()
+        delayed = RUN_LAST.get(target, set())
+        ordered = [f for f in functions if f not in delayed] + [f for f in functions if f in delayed]
+        ordered = [f for f in ordered if (target, f) not in INAPPLICABLE]
+        started = int(time.time() * 1000)
+        completed = run([binary, *ordered, "-o", f"{xml},junitxml"], env=env,
+                        stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=300)
+        stopped = int(time.time() * 1000)
+        log = NATIVE / f"{MODE}-{target}.log"; log.write_text(completed.stdout or "")
+        cases = ET.parse(xml).getroot().findall("testcase")
+        lifecycle = [case for case in cases if case.get("name", "").startswith(("initTestCase", "cleanupTestCase"))]
+        fatal = [item for case in lifecycle for item in case if item.tag in {"error", "failure"}]
+        if completed.returncode < 0 or completed.returncode > 127 or fatal or (completed.returncode and not any(
+                item.tag in {"failure", "error"} for case in cases for item in case)):
+            results.append({"id":f"qt.{MODE}.{target}.infrastructure", "status":"broken",
+                            "phase":"setup", "start":started, "stop":stopped,
+                            "message":f"Qt lifecycle/process failure: exit {completed.returncode}; " +
+                            "; ".join(problem_details(item)[0] for item in fatal)})
+        for function in functions:
+            parent = f"qt.{MODE}.{target}.{function}"
+            selected = [case for case in cases if case.get("name") == function or case.get("name", "").startswith(function + "(")]
+            if (target, function) in INAPPLICABLE:
+                results.append({"id":parent, "parent_id":parent, "status":"skipped", "phase":"test",
+                                "message":INAPPLICABLE[(target,function)], "start":started, "stop":stopped})
+            elif not selected:
+                results.append({"id":parent, "parent_id":parent, "status":"broken", "start":started,
+                                "stop":stopped, "message":"Upstream function is missing from Qt JUnit output"})
+            for case in selected:
+                problems = [{"kind":item.tag, "message":problem_details(item)[0], "trace":problem_details(item)[1],
+                             "location":case.get("name", "")} for item in case if item.tag in {"failure", "error", "skipped"}]
+                tags = {problem["kind"] for problem in problems}
+                status = "broken" if "error" in tags else "failed" if "failure" in tags else "skipped" if "skipped" in tags else "passed"
+                row = case.get("name", "")[len(function):].strip("()")
+                stable_row = row.replace(database, "YDB")
+                results.append({"id":parent + "@" + quote(stable_row, safe="_-"), "parent_id":parent,
+                                "name":f"Qt {target}: {function} ({MODE}, {stable_row})", "data_tag":row,
+                                "status":status, "message":"\n".join(p["message"] for p in problems),
+                                "trace":"\n".join(p["trace"] for p in problems), "problems":problems,
+                                "start":started,"stop":stopped,
+                                "attachments":[{"name":p.name,"path":p.name,"type":"text/plain"} for p in (log,xml)]})
+        save()
+    return int(any(test["status"] != "passed" for test in results))
+if __name__ == "__main__": raise SystemExit(main())

@@ -1,0 +1,902 @@
+--- a/R/spec-result-fetch.R
++++ b/R/spec-result-fetch.R
+@@ -89,7 +89,7 @@
+     #' Calling `dbFetch()` on a result set from a data manipulation query
+     #' created by [dbSendStatement()]
+     #' can be fetched and return an empty data frame, with a warning.
+-    query <- paste0("CREATE TABLE ", table_name, " (a integer)")
++    query <- paste0("CREATE TABLE ", table_name, " (a integer, PRIMARY KEY (a))")
+ 
+     res <- local_result(dbSendStatement(con, query))
+     expect_warning(rows <- check_df(dbFetch(res)))
+--- a/R/spec-meta-get-statement.R
++++ b/R/spec-meta-get-statement.R
+@@ -21,7 +21,7 @@
+   },
+   #
+   get_statement_statement = function(con, table_name) {
+-    query <- paste0("CREATE TABLE ", table_name, " (a integer)")
++    query <- paste0("CREATE TABLE ", table_name, " (a integer, PRIMARY KEY (a))")
+     #' or [dbSendStatement()].
+     res <- local_result(dbSendStatement(con, query))
+     s <- dbGetStatement(res)
+--- a/R/spec-meta-has-completed.R
++++ b/R/spec-meta-has-completed.R
+@@ -23,7 +23,7 @@
+   #
+   has_completed_statement = function(con, table_name) {
+     #' For a query initiated by [dbSendStatement()],
+-    res <- local_result(dbSendStatement(con, paste0("CREATE TABLE ", table_name, " (a integer)")))
++    res <- local_result(dbSendStatement(con, paste0("CREATE TABLE ", table_name, " (a integer, PRIMARY KEY (a))")))
+     #' `dbHasCompleted()` always returns `TRUE`.
+     expect_true(expect_visible(dbHasCompleted(res)))
+   },
+--- a/R/spec-meta-get-rows-affected.R
++++ b/R/spec-meta-get-rows-affected.R
+@@ -13,7 +13,7 @@
+     #' @return
+     #' `dbGetRowsAffected()` returns a scalar number (integer or numeric),
+     #' the number of rows affected by a data manipulation statement
+-    dbWriteTable(con, table_name, data.frame(a = 1:10))
++    dbWriteTable(con, table_name, data.frame(a = 1:10), field.types = ydb_field_types(con, data.frame(a = 1:10)))
+
+     query <- paste0(
+       "DELETE FROM ", dbQuoteIdentifier(con, table_name), " ",
+@@ -57,7 +57,7 @@
+   get_rows_affected_error = function(con, table_name) {
+     #' @section Failure modes:
+     query <- paste0(
+-      "CREATE TABLE ", dbQuoteIdentifier(con, table_name), " (a integer)"
++      "CREATE TABLE ", dbQuoteIdentifier(con, table_name), " (a integer, PRIMARY KEY (a))"
+     )
+     res <- dbSendStatement(con, query)
+     dbClearResult(res)
+--- a/R/spec-meta-is-valid.R
++++ b/R/spec-meta-is-valid.R
+@@ -44,7 +44,7 @@
+   },
+   #
+   is_valid_result_statement = function(con, table_name) {
+-    query <- paste0("CREATE TABLE ", table_name, " (a ", dbDataType(con, 1L), ")")
++    query <- paste0("CREATE TABLE ", table_name, " (a ", dbDataType(con, 1L), ", PRIMARY KEY (a))")
+     res <- dbSendStatement(con, query)
+     on.exit(dbClearResult(res))
+     #' A [DBIResult-class] object is also valid after a call to [dbSendStatement()],
+--- a/R/spec-result-create-table-with-data-type.R
++++ b/R/spec-result-create-table-with-data-type.R
+@@ -12,7 +12,7 @@
+       table_name <- random_table_name()
+       local_remove_test_table(con, table_name)
+       #' `"CREATE TABLE test (a ...)"`.
+-      query <- paste0("CREATE TABLE ", table_name, " (a ", dbDataType(con, value), ")")
++      query <- paste0("CREATE TABLE ", table_name, " (a ", dbDataType(con, value), ", ydb_fixture_id Int32, PRIMARY KEY (ydb_fixture_id))")
+       eval(bquote(dbExecute(con, .(query))))
+     }
+ 
+--- a/R/spec-getting-started.R
++++ b/R/spec-getting-started.R
+@@ -20,6 +20,7 @@
+   },
+   #
+   package_name = function(ctx) {
++    skip("Optional R-prefix package naming convention")
+     pkg_name <- package_name(ctx)
+ 
+     #' For better or worse, the names of many existing backends start with
+--- a/R/spec-result-roundtrip.R
++++ b/R/spec-result-roundtrip.R
+@@ -23,7 +23,7 @@
+     int_values <- 1:0
+     values <- ctx$tweaks$logical_return(as.logical(int_values))
+
+-    sql_names <- paste0("CAST(", int_values, " AS ", dbDataType(con, logical()), ")")
++    sql_names <- paste0("CAST(", int_values, " AS Bool)")
+
+     #' with NA for SQL `NULL` values
+     test_select_with_null(.ctx = ctx, con, .dots = setNames(values, sql_names))
+@@ -33,7 +33,7 @@
+     #' - [character] for text,
+     values <- get_texts()
+     test_funs <- rep(list(has_utf8_or_ascii_encoding), length(values))
+-    sql_names <- as.character(dbQuoteString(con, values))
++    sql_names <- paste0("CAST(",as.character(dbQuoteString(con, values))," AS Utf8)")
+
+     #' with NA for SQL `NULL` values
+     test_select_with_null(.ctx = ctx, con, .dots = setNames(values, sql_names))
+@@ -77,7 +77,7 @@
+     #'   (also applies to the return value of the SQL function `current_date`)
+     test_select_with_null(
+       .ctx = ctx, con,
+-      "current_date" ~ is_roughly_current_date
++      "CurrentUtcDate()" ~ is_roughly_current_date
+     )
+   },
+
+@@ -101,7 +101,7 @@
+     #'   (also applies to the return value of the SQL function `current_time`)
+     test_select_with_null(
+       .ctx = ctx, con,
+-      "current_time" ~ coercible_to_time
++      "CAST(DateTime::Format('%H:%M:%S')(CurrentUtcTimestamp()) AS Utf8)" ~ coercible_to_time
+     )
+   },
+
+@@ -124,7 +124,7 @@
+     #'   (also applies to the return value of the SQL function `current_timestamp`)
+     test_select_with_null(
+       .ctx = ctx, con,
+-      "current_timestamp" ~ function(x) {
++      "CurrentUtcTimestamp()" ~ function(x) {
+         coercible_to_timestamp <- function(x) {
+           x_timestamp <- try_silent(as.POSIXct(x))
+           !is.null(x_timestamp) && all(is.na(x) == is.na(x_timestamp))
+@@ -159,7 +159,7 @@
+
+     test_select_with_null(
+       .ctx = ctx, con,
+-      "current_date" ~ is_roughly_current_date_typed
++      "CurrentUtcDate()" ~ is_roughly_current_date_typed
+     )
+   },
+
+@@ -184,7 +184,7 @@
+
+     test_select_with_null(
+       .ctx = ctx, con,
+-      "current_timestamp" ~ is_roughly_current_timestamp_typed
++      "CurrentUtcTimestamp()" ~ is_roughly_current_timestamp_typed
+     )
+   },
+
+--- a/R/spec-meta-get-row-count.R
++++ b/R/spec-meta-get-row-count.R
+@@ -58,7 +58,7 @@
+   },
+   #
+   row_count_statement = function(con, table_name) {
+-    query <- paste0("CREATE TABLE ", table_name, " (a integer)")
++    query <- paste0("CREATE TABLE ", table_name, " (a integer, PRIMARY KEY (a))")
+     #' For data manipulation statements issued with
+     #' [dbSendStatement()],
+     res <- local_result(dbSendStatement(con, query))
+--- a/R/spec-meta-bind-runner.R
++++ b/R/spec-meta-bind-runner.R
+@@ -104,5 +104,5 @@
+   }) else expr({
+-    data <- data.frame(a = rep(1:5, 1:5), b = 1:15)
++    data <- ydb_keyed_fixture(data.frame(a = rep(1:5, 1:5), b = 1:15))
+     table_name <- random_table_name()
+-    dbWriteTable(con, table_name, data, temporary = TRUE)
++    dbWriteTable(con, table_name, data, temporary = TRUE, field.types = ydb_field_types(con, data))
+
+--- a/R/spec-meta-bind.R
++++ b/R/spec-meta-bind.R
+@@ -41,5 +41,5 @@
+       names(bind_values) <- names(placeholder)
+-      data <- data.frame(a = rep(1:5, 1:5), b = 1:15)
++      data <- ydb_keyed_fixture(data.frame(a = rep(1:5, 1:5), b = 1:15))
+       table_name <- random_table_name()
+-      dbWriteTable(con, table_name, data, temporary = TRUE)
++      dbWriteTable(con, table_name, data, temporary = TRUE, field.types = ydb_field_types(con, data))
+       sql <- paste0("UPDATE ", dbQuoteIdentifier(con, table_name), " SET b = b + 1 WHERE ")
+@@ -136,5 +136,5 @@
+       }
+-      data <- data.frame(a = rep(1:5, 1:5), b = 1:15)
++      data <- ydb_keyed_fixture(data.frame(a = rep(1:5, 1:5), b = 1:15))
+       table_name <- random_table_name()
+-      dbWriteTable(con, table_name, data, temporary = TRUE)
++      dbWriteTable(con, table_name, data, temporary = TRUE, field.types = ydb_field_types(con, data))
+       sql <- paste0("UPDATE ", dbQuoteIdentifier(con, table_name), " SET b = b + 1 WHERE ")
+@@ -300,5 +300,5 @@
+       names(bind_values) <- names(placeholder)
+-      data <- data.frame(a = rep(1:5, 1:5), b = 1:15)
++      data <- ydb_keyed_fixture(data.frame(a = rep(1:5, 1:5), b = 1:15))
+       table_name <- random_table_name()
+-      dbWriteTable(con, table_name, data, temporary = TRUE)
++      dbWriteTable(con, table_name, data, temporary = TRUE, field.types = ydb_field_types(con, data))
+       sql <- paste0("UPDATE ", dbQuoteIdentifier(con, table_name), " SET b = b + 1 WHERE ")
+@@ -351,5 +351,5 @@
+       names(bind_values) <- names(placeholder)
+-      data <- data.frame(a = rep(1:5, 1:5), b = 1:15)
++      data <- ydb_keyed_fixture(data.frame(a = rep(1:5, 1:5), b = 1:15))
+       table_name <- random_table_name()
+-      dbWriteTable(con, table_name, data, temporary = TRUE)
++      dbWriteTable(con, table_name, data, temporary = TRUE, field.types = ydb_field_types(con, data))
+       sql <- paste0("UPDATE ", dbQuoteIdentifier(con, table_name), " SET b = b + 1 WHERE ")
+@@ -403,5 +403,5 @@
+       names(bind_values) <- names(placeholder)
+-      data <- data.frame(a = rep(1:5, 1:5), b = 1:15)
++      data <- ydb_keyed_fixture(data.frame(a = rep(1:5, 1:5), b = 1:15))
+       table_name <- random_table_name()
+-      dbWriteTable(con, table_name, data, temporary = TRUE)
++      dbWriteTable(con, table_name, data, temporary = TRUE, field.types = ydb_field_types(con, data))
+       sql <- paste0("UPDATE ", dbQuoteIdentifier(con, table_name), " SET b = b + 1 WHERE ")
+--- a/R/spec-meta-column-info.R
++++ b/R/spec-meta-column-info.R
+@@ -15,3 +15,3 @@
+     penguins <- get_penguins(ctx)
+-    dbWriteTable(con, table_name, penguins)
++    dbWriteTable(con, table_name, penguins, field.types = ydb_field_types(con, penguins))
+
+@@ -53,3 +53,3 @@
+     #' A column named `row_names` is treated like any other column.
+-    dbWriteTable(con, table_name, data.frame(a = 1L, row_names = 2L))
++    dbWriteTable(con, table_name, data.frame(a = 1L, row_names = 2L), field.types = ydb_field_types(con, data.frame(a = 1L, row_names = 2L)))
+     res <- local_result(dbSendQuery(con, paste0("SELECT * FROM ", table_name)))
+--- a/R/spec-result-execute.R
++++ b/R/spec-result-execute.R
+@@ -70,3 +70,3 @@
+       local_remove_test_table(con, table_name)
+-      dbWriteTable(con, table_name, data.frame(a = as.numeric(1:3)))
++      dbWriteTable(con, table_name, ydb_keyed_fixture(data.frame(a = as.numeric(1:3))), field.types = ydb_field_types(con, ydb_keyed_fixture(data.frame(a = as.numeric(1:3)))))
+       placeholder <- placeholder_fun(1)
+--- a/R/spec-result-send-statement.R
++++ b/R/spec-result-send-statement.R
+@@ -114,3 +114,3 @@
+       local_remove_test_table(con, table_name)
+-      dbWriteTable(con, table_name, data.frame(a = as.numeric(1:3)))
++      dbWriteTable(con, table_name, ydb_keyed_fixture(data.frame(a = as.numeric(1:3))), field.types = ydb_field_types(con, ydb_keyed_fixture(data.frame(a = as.numeric(1:3)))))
+       placeholder <- placeholder_fun(1)
+--- a/R/spec-sql-append-table.R
++++ b/R/spec-sql-append-table.R
+@@ -14,4 +14,4 @@
+     #' `dbAppendTable()` returns a
+-    test_in <- trivial_df()
+-    dbCreateTable(con, table_name, test_in)
++    test_in <- ydb_keyed_fixture(trivial_df())
++    dbCreateTable(con, table_name, test_in, field.types = ydb_field_types(con, test_in))
+     ret <- dbAppendTable(con, table_name, test_in)
+@@ -35,4 +35,4 @@
+     #' an error is raised; the remote table remains unchanged.
+-    test_in <- trivial_df()
+-    dbCreateTable(con, table_name, test_in)
++    test_in <- ydb_keyed_fixture(trivial_df())
++    dbCreateTable(con, table_name, test_in, field.types = ydb_field_types(con, test_in))
+     expect_error(dbAppendTable(con, table_name, unclass(test_in)))
+@@ -43,4 +43,4 @@
+   append_table_append_incompatible = function(con, table_name) {
+-    test_in <- trivial_df()
+-    dbCreateTable(con, table_name, test_in)
++    test_in <- ydb_keyed_fixture(trivial_df())
++    dbCreateTable(con, table_name, test_in, field.types = ydb_field_types(con, test_in))
+     dbAppendTable(con, table_name, test_in)
+@@ -220,4 +220,4 @@
+   append_roundtrip_64_bit_roundtrip = function(con, table_name) {
+-    tbl_in <- data.frame(a = c(-1e14, 1e15))
+-    dbWriteTable(con, table_name, tbl_in, field.types = c(a = "BIGINT"))
++    tbl_in <- ydb_keyed_fixture(data.frame(a = c(-1e14, 1e15)))
++    dbWriteTable(con, table_name, tbl_in, field.types = ydb_field_types(con, tbl_in, c(a = "BIGINT")))
+     tbl_out <- dbReadTable(con, table_name)
+@@ -495,3 +495,3 @@
+     for (table_name in table_names) {
+-      test_in <- trivial_df()
++      test_in <- ydb_keyed_fixture(trivial_df())
+
+@@ -499,3 +499,3 @@
+       #' - If an unquoted table name as string: `dbAppendTable()` will do the quoting,
+-      dbCreateTable(con, table_name, test_in)
++      dbCreateTable(con, table_name, test_in, field.types = ydb_field_types(con, test_in))
+       dbAppendTable(con, table_name, test_in)
+@@ -519,6 +519,6 @@
+     for (table_name in table_names) {
+-      test_in <- trivial_df()
++      test_in <- ydb_keyed_fixture(trivial_df())
+
+       local_remove_test_table(con, table_name)
+-      dbCreateTable(con, dbQuoteIdentifier(con, table_name), test_in)
++      dbCreateTable(con, dbQuoteIdentifier(con, table_name), test_in, field.types = ydb_field_types(con, test_in))
+       dbAppendTable(con, dbQuoteIdentifier(con, table_name), test_in)
+@@ -533,4 +533,4 @@
+     #' The `row.names` argument must be `NULL`, the default value.
+-    mtcars_in <- datasets::mtcars
+-    dbCreateTable(con, table_name, mtcars_in)
++    mtcars_in <- ydb_keyed_fixture(datasets::mtcars)
++    dbCreateTable(con, table_name, mtcars_in, field.types = ydb_field_types(con, mtcars_in))
+     dbAppendTable(con, table_name, mtcars_in)
+@@ -544,4 +544,4 @@
+     #' Row names are ignored.
+-    mtcars_in <- datasets::mtcars
+-    dbCreateTable(con, table_name, mtcars_in)
++    mtcars_in <- ydb_keyed_fixture(datasets::mtcars)
++    dbCreateTable(con, table_name, mtcars_in, field.types = ydb_field_types(con, mtcars_in))
+     dbAppendTable(con, table_name, mtcars_in, row.names = NULL)
+@@ -557,4 +557,4 @@
+     #' Passing a `value` argument different to `NULL` to the `row.names` argument
+-    mtcars_in <- datasets::mtcars
+-    dbCreateTable(con, table_name, mtcars_in)
++    mtcars_in <- ydb_keyed_fixture(datasets::mtcars)
++    dbCreateTable(con, table_name, mtcars_in, field.types = ydb_field_types(con, mtcars_in))
+
+@@ -574,4 +574,4 @@
+     #' The `value` argument must be a data frame
+-    test_in <- trivial_df()
+-    dbCreateTable(con, table_name, test_in)
++    test_in <- ydb_keyed_fixture(trivial_df())
++    dbCreateTable(con, table_name, test_in, field.types = ydb_field_types(con, test_in))
+     dbAppendTable(con, table_name, test_in)
+@@ -584,5 +584,5 @@
+     #' with a subset of the columns of the existing table.
+-    test_in <- trivial_df(3, letters[1:3])
+-    dbCreateTable(con, table_name, test_in)
+-    dbAppendTable(con, table_name, test_in[2])
++    test_in <- ydb_keyed_fixture(trivial_df(3, letters[1:3]))
++    dbCreateTable(con, table_name, test_in, field.types = ydb_field_types(con, test_in))
++    dbAppendTable(con, table_name, test_in[c(2, 4)])
+
+@@ -596,5 +596,5 @@
+     #' The order of the columns does not matter.
+-    test_in <- trivial_df(3, letters[1:3])
+-    dbCreateTable(con, table_name, test_in)
+-    dbAppendTable(con, table_name, test_in[c(2, 3, 1)])
++    test_in <- ydb_keyed_fixture(trivial_df(3, letters[1:3]))
++    dbCreateTable(con, table_name, test_in, field.types = ydb_field_types(con, test_in))
++    dbAppendTable(con, table_name, test_in[c(2, 3, 1, 4)])
+
+@@ -606,5 +606,5 @@
+   append_table_value_shuffle_subset = function(ctx, con, table_name) {
+-    test_in <- trivial_df(4, letters[1:4])
+-    dbCreateTable(con, table_name, test_in)
+-    dbAppendTable(con, table_name, test_in[c(4, 1, 3)])
++    test_in <- ydb_keyed_fixture(trivial_df(4, letters[1:4]))
++    dbCreateTable(con, table_name, test_in, field.types = ydb_field_types(con, test_in))
++    dbAppendTable(con, table_name, test_in[c(4, 1, 3, 5)])
+
+--- a/R/spec-sql-create-table.R
++++ b/R/spec-sql-create-table.R
+@@ -14,3 +14,3 @@
+     #' `dbCreateTable()` returns `TRUE`, invisibly.
+-    expect_invisible_true(dbCreateTable(con, table_name, trivial_df()))
++    expect_invisible_true(dbCreateTable(con, table_name, ydb_keyed_fixture(trivial_df()), field.types = ydb_field_types(con, ydb_keyed_fixture(trivial_df()))))
+   },
+@@ -21,5 +21,5 @@
+     #' If the table exists, an error is raised; the remote table remains unchanged.
+-    test_in <- trivial_df()
+-
+-    dbCreateTable(con, table_name, test_in)
++    test_in <- ydb_keyed_fixture(trivial_df())
++
++    dbCreateTable(con, table_name, test_in, field.types = ydb_field_types(con, test_in))
+     dbAppendTable(con, table_name, test_in)
+@@ -90,3 +90,3 @@
+     for (table_name in table_names) {
+-      test_in <- trivial_df()
++      test_in <- ydb_keyed_fixture(trivial_df())
+
+@@ -94,3 +94,3 @@
+       #' - If an unquoted table name as string: `dbCreateTable()` will do the quoting,
+-      dbCreateTable(con, table_name, test_in)
++      dbCreateTable(con, table_name, test_in, field.types = ydb_field_types(con, test_in))
+       test_out <- check_df(dbReadTable(con, dbQuoteIdentifier(con, table_name)))
+@@ -112,6 +112,6 @@
+     for (table_name in table_names) {
+-      test_in <- trivial_df()
++      test_in <- ydb_keyed_fixture(trivial_df())
+
+       local_remove_test_table(con, table_name)
+-      dbCreateTable(con, dbQuoteIdentifier(con, table_name), test_in)
++      dbCreateTable(con, dbQuoteIdentifier(con, table_name), test_in, field.types = ydb_field_types(con, test_in))
+       test_out <- check_df(dbReadTable(con, table_name))
+@@ -131,3 +131,3 @@
+     penguins <- get_penguins(ctx)
+-    dbCreateTable(con, table_name, penguins, temporary = TRUE)
++    dbCreateTable(con, table_name, penguins, temporary = TRUE, field.types = ydb_field_types(con, penguins))
+     penguins_out <- check_df(dbReadTable(con, table_name))
+@@ -149,3 +149,3 @@
+     table_name <- "dbit04"
+-    dbCreateTable(local_con, table_name, penguins)
++    dbCreateTable(local_con, table_name, penguins, field.types = ydb_field_types(local_con, penguins))
+     penguins_out <- check_df(dbReadTable(local_con, table_name))
+@@ -207,4 +207,4 @@
+     #' The `row.names` argument must be missing
+-    mtcars_in <- datasets::mtcars
+-    dbCreateTable(con, table_name, mtcars_in)
++    mtcars_in <- ydb_keyed_fixture(datasets::mtcars)
++    dbCreateTable(con, table_name, mtcars_in, field.types = ydb_field_types(con, mtcars_in))
+     mtcars_out <- check_df(dbReadTable(con, table_name, row.names = FALSE))
+@@ -216,4 +216,4 @@
+     #' or `NULL`, the default value.
+-    mtcars_in <- datasets::mtcars
+-    dbCreateTable(con, table_name, mtcars_in, row.names = NULL)
++    mtcars_in <- ydb_keyed_fixture(datasets::mtcars)
++    dbCreateTable(con, table_name, mtcars_in, row.names = NULL, field.types = ydb_field_types(con, mtcars_in, row.names = NULL))
+     mtcars_out <- check_df(dbReadTable(con, table_name, row.names = NULL))
+@@ -226,3 +226,3 @@
+     #' All other values for the `row.names` argument
+-    mtcars_in <- datasets::mtcars
++    mtcars_in <- ydb_keyed_fixture(datasets::mtcars)
+
+--- a/R/spec-sql-exists-table.R
++++ b/R/spec-sql-exists-table.R
+@@ -17,3 +17,3 @@
+     penguins <- get_penguins(ctx)
+-    dbWriteTable(con, table_name, penguins)
++    dbWriteTable(con, table_name, penguins, field.types = ydb_field_types(con, penguins))
+
+@@ -33,3 +33,3 @@
+     if (isTRUE(ctx$tweaks$temporary_tables)) {
+-      dbWriteTable(con, table_name, data.frame(a = 1L), temporary = TRUE)
++      dbWriteTable(con, table_name, data.frame(a = 1L), temporary = TRUE, field.types = ydb_field_types(con, data.frame(a = 1L)))
+       expect_true(expect_visible(dbExistsTable(con, table_name)))
+@@ -52,3 +52,3 @@
+     #' An error is also raised
+-    dbWriteTable(con, table_name, data.frame(a = 1L))
++    dbWriteTable(con, table_name, data.frame(a = 1L), field.types = ydb_field_types(con, data.frame(a = 1L)))
+     #' if `name` cannot be processed with [dbQuoteIdentifier()]
+@@ -74,3 +74,3 @@
+       test_in <- data.frame(a = 1L)
+-      dbWriteTable(con, table_name, test_in)
++      dbWriteTable(con, table_name, test_in, field.types = ydb_field_types(con, test_in))
+
+@@ -88,3 +88,3 @@
+     #' For all tables listed by [dbListTables()], `dbExistsTable()` returns `TRUE`.
+-    dbWriteTable(con, table_name, data.frame(a = 1))
++    dbWriteTable(con, table_name, ydb_keyed_fixture(data.frame(a = 1)), field.types = ydb_field_types(con, ydb_keyed_fixture(data.frame(a = 1))))
+     for (table_name in dbListTables(con)) {
+--- a/R/spec-sql-list-fields.R
++++ b/R/spec-sql-list-fields.R
+@@ -15,3 +15,3 @@
+     penguins <- get_penguins(ctx)
+-    dbWriteTable(con, table_name, penguins)
++    dbWriteTable(con, table_name, penguins, field.types = ydb_field_types(con, penguins))
+
+@@ -27,3 +27,3 @@
+     if (isTRUE(ctx$tweaks$temporary_tables) && isTRUE(ctx$tweaks$list_temporary_tables)) {
+-      dbWriteTable(con, table_name, data.frame(a = 1L, b = 2L), temporary = TRUE)
++      dbWriteTable(con, table_name, data.frame(a = 1L, b = 2L), temporary = TRUE, field.types = ydb_field_types(con, data.frame(a = 1L, b = 2L)))
+       fields <- dbListFields(con, table_name)
+@@ -73,3 +73,3 @@
+     #' - the return value of [dbQuoteIdentifier()]
+-    dbWriteTable(con, table_name, data.frame(a = 1L, b = 2L))
++    dbWriteTable(con, table_name, data.frame(a = 1L, b = 2L), field.types = ydb_field_types(con, data.frame(a = 1L, b = 2L)))
+     expect_identical(
+@@ -83,3 +83,3 @@
+     #'   [dbListObjects()] where `is_prefix` is `FALSE`
+-    dbWriteTable(con, table_name, data.frame(a = 1L, b = 2L))
++    dbWriteTable(con, table_name, data.frame(a = 1L, b = 2L), field.types = ydb_field_types(con, data.frame(a = 1L, b = 2L)))
+     objects <- dbListObjects(con)
+@@ -96,3 +96,3 @@
+     #' A column named `row_names` is treated like any other column.
+-    dbWriteTable(con, table_name, data.frame(a = 1L, row_names = 2L))
++    dbWriteTable(con, table_name, data.frame(a = 1L, row_names = 2L), field.types = ydb_field_types(con, data.frame(a = 1L, row_names = 2L)))
+     expect_identical(dbListFields(con, table_name), c("a", "row_names"))
+--- a/R/spec-sql-list-objects.R
++++ b/R/spec-sql-list-objects.R
+@@ -41,3 +41,3 @@
+     penguins <- get_penguins(ctx)
+-    dbWriteTable(con, table_name, penguins)
++    dbWriteTable(con, table_name, penguins, field.types = ydb_field_types(con, penguins))
+
+@@ -63,3 +63,3 @@
+     if (isTRUE(ctx$tweaks$temporary_tables) && isTRUE(ctx$tweaks$list_temporary_tables)) {
+-      dbWriteTable(con, table_name, data.frame(a = 1L), temporary = TRUE)
++      dbWriteTable(con, table_name, data.frame(a = 1L), temporary = TRUE, field.types = ydb_field_types(con, data.frame(a = 1L)))
+
+@@ -82,3 +82,3 @@
+       local_remove_test_table(con, table_name)
+-      dbWriteTable(con, dbQuoteIdentifier(con, table_name), data.frame(a = 2L))
++      dbWriteTable(con, dbQuoteIdentifier(con, table_name), data.frame(a = 2L), field.types = ydb_field_types(con, data.frame(a = 2L)))
+       objects <- dbListObjects(con)
+--- a/R/spec-sql-list-tables.R
++++ b/R/spec-sql-list-tables.R
+@@ -26,3 +26,3 @@
+     penguins <- get_penguins(ctx)
+-    dbWriteTable(con, table_name, penguins)
++    dbWriteTable(con, table_name, penguins, field.types = ydb_field_types(con, penguins))
+
+@@ -44,3 +44,3 @@
+     if (isTRUE(ctx$tweaks$temporary_tables) && isTRUE(ctx$tweaks$list_temporary_tables)) {
+-      dbWriteTable(con, table_name, data.frame(a = 1L), temporary = TRUE)
++      dbWriteTable(con, table_name, data.frame(a = 1L), temporary = TRUE, field.types = ydb_field_types(con, data.frame(a = 1L)))
+       tables <- dbListTables(con)
+@@ -61,3 +61,3 @@
+       local_remove_test_table(con, table_name)
+-      dbWriteTable(con, dbQuoteIdentifier(con, table_name), data.frame(a = 2L))
++      dbWriteTable(con, dbQuoteIdentifier(con, table_name), data.frame(a = 2L), field.types = ydb_field_types(con, data.frame(a = 2L)))
+       tables <- dbListTables(con)
+--- a/R/spec-sql-read-table.R
++++ b/R/spec-sql-read-table.R
+@@ -17,3 +17,3 @@
+     penguins_in <- get_penguins(ctx)
+-    dbWriteTable(con, table_name, penguins_in)
++    dbWriteTable(con, table_name, penguins_in, field.types = ydb_field_types(con, penguins_in))
+     penguins_out <- check_df(dbReadTable(con, table_name))
+@@ -35,3 +35,3 @@
+     penguins_in <- get_penguins(ctx)[integer(), ]
+-    dbWriteTable(con, table_name, penguins_in)
++    dbWriteTable(con, table_name, penguins_in, field.types = ydb_field_types(con, penguins_in))
+     penguins_out <- check_df(dbReadTable(con, table_name))
+@@ -50,4 +50,4 @@
+       local_remove_test_table(con, table_name)
+-      mtcars_in <- datasets::mtcars
+-      dbWriteTable(con, table_name, mtcars_in, row.names = TRUE)
++      mtcars_in <- ydb_keyed_fixture(datasets::mtcars)
++      dbWriteTable(con, table_name, mtcars_in, row.names = TRUE, field.types = ydb_field_types(con, mtcars_in, row.names = TRUE))
+       mtcars_out <- check_df(dbReadTable(con, table_name, row.names = row.names))
+@@ -65,4 +65,4 @@
+
+-    mtcars_in <- datasets::mtcars
+-    dbWriteTable(con, table_name, mtcars_in, row.names = NA)
++    mtcars_in <- ydb_keyed_fixture(datasets::mtcars)
++    dbWriteTable(con, table_name, mtcars_in, row.names = NA, field.types = ydb_field_types(con, mtcars_in, row.names = NA))
+     mtcars_out <- check_df(dbReadTable(con, table_name, row.names = row.names))
+@@ -78,3 +78,3 @@
+     penguins_in <- get_penguins(ctx)
+-    dbWriteTable(con, table_name, penguins_in, row.names = NA)
++    dbWriteTable(con, table_name, penguins_in, row.names = NA, field.types = ydb_field_types(con, penguins_in, row.names = NA))
+     expect_error(dbReadTable(con, table_name, row.names = row.names))
+@@ -87,4 +87,4 @@
+
+-    mtcars_in <- datasets::mtcars
+-    dbWriteTable(con, table_name, mtcars_in, row.names = TRUE)
++    mtcars_in <- ydb_keyed_fixture(datasets::mtcars)
++    dbWriteTable(con, table_name, mtcars_in, row.names = TRUE, field.types = ydb_field_types(con, mtcars_in, row.names = TRUE))
+     mtcars_out <- check_df(dbReadTable(con, table_name, row.names = row.names))
+@@ -99,3 +99,3 @@
+     penguins_in <- get_penguins(ctx)
+-    dbWriteTable(con, table_name, penguins_in, row.names = FALSE)
++    dbWriteTable(con, table_name, penguins_in, row.names = FALSE, field.types = ydb_field_types(con, penguins_in, row.names = FALSE))
+     penguins_out <- check_df(dbReadTable(con, table_name, row.names = row.names))
+@@ -110,3 +110,3 @@
+
+-    mtcars_in <- datasets::mtcars
++    mtcars_in <- ydb_keyed_fixture(datasets::mtcars)
+     mtcars_in$make_model <- rownames(mtcars_in)
+@@ -114,3 +114,3 @@
+
+-    dbWriteTable(con, table_name, mtcars_in, row.names = FALSE)
++    dbWriteTable(con, table_name, mtcars_in, row.names = FALSE, field.types = ydb_field_types(con, mtcars_in, row.names = FALSE))
+     mtcars_out <- check_df(dbReadTable(con, table_name, row.names = row.names))
+@@ -129,3 +129,3 @@
+     penguins_in <- get_penguins(ctx)
+-    dbWriteTable(con, table_name, penguins_in, row.names = FALSE)
++    dbWriteTable(con, table_name, penguins_in, row.names = FALSE, field.types = ydb_field_types(con, penguins_in, row.names = FALSE))
+     expect_error(dbReadTable(con, table_name, row.names = row.names))
+@@ -137,4 +137,4 @@
+     #'
+-    mtcars_in <- datasets::mtcars
+-    dbWriteTable(con, table_name, mtcars_in, row.names = TRUE)
++    mtcars_in <- ydb_keyed_fixture(datasets::mtcars)
++    dbWriteTable(con, table_name, mtcars_in, row.names = TRUE, field.types = ydb_field_types(con, mtcars_in, row.names = TRUE))
+     mtcars_out <- check_df(dbReadTable(con, table_name))
+@@ -158,3 +158,3 @@
+     names(test_in) <- c("with spaces", "with,comma")
+-    dbWriteTable(con, table_name, test_in)
++    dbWriteTable(con, table_name, test_in, field.types = ydb_field_types(con, test_in))
+     #' if the `check.names` argument is `TRUE`,
+@@ -174,3 +174,3 @@
+     names(test_in) <- c("with spaces", "with,comma")
+-    dbWriteTable(con, table_name, test_in)
++    dbWriteTable(con, table_name, test_in, field.types = ydb_field_types(con, test_in))
+     test_out <- check_df(dbReadTable(con, table_name, check.names = FALSE))
+@@ -184,3 +184,3 @@
+     #' An error is raised when calling this method for a closed
+-    dbWriteTable(con, table_name, data.frame(a = 1))
++    dbWriteTable(con, table_name, ydb_keyed_fixture(data.frame(a = 1)), field.types = ydb_field_types(con, ydb_keyed_fixture(data.frame(a = 1))))
+     con2 <- local_closed_connection(ctx = ctx)
+@@ -191,3 +191,3 @@
+     #' or invalid connection.
+-    dbWriteTable(con, table_name, data.frame(a = 1))
++    dbWriteTable(con, table_name, ydb_keyed_fixture(data.frame(a = 1)), field.types = ydb_field_types(con, ydb_keyed_fixture(data.frame(a = 1))))
+     con2 <- local_invalid_connection(ctx)
+@@ -198,3 +198,3 @@
+     #' An error is raised
+-    dbWriteTable(con, table_name, data.frame(a = 1L))
++    dbWriteTable(con, table_name, data.frame(a = 1L), field.types = ydb_field_types(con, data.frame(a = 1L)))
+     #' if `name` cannot be processed with [dbQuoteIdentifier()]
+@@ -238,3 +238,3 @@
+       test_in <- data.frame(a = 1L)
+-      dbWriteTable(con, table_name, test_in)
++      dbWriteTable(con, table_name, test_in, field.types = ydb_field_types(con, test_in))
+
+--- a/R/spec-sql-remove-table.R
++++ b/R/spec-sql-remove-table.R
+@@ -15,3 +15,3 @@
+     penguins <- get_penguins(ctx)
+-    dbWriteTable(con, table_name, penguins)
++    dbWriteTable(con, table_name, penguins, field.types = ydb_field_types(con, penguins))
+
+@@ -32,3 +32,3 @@
+     #' An error is raised when calling this method for a closed
+-    dbWriteTable(con, table_name, data.frame(a = 1))
++    dbWriteTable(con, table_name, ydb_keyed_fixture(data.frame(a = 1)), field.types = ydb_field_types(con, ydb_keyed_fixture(data.frame(a = 1))))
+     con2 <- local_closed_connection(ctx = ctx)
+@@ -39,3 +39,3 @@
+     #' or invalid connection.
+-    dbWriteTable(con, table_name, data.frame(a = 1))
++    dbWriteTable(con, table_name, ydb_keyed_fixture(data.frame(a = 1)), field.types = ydb_field_types(con, ydb_keyed_fixture(data.frame(a = 1))))
+     con2 <- local_invalid_connection(ctx)
+@@ -46,3 +46,3 @@
+     #' An error is also raised
+-    dbWriteTable(con, table_name, data.frame(a = 1L))
++    dbWriteTable(con, table_name, data.frame(a = 1L), field.types = ydb_field_types(con, data.frame(a = 1L)))
+     #' if `name` cannot be processed with [dbQuoteIdentifier()]
+@@ -72,5 +72,5 @@
+
+-    dbWriteTable(con, table_name, data.frame(a = 1.5))
+-    expect_equal(dbReadTable(con, table_name), data.frame(a = 1.5))
+-    dbCreateTable(con, table_name, data.frame(b = 2.5), temporary = TRUE)
++    dbWriteTable(con, table_name, ydb_keyed_fixture(data.frame(a = 1.5)), field.types = ydb_field_types(con, ydb_keyed_fixture(data.frame(a = 1.5))))
++    expect_equal(dbReadTable(con, table_name), ydb_keyed_fixture(data.frame(a = 1.5)))
++    dbCreateTable(con, table_name, ydb_keyed_fixture(data.frame(b = 2.5)), temporary = TRUE, field.types = ydb_field_types(con, ydb_keyed_fixture(data.frame(b = 2.5))))
+     dbRemoveTable(con, table_name, temporary = TRUE)
+@@ -78,3 +78,3 @@
+     expect_error(dbRemoveTable(con, table_name, temporary = TRUE))
+-    expect_equal(dbReadTable(con, table_name), data.frame(a = 1.5))
++    expect_equal(dbReadTable(con, table_name), ydb_keyed_fixture(data.frame(a = 1.5)))
+   },
+@@ -93,3 +93,3 @@
+     #' and [dbExistsTable()] returns `FALSE`.
+-    dbWriteTable(con, table_name, data.frame(a = 1L))
++    dbWriteTable(con, table_name, data.frame(a = 1L), field.types = ydb_field_types(con, data.frame(a = 1L)))
+     expect_true(table_name %in% dbListTables(con))
+@@ -105,3 +105,3 @@
+     con2 <- local_connection(ctx)
+-    dbWriteTable(con, table_name, data.frame(a = 1L))
++    dbWriteTable(con, table_name, data.frame(a = 1L), field.types = ydb_field_types(con, data.frame(a = 1L)))
+     expect_true(table_name %in% dbListTables(con2))
+@@ -120,3 +120,3 @@
+
+-    dbWriteTable(con, table_name, data.frame(a = 1L), temporary = TRUE)
++    dbWriteTable(con, table_name, data.frame(a = 1L), temporary = TRUE, field.types = ydb_field_types(con, data.frame(a = 1L)))
+     if (isTRUE(ctx$tweaks$list_temporary_tables)) {
+@@ -149,3 +149,3 @@
+       #'   quoting,
+-      dbWriteTable(con, table_name, test_in)
++      dbWriteTable(con, table_name, test_in, field.types = ydb_field_types(con, test_in))
+       expect_true(dbRemoveTable(con, table_name))
+@@ -169,3 +169,3 @@
+       local_remove_test_table(con, table_name)
+-      dbWriteTable(con, table_name, test_in)
++      dbWriteTable(con, table_name, test_in, field.types = ydb_field_types(con, test_in))
+       expect_true(dbRemoveTable(con, dbQuoteIdentifier(con, table_name)))
+--- a/R/spec-sql-write-table.R
++++ b/R/spec-sql-write-table.R
+@@ -15,3 +15,3 @@
+     #' `dbWriteTable()` returns `TRUE`, invisibly.
+-    expect_invisible_true(dbWriteTable(con, table_name, data.frame(a = 1L)))
++    expect_invisible_true(dbWriteTable(con, table_name, data.frame(a = 1L), field.types = ydb_field_types(con, data.frame(a = 1L))))
+   },
+@@ -23,3 +23,3 @@
+     test_in <- data.frame(a = 1L)
+-    dbWriteTable(con, table_name, test_in)
++    dbWriteTable(con, table_name, test_in, field.types = ydb_field_types(con, test_in))
+     expect_error(dbWriteTable(con, table_name, data.frame(a = 2L)))
+@@ -35,3 +35,3 @@
+     test_in <- data.frame(a = 1L)
+-    dbWriteTable(con, table_name, test_in)
++    dbWriteTable(con, table_name, test_in, field.types = ydb_field_types(con, test_in))
+     expect_error(dbWriteTable(con, table_name, data.frame(b = 2L), append = TRUE))
+@@ -90,3 +90,3 @@
+     #' incompatible columns)
+-    dbWriteTable(con, table_name, test_in)
++    dbWriteTable(con, table_name, test_in, field.types = ydb_field_types(con, test_in))
+     expect_error(dbWriteTable(con, table_name, data.frame(b = 2L, c = 3L), append = TRUE))
+@@ -120,6 +120,6 @@
+     for (table_name in table_names) {
+-      test_in <- data.frame(a = 1)
++      test_in <- ydb_keyed_fixture(data.frame(a = 1))
+       local_remove_test_table(con, table_name)
+       #' - If an unquoted table name as string: `dbWriteTable()` will do the quoting,
+-      dbWriteTable(con, table_name, test_in)
++      dbWriteTable(con, table_name, test_in, field.types = ydb_field_types(con, test_in))
+       test_out <- check_df(dbReadTable(con, dbQuoteIdentifier(con, table_name)))
+@@ -141,6 +141,6 @@
+     for (table_name in table_names) {
+-      test_in <- data.frame(a = 1)
++      test_in <- ydb_keyed_fixture(data.frame(a = 1))
+
+       local_remove_test_table(con, table_name)
+-      dbWriteTable(con, dbQuoteIdentifier(con, table_name), test_in)
++      dbWriteTable(con, dbQuoteIdentifier(con, table_name), test_in, field.types = ydb_field_types(con, test_in))
+       test_out <- check_df(dbReadTable(con, table_name))
+@@ -153,4 +153,4 @@
+     #' The `value` argument must be a data frame
+-    test_in <- trivial_df()
+-    dbWriteTable(con, table_name, test_in)
++    test_in <- ydb_keyed_fixture(trivial_df())
++    dbWriteTable(con, table_name, test_in, field.types = ydb_field_types(con, test_in))
+
+@@ -162,5 +162,5 @@
+     #' with a subset of the columns of the existing table if `append = TRUE`.
+-    test_in <- trivial_df(3, letters[1:3])
+-    dbCreateTable(con, table_name, test_in)
+-    dbWriteTable(con, table_name, test_in[2], append = TRUE)
++    test_in <- ydb_keyed_fixture(trivial_df(3, letters[1:3]))
++    dbCreateTable(con, table_name, test_in, field.types = ydb_field_types(con, test_in))
++    dbWriteTable(con, table_name, test_in[c(2, 4)], append = TRUE)
+
+@@ -174,5 +174,5 @@
+     #' The order of the columns does not matter with `append = TRUE`.
+-    test_in <- trivial_df(3, letters[1:3])
+-    dbCreateTable(con, table_name, test_in)
+-    dbWriteTable(con, table_name, test_in[c(2, 3, 1)], append = TRUE)
++    test_in <- ydb_keyed_fixture(trivial_df(3, letters[1:3]))
++    dbCreateTable(con, table_name, test_in, field.types = ydb_field_types(con, test_in))
++    dbWriteTable(con, table_name, test_in[c(2, 3, 1, 4)], append = TRUE)
+
+@@ -184,5 +184,5 @@
+   write_table_value_shuffle_subset = function(ctx, con, table_name) {
+-    test_in <- trivial_df(4, letters[1:4])
+-    dbCreateTable(con, table_name, test_in)
+-    dbWriteTable(con, table_name, test_in[c(4, 1, 3)], append = TRUE)
++    test_in <- ydb_keyed_fixture(trivial_df(4, letters[1:4]))
++    dbCreateTable(con, table_name, test_in, field.types = ydb_field_types(con, test_in))
++    dbWriteTable(con, table_name, test_in[c(4, 1, 3, 5)], append = TRUE)
+
+@@ -199,5 +199,5 @@
+     penguins <- get_penguins(ctx)
+-    dbWriteTable(con, table_name, penguins)
++    dbWriteTable(con, table_name, penguins, field.types = ydb_field_types(con, penguins))
+     expect_error(
+-      dbWriteTable(con, table_name, penguins[1, ], overwrite = TRUE),
++      dbWriteTable(con, table_name, penguins[1, ], overwrite = TRUE, field.types = ydb_field_types(con, penguins[1, ])),
+       NA
+@@ -212,3 +212,3 @@
+     expect_error(
+-      dbWriteTable(con, table_name, penguins_in[1, ], overwrite = TRUE),
++      dbWriteTable(con, table_name, penguins_in[1, ], overwrite = TRUE, field.types = ydb_field_types(con, penguins_in[1, ])),
+       NA
+@@ -224,6 +224,8 @@
+     penguins <- get_penguins(ctx)
+-    dbWriteTable(con, table_name, penguins)
+-    expect_error(dbWriteTable(con, table_name, penguins[1, ], append = TRUE), NA)
++    dbWriteTable(con, table_name, penguins, field.types = ydb_field_types(con, penguins))
++    appended <- penguins[1, ]
++    appended$ydb_fixture_id <- nrow(penguins) + 1L
++    expect_error(dbWriteTable(con, table_name, appended, append = TRUE), NA)
+     penguins_out <- check_df(dbReadTable(con, table_name))
+-    expect_equal_df(penguins_out, rbind(penguins, penguins[1, ]))
++    expect_equal_df(penguins_out, rbind(penguins, appended))
+   },
+@@ -248,3 +250,3 @@
+     penguins <- get_penguins(ctx)
+-    dbWriteTable(con, table_name, penguins, temporary = TRUE)
++    dbWriteTable(con, table_name, penguins, temporary = TRUE, field.types = ydb_field_types(con, penguins))
+     penguins_out <- check_df(dbReadTable(con, table_name))
+@@ -271,3 +273,3 @@
+
+-    dbWriteTable(local_con, table_name, penguins30)
++    dbWriteTable(local_con, table_name, penguins30, field.types = ydb_field_types(local_con, penguins30))
+     penguins_out <- check_df(dbReadTable(local_con, table_name))
+@@ -431,4 +433,4 @@
+   roundtrip_64_bit_roundtrip = function(con, table_name) {
+-    tbl_in <- data.frame(a = c(-1e14, 1e15))
+-    dbWriteTable(con, table_name, tbl_in, field.types = c(a = "BIGINT"))
++    tbl_in <- ydb_keyed_fixture(data.frame(a = c(-1e14, 1e15)))
++    dbWriteTable(con, table_name, tbl_in, field.types = ydb_field_types(con, tbl_in, c(a = "BIGINT")))
+     tbl_out <- dbReadTable(con, table_name)
+@@ -714,4 +716,4 @@
+       local_remove_test_table(con, table_name)
+-      mtcars_in <- datasets::mtcars
+-      dbWriteTable(con, table_name, mtcars_in, row.names = row.names)
++      mtcars_in <- ydb_keyed_fixture(datasets::mtcars)
++      dbWriteTable(con, table_name, mtcars_in, row.names = row.names, field.types = ydb_field_types(con, mtcars_in, row.names = row.names))
+       mtcars_out <- check_df(dbReadTable(con, table_name, row.names = FALSE))
+@@ -727,4 +729,4 @@
+
+-    mtcars_in <- datasets::mtcars
+-    dbWriteTable(con, table_name, mtcars_in, row.names = row.names)
++    mtcars_in <- ydb_keyed_fixture(datasets::mtcars)
++    dbWriteTable(con, table_name, mtcars_in, row.names = row.names, field.types = ydb_field_types(con, mtcars_in, row.names = row.names))
+     mtcars_out <- check_df(dbReadTable(con, table_name, row.names = FALSE))
+@@ -742,3 +744,3 @@
+     penguins_in <- get_penguins(ctx)
+-    dbWriteTable(con, table_name, penguins_in, row.names = row.names)
++    dbWriteTable(con, table_name, penguins_in, row.names = row.names, field.types = ydb_field_types(con, penguins_in, row.names = row.names))
+     penguins_out <- check_df(dbReadTable(con, table_name, row.names = FALSE))
+@@ -755,4 +757,4 @@
+
+-    mtcars_in <- datasets::mtcars
+-    dbWriteTable(con, table_name, mtcars_in, row.names = row.names)
++    mtcars_in <- ydb_keyed_fixture(datasets::mtcars)
++    dbWriteTable(con, table_name, mtcars_in, row.names = row.names, field.types = ydb_field_types(con, mtcars_in, row.names = row.names))
+     mtcars_out <- check_df(dbReadTable(con, table_name, row.names = FALSE))
+@@ -770,3 +772,3 @@
+     penguins_in <- get_penguins(ctx)
+-    dbWriteTable(con, table_name, penguins_in, row.names = row.names)
++    dbWriteTable(con, table_name, penguins_in, row.names = row.names, field.types = ydb_field_types(con, penguins_in, row.names = row.names))
+     penguins_out <- check_df(dbReadTable(con, table_name, row.names = FALSE))
+@@ -781,5 +783,5 @@
+
+-    mtcars_in <- datasets::mtcars
+-
+-    dbWriteTable(con, table_name, mtcars_in, row.names = row.names)
++    mtcars_in <- ydb_keyed_fixture(datasets::mtcars)
++
++    dbWriteTable(con, table_name, mtcars_in, row.names = row.names, field.types = ydb_field_types(con, mtcars_in, row.names = row.names))
+     mtcars_out <- check_df(dbReadTable(con, table_name, row.names = FALSE))
+@@ -797,3 +799,3 @@
+     penguins_in <- get_penguins(ctx)
+-    dbWriteTable(con, table_name, penguins_in, row.names = row.names)
++    dbWriteTable(con, table_name, penguins_in, row.names = row.names, field.types = ydb_field_types(con, penguins_in, row.names = row.names))
+     penguins_out <- check_df(dbReadTable(con, table_name, row.names = FALSE))
+@@ -809,4 +811,4 @@
+     #' The default is `row.names = FALSE`.
+-    mtcars_in <- datasets::mtcars
+-    dbWriteTable(con, table_name, mtcars_in)
++    mtcars_in <- ydb_keyed_fixture(datasets::mtcars)
++    dbWriteTable(con, table_name, mtcars_in, field.types = ydb_field_types(con, mtcars_in))
+     mtcars_out <- check_df(dbReadTable(con, table_name, row.names = FALSE))
+@@ -844,2 +846,6 @@
+
++  tbl_in <- ydb_keyed_fixture(tbl_in)
++  tbl_expected <- ydb_keyed_fixture(tbl_expected)
++  field.types <- ydb_field_types(con, tbl_in, field.types)
++
+   if (is.null(name)) {
+@@ -851,3 +857,3 @@
+   if (use_append) {
+-    dbCreateTable(con, name, field.types %||% tbl_in)
++    dbCreateTable(con, name, tbl_in, field.types = field.types)
+     dbAppendTable(con, name, tbl_in)
+--- a/R/spec-transaction-begin-commit-rollback.R
++++ b/R/spec-transaction-begin-commit-rollback.R
+@@ -101,3 +101,3 @@
+     table_name <- "dbit00"
+-    dbWriteTable(con, table_name, data.frame(a = 0L), overwrite = TRUE)
++    dbWriteTable(con, table_name, data.frame(a = 0L), overwrite = TRUE, field.types = ydb_field_types(con, data.frame(a = 0L)))
+
+@@ -140,3 +140,3 @@
+     #' For example, a record that is missing when the transaction is started
+-    dbWriteTable(con, table_name, data.frame(a = 0L), overwrite = TRUE)
++    dbWriteTable(con, table_name, data.frame(a = 0L), overwrite = TRUE, field.types = ydb_field_types(con, data.frame(a = 0L)))
+
+@@ -156,3 +156,3 @@
+     #' Disconnection from a connection with an open transaction
+-    dbWriteTable(local_con, table_name, data.frame(a = 0L), overwrite = TRUE)
++    dbWriteTable(local_con, table_name, data.frame(a = 0L), overwrite = TRUE, field.types = ydb_field_types(local_con, data.frame(a = 0L)))
+
+--- a/R/spec-transaction-with-transaction.R
++++ b/R/spec-transaction-with-transaction.R
+@@ -44,3 +44,3 @@
+     #' [dbCommit()].
+-    dbWriteTable(con, table_name, data.frame(a = 0L), overwrite = TRUE)
++    dbWriteTable(con, table_name, data.frame(a = 0L), overwrite = TRUE, field.types = ydb_field_types(con, data.frame(a = 0L)))
+
+@@ -60,3 +60,3 @@
+     #' [dbRollback()], and the error is propagated.
+-    dbWriteTable(con, table_name, data.frame(a = 0L), overwrite = TRUE)
++    dbWriteTable(con, table_name, data.frame(a = 0L), overwrite = TRUE, field.types = ydb_field_types(con, data.frame(a = 0L)))
+
+@@ -81,3 +81,3 @@
+     #' transaction is silently aborted.
+-    dbWriteTable(con, table_name, data.frame(a = 0L), overwrite = TRUE)
++    dbWriteTable(con, table_name, data.frame(a = 0L), overwrite = TRUE, field.types = ydb_field_types(con, data.frame(a = 0L)))
+
+--- a/R/utils.R
++++ b/R/utils.R
+@@ -57,3 +57,3 @@
+   datasets_penguins$sex <- as.character(datasets_penguins$sex)
+-  as.data.frame(datasets_penguins)
++  ydb_keyed_fixture(as.data.frame(datasets_penguins))
+ }
+@@ -100 +100,29 @@
+ }
++
++# Keep the fixture payload unchanged; use a separate key for roundtrips with
++# duplicate values, NULL rows or types that cannot be YDB primary keys.
++ydb_keyed_fixture <- function(value) {
++  value$ydb_fixture_id <- seq_len(nrow(value))
++  value
++}
++
++ydb_field_types <- function(con, value, field.types = NULL, row.names = NULL) {
++  value <- sqlRownamesToColumn(value, row.names = row.names)
++  keys <- if ("ydb_fixture_id" %in% names(value)) "ydb_fixture_id" else names(value)[vapply(value, function(column)
++    (is.integer(column) || is.character(column)) && !anyDuplicated(column), logical(1))]
++  stopifnot(length(keys) > 0L)
++  types <- field.types
++  if (is.null(types)) {
++    types <- dbDataType(con, value)
++    types[vapply(value, inherits, logical(1), "integer64")] <- "BIGINT"
++  }
++  # Preserve partial field.types: omitted payload columns still exercise inference.
++  if (!keys[1] %in% names(types)) types[keys[1]] <- dbDataType(con, value[[keys[1]]])
++  aliases <- c("BIT" = "Bool", "DOUBLE PRECISION" = "Double", "VARCHAR(255)" = "Utf8",
++               "VARBINARY(255)" = "String")
++  mapped <- aliases[types]
++  types[!is.na(mapped)] <- mapped[!is.na(mapped)]
++  types[length(types)] <- paste0(types[length(types)], ", PRIMARY KEY (",
++                                dbQuoteIdentifier(con, keys[1]), ")")
++  types
++}

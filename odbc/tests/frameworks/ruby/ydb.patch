@@ -1,0 +1,10 @@
+--- a/test/10create_table.rb
++++ b/test/10create_table.rb
+@@ -1 +1 @@
+-$c.run("create table test (id int not null, str varchar(32) not null)")
++$c.run("CREATE TABLE test (id int not null, str Utf8 not null, PRIMARY KEY (id))")
+--- a/test/00connect.rb
++++ b/test/00connect.rb
+@@ -1 +1 @@
+-$c = ODBC.connect($dsn, $uid, $pwd)
++$c = (ENV['ODBC_TEST_MODE'] == 'dsn' ? ODBC.connect($dsn, $uid, $pwd) : ODBC::Database.new.drvconnect($dsn))

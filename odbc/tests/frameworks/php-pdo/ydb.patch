@@ -1,0 +1,1073 @@
+--- a/ext/pdo/tests/bug_34630.phpt
++++ b/ext/pdo/tests/bug_34630.phpt
+@@ -19,9 +19,9 @@
+ $is_oci = $driver == 'oci';
+ 
+ if ($is_oci) {
+-    $db->exec('CREATE TABLE test (id int NOT NULL PRIMARY KEY, val BLOB)');
++    $db->exec('CREATE TABLE test (id int NOT NULL, val String, PRIMARY KEY (id))');
+ } else {
+-    $db->exec('CREATE TABLE test (id int NOT NULL PRIMARY KEY, val VARCHAR(256))');
++    $db->exec('CREATE TABLE test (id int NOT NULL, val Utf8, PRIMARY KEY (id))');
+ }
+ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+ 
+--- a/ext/pdo/tests/bug_35671.phpt
++++ b/ext/pdo/tests/bug_35671.phpt
+@@ -15,7 +15,7 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec('CREATE TABLE test (field1 VARCHAR(32), field2 VARCHAR(32), field3 VARCHAR(32))');
++$db->exec('CREATE TABLE test (field1 Utf8, field2 Utf8, field3 Utf8, PRIMARY KEY (field1))');
+ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+ 
+ $insert = $db->prepare("insert into test (field1, field2, field3) values (:value1, :value2, :value3)");
+--- a/ext/pdo/tests/bug_36428.phpt
++++ b/ext/pdo/tests/bug_36428.phpt
+@@ -16,7 +16,7 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ 
+ $db = PDOTest::factory();
+-$db->exec("CREATE TABLE test (a VARCHAR(10))");
++$db->exec("CREATE TABLE test (a Utf8, PRIMARY KEY (a))");
+ $db->exec("INSERT INTO test (a) VALUES ('xyz')");
+ $res = $db->query("SELECT a FROM test");
+ var_dump($res->fetchAll(PDO::FETCH_CLASS|PDO::FETCH_PROPS_LATE, 'SimpleXMLElement', array('<root/>')));
+--- a/ext/pdo/tests/bug_38253.phpt
++++ b/ext/pdo/tests/bug_38253.phpt
+@@ -15,7 +15,7 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $pdo = PDOTest::factory();
+ 
+-$pdo->exec ("create table test (id integer primary key, n varchar(255))");
++$pdo->exec ("CREATE TABLE test (id integer, n Utf8, PRIMARY KEY (id))");
+ $pdo->exec ("INSERT INTO test (id, n) VALUES (1, 'hi')");
+ 
+ $pdo->setAttribute (PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_CLASS);
+--- a/ext/pdo/tests/bug_38394.phpt
++++ b/ext/pdo/tests/bug_38394.phpt
+@@ -16,7 +16,7 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ 
+ $db = PDOTest::factory();
+-$db->exec("CREATE TABLE test (a INT, b INT, c INT)");
++$db->exec("CREATE TABLE test (a INT, b INT, c INT, PRIMARY KEY (a))");
+ $s = $db->prepare("INSERT INTO test (a,b,c) VALUES (:a,:b,:c)");
+ 
+ $s->execute(array('a' => 1, 'b' => 2, 'c' => 3));
+--- a/ext/pdo/tests/bug_39398.phpt
++++ b/ext/pdo/tests/bug_39398.phpt
+@@ -15,10 +15,10 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ 
+ $db = PDOTest::factory();
+-$db->exec("CREATE TABLE test (test INT)");
++$db->exec("CREATE TABLE test (test INT, PRIMARY KEY (test))");
+ 
+ $boolean = 1;
+-$stmt = $db->prepare('INSERT INTO test VALUES (:boolean)');
++$stmt = $db->prepare('INSERT INTO test (test) VALUES (:boolean)');
+ $stmt->bindValue(':boolean', isset($boolean), PDO::PARAM_INT);
+ $stmt->execute();
+ 
+--- a/ext/pdo/tests/bug_39656.phpt
++++ b/ext/pdo/tests/bug_39656.phpt
+@@ -19,7 +19,7 @@
+ @$db->exec("DROP TABLE test");
+ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+ 
+-$db->exec("CREATE TABLE test (id INTEGER NOT NULL PRIMARY KEY, usr VARCHAR( 256 ) NOT NULL)");
++$db->exec("CREATE TABLE test (id INTEGER NOT NULL, usr Utf8 NOT NULL, PRIMARY KEY (id))");
+ $db->exec("INSERT INTO test (id, usr) VALUES (1, 'user')");
+ 
+ $stmt = $db->prepare("SELECT * FROM test WHERE id = ?");
+--- a/ext/pdo/tests/bug_40285.phpt
++++ b/ext/pdo/tests/bug_40285.phpt
+@@ -16,10 +16,10 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec('CREATE TABLE test (field1 VARCHAR(32), field2 VARCHAR(32), field3 VARCHAR(32), field4 INT)');
++$db->exec('CREATE TABLE test (field1 Utf8, field2 Utf8, field3 Utf8, field4 INT, PRIMARY KEY (field1))');
+ 
+ $db->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+-$s = $db->prepare("INSERT INTO test VALUES( ':id', 'name', 'section', 22)" );
++$s = $db->prepare("INSERT INTO test (field1, field2, field3, field4) VALUES( ':id', 'name', 'section', 22)" );
+ $s->execute();
+ 
+ echo "Done\n";
+--- a/ext/pdo/tests/bug_42917.phpt
++++ b/ext/pdo/tests/bug_42917.phpt
+@@ -15,7 +15,7 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec("CREATE TABLE test (a varchar(100), b varchar(100), c varchar(100))");
++$db->exec("CREATE TABLE test (a Utf8, b Utf8, c Utf8, PRIMARY KEY (a))");
+ 
+ for ($i = 0; $i < 5; $i++) {
+     $db->exec("INSERT INTO test (a,b,c) VALUES('test".$i."','".$i."','".$i."')");
+--- a/ext/pdo/tests/bug_43130.phpt
++++ b/ext/pdo/tests/bug_43130.phpt
+@@ -23,7 +23,7 @@
+ if ($db->getAttribute(PDO::ATTR_DRIVER_NAME) == 'mysql')
+     $db->setAttribute(PDO::ATTR_EMULATE_PREPARES, 1);
+ 
+-$db->exec("CREATE TABLE test (a varchar(100), b varchar(100), c varchar(100))");
++$db->exec("CREATE TABLE test (a Utf8, b Utf8, c Utf8, PRIMARY KEY (a))");
+ 
+ for ($i = 0; $i < 5; $i++) {
+     $db->exec("INSERT INTO test (a,b,c) VALUES('test".$i."','".$i."','".$i."')");
+--- a/ext/pdo/tests/bug_44173.phpt
++++ b/ext/pdo/tests/bug_44173.phpt
+@@ -15,8 +15,8 @@
+ require getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec("CREATE TABLE test (x int)");
+-$db->exec("INSERT INTO test VALUES (1)");
++$db->exec("CREATE TABLE test (x int, PRIMARY KEY (x))");
++$db->exec("INSERT INTO test (x) VALUES (1)");
+ 
+ 
+ // Bug entry [2] -- 1 is PDO::FETCH_LAZY
+--- a/ext/pdo/tests/bug_44409.phpt
++++ b/ext/pdo/tests/bug_44409.phpt
+@@ -15,7 +15,7 @@
+ require getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec("CREATE TABLE test (dat varchar(100))");
++$db->exec("CREATE TABLE test (dat Utf8, PRIMARY KEY (dat))");
+ $db->exec("INSERT INTO test (dat) VALUES ('Data from DB')");
+ 
+ class bug44409 implements Serializable
+--- a/ext/pdo/tests/bug_50458.phpt
++++ b/ext/pdo/tests/bug_50458.phpt
+@@ -15,7 +15,7 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ 
+ $db = PDOTest::factory();
+-$db->exec("CREATE TABLE test (a VARCHAR(10))");
++$db->exec("CREATE TABLE test (a Utf8, PRIMARY KEY (a))");
+ $db->exec("INSERT INTO test (a) VALUES ('xyz')");
+ $res = $db->query("SELECT a FROM test");
+ var_dump($res->fetchAll(PDO::FETCH_FUNC, function($a) { return strtoupper($a); }));
+--- a/ext/pdo/tests/bug_52098.phpt
++++ b/ext/pdo/tests/bug_52098.phpt
+@@ -16,8 +16,8 @@
+ $db = PDOTest::factory();
+ 
+ @$db->exec("DROP TABLE test");
+-$db->exec("CREATE TABLE test (x int)");
+-$db->exec("INSERT INTO test VALUES (1)");
++$db->exec("CREATE TABLE test (x int, PRIMARY KEY (x))");
++$db->exec("INSERT INTO test (x) VALUES (1)");
+ 
+ class MyStatement extends PDOStatement
+ {
+--- a/ext/pdo/tests/bug_64172.phpt
++++ b/ext/pdo/tests/bug_64172.phpt
+@@ -17,13 +17,13 @@
+ $db = PDOTest::factory();
+ 
+ @$db->exec("DROP TABLE test");
+-$db->exec("CREATE TABLE test (x int)");
+-$db->exec("INSERT INTO test VALUES (1)");
++$db->exec("CREATE TABLE test (x int, PRIMARY KEY (x))");
++$db->exec("INSERT INTO test (x) VALUES (1)");
+ 
+ echo "===FAIL===\n";
+ $db->query('SELECT * FROM bad_table');
+ echo "\n";
+-echo "===TEST===\n";
++echo "===test===\n";
+ var_dump(is_string($db->errorInfo()[0])) . "\n";
+ var_dump(is_int($db->errorInfo()[1])) . "\n";
+ var_dump(is_string($db->errorInfo()[2])) . "\n";
+@@ -36,12 +36,12 @@
+ echo "===FAIL===\n";
+ $db->exec("INSERT INTO bad_table VALUES(1)");
+ echo "\n";
+-echo "===TEST===\n";
++echo "===test===\n";
+ var_dump(is_string($db->errorInfo()[0])) . "\n";
+ var_dump(is_int($db->errorInfo()[1])) . "\n";
+ var_dump(is_string($db->errorInfo()[2])) . "\n";
+ echo "===GOOD===\n";
+-$db->exec("INSERT INTO test VALUES (2)");
++$db->exec("INSERT INTO test (x) VALUES (2)");
+ var_dump($db->errorInfo());
+ 
+ $db->exec("DROP TABLE test");
+--- a/ext/pdo/tests/bug_65946.phpt
++++ b/ext/pdo/tests/bug_65946.phpt
+@@ -15,8 +15,8 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ $db->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
+-$db->exec('CREATE TABLE test(id int)');
+-$db->exec('INSERT INTO test VALUES(1)');
++$db->exec('CREATE TABLE test (id int, PRIMARY KEY (id))');
++$db->exec('INSERT INTO test (id) VALUES(1)');
+ switch ($db->getAttribute(PDO::ATTR_DRIVER_NAME)) {
+     case 'dblib':
+         $sql = 'SELECT TOP :limit * FROM test';
+--- a/ext/pdo/tests/bug_71447.phpt
++++ b/ext/pdo/tests/bug_71447.phpt
+@@ -18,8 +18,8 @@
+ $db->setAttribute (\PDO::ATTR_ERRMODE, \PDO::ERRMODE_WARNING);
+ $db->setAttribute (\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_NUM);
+ $db->setAttribute (\PDO::ATTR_EMULATE_PREPARES, false);
+-$db->exec('CREATE TABLE test(id int)');
+-$db->exec('INSERT INTO test VALUES(1)');
++$db->exec('CREATE TABLE test (id int, PRIMARY KEY (id))');
++$db->exec('INSERT INTO test (id) VALUES(1)');
+ 
+ // Comment without quotes or placeholders
+ $stmt = $db->prepare("
+--- a/ext/pdo/tests/bug_71885.phpt
++++ b/ext/pdo/tests/bug_71885.phpt
+@@ -8,7 +8,6 @@
+ if (false == $dir) die('skip no driver');
+ if (!strncasecmp(getenv('PDOTEST_DSN'), 'pgsql', strlen('pgsql'))) die('skip not relevant for pgsql driver');
+ if (!strncasecmp(getenv('PDOTEST_DSN'), 'oci', strlen('oci'))) die('skip not relevant for OCI driver');
+-if (!strncasecmp(getenv('PDOTEST_DSN'), 'odbc', strlen('odbc'))) die('skip inconsistent error message with odbc');
+ require_once $dir . 'pdo_test.inc';
+ PDOTest::skip();
+ ?>
+@@ -19,7 +18,7 @@
+ $db = PDOTest::factory();
+ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+ 
+-$db->exec("CREATE TABLE test (a int)");
++$db->exec("CREATE TABLE test (a int, PRIMARY KEY (a))");
+ 
+ $sql = "SELECT * FROM test WHERE a ?? 1";
+ 
+--- a/ext/pdo/tests/bug_73234.phpt
++++ b/ext/pdo/tests/bug_73234.phpt
+@@ -25,15 +25,15 @@
+ 
+ switch ($db->getAttribute(PDO::ATTR_DRIVER_NAME)) {
+     case 'dblib':
+-        $sql = 'CREATE TABLE test(id INT NULL)';
++        $sql = 'CREATE TABLE test (id INT NULL, PRIMARY KEY (id))';
+         break;
+     default:
+-        $sql = 'CREATE TABLE test(id INT)';
++        $sql = 'CREATE TABLE test (id INT, PRIMARY KEY (id))';
+         break;
+ }
+ $db->exec($sql);
+ 
+-$stmt = $db->prepare('INSERT INTO test VALUES(:value)');
++$stmt = $db->prepare('INSERT INTO test (id) VALUES(:value)');
+ 
+ $stmt->bindValue(':value', 0, PDO::PARAM_NULL);
+ $stmt->execute();
+--- a/ext/pdo/tests/bug_79106.phpt
++++ b/ext/pdo/tests/bug_79106.phpt
+@@ -12,7 +12,7 @@
+ } catch (PDOException $e) {
+     die('skip ' . $e->getMessage());
+ }
+-if (@$db->query('SELECT 1 as "1"') === false) {
++if (@$db->query('SELECT 1 as `1`') === false) {
+     die('skip driver does not support quoted numeric identifiers');
+ }
+ ?>
+@@ -22,7 +22,7 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$stmt = $db->query('SELECT 0 as "2007", 0 as "2008", 0 as "2020"');
++$stmt = $db->query('SELECT 0 as `2007`, 0 as `2008`, 0 as `2020`');
+ var_dump($stmt->fetchAll());
+ ?>
+ --EXPECT--
+--- a/ext/pdo/tests/bug_79106_collision.phpt
++++ b/ext/pdo/tests/bug_79106_collision.phpt
+@@ -12,7 +12,7 @@
+ } catch (PDOException $e) {
+     die('skip ' . $e->getMessage());
+ }
+-if (@$db->query('SELECT 1 as "1"') === false) {
++if (@$db->query('SELECT 1 as `1`') === false) {
+     die('skip driver does not support quoted numeric identifiers');
+ }
+ ?>
+@@ -22,7 +22,7 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$stmt = $db->query('SELECT 11111 as "1", 22222 as "2"');
++$stmt = $db->query('SELECT 11111 as `1`, 22222 as `2`');
+ var_dump($stmt->fetchAll());
+ ?>
+ --EXPECT--
+--- a/ext/pdo/tests/gh8626.phpt
++++ b/ext/pdo/tests/gh8626.phpt
+@@ -23,9 +23,9 @@
+ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
+ 
+ $db->exec('DROP TABLE test');
+-$db->exec('CREATE TABLE test (x int NOT NULL)');
++$db->exec('CREATE TABLE test (x int NOT NULL, PRIMARY KEY (x))');
+ 
+-$stmt = $db->prepare('INSERT INTO test VALUES(?)');
++$stmt = $db->prepare('INSERT INTO test (x) VALUES(?)');
+ 
+ // fail
+ var_dump($stmt->execute([null]), $stmt->errorCode());
+--- a/ext/pdo/tests/pdo_001.phpt
++++ b/ext/pdo/tests/pdo_001.phpt
+@@ -15,10 +15,10 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec('CREATE TABLE test(id int NOT NULL PRIMARY KEY, val VARCHAR(10))');
+-$db->exec("INSERT INTO test VALUES(1, 'A')");
+-$db->exec("INSERT INTO test VALUES(2, 'B')");
+-$db->exec("INSERT INTO test VALUES(3, 'C')");
++$db->exec('CREATE TABLE test (id int NOT NULL, val Utf8, PRIMARY KEY (id))');
++$db->exec("INSERT INTO test (id, val) VALUES(1, 'A')");
++$db->exec("INSERT INTO test (id, val) VALUES(2, 'B')");
++$db->exec("INSERT INTO test (id, val) VALUES(3, 'C')");
+ 
+ $stmt = $db->prepare('SELECT * from test');
+ $stmt->execute();
+--- a/ext/pdo/tests/pdo_002.phpt
++++ b/ext/pdo/tests/pdo_002.phpt
+@@ -15,10 +15,10 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec('CREATE TABLE test(id int NOT NULL PRIMARY KEY, val VARCHAR(10))');
+-$db->exec("INSERT INTO test VALUES(1, 'A')");
+-$db->exec("INSERT INTO test VALUES(2, 'B')");
+-$db->exec("INSERT INTO test VALUES(3, 'C')");
++$db->exec('CREATE TABLE test (id int NOT NULL, val Utf8, PRIMARY KEY (id))');
++$db->exec("INSERT INTO test (id, val) VALUES(1, 'A')");
++$db->exec("INSERT INTO test (id, val) VALUES(2, 'B')");
++$db->exec("INSERT INTO test (id, val) VALUES(3, 'C')");
+ 
+ $stmt = $db->prepare('SELECT * from test');
+ $stmt->execute();
+--- a/ext/pdo/tests/pdo_003.phpt
++++ b/ext/pdo/tests/pdo_003.phpt
+@@ -15,10 +15,10 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec('CREATE TABLE test(id int NOT NULL PRIMARY KEY, val VARCHAR(10))');
+-$db->exec("INSERT INTO test VALUES(1, 'A')");
+-$db->exec("INSERT INTO test VALUES(2, 'B')");
+-$db->exec("INSERT INTO test VALUES(3, 'C')");
++$db->exec('CREATE TABLE test (id int NOT NULL, val Utf8, PRIMARY KEY (id))');
++$db->exec("INSERT INTO test (id, val) VALUES(1, 'A')");
++$db->exec("INSERT INTO test (id, val) VALUES(2, 'B')");
++$db->exec("INSERT INTO test (id, val) VALUES(3, 'C')");
+ 
+ $stmt = $db->prepare('SELECT * from test');
+ $stmt->execute();
+--- a/ext/pdo/tests/pdo_004.phpt
++++ b/ext/pdo/tests/pdo_004.phpt
+@@ -15,10 +15,10 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec('CREATE TABLE test(id int NOT NULL PRIMARY KEY, val VARCHAR(10))');
+-$db->exec("INSERT INTO test VALUES(1, 'A')");
+-$db->exec("INSERT INTO test VALUES(2, 'B')");
+-$db->exec("INSERT INTO test VALUES(3, 'C')");
++$db->exec('CREATE TABLE test (id int NOT NULL, val Utf8, PRIMARY KEY (id))');
++$db->exec("INSERT INTO test (id, val) VALUES(1, 'A')");
++$db->exec("INSERT INTO test (id, val) VALUES(2, 'B')");
++$db->exec("INSERT INTO test (id, val) VALUES(3, 'C')");
+ 
+ $stmt = $db->prepare('SELECT * from test');
+ $stmt->execute();
+--- a/ext/pdo/tests/pdo_005.phpt
++++ b/ext/pdo/tests/pdo_005.phpt
+@@ -15,10 +15,10 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec('CREATE TABLE test(id int NOT NULL PRIMARY KEY, val VARCHAR(10), val2 VARCHAR(10))');
+-$db->exec("INSERT INTO test VALUES(1, 'A', 'AA')");
+-$db->exec("INSERT INTO test VALUES(2, 'B', 'BB')");
+-$db->exec("INSERT INTO test VALUES(3, 'C', 'CC')");
++$db->exec('CREATE TABLE test (id int NOT NULL, val Utf8, val2 Utf8, PRIMARY KEY (id))');
++$db->exec("INSERT INTO test (id, val, val2) VALUES(1, 'A', 'AA')");
++$db->exec("INSERT INTO test (id, val, val2) VALUES(2, 'B', 'BB')");
++$db->exec("INSERT INTO test (id, val, val2) VALUES(3, 'C', 'CC')");
+ 
+ $stmt = $db->prepare('SELECT id, val, val2 from test');
+ 
+--- a/ext/pdo/tests/pdo_006.phpt
++++ b/ext/pdo/tests/pdo_006.phpt
+@@ -15,10 +15,10 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec('CREATE TABLE test(id int NOT NULL PRIMARY KEY, val VARCHAR(10))');
+-$db->exec("INSERT INTO test VALUES(1, 'A')");
+-$db->exec("INSERT INTO test VALUES(2, 'A')");
+-$db->exec("INSERT INTO test VALUES(3, 'C')");
++$db->exec('CREATE TABLE test (id int NOT NULL, val Utf8, PRIMARY KEY (id))');
++$db->exec("INSERT INTO test (id, val) VALUES(1, 'A')");
++$db->exec("INSERT INTO test (id, val) VALUES(2, 'A')");
++$db->exec("INSERT INTO test (id, val) VALUES(3, 'C')");
+ 
+ $stmt = $db->prepare('SELECT val, id from test');
+ 
+--- a/ext/pdo/tests/pdo_007.phpt
++++ b/ext/pdo/tests/pdo_007.phpt
+@@ -15,10 +15,10 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec('CREATE TABLE test(id CHAR(1) NOT NULL PRIMARY KEY, val VARCHAR(10))');
+-$db->exec("INSERT INTO test VALUES('A', 'A')");
+-$db->exec("INSERT INTO test VALUES('B', 'A')");
+-$db->exec("INSERT INTO test VALUES('C', 'C')");
++$db->exec('CREATE TABLE test (id Utf8 NOT NULL, val Utf8, PRIMARY KEY (id))');
++$db->exec("INSERT INTO test (id, val) VALUES('A', 'A')");
++$db->exec("INSERT INTO test (id, val) VALUES('B', 'A')");
++$db->exec("INSERT INTO test (id, val) VALUES('C', 'C')");
+ 
+ $stmt = $db->prepare('SELECT id, val from test');
+ 
+--- a/ext/pdo/tests/pdo_008.phpt
++++ b/ext/pdo/tests/pdo_008.phpt
+@@ -15,10 +15,10 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec('CREATE TABLE test(id CHAR(1) NOT NULL PRIMARY KEY, val VARCHAR(10))');
+-$db->exec("INSERT INTO test VALUES('A', 'A')");
+-$db->exec("INSERT INTO test VALUES('B', 'A')");
+-$db->exec("INSERT INTO test VALUES('C', 'C')");
++$db->exec('CREATE TABLE test (id Utf8 NOT NULL, val Utf8, PRIMARY KEY (id))');
++$db->exec("INSERT INTO test (id, val) VALUES('A', 'A')");
++$db->exec("INSERT INTO test (id, val) VALUES('B', 'A')");
++$db->exec("INSERT INTO test (id, val) VALUES('C', 'C')");
+ 
+ $stmt = $db->prepare('SELECT val, id from test');
+ 
+--- a/ext/pdo/tests/pdo_009.phpt
++++ b/ext/pdo/tests/pdo_009.phpt
+@@ -15,15 +15,15 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec('CREATE TABLE classtypes(id int NOT NULL PRIMARY KEY, name VARCHAR(10) NOT NULL UNIQUE)');
+-$db->exec('INSERT INTO classtypes VALUES(0, \'stdClass\')');
+-$db->exec('INSERT INTO classtypes VALUES(1, \'Test1\')');
+-$db->exec('INSERT INTO classtypes VALUES(2, \'Test2\')');
+-$db->exec('CREATE TABLE test(id int NOT NULL PRIMARY KEY, classtype int, val VARCHAR(10))');
+-$db->exec('INSERT INTO test VALUES(1, 0, \'A\')');
+-$db->exec('INSERT INTO test VALUES(2, 1, \'B\')');
+-$db->exec('INSERT INTO test VALUES(3, 2, \'C\')');
+-$db->exec('INSERT INTO test VALUES(4, 3, \'D\')');
++$db->exec('CREATE TABLE classtypes (id int NOT NULL, name Utf8 NOT NULL, PRIMARY KEY (id))');
++$db->exec('INSERT INTO classtypes (id, name) VALUES(0, \'stdClass\')');
++$db->exec('INSERT INTO classtypes (id, name) VALUES(1, \'Test1\')');
++$db->exec('INSERT INTO classtypes (id, name) VALUES(2, \'Test2\')');
++$db->exec('CREATE TABLE test (id int NOT NULL, classtype int, val Utf8, PRIMARY KEY (id))');
++$db->exec('INSERT INTO test (id, classtype, val) VALUES(1, 0, \'A\')');
++$db->exec('INSERT INTO test (id, classtype, val) VALUES(2, 1, \'B\')');
++$db->exec('INSERT INTO test (id, classtype, val) VALUES(3, 2, \'C\')');
++$db->exec('INSERT INTO test (id, classtype, val) VALUES(4, 3, \'D\')');
+ 
+ $stmt = $db->prepare('SELECT classtypes.name, test.id AS id, test.val AS val FROM test LEFT JOIN classtypes ON test.classtype=classtypes.id');
+ 
+--- a/ext/pdo/tests/pdo_010.phpt
++++ b/ext/pdo/tests/pdo_010.phpt
+@@ -15,15 +15,15 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec('CREATE TABLE classtypes(id int NOT NULL PRIMARY KEY, name VARCHAR(10) NOT NULL UNIQUE)');
+-$db->exec('INSERT INTO classtypes VALUES(0, \'stdClass\')');
+-$db->exec('INSERT INTO classtypes VALUES(1, \'Test1\')');
+-$db->exec('INSERT INTO classtypes VALUES(2, \'Test2\')');
+-$db->exec('CREATE TABLE test(id int NOT NULL PRIMARY KEY, classtype int, val VARCHAR(10), grp VARCHAR(10))');
+-$db->exec('INSERT INTO test VALUES(1, 0, \'A\', \'Group1\')');
+-$db->exec('INSERT INTO test VALUES(2, 1, \'B\', \'Group1\')');
+-$db->exec('INSERT INTO test VALUES(3, 2, \'C\', \'Group2\')');
+-$db->exec('INSERT INTO test VALUES(4, 3, \'D\', \'Group2\')');
++$db->exec('CREATE TABLE classtypes (id int NOT NULL, name Utf8 NOT NULL, PRIMARY KEY (id))');
++$db->exec('INSERT INTO classtypes (id, name) VALUES(0, \'stdClass\')');
++$db->exec('INSERT INTO classtypes (id, name) VALUES(1, \'Test1\')');
++$db->exec('INSERT INTO classtypes (id, name) VALUES(2, \'Test2\')');
++$db->exec('CREATE TABLE test (id int NOT NULL, classtype int, val Utf8, grp Utf8, PRIMARY KEY (id))');
++$db->exec('INSERT INTO test (id, classtype, val, grp) VALUES(1, 0, \'A\', \'Group1\')');
++$db->exec('INSERT INTO test (id, classtype, val, grp) VALUES(2, 1, \'B\', \'Group1\')');
++$db->exec('INSERT INTO test (id, classtype, val, grp) VALUES(3, 2, \'C\', \'Group2\')');
++$db->exec('INSERT INTO test (id, classtype, val, grp) VALUES(4, 3, \'D\', \'Group2\')');
+ 
+ $stmt = $db->prepare('SELECT classtypes.name, test.grp AS grp, test.id AS id, test.val AS val FROM test LEFT JOIN classtypes ON test.classtype=classtypes.id');
+ 
+--- a/ext/pdo/tests/pdo_011.phpt
++++ b/ext/pdo/tests/pdo_011.phpt
+@@ -15,11 +15,11 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec('CREATE TABLE test(id int NOT NULL PRIMARY KEY, val VARCHAR(10), grp VARCHAR(10))');
+-$db->exec('INSERT INTO test VALUES(1, \'A\', \'Group1\')');
+-$db->exec('INSERT INTO test VALUES(2, \'B\', \'Group1\')');
+-$db->exec('INSERT INTO test VALUES(3, \'C\', \'Group2\')');
+-$db->exec('INSERT INTO test VALUES(4, \'D\', \'Group2\')');
++$db->exec('CREATE TABLE test (id int NOT NULL, val Utf8, grp Utf8, PRIMARY KEY (id))');
++$db->exec('INSERT INTO test (id, val, grp) VALUES(1, \'A\', \'Group1\')');
++$db->exec('INSERT INTO test (id, val, grp) VALUES(2, \'B\', \'Group1\')');
++$db->exec('INSERT INTO test (id, val, grp) VALUES(3, \'C\', \'Group2\')');
++$db->exec('INSERT INTO test (id, val, grp) VALUES(4, \'D\', \'Group2\')');
+ 
+ class DerivedStatement extends PDOStatement
+ {
+--- a/ext/pdo/tests/pdo_012.phpt
++++ b/ext/pdo/tests/pdo_012.phpt
+@@ -15,9 +15,9 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec('CREATE TABLE test(id int NOT NULL PRIMARY KEY, val VARCHAR(10), grp VARCHAR(10))');
+-$db->exec('INSERT INTO test VALUES(1, \'A\', \'Group1\')');
+-$db->exec('INSERT INTO test VALUES(2, \'B\', \'Group2\')');
++$db->exec('CREATE TABLE test (id int NOT NULL, val Utf8, grp Utf8, PRIMARY KEY (id))');
++$db->exec('INSERT INTO test (id, val, grp) VALUES(1, \'A\', \'Group1\')');
++$db->exec('INSERT INTO test (id, val, grp) VALUES(2, \'B\', \'Group2\')');
+ 
+ $SELECT = 'SELECT val, grp FROM test';
+ 
+--- a/ext/pdo/tests/pdo_013.phpt
++++ b/ext/pdo/tests/pdo_013.phpt
+@@ -15,9 +15,9 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec('CREATE TABLE test(id int NOT NULL PRIMARY KEY, val VARCHAR(10), grp VARCHAR(10))');
+-$db->exec('INSERT INTO test VALUES(1, \'A\', \'Group1\')');
+-$db->exec('INSERT INTO test VALUES(2, \'B\', \'Group2\')');
++$db->exec('CREATE TABLE test (id int NOT NULL, val Utf8, grp Utf8, PRIMARY KEY (id))');
++$db->exec('INSERT INTO test (id, val, grp) VALUES(1, \'A\', \'Group1\')');
++$db->exec('INSERT INTO test (id, val, grp) VALUES(2, \'B\', \'Group2\')');
+ 
+ $SELECT = 'SELECT val, grp FROM test';
+ 
+--- a/ext/pdo/tests/pdo_014.phpt
++++ b/ext/pdo/tests/pdo_014.phpt
+@@ -15,9 +15,9 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec('CREATE TABLE test(id int NOT NULL PRIMARY KEY, val VARCHAR(10), grp VARCHAR(10))');
+-$db->exec('INSERT INTO test VALUES(1, \'A\', \'Group1\')');
+-$db->exec('INSERT INTO test VALUES(2, \'B\', \'Group2\')');
++$db->exec('CREATE TABLE test (id int NOT NULL, val Utf8, grp Utf8, PRIMARY KEY (id))');
++$db->exec('INSERT INTO test (id, val, grp) VALUES(1, \'A\', \'Group1\')');
++$db->exec('INSERT INTO test (id, val, grp) VALUES(2, \'B\', \'Group2\')');
+ $SELECT = 'SELECT val, grp FROM test';
+ 
+ class Test
+--- a/ext/pdo/tests/pdo_015.phpt
++++ b/ext/pdo/tests/pdo_015.phpt
+@@ -15,9 +15,9 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec('CREATE TABLE test(id int NOT NULL PRIMARY KEY, val VARCHAR(10), val2 VARCHAR(20))');
+-$db->exec('INSERT INTO test VALUES(1, \'A\', \'A2\')');
+-$db->exec('INSERT INTO test VALUES(2, \'A\', \'B2\')');
++$db->exec('CREATE TABLE test (id int NOT NULL, val Utf8, val2 Utf8, PRIMARY KEY (id))');
++$db->exec('INSERT INTO test (id, val, val2) VALUES(1, \'A\', \'A2\')');
++$db->exec('INSERT INTO test (id, val, val2) VALUES(2, \'A\', \'B2\')');
+ 
+ $select1 = $db->prepare('SELECT id, val, val2 FROM test');
+ $select2 = $db->prepare('SELECT val, val2 FROM test');
+--- a/ext/pdo/tests/pdo_016.phpt
++++ b/ext/pdo/tests/pdo_016.phpt
+@@ -20,10 +20,10 @@
+     $db->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
+ }
+ 
+-$db->exec('CREATE TABLE test(idx int NOT NULL PRIMARY KEY, txt VARCHAR(20))');
+-$db->exec('INSERT INTO test VALUES(0, \'String0\')');
+-$db->exec('INSERT INTO test VALUES(1, \'String1\')');
+-$db->exec('INSERT INTO test VALUES(2, \'String2\')');
++$db->exec('CREATE TABLE test (idx int NOT NULL, txt Utf8, PRIMARY KEY (idx))');
++$db->exec('INSERT INTO test (idx, txt) VALUES(0, \'String0\')');
++$db->exec('INSERT INTO test (idx, txt) VALUES(1, \'String1\')');
++$db->exec('INSERT INTO test (idx, txt) VALUES(2, \'String2\')');
+ 
+ $stmt1 = $db->prepare('SELECT COUNT(idx) FROM test');
+ $stmt2 = $db->prepare('SELECT idx, txt FROM test ORDER by idx');
+--- a/ext/pdo/tests/pdo_016a.phpt
++++ b/ext/pdo/tests/pdo_016a.phpt
+@@ -20,10 +20,10 @@
+     $db->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
+ }
+ 
+-$db->exec('CREATE TABLE test(idx int NOT NULL PRIMARY KEY, txt VARCHAR(20))');
+-$db->exec('INSERT INTO test VALUES(0, \'String0\')');
+-$db->exec('INSERT INTO test VALUES(1, \'String1\')');
+-$db->exec('INSERT INTO test VALUES(2, \'String2\')');
++$db->exec('CREATE TABLE test (idx int NOT NULL, txt Utf8, PRIMARY KEY (idx))');
++$db->exec('INSERT INTO test (idx, txt) VALUES(0, \'String0\')');
++$db->exec('INSERT INTO test (idx, txt) VALUES(1, \'String1\')');
++$db->exec('INSERT INTO test (idx, txt) VALUES(2, \'String2\')');
+ 
+ $stmt1 = $db->prepare('SELECT COUNT(idx) FROM test');
+ $stmt2 = $db->prepare('SELECT idx, txt FROM test ORDER by idx');
+--- a/ext/pdo/tests/pdo_017.phpt
++++ b/ext/pdo/tests/pdo_017.phpt
+@@ -36,10 +36,10 @@
+     $suf = '';
+ }
+ 
+-$db->exec('CREATE TABLE test(id INT NOT NULL PRIMARY KEY, val VARCHAR(10))'.$suf);
+-$db->exec("INSERT INTO test VALUES(1, 'A')");
+-$db->exec("INSERT INTO test VALUES(2, 'B')");
+-$db->exec("INSERT INTO test VALUES(3, 'C')");
++$db->exec('CREATE TABLE test (id INT NOT NULL, val Utf8, PRIMARY KEY (id))'.$suf);
++$db->exec("INSERT INTO test (id, val) VALUES(1, 'A')");
++$db->exec("INSERT INTO test (id, val) VALUES(2, 'B')");
++$db->exec("INSERT INTO test (id, val) VALUES(3, 'C')");
+ $delete = $db->prepare('DELETE FROM test');
+ 
+ function countRows($action) {
+--- a/ext/pdo/tests/pdo_018.phpt
++++ b/ext/pdo/tests/pdo_018.phpt
+@@ -67,19 +67,19 @@
+ {
+ }
+ 
+-$db->exec('CREATE TABLE classtypes(id int NOT NULL PRIMARY KEY, name VARCHAR(20) NOT NULL UNIQUE)');
+-$db->exec('INSERT INTO classtypes VALUES(0, \'stdClass\')');
+-$db->exec('INSERT INTO classtypes VALUES(1, \'TestBase\')');
+-$db->exec('INSERT INTO classtypes VALUES(2, \'TestDerived\')');
++$db->exec('CREATE TABLE classtypes (id int NOT NULL, name Utf8 NOT NULL UNIQUE, PRIMARY KEY (id))');
++$db->exec('INSERT INTO classtypes (id, name) VALUES(0, \'stdClass\')');
++$db->exec('INSERT INTO classtypes (id, name) VALUES(1, \'TestBase\')');
++$db->exec('INSERT INTO classtypes (id, name) VALUES(2, \'TestDerived\')');
+ 
+ switch ($db->getAttribute(PDO::ATTR_DRIVER_NAME)) {
+   case 'dblib':
+     // environment settings can influence how the table is created if specifics are missing
+     // https://msdn.microsoft.com/en-us/library/ms174979.aspx#Nullability Rules Within a Table Definition
+-    $sql = 'CREATE TABLE test(id int NOT NULL PRIMARY KEY, classtype int NULL, val VARCHAR(255) NULL)';
++    $sql = 'CREATE TABLE test (id int NOT NULL, classtype int NULL, val Utf8 NULL, PRIMARY KEY (id))';
+     break;
+   default:
+-    $sql = 'CREATE TABLE test(id int NOT NULL PRIMARY KEY, classtype int, val VARCHAR(255))';
++    $sql = 'CREATE TABLE test (id int NOT NULL, classtype int, val Utf8, PRIMARY KEY (id))';
+     break;
+ }
+ $db->exec($sql);
+@@ -116,7 +116,7 @@
+ unset($stmt);
+ 
+ echo "===INSERT===\n";
+-$stmt = $db->prepare('INSERT INTO test VALUES(:id, :classtype, :val)');
++$stmt = $db->prepare('INSERT INTO test (id, classtype, val) VALUES(:id, :classtype, :val)');
+ $stmt->bindParam(':id', $idx);
+ $stmt->bindParam(':classtype', $ctype);
+ $stmt->bindParam(':val', $val);
+--- a/ext/pdo/tests/pdo_019.phpt
++++ b/ext/pdo/tests/pdo_019.phpt
+@@ -15,11 +15,11 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec('CREATE TABLE test(idx int NOT NULL PRIMARY KEY, txt VARCHAR(20))');
+-$db->exec('INSERT INTO test VALUES(0, \'String0\')');
+-$db->exec('INSERT INTO test VALUES(1, \'String1\')');
+-$db->exec('INSERT INTO test VALUES(2, \'String2\')');
+-$db->exec('INSERT INTO test VALUES(3, \'String3\')');
++$db->exec('CREATE TABLE test (idx int NOT NULL, txt Utf8, PRIMARY KEY (idx))');
++$db->exec('INSERT INTO test (idx, txt) VALUES(0, \'String0\')');
++$db->exec('INSERT INTO test (idx, txt) VALUES(1, \'String1\')');
++$db->exec('INSERT INTO test (idx, txt) VALUES(2, \'String2\')');
++$db->exec('INSERT INTO test (idx, txt) VALUES(3, \'String3\')');
+ 
+ 
+ var_dump($db->query('SELECT COUNT(*) FROM test')->fetchColumn());
+--- a/ext/pdo/tests/pdo_020.phpt
++++ b/ext/pdo/tests/pdo_020.phpt
+@@ -15,10 +15,10 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec('CREATE TABLE test(id INT NOT NULL PRIMARY KEY, val VARCHAR(10), val2 VARCHAR(16))');
+-$db->exec("INSERT INTO test VALUES(1, 'A', 'A')");
+-$db->exec("INSERT INTO test VALUES(2, 'B', 'B')");
+-$db->exec("INSERT INTO test VALUES(3, 'C', 'C')");
++$db->exec('CREATE TABLE test (id INT NOT NULL, val Utf8, val2 Utf8, PRIMARY KEY (id))');
++$db->exec("INSERT INTO test (id, val, val2) VALUES(1, 'A', 'A')");
++$db->exec("INSERT INTO test (id, val, val2) VALUES(2, 'B', 'B')");
++$db->exec("INSERT INTO test (id, val, val2) VALUES(3, 'C', 'C')");
+ 
+ foreach (array('SELECT id, val FROM test', 'SELECT id, val, val2 FROM test', 'SELECT COUNT(*) FROM test') as $sql) {
+ 
+--- a/ext/pdo/tests/pdo_021.phpt
++++ b/ext/pdo/tests/pdo_021.phpt
+@@ -19,7 +19,7 @@
+     $db->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
+ }
+ 
+-$db->exec('CREATE TABLE test(id INT NOT NULL PRIMARY KEY, val VARCHAR(10), val2 VARCHAR(16))');
++$db->exec('CREATE TABLE test (id INT NOT NULL, val Utf8, val2 Utf8, PRIMARY KEY (id))');
+ 
+ $select = $db->prepare('SELECT COUNT(id) FROM test');
+ 
+@@ -34,7 +34,7 @@
+ 
+ 
+ // Insert using question mark placeholders
+-$stmt = $db->prepare("INSERT INTO test VALUES(?, ?, ?)");
++$stmt = $db->prepare("INSERT INTO test (id, val, val2) VALUES(?, ?, ?)");
+ foreach ($data as $row) {
+     $stmt->execute($row);
+ }
+@@ -43,7 +43,7 @@
+ echo 'There are ' . $num . " rows in the table.\n";
+ 
+ // Insert using named parameters
+-$stmt2 = $db->prepare("INSERT INTO test VALUES(:first, :second, :third)");
++$stmt2 = $db->prepare("INSERT INTO test (id, val, val2) VALUES(:first, :second, :third)");
+ foreach ($data as $row) {
+     $stmt2->execute(array(':first'=>($row[0] + 5), ':second'=>$row[1],
+         ':third'=>$row[2]));
+--- a/ext/pdo/tests/pdo_022.phpt
++++ b/ext/pdo/tests/pdo_022.phpt
+@@ -26,7 +26,7 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec('CREATE TABLE test(id INT NOT NULL PRIMARY KEY, val VARCHAR(10), val2 VARCHAR(16))');
++$db->exec('CREATE TABLE test (id INT NOT NULL, val Utf8, val2 Utf8, PRIMARY KEY (id))');
+ 
+ $data = array(
+     array('10', 'Abc', 'zxy'),
+@@ -38,7 +38,7 @@
+ );
+ 
+ // Insert using question mark placeholders
+-$stmt = $db->prepare("INSERT INTO test VALUES(?, ?, ?)");
++$stmt = $db->prepare("INSERT INTO test (id, val, val2) VALUES(?, ?, ?)");
+ foreach ($data as $row) {
+     $stmt->execute($row);
+ }
+--- a/ext/pdo/tests/pdo_023.phpt
++++ b/ext/pdo/tests/pdo_023.phpt
+@@ -63,9 +63,9 @@
+ $db->test();
+ var_dump($db);
+ 
+-$db->query('CREATE TABLE test(id INT NOT NULL PRIMARY KEY, val VARCHAR(10))');
+-$db->query('INSERT INTO test VALUES(0, \'A\')');
+-$db->query('INSERT INTO test VALUES(1, \'B\')');
++$db->query('CREATE TABLE test (id INT NOT NULL, val Utf8, PRIMARY KEY (id))');
++$db->query('INSERT INTO test (id, val) VALUES(0, \'A\')');
++$db->query('INSERT INTO test (id, val) VALUES(1, \'B\')');
+ 
+ 
+ $stmt = $db->query('SELECT val, id FROM test');
+--- a/ext/pdo/tests/pdo_024.phpt
++++ b/ext/pdo/tests/pdo_024.phpt
+@@ -19,10 +19,10 @@
+     case 'dblib':
+         // environment settings can influence how the table is created if specifics are missing
+         // https://msdn.microsoft.com/en-us/library/ms174979.aspx#Nullability Rules Within a Table Definition
+-        $sql = 'create table test (id int, name varchar(10) null)';
++        $sql = 'CREATE TABLE test (id int, name Utf8 null, PRIMARY KEY (id))';
+         break;
+     default:
+-        $sql = 'create table test (id int, name varchar(10))';
++        $sql = 'CREATE TABLE test (id int, name Utf8, PRIMARY KEY (id))';
+         break;
+ }
+ $db->exec($sql);
+--- a/ext/pdo/tests/pdo_025.phpt
++++ b/ext/pdo/tests/pdo_025.phpt
+@@ -15,7 +15,7 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec('CREATE TABLE test(id INT NOT NULL PRIMARY KEY, val VARCHAR(10), val2 VARCHAR(16))');
++$db->exec('CREATE TABLE test (id INT NOT NULL, val Utf8, val2 Utf8, PRIMARY KEY (id))');
+ 
+ $data = array(
+     array('10', 'Abc', 'zxy'),
+@@ -28,7 +28,7 @@
+ 
+ 
+ // Insert using question mark placeholders
+-$stmt = $db->prepare("INSERT INTO test VALUES(?, ?, ?)");
++$stmt = $db->prepare("INSERT INTO test (id, val, val2) VALUES(?, ?, ?)");
+ foreach ($data as $row) {
+     $stmt->execute($row);
+ }
+--- a/ext/pdo/tests/pdo_026.phpt
++++ b/ext/pdo/tests/pdo_026.phpt
+@@ -56,9 +56,9 @@
+ $db = PDOTest::factory('PDODatabase');
+ var_dump(get_class($db));
+ 
+-$db->exec('CREATE TABLE test(id INT NOT NULL PRIMARY KEY, val VARCHAR(10), val2 VARCHAR(16))');
++$db->exec('CREATE TABLE test (id INT NOT NULL, val Utf8, val2 Utf8, PRIMARY KEY (id))');
+ 
+-$stmt = $db->prepare("INSERT INTO test VALUES(?, ?, ?)");
++$stmt = $db->prepare("INSERT INTO test (id, val, val2) VALUES(?, ?, ?)");
+ var_dump(get_class($stmt));
+ foreach ($data as $row) {
+     $stmt->execute($row);
+--- a/ext/pdo/tests/pdo_027.phpt
++++ b/ext/pdo/tests/pdo_027.phpt
+@@ -15,7 +15,7 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec('create table test (id int, name varchar(10))');
++$db->exec('CREATE TABLE test (id int, name Utf8, PRIMARY KEY (id))');
+ $db->exec("INSERT INTO test (id,name) VALUES(1,'test1')");
+ $db->exec("INSERT INTO test (id,name) VALUES(2,'test2')");
+ 
+--- a/ext/pdo/tests/pdo_028.phpt
++++ b/ext/pdo/tests/pdo_028.phpt
+@@ -15,8 +15,8 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec('CREATE TABLE test(id int NOT NULL PRIMARY KEY, val1 VARCHAR(10), val2 VARCHAR(10), val3 VARCHAR(10))');
+-$stmt = $db->prepare('INSERT INTO test values (1, ?, ?, ?)');
++$db->exec('CREATE TABLE test (id int NOT NULL, val1 Utf8, val2 Utf8, val3 Utf8, PRIMARY KEY (id))');
++$stmt = $db->prepare('INSERT INTO test (id, val1, val2, val3) VALUES (1, ?, ?, ?)');
+ 
+ $data = array("one", "two", "three");
+ 
+--- a/ext/pdo/tests/pdo_029.phpt
++++ b/ext/pdo/tests/pdo_029.phpt
+@@ -62,9 +62,9 @@
+ $db = PDOTest::factory('PDODatabase');
+ var_dump(get_class($db));
+ 
+-$db->exec('CREATE TABLE test(id INT NOT NULL PRIMARY KEY, val VARCHAR(10), val2 VARCHAR(16))');
++$db->exec('CREATE TABLE test (id INT NOT NULL, val Utf8, val2 Utf8, PRIMARY KEY (id))');
+ 
+-$stmt = $db->prepare("INSERT INTO test VALUES(?, ?, ?)");
++$stmt = $db->prepare("INSERT INTO test (id, val, val2) VALUES(?, ?, ?)");
+ var_dump(get_class($stmt));
+ foreach ($data as $row) {
+     $stmt->execute($row);
+--- a/ext/pdo/tests/pdo_030.phpt
++++ b/ext/pdo/tests/pdo_030.phpt
+@@ -60,9 +60,9 @@
+ $db = PDOTest::factory('PDODatabase');
+ var_dump(get_class($db));
+ 
+-$db->exec('CREATE TABLE test(id INT NOT NULL PRIMARY KEY, val VARCHAR(10), val2 VARCHAR(16))');
++$db->exec('CREATE TABLE test (id INT NOT NULL, val Utf8, val2 Utf8, PRIMARY KEY (id))');
+ 
+-$stmt = $db->prepare("INSERT INTO test VALUES(?, ?, ?)");
++$stmt = $db->prepare("INSERT INTO test (id, val, val2) VALUES(?, ?, ?)");
+ var_dump(get_class($stmt));
+ foreach ($data as $row) {
+     $stmt->execute($row);
+--- a/ext/pdo/tests/pdo_031.phpt
++++ b/ext/pdo/tests/pdo_031.phpt
+@@ -22,9 +22,9 @@
+ 
+ $db = PDOTest::factory();
+ 
+-$db->exec('CREATE TABLE test(id INT NOT NULL PRIMARY KEY, val VARCHAR(10), val2 VARCHAR(16))');
++$db->exec('CREATE TABLE test (id INT NOT NULL, val Utf8, val2 Utf8, PRIMARY KEY (id))');
+ 
+-$stmt = $db->prepare("INSERT INTO test VALUES(?, ?, ?)");
++$stmt = $db->prepare("INSERT INTO test (id, val, val2) VALUES(?, ?, ?)");
+ foreach ($data as $row) {
+     $stmt->execute($row);
+ }
+--- a/ext/pdo/tests/pdo_032.phpt
++++ b/ext/pdo/tests/pdo_032.phpt
+@@ -15,10 +15,10 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec('CREATE TABLE test(id int NOT NULL PRIMARY KEY, val VARCHAR(10))');
+-$db->exec("INSERT INTO test VALUES(1, 'A')");
+-$db->exec("INSERT INTO test VALUES(2, 'B')");
+-$db->exec("INSERT INTO test VALUES(3, 'C')");
++$db->exec('CREATE TABLE test (id int NOT NULL, val Utf8, PRIMARY KEY (id))');
++$db->exec("INSERT INTO test (id, val) VALUES(1, 'A')");
++$db->exec("INSERT INTO test (id, val) VALUES(2, 'B')");
++$db->exec("INSERT INTO test (id, val) VALUES(3, 'C')");
+ 
+ // Lower case columns
+ $db->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
+--- a/ext/pdo/tests/pdo_033.phpt
++++ b/ext/pdo/tests/pdo_033.phpt
+@@ -24,7 +24,7 @@
+ 
+ @$db->exec("DROP TABLE test");
+ 
+-$db->query("CREATE TABLE test (t char($len))");
++$db->query("CREATE TABLE test (t char($len), PRIMARY KEY (t))");
+ $db->query("INSERT INTO test (t) VALUES($quoted)");
+ 
+ $stmt = $db->prepare('SELECT * from test');
+--- a/ext/pdo/tests/pdo_034.phpt
++++ b/ext/pdo/tests/pdo_034.phpt
+@@ -15,7 +15,7 @@
+ require_once getenv('REDIR_TEST_DIR') . 'pdo_test.inc';
+ $db = PDOTest::factory();
+ 
+-$db->exec("CREATE TABLE test (a varchar(100), b varchar(100), c varchar(100))");
++$db->exec("CREATE TABLE test (a Utf8, b Utf8, c Utf8, PRIMARY KEY (a))");
+ 
+ for ($i = 0; $i < 5; $i++) {
+     $db->exec("INSERT INTO test (a,b,c) VALUES('test".$i."','".$i."','".$i."')");
+--- a/ext/pdo/tests/pdo_035.phpt
++++ b/ext/pdo/tests/pdo_035.phpt
+@@ -16,8 +16,8 @@
+ $db = PDOTest::factory();
+ 
+ const TABLE_NAME = 'test_pdo_35_pdo_row';
+-$db->exec('CREATE TABLE ' . TABLE_NAME .' (id int, name varchar(10))');
+-$db->exec('INSERT INTO ' . TABLE_NAME .' VALUES (23, \'0\')');
++$db->exec('CREATE TABLE ' . TABLE_NAME .' (id int, name Utf8, PRIMARY KEY (id))');
++$db->exec('INSERT INTO ' . TABLE_NAME .' (id, name) VALUES (23, \'0\')');
+ 
+ $stmt = $db->prepare('SELECT id, name FROM ' . TABLE_NAME);
+ $stmt->execute();
+--- a/ext/pdo/tests/pecl_bug_5217.phpt
++++ b/ext/pdo/tests/pecl_bug_5217.phpt
+@@ -18,7 +18,7 @@
+     $ser = serialize($db);
+     debug_zval_dump($ser);
+     $db = unserialize($ser);
+-    $db->exec('CREATE TABLE test (id int NOT NULL PRIMARY KEY, val VARCHAR(10))');
++    $db->exec('CREATE TABLE test (id int NOT NULL, val Utf8, PRIMARY KEY (id))');
+ } catch (Exception $e) {
+     echo "Safely caught " . $e->getMessage() . "\n";
+ }
+--- a/ext/pdo_odbc/tests/autocommit.phpt
++++ b/ext/pdo_odbc/tests/autocommit.phpt
+@@ -16,7 +16,7 @@
+ $table = 'autocommit_pdo_odbc';
+ 
+ $db = PDOTest::test_factory(dirname(__FILE__) . '/common.phpt');
+-$db->exec("CREATE TABLE {$table} (id INT, name VARCHAR(255))");
++$db->exec("CREATE TABLE {$table} (id INT, name Utf8, PRIMARY KEY (id))");
+ unset($db);
+ 
+ $db = new PDO(getenv('PDOTEST_DSN'), getenv('PDOTEST_USER'), getenv('PDOTEST_PASS'), [
+--- a/ext/pdo_odbc/tests/bug80783.phpt
++++ b/ext/pdo_odbc/tests/bug80783.phpt
+@@ -11,10 +11,10 @@
+ <?php
+ require 'ext/pdo/tests/pdo_test.inc';
+ $db = PDOTest::test_factory(dirname(__FILE__) . '/common.phpt');
+-$db->exec("CREATE TABLE bug80783 (name IMAGE)");
++$db->exec("CREATE TABLE bug80783 (name String, PRIMARY KEY (name))");
+ 
+ $string = str_repeat("0123456789", 50);
+-$db->exec("INSERT INTO bug80783 VALUES('$string')");
++$db->exec("INSERT INTO bug80783 (name) VALUES('$string')");
+ 
+ $stmt = $db->prepare("SELECT name FROM bug80783");
+ $stmt->bindColumn(1, $data, PDO::PARAM_LOB);
+--- a/ext/pdo_odbc/tests/bug80783a.phpt
++++ b/ext/pdo_odbc/tests/bug80783a.phpt
+@@ -16,10 +16,10 @@
+ <?php
+ require 'ext/pdo/tests/pdo_test.inc';
+ $db = PDOTest::test_factory(dirname(__FILE__) . '/common.phpt');
+-$db->exec("CREATE TABLE bug80783a (name NVARCHAR(MAX))");
++$db->exec("CREATE TABLE bug80783a (name Utf8, PRIMARY KEY (name))");
+ 
+ $string = str_repeat("0123456789", 50);
+-$db->exec("INSERT INTO bug80783a VALUES('$string')");
++$db->exec("INSERT INTO bug80783a (name) VALUES('$string')");
+ 
+ $stmt = $db->prepare("SELECT name FROM bug80783a");
+ $stmt->setAttribute(PDO::ODBC_ATTR_ASSUME_UTF8, true);
+--- a/ext/pdo_odbc/tests/gh9372.phpt
++++ b/ext/pdo_odbc/tests/gh9372.phpt
+@@ -17,8 +17,8 @@
+ $db = PDOTest::test_factory(dirname(__FILE__) . '/common.phpt');
+ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+ 
+-$db->exec("CREATE TABLE gh9372 (col VARCHAR(10))");
+-$db->exec("INSERT INTO gh9372 VALUES ('something')");
++$db->exec("CREATE TABLE gh9372 (col Utf8, PRIMARY KEY (col))");
++$db->exec("INSERT INTO gh9372 (col) VALUES ('something')");
+ 
+ $stmt = $db->prepare("SELECT * FROM gh9372 WHERE col = ?");
+ $stmt->bindValue(1, 'something else');
+--- a/ext/pdo_odbc/tests/long_columns.phpt
++++ b/ext/pdo_odbc/tests/long_columns.phpt
+@@ -46,9 +46,9 @@
+ $db = PDOTest::test_factory('ext/pdo_odbc/tests/common.phpt');
+ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
+ 
+-if (false === $db->exec('CREATE TABLE TEST (id INT NOT NULL PRIMARY KEY, data CLOB)')) {
+-    if (false === $db->exec('CREATE TABLE TEST (id INT NOT NULL PRIMARY KEY, data longtext)')) {
+-        if (false === $db->exec('CREATE TABLE TEST (id INT NOT NULL PRIMARY KEY, data varchar(4000))')) {
++if (false === $db->exec('CREATE TABLE test (id INT NOT NULL, data Utf8, PRIMARY KEY (id))')) {
++    if (false === $db->exec('CREATE TABLE test (id INT NOT NULL, data Utf8, PRIMARY KEY (id))')) {
++        if (false === $db->exec('CREATE TABLE test (id INT NOT NULL, data Utf8, PRIMARY KEY (id))')) {
+             die("BORK: don't know how to create a long column here:\n" . implode(", ", $db->errorInfo()));
+         }
+     }
+@@ -74,11 +74,11 @@
+ // this test does - nice to be able to test using MS SQL server
+ foreach ($sizes as $num) {
+     $text = alpha_repeat($num);
+-    $db->exec("INSERT INTO TEST VALUES($num, '$text')");
++    $db->exec("INSERT INTO test (id, data) VALUES($num, '$text')");
+ }
+ 
+ // verify data
+-foreach ($db->query('SELECT id, data from TEST ORDER BY LEN(data) ASC') as $row) {
++foreach ($db->query('SELECT id, data from test ORDER BY id ASC') as $row) {
+     $expect = alpha_repeat($row[0]);
+     if (strcmp($expect, $row[1])) {
+         echo "Failed on size $row[id]:\n";
+--- a/ext/pdo_odbc/tests/max_columns.phpt
++++ b/ext/pdo_odbc/tests/max_columns.phpt
+@@ -13,9 +13,9 @@
+ $db = PDOTest::test_factory('ext/pdo_odbc/tests/common.phpt');
+ $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_SILENT);
+ 
+-if (false === $db->exec('CREATE TABLE TEST (id INT NOT NULL PRIMARY KEY, data varchar(max))')) {
+-    if (false === $db->exec('CREATE TABLE TEST (id INT NOT NULL PRIMARY KEY, data longtext)')) {
+-        if (false === $db->exec('CREATE TABLE TEST (id INT NOT NULL PRIMARY KEY, data CLOB)')) {
++if (false === $db->exec('CREATE TABLE test (id INT NOT NULL, data Utf8, PRIMARY KEY (id))')) {
++    if (false === $db->exec('CREATE TABLE test (id INT NOT NULL, data longtext, PRIMARY KEY (id))')) {
++        if (false === $db->exec('CREATE TABLE test (id INT NOT NULL, data CLOB, PRIMARY KEY (id))')) {
+             die("BORK: don't know how to create a long column here:\n" . implode(", ", $db->errorInfo()));
+         }
+     }
+@@ -26,14 +26,14 @@
+ $sizes = array(32, 64, 128, 253, 254, 255, 256, 257, 258, 512, 1024, 2048, 3998, 3999, 4000);
+ 
+ $db->beginTransaction();
+-$insert = $db->prepare('INSERT INTO TEST VALUES (?, ?)');
++$insert = $db->prepare('INSERT INTO test (id, data) VALUES (?, ?)');
+ foreach ($sizes as $num) {
+     $insert->execute(array($num, str_repeat('i', $num)));
+ }
+ $insert = null;
+ $db->commit();
+ 
+-foreach ($db->query('SELECT id, data from TEST') as $row) {
++foreach ($db->query('SELECT id, data from test') as $row) {
+     $expect = str_repeat('i', $row[0]);
+     if (strcmp($expect, $row[1])) {
+         echo "Failed on size $row[id]:\n";
