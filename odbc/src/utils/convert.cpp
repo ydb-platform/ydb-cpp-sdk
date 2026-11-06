@@ -330,9 +330,10 @@ std::optional<TSqlTime> ReadTemporal(const TBoundParam& param, EParamType type) 
     return value;
 }
 
-SQLRETURN CopyVariable(const void* data, SQLLEN size, SQLLEN terminator, SQLLEN unit,
+template <typename Copy>
+SQLRETURN CopyVariable(SQLLEN size, SQLLEN terminator, SQLLEN unit,
                        SQLPOINTER target, SQLLEN bufferLength, SQLLEN* indicator,
-                       SQLLEN* offset) {
+                       SQLLEN* offset, Copy copy) {
     if (offset && *offset < 0) {
         return SQL_NO_DATA;
     }
@@ -347,7 +348,7 @@ SQLRETURN CopyVariable(const void* data, SQLLEN size, SQLLEN terminator, SQLLEN 
         capacity -= capacity % unit;
         copied = std::min(remaining, capacity);
         if (copied) {
-            std::memcpy(target, static_cast<const char*>(data) + start, copied);
+            copy(target, start, copied);
         }
         if (terminator) {
             std::memset(static_cast<char*>(target) + copied, 0, terminator);
@@ -360,6 +361,15 @@ SQLRETURN CopyVariable(const void* data, SQLLEN size, SQLLEN terminator, SQLLEN 
         *indicator = remaining;
     }
     return target && copied < remaining ? SQL_SUCCESS_WITH_INFO : SQL_SUCCESS;
+}
+
+SQLRETURN CopyVariable(const void* data, SQLLEN size, SQLLEN terminator, SQLLEN unit,
+                       SQLPOINTER target, SQLLEN bufferLength, SQLLEN* indicator,
+                       SQLLEN* offset) {
+    return CopyVariable(size, terminator, unit, target, bufferLength, indicator, offset,
+        [data](SQLPOINTER destination, SQLLEN start, SQLLEN copied) {
+            std::memcpy(destination, static_cast<const char*>(data) + start, copied);
+        });
 }
 
 template <typename Value>
@@ -1033,13 +1043,19 @@ SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER
     }
     if (type == EPrimitiveType::String && (targetType == SQL_C_CHAR || targetType == SQL_C_WCHAR)) {
         const auto& bytes = parser.GetString();
-        std::string hex;
-        hex.reserve(bytes.size() * 2);
-        for (unsigned char byte : bytes) {
-            hex += "0123456789abcdef"[byte >> 4];
-            hex += "0123456789abcdef"[byte & 15];
-        }
-        return WriteText(hex, targetType, targetValue, bufferLength, strLenOrInd, offset);
+        const SQLLEN unit = targetType == SQL_C_WCHAR ? sizeof(SQLWCHAR) : 1;
+        return CopyVariable(bytes.size() * 2 * unit, unit, unit, targetValue, bufferLength,
+            strLenOrInd, offset, [&](SQLPOINTER destination, SQLLEN start, SQLLEN copied) {
+                const auto fill = [&]<typename Char>(Char* text) {
+                    for (SQLLEN i = 0; i < copied / unit; ++i) {
+                        const SQLLEN nibble = start / unit + i;
+                        const unsigned char byte = bytes[nibble / 2];
+                        text[i] = "0123456789abcdef"[nibble % 2 ? byte & 15 : byte >> 4];
+                    }
+                };
+                if (targetType == SQL_C_WCHAR) fill(static_cast<SQLWCHAR*>(destination));
+                else fill(static_cast<char*>(destination));
+            });
     }
     if (const auto text = PrimitiveText(parser, type)) {
         return WriteText(*text, targetType, targetValue, bufferLength, strLenOrInd, offset);
