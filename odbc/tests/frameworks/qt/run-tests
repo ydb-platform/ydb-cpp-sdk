@@ -9,6 +9,7 @@ UPSTREAM = Path(os.environ["ODBC_UPSTREAM_DIR"])
 NATIVE = Path(os.environ["ODBC_NATIVE_RESULTS_DIR"])
 PRISTINE = next(UPSTREAM.glob("*/tests/auto/sql"))
 SOURCE, BUILD = Path("/work/qt-sql"), Path("/work/qt-build")
+PLUGIN = Path("/work/qt-odbc")
 TARGETS = ("qsql", "qsqldatabase", "qsqldriver", "qsqlquery", "qsqlthread",
            "qsqlquerymodel", "qsqlrelationaldelegate", "qsqlrelationaltablemodel", "qsqltablemodel")
 RUN_LAST = {"qsqldatabase": {"transaction"}, "qsqlthread": {"readWriteThreading"},
@@ -36,16 +37,23 @@ def prepare_source():
     (NATIVE / "fixture-patch.log").write_text(applied.stdout or "")
     if applied.returncode:
         raise RuntimeError(f"fixture patch exited {applied.returncode}:\n{(applied.stdout or '').strip()}")
+    shutil.copytree(PRISTINE.parents[2] / "src/plugins/sqldrivers/odbc", PLUGIN,
+                    copy_function=shutil.copyfile)
+    PLUGIN.chmod(0o755)
+    run(["patch", "--batch", "--fuzz=0", "-p1", "-i", ADAPTER / "upstream.patch"],
+        cwd=PLUGIN, check=True)
 def main():
     if MODE not in DATABASES: raise RuntimeError(f"unsupported ODBC test mode: {MODE}")
     prepare_source()
-    run(["cmake", "-G", "Ninja", "-S", ADAPTER, "-B", BUILD, f"-DQT_SQL_SOURCE={SOURCE}"], check=True)
+    run(["cmake", "-G", "Ninja", "-S", ADAPTER, "-B", BUILD, f"-DQT_SQL_SOURCE={SOURCE}",
+         f"-DQT_ODBC_SOURCE={PLUGIN}"], check=True)
     run(["cmake", "--build", BUILD, "--parallel", "2"], check=True)
     results, inventory, inventory_rows = [], [], {}
     database = DATABASES[MODE]
     config = Path(f"/work/qt-databases-{MODE}.json")
     config.write_text(json.dumps({"entries": [{"driver": "QODBC", "name": database}]}) + "\n")
-    env = os.environ | {"QT_TEST_DATABASES_FILE": str(config), "QT_QPA_PLATFORM": "offscreen"}
+    env = os.environ | {"QT_TEST_DATABASES_FILE": str(config), "QT_QPA_PLATFORM": "offscreen",
+                        "QT_PLUGIN_PATH": str(BUILD / "plugins")}
     def save():
         (NATIVE / "results.json").write_text(json.dumps({"schema_version": 1, "inventory_kind": "parents",
              "inventory": inventory, "inventory_rows": inventory_rows, "tests": results}, indent=2) + "\n")

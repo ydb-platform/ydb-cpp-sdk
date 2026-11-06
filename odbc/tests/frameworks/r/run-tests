@@ -5,6 +5,7 @@ sys.path.insert(0,'/harness/bindings')
 from adapter import run
 
 def main(s):
+    s.command(['patch','--batch','--fuzz=0','-p1','-i',s.adapter/'upstream.patch'], 'upstream-patch')
     library=Path('/work/R-library');library.mkdir()
     s.command(['R','CMD','INSTALL','--no-multiarch','--no-test-load','-l',library,s.source],'build',env={'MAKEFLAGS':'-j2'},timeout=1200)
     dependencies=s.dependencies()

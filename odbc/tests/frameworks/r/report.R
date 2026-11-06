@@ -28,15 +28,16 @@ context <- DBItest::make_context(odbc::odbc(),
         # DBItest needs a valid DDL statement here; these cases do not inspect table data.
         create_table_as=function(table_name, query)
             paste0("CREATE TABLE ",table_name," (a Int32, PRIMARY KEY (a))"),
-        placeholder_pattern="?", date_cast=function(x) paste0("Date('",x,"')"),
-        time_cast=function(x) paste0("Utf8('",x,"')"),
+        placeholder_pattern="?", date_cast=function(x) paste0("Date32('",x,"'s)"),
+        time_cast=function(x) paste0("Utf8('",x,"'s)"),
         blob_cast=function(x) {
             if (all(x == "?")) return(paste0("CAST(",x," AS String)"))
+            if (all(grepl("^String::HexDecode",x))) return(x)
             hex <- sub("^(?:[xX]'([0-9A-Fa-f]*)'|0[xX]([0-9A-Fa-f]*))$", "\\1\\2",as.character(x),perl=TRUE)
             stopifnot(all(grepl("^[0-9A-Fa-f]*$",hex)))
-            paste0("String::HexDecode('",hex,"')")
+            paste0("String::HexDecode('",hex,"'s)")
         },
-        timestamp_cast=function(x) paste0("Timestamp('",sub(" ","T",x,fixed=TRUE),"Z')")))
+        timestamp_cast=function(x) paste0("Timestamp64('",sub(" ","T",x,fixed=TRUE),"Z's)")))
 reporter <- testthat::ListReporter$new()
 results <- list()
 for (name in names(specs)) {
