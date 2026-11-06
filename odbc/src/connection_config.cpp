@@ -47,6 +47,7 @@ constexpr std::array ConnectionKeys = {
     TConnectionKeySpec{"DSN"},
     TConnectionKeySpec{"Endpoint", "Server"},
     TConnectionKeySpec{"Database"},
+    TConnectionKeySpec{"AnsiSQL"},
     TConnectionKeySpec{"AuthMode"},
     TConnectionKeySpec{"Token", "AccessToken", uint8_t(EAuthenticationMode::Token) | SelectsAuth},
     TConnectionKeySpec{"User", "UID", uint8_t(EAuthenticationMode::Static) | SelectsAuth},
@@ -271,6 +272,10 @@ void OverlayConnectionParameters(TConnectionParameters& destination, const TConn
 }
 
 TResolvedConnectionSettings ResolveConnectionSettings(TConnectionParameters parameters, std::string dataSourceName) {
+    const auto ansiSql = Get(parameters, "AnsiSQL");
+    if (!ansiSql.empty() && ansiSql != "0" && ansiSql != "1") {
+        ThrowInvalidAttribute("AnsiSQL", "expected 0 or 1");
+    }
     const std::string endpointValue(Get(parameters, "Endpoint"));
     const std::string database(Get(parameters, "Database"));
     if (endpointValue.empty() || database.empty()) {
@@ -372,6 +377,7 @@ TResolvedConnectionSettings ResolveConnectionSettings(TConnectionParameters para
         .Database = database,
         .DataSourceName = std::move(dataSourceName),
         .DriverConfig = std::move(driverConfig),
+        .AnsiSql = ansiSql == "1",
     };
 }
 

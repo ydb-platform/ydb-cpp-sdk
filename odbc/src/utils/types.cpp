@@ -63,7 +63,10 @@ TYdbTypeInfo DescribeYdbType(const TType& type) {
     for (size_t optional = 0; optional < optionals && info.TypeName.ends_with('?'); ++optional) {
         info.TypeName.pop_back();
     }
-    if (parser.GetKind() == TTypeParser::ETypeKind::Decimal) {
+    if (parser.GetKind() == TTypeParser::ETypeKind::Null) {
+        info.SqlType = SQL_VARCHAR;
+        info.ColumnSize = 1;
+    } else if (parser.GetKind() == TTypeParser::ETypeKind::Decimal) {
         const TDecimalType decimal = parser.GetDecimal();
         info.SqlType = SQL_DECIMAL;
         info.ColumnSize = decimal.Precision;

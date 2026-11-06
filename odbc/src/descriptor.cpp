@@ -52,7 +52,6 @@ using TRecordProperties = TScalarProperties<
     TScalarProperty<SQL_DESC_CONCISE_TYPE, &TDescRecord::Type>,
     TScalarProperty<SQL_DESC_LENGTH, &TDescRecord::Length>,
     TScalarProperty<SQL_DESC_OCTET_LENGTH, &TDescRecord::OctetLength>,
-    TScalarProperty<SQL_DESC_DISPLAY_SIZE, &TDescRecord::Length, true, false>,
     TScalarProperty<SQL_DESC_PRECISION, &TDescRecord::Precision>,
     TScalarProperty<SQL_DESC_SCALE, &TDescRecord::Scale>,
     TScalarProperty<SQL_DESC_NULLABLE, &TDescRecord::Nullable>,
@@ -174,6 +173,8 @@ SQLRETURN TDescriptor::GetDescField(SQLSMALLINT recNumber, SQLSMALLINT field, SQ
         return *result;
     }
     switch (field) {
+        case SQL_DESC_DISPLAY_SIZE:
+            return WriteScalar(value, GetDisplaySize(record->Type, record->Length));
         case SQL_DESC_BASE_COLUMN_NAME:
         case SQL_DESC_NAME:
             return Diag::WriteString<Diag::EStringWriteMode::Descriptor>(

@@ -15,6 +15,7 @@ struct TBoundParam {
     SQLLEN* StrLenOrIndPtr;
     bool AtExec = false;
     bool IsNullData = false;
+    bool WideTemporal = false;
 };
 
 inline bool BoundParamIsNull(const TBoundParam& param) noexcept {

@@ -343,6 +343,7 @@ void TConnection::ApplyResolvedSettings(TResolvedConnectionSettings&& settings) 
     Database_ = std::move(settings.Database);
     ServerName_ = std::move(settings.Endpoint);
     DataSourceName_ = std::move(settings.DataSourceName);
+    AnsiSql_ = settings.AnsiSql;
     DriverConfig_.emplace(std::move(settings.DriverConfig));
     RecreateYdbClients();
     Attributes_.SetCurrentCatalog(Database_);
@@ -381,8 +382,16 @@ TConnectionAttributes::TCatalogBinding TConnection::GetCatalogBinding() const {
     return Attributes_.BuildCatalogBinding(Database_);
 }
 
+std::string TConnection::PrepareSql(std::string sql) const {
+    constexpr std::string_view prefix = "--!ansi_lexer\nPRAGMA UnicodeLiterals;\n";
+    if (AnsiSql_ && !sql.empty() && !sql.starts_with(prefix)) {
+        sql.insert(0, prefix);
+    }
+    return sql;
+}
+
 SQLRETURN TConnection::NativeSql(const std::string& inSql, SQLCHAR* outSql, SQLINTEGER outMax, SQLINTEGER* outLen) {
-    const std::string nativeSql = RewriteOdbcEscapes(inSql);
+    const std::string nativeSql = RewriteOdbcEscapes(PrepareSql(inSql));
     return Diag::WriteOptionalOdbcString(*this, nativeSql, outSql, outMax, outLen);
 }
 

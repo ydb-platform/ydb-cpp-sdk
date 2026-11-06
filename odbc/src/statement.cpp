@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <cstring>
 #include <limits>
+#include <ranges>
 #include <string_view>
 
 namespace NYdb::NOdbc {
@@ -31,27 +32,32 @@ namespace {
         }
 
         const uint64_t maxSqlLen = static_cast<uint64_t>(std::numeric_limits<SQLLEN>::max());
-        uint64_t affectedRows = 0;
-        bool hasTableAccess = false;
-        for (const auto& phase : stats->GetQueryPhases()) {
-            for (const auto& table : phase.GetTableAccess()) {
-                hasTableAccess = true;
-                const uint64_t updates = table.GetUpdates().GetRows();
-                const uint64_t deletes = table.GetDeletes().GetRows();
-                if (updates > maxSqlLen - affectedRows) {
-                    return std::nullopt;
-                }
-                affectedRows += updates;
-                if (deletes > maxSqlLen - affectedRows) {
-                    return std::nullopt;
-                }
-                affectedRows += deletes;
+        std::optional<SQLLEN> affectedRows;
+        const auto phases = stats->GetQueryPhases();
+        const auto tables = phases | std::views::transform(&NQuery::TQueryPhaseStats::GetTableAccess)
+            | std::views::join;
+        for (const auto& table : tables) {
+            // An accessed table below another accessed table is an internal index table.
+            if (std::ranges::any_of(tables, [&](const auto& parent) {
+                const std::string_view name = table.GetName(), prefix = parent.GetName();
+                return !prefix.empty() && name.size() > prefix.size()
+                    && name.starts_with(prefix) && name[prefix.size()] == '/';
+            })) {
+                continue;
             }
+            const auto rows = table.GetAffectedRows();
+            if (!rows) {
+                continue;
+            }
+            if (*rows > maxSqlLen - affectedRows.value_or(0)) {
+                return std::nullopt;
+            }
+            affectedRows = affectedRows.value_or(0) + *rows;
         }
-        if (affectedRows == 0 && (!hasTableAccess || !result.GetResultSets().empty())) {
+        if (affectedRows == 0 && !result.GetResultSets().empty()) {
             return std::nullopt;
         }
-        return static_cast<SQLLEN>(affectedRows);
+        return affectedRows;
     }
 
     std::string BuildResultMetadataQuery(std::string_view query) {
@@ -126,7 +132,7 @@ SQLRETURN TStatement::Prepare(const std::string& statementText) {
     RowCount_ = -1;
     PreparedColumnMeta_.reset();
     ClearResults();
-    PreparedQuery_ = statementText;
+    PreparedQuery_ = GetConnection().PrepareSql(statementText);
     IsPrepared_ = true;
     ParamCount_ = CountOdbcParams(PreparedQuery_);
     ImpParamDesc_.WithLock([&](TDescriptor& desc) {
@@ -136,6 +142,7 @@ SQLRETURN TStatement::Prepare(const std::string& statementText) {
         for (SQLSMALLINT i = 1; i <= ParamCount_; ++i) {
             desc.RemoveInferredRecord(i);
             desc.Record(i).Nullable = SQL_NULLABLE_UNKNOWN;
+            desc.Record(i).WideTemporalType = SQL_UNKNOWN_TYPE;
         }
     });
     return SQL_SUCCESS;
@@ -365,7 +372,7 @@ NQuery::TExecuteQueryResult TStatement::ExecuteQuery(
         rewritten.Sql, {"CREATE", "DROP", "ALTER", "GRANT", "REVOKE"});
     const std::string queryText = GetConnection().WrapQueryForCurrentCatalog(rewritten.Sql);
     NQuery::TExecuteQuerySettings execSettings;
-    execSettings.StatsMode(NQuery::EStatsMode::Basic);
+    execSettings.StatsMode(NQuery::EStatsMode::Basic).CollectAffectedRows(true);
     const SQLUINTEGER queryTimeoutSec = Attributes_.GetQueryTimeoutSec();
     if (queryTimeoutSec > 0) {
         execSettings.ClientTimeout(TDuration::Seconds(queryTimeoutSec));
@@ -666,7 +673,7 @@ std::vector<TBoundParam> TStatement::GetBoundParams(SQLULEN paramSet) const {
         TBoundParam param{
             static_cast<SQLUSMALLINT>(number), app->Type, imp->Type,
             static_cast<SQLULEN>(imp->Length), imp->Scale, binding.Data, app->OctetLength,
-            binding.OctetLength, atExec, isNullData || atExecNullData};
+            binding.OctetLength, atExec, isNullData || atExecNullData, imp->WideTemporalType == imp->Type};
         if (binding.Indicator && *binding.Indicator == SQL_NULL_DATA) {
             param.StrLenOrIndPtr = binding.Indicator;
         }
@@ -780,6 +787,7 @@ SQLRETURN TStatement::DescribeParam(SQLUSMALLINT paramNumber, SQLSMALLINT* dataT
                     parameter.Scale = column.DecimalDigits;
                     parameter.Nullable = column.Nullable;
                     parameter.Inferred = true;
+                    parameter.WideTemporalType = column.WideTemporal ? column.SqlType : SQL_UNKNOWN_TYPE;
                 }
                 desc.SnapshotUnlocked(ImpParamBindings_, ImpParamGeneration_);
             });
@@ -950,6 +958,9 @@ SQLRETURN TStatement::SetCursorName(const std::string& name) {
 }
 
 SQLRETURN TStatement::GetCursorName(SQLCHAR* name, SQLSMALLINT bufferLength, SQLSMALLINT* nameLengthPtr) {
+    if (CursorName_.empty()) {
+        CursorName_ = "SQL_CUR" + std::to_string(reinterpret_cast<uintptr_t>(this));
+    }
     return Diag::WriteOdbcString(*this, CursorName_, name, bufferLength, nameLengthPtr);
 }
 
@@ -1034,33 +1045,42 @@ void TStatement::EnsurePreparedColumnMeta() {
             "Result metadata before execution is supported only for SELECT statements");
     }
 
-    // Inferring parameter result types from application buffers would make
-    // metadata value-dependent and could read data-at-execution values before
-    // SQLExecute. Keep this fallback deliberately limited to parameterless
-    // SELECT statements until YDB exposes a compile-only result-schema API.
-    if (ParamCount_ != 0) {
-        throw TOdbcException(
-            "HYC00", 0,
-            "Result metadata before execution is unavailable for parameterized statements");
+    // Use descriptor types and typed NULLs, never application parameter values.
+    std::vector<TBoundParam> activeParams;
+    NYdb::TParamsBuilder builder;
+    for (SQLSMALLINT number = 1; number <= ParamCount_; ++number) {
+        const auto* imp = ImpParamBindings_.FindRecord(number);
+        const auto* app = ParamBindings_.FindRecord(number);
+        if (!imp || imp->Type == SQL_UNKNOWN_TYPE
+            || GetDeclaredParamOptionality(PreparedQuery_, number) == false) {
+            throw TOdbcException("HYC00", 0, "Result metadata requires known, nullable parameter types");
+        }
+        activeParams.push_back({static_cast<SQLUSMALLINT>(number),
+            static_cast<SQLSMALLINT>(app ? app->Type : SQL_C_DEFAULT), imp->Type, static_cast<SQLULEN>(imp->Length),
+            imp->Scale, nullptr, 0, nullptr, false, true, imp->WideTemporalType == imp->Type});
+        if (ConvertParam(activeParams.back(), builder.AddParam("$p" + std::to_string(number))) != SQL_SUCCESS) {
+            throw TOdbcException("HYC00", 0, "Result metadata requires supported parameter types");
+        }
     }
 
-    const std::vector<TBoundParam> activeParams;
     const TParamRewriteResult rewritten = RewriteOdbcSql(
         BuildResultMetadataQuery(PreparedQuery_), activeParams,
         Attributes_.GetNoScanMode() != SQL_NOSCAN_ON);
     if (!rewritten.Success) {
         throw TOdbcException(rewritten.SqlState, 0, rewritten.Message);
     }
-    PreparedColumnMeta_ = ReadQueryMetadata(rewritten.Sql);
+    const auto params = builder.Build();
+    PreparedColumnMeta_ = ReadQueryMetadata(rewritten.Sql, false, &params);
     SetImpRowDesc(*PreparedColumnMeta_);
 }
 
-std::vector<TColumnMeta> TStatement::ReadQueryMetadata(const std::string& sql, bool parameters) {
+std::vector<TColumnMeta> TStatement::ReadQueryMetadata(
+    const std::string& sql, bool parameters, const NYdb::TParams* suppliedParams) {
     auto client = GetConnection().GetClient();
     if (!client) {
         throw TOdbcException("HY000", 0, "No client connection");
     }
-    const NYdb::TParams params = NYdb::TParamsBuilder().Build();
+    const NYdb::TParams params = suppliedParams ? *suppliedParams : NYdb::TParamsBuilder().Build();
     const std::string queryText = GetConnection().WrapQueryForCurrentCatalog(sql);
 
     NYdb::NRetry::TRetryOperationSettings retrySettings;

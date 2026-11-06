@@ -32,6 +32,8 @@ struct TSqlScanner {
     std::string_view Sql_;
     std::string* Output_;
     bool RewriteEscapes_;
+    bool AnsiQuotes_ = Sql_.substr(0, SkipSqlTrivia(0, Sql_.size())).find("--!ansi_lexer")
+        != std::string_view::npos;
 
     size_t QuestionCount = 0;
     SQLSMALLINT MaxDollarIndex = 0;
@@ -58,6 +60,7 @@ struct TSqlScanner {
 
     size_t SkipQuoted(size_t pos, size_t end, bool backslashEscapes = true) const {
         const char quote = Sql_[pos++];
+        backslashEscapes = backslashEscapes && (!AnsiQuotes_ || quote == '`');
         while (pos < end) {
             const char ch = Sql_[pos++];
             if (backslashEscapes && ch == '\\' && pos < end) {
@@ -418,7 +421,7 @@ TParamRewriteResult RewriteSql(
         return {.Sql = std::move(body)};
     }
     if (scanner.QuestionCount > 0 && scanner.QuestionCount != boundParams.size()) {
-        return {.Success = false, .SqlState = "07002", .Message = "COUNT field incorrect"};
+        return {.Success = false, .SqlState = "07002", .Message = "COUNT field incorrect: unbound ? placeholders"};
     }
     std::string declarations;
     for (size_t rawIndex = 0; rawIndex < scanner.Indices.size(); ++rawIndex) {
@@ -584,7 +587,13 @@ std::optional<std::string> BuildParamMetadataQuery(
     };
     std::vector<TToken> tokens;
     SQLUSMALLINT question = 0;
-    for (size_t pos = 0; (pos = scanner.SkipSqlTrivia(pos, sql.size())) < sql.size();) {
+    const size_t bodyOffset = sql.size() - GetSqlStatement(sql).size();
+    const size_t trivia = scanner.SkipSqlTrivia(0, sql.size());
+    const auto prologue = TrimTrailingSqlTrivia(std::string_view(sql).substr(trivia, bodyOffset - trivia));
+    if (!prologue.empty() && (!scanner.AnsiQuotes_ || prologue != "PRAGMA UnicodeLiterals;")) {
+        return std::nullopt;
+    }
+    for (size_t pos = bodyOffset; (pos = scanner.SkipSqlTrivia(pos, sql.size())) < sql.size();) {
         const size_t begin = pos;
         SQLUSMALLINT parameter = 0;
         const unsigned char ch = sql[pos++];
@@ -748,7 +757,8 @@ std::optional<std::string> BuildParamMetadataQuery(
         if (i) query += ", ";
         query += (sources[i].empty() ? "NULL" : sources[i]) + " AS __p" + std::to_string(i + 1);
     }
-    return query + (table.empty() ? "" : " FROM " + table) + " LIMIT 0";
+    return (scanner.AnsiQuotes_ ? sql.substr(0, bodyOffset) : std::string{})
+        + query + (table.empty() ? "" : " FROM " + table) + " LIMIT 0";
 }
 
 } // namespace NYdb::NOdbc

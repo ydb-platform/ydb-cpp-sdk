@@ -49,6 +49,7 @@ private:
     std::string Database_;
     std::string ServerName_;
     std::string DataSourceName_;
+    bool AnsiSql_ = false;
 
     TConnectionAttributes Attributes_;
     mutable std::optional<std::string> DbmsVersionCache_;
@@ -95,6 +96,7 @@ public:
     NQuery::TTxSettings MakeTxSettings() const;
 
     std::string WrapQueryForCurrentCatalog(const std::string& sql) const;
+    std::string PrepareSql(std::string sql) const;
     TConnectionAttributes::TCatalogBinding GetCatalogBinding() const;
     const std::string& GetDbmsVersion();
     const std::string& GetDatabaseName() const;

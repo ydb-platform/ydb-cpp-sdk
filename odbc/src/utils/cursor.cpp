@@ -17,17 +17,21 @@ std::vector<TColumnMeta> MakeColumnMeta(const TResultSet& resultSet, bool parame
     for (const auto& column : resultSet.GetColumnsMeta()) {
         const TYdbTypeInfo type = DescribeYdbType(column.Type);
         SQLSMALLINT sqlType = type.SqlType;
+        const bool wide = type.TypeName == "Date32" || type.TypeName == "Timestamp64";
         if (parameters) {
             const auto* spec = FindSqlTypeSpec(sqlType);
             // YDB Datetime contains a date, unlike SQL_TYPE_TIME.
             if (!spec || sqlType == SQL_TYPE_TIME
-                || (sqlType != SQL_DECIMAL && spec->YqlType != type.TypeName)) {
+                || (sqlType != SQL_DECIMAL && spec->YqlType != type.TypeName && !wide)) {
                 sqlType = SQL_UNKNOWN_TYPE;
             }
         }
-        columns.push_back({column.Name, sqlType, type.ColumnSize, type.Nullable,
+        // YQL qualifies unaliased JOIN projections; dots are forbidden in SQL aliases.
+        const size_t dot = column.Name.rfind('.');
+        columns.push_back({dot == std::string::npos ? column.Name : column.Name.substr(dot + 1),
+                           sqlType, type.ColumnSize, type.Nullable,
                            type.DecimalDigits.value_or(parameters && sqlType == SQL_TYPE_TIMESTAMP ? 6 : 0),
-                           type.Unsigned});
+                           type.Unsigned, wide});
     }
     return columns;
 }

@@ -312,12 +312,14 @@ SQLRETURN NMetadata::ColAttribute(TStatement* statement, SQLUSMALLINT columnNumb
         case SQL_DESC_CONCISE_TYPE:
             return WriteAttributeNumber(statement, column.SqlType, numericAttributePtr);
         case SQL_DESC_LENGTH:
-        case SQL_DESC_DISPLAY_SIZE:
         case SQL_DESC_OCTET_LENGTH:
         case SQL_COLUMN_LENGTH:
         case SQL_DESC_PRECISION:
         case SQL_COLUMN_PRECISION:
             return WriteAttributeNumber(statement, static_cast<SQLLEN>(column.Size), numericAttributePtr);
+        case SQL_DESC_DISPLAY_SIZE:
+            return WriteAttributeNumber(statement,
+                GetDisplaySize(column.SqlType, column.Size, column.Unsigned), numericAttributePtr);
         case SQL_DESC_SCALE:
         case SQL_COLUMN_SCALE:
             return WriteAttributeNumber(statement, column.DecimalDigits, numericAttributePtr);

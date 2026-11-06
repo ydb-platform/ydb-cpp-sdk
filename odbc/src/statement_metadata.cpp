@@ -228,7 +228,7 @@ TOdbcScalar GetDateTimeSub(SQLSMALLINT type) {
 }
 
 TOdbcScalar GetColumnSize(const TYdbTypeInfo& type) {
-    return type.ColumnSize ? I(static_cast<SQLINTEGER>(type.ColumnSize)) : Null();
+    return I(static_cast<SQLINTEGER>(type.ColumnSize));
 }
 
 TOdbcScalar GetBufferLength(const TYdbTypeInfo& type) {
@@ -328,11 +328,17 @@ TTable BuildTypeInfoRows(SQLSMALLINT dataType) {
             continue;
         }
         const std::string typeName(spec.YqlType);
+        const bool text = spec.ParamType == EParamType::Utf8;
+        const bool decimal = spec.ParamType == EParamType::Decimal;
+        const bool numeric = decimal
+            || (spec.ParamType >= EParamType::Int8 && spec.ParamType <= EParamType::Double);
+        const TOdbcScalar quote = text || IsDateTimeType(spec.Type) ? TOdbcScalar("'") : Null();
         table.push_back({
-            typeName, I(spec.Type), I(static_cast<SQLINTEGER>(spec.ColumnSize)), Null(), Null(),
-            Null(), I(SQL_NULLABLE),
-            I(SQL_FALSE), I(SQL_PRED_SEARCHABLE), Null(), I(SQL_FALSE), I(SQL_FALSE), typeName,
-            I(0), I(0), I(spec.Type), I(0), I(10), I(0),
+            typeName, I(spec.Type), I(decimal ? 35 : static_cast<SQLINTEGER>(spec.ColumnSize)), quote, quote,
+            decimal ? TOdbcScalar("precision,scale") : Null(), I(SQL_NULLABLE),
+            I(text), I(SQL_PRED_SEARCHABLE), numeric ? I(SQL_FALSE) : Null(), I(SQL_FALSE), I(SQL_FALSE), typeName,
+            numeric ? I(0) : Null(), numeric ? I(decimal ? 35 : 0) : Null(),
+            GetSqlDataType(spec.Type), GetDateTimeSub(spec.Type), numeric ? I(10) : Null(), Null(),
         });
     }
     return table;

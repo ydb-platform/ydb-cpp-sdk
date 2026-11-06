@@ -564,8 +564,8 @@ TEST(MetadataApi, SQLColumnsFieldsAndCompositePrimaryKey) {
     const std::array expectedColumns{
         TExpectedColumn{"pk_a", SQL_INTEGER, SQL_NO_NULLS, SQL_INTEGER, nullptr, nullptr},
         TExpectedColumn{"pk_b", SQL_BIGINT, SQL_NO_NULLS, SQL_BIGINT, nullptr, nullptr},
-        TExpectedColumn{"text_value", SQL_VARCHAR, SQL_NULLABLE, SQL_VARCHAR, nullptr, 255},
-        TExpectedColumn{"payload", SQL_VARBINARY, SQL_NULLABLE, SQL_VARBINARY, nullptr, 4096},
+        TExpectedColumn{"text_value", SQL_VARCHAR, SQL_NULLABLE, SQL_VARCHAR, nullptr, 0},
+        TExpectedColumn{"payload", SQL_VARBINARY, SQL_NULLABLE, SQL_VARBINARY, nullptr, 0},
         TExpectedColumn{"created", SQL_TYPE_TIMESTAMP, SQL_NULLABLE, SQL_DATETIME,
                         SQL_CODE_TIMESTAMP, nullptr},
     };

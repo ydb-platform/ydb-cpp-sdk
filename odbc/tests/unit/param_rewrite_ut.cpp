@@ -56,6 +56,8 @@ TEST(OdbcParamRewrite, ParameterMetadataProbes) {
         {"SELECT CASE WHEN (? = 1) THEN 1.5 ELSE 2.5 END, (? = 'x'), ? IS NULL",
          "SELECT Just(1) AS __p1, NULL AS __p2, NULL AS __p3 LIMIT 0"},
         {"SELECT (? = -1)", "SELECT Just(-1) AS __p1 LIMIT 0"},
+        {"--!ansi_lexer\nPRAGMA UnicodeLiterals;\nINSERT INTO t (id) VALUES (?)",
+         "--!ansi_lexer\nPRAGMA UnicodeLiterals;\nSELECT id AS __p1 FROM t LIMIT 0"},
     };
     for (const auto& [sql, expected] : cases) {
         SCOPED_TRACE(sql);
@@ -116,6 +118,7 @@ TEST(OdbcParamRewrite, SkipsLiteralAndYqlOptionalSyntax) {
         "DECLARE $p1 AS Int32;\nSELECT '?', $p1");
     EXPECT_EQ(RewriteParams("DECLARE $p1 AS Int32?;\nSELECT $p1", params).Sql,
         "DECLARE $p1 AS Int32?;\nSELECT $p1");
+    EXPECT_EQ(CountOdbcParams("--!ansi_lexer\nSELECT '\\', ?"), 1);
     EXPECT_EQ(RewriteParams("SELECT $p1 + 10", params).Sql,
         "DECLARE $p1 AS Int32;\nSELECT $p1 + 10");
 }

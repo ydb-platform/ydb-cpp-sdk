@@ -35,6 +35,7 @@ struct TDescRecord {
     SQLSMALLINT ParameterType = SQL_PARAM_INPUT;
     bool Active = false;
     bool Inferred = false;
+    SQLSMALLINT WideTemporalType = SQL_UNKNOWN_TYPE;
 };
 
 struct TResolvedBinding {

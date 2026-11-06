@@ -51,6 +51,8 @@ enum class EParamType {
     Date,
     Datetime,
     Timestamp,
+    Date32,
+    Timestamp64,
 };
 
 template <typename Fn>
@@ -85,6 +87,7 @@ struct TParamTypeSpec {
 
 std::span<const TSqlTypeSpec> GetSqlTypeSpecs();
 const TSqlTypeSpec* FindSqlTypeSpec(SQLSMALLINT sqlType);
+SQLLEN GetDisplaySize(SQLSMALLINT sqlType, SQLLEN size, bool isUnsigned = false);
 SQLULEN GetCTypeSize(SQLSMALLINT cType, SQLLEN variableLength);
 std::string MapSqlTypeToken(std::string_view sqlType);
 std::optional<TParamTypeSpec> ResolveParamType(const TBoundParam& param);

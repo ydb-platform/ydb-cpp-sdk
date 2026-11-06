@@ -183,6 +183,7 @@ in the DSN.
 | `Database` | YDB database path. |
 | `DSN` | DSN section to load before applying the remaining connection-string attributes. |
 | `AuthMode` | `Anonymous`, `Token`, `Static`, `Metadata`, `ServiceAccount`, `OAuth2`, or `Environment`. Values are case-insensitive. |
+| `AnsiSQL` | `1` enables YDB's ANSI lexer and Unicode string literals for SQL-generating clients. Defaults to `0` (native YQL). |
 | `Token` | Access token for `Token` mode. `AccessToken` is an alias. |
 | `User`, `Password` | Credentials for `Static` mode. `UID` and `PWD` are aliases. |
 | `MetadataHost`, `MetadataPort` | Optional metadata service address for `Metadata` mode. |
