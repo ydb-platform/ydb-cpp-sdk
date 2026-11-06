@@ -1,4 +1,5 @@
 #include "utils/convert.h"
+#include "utils/types.h"
 #undef BOOL
 
 #include <ydb-cpp-sdk/client/params/params.h>
@@ -54,6 +55,7 @@ TEST(OdbcConvert, UnsignedCSelectsYdbUnsignedType) {
     ASSERT_TRUE(value);
     CheckProto(value->GetType().GetProto(), "type_id: UINT64\n");
     CheckProto(value->GetProto(), "uint64_value: 123\n");
+    EXPECT_EQ(DescribeYdbType(value->GetType()).ColumnSize, 20);
 }
 
 TEST(OdbcConvert, WideStringToYdbUtf8) {
@@ -189,6 +191,29 @@ TEST(OdbcConvert, StringToYdbBinary) {
     ASSERT_TRUE(value);
     CheckProto(value->GetType().GetProto(), "type_id: STRING\n");
     CheckProto(value->GetProto(), "bytes_value: \"bin\\001\\002\"\n");
+
+    TValueParser parser(*value);
+    SQLLEN offset = 0;
+    char chunk[4];
+    std::string hex;
+    for (int i = 0; i < 4; ++i) {
+        ASSERT_EQ(ConvertColumn(parser, SQL_C_CHAR, chunk, sizeof(chunk), &len, &offset),
+            i == 3 ? SQL_SUCCESS : SQL_SUCCESS_WITH_INFO);
+        hex += chunk;
+    }
+    EXPECT_EQ(hex, "62696e0102");
+    EXPECT_EQ(ConvertColumn(parser, SQL_C_CHAR, chunk, sizeof(chunk), &len, &offset), SQL_NO_DATA);
+    offset = 0;
+    SQLWCHAR wide[4];
+    ASSERT_EQ(ConvertColumn(parser, SQL_C_WCHAR, wide, sizeof(wide), &len, &offset), SQL_SUCCESS_WITH_INFO);
+    EXPECT_EQ(len, 10 * sizeof(SQLWCHAR));
+    EXPECT_EQ(wide[0], '6');
+    EXPECT_EQ(wide[1], '2');
+    EXPECT_EQ(wide[2], '6');
+    ASSERT_EQ(ConvertColumn(parser, SQL_C_WCHAR, wide, sizeof(wide), &len, &offset), SQL_SUCCESS_WITH_INFO);
+    EXPECT_EQ(wide[0], '9');
+    EXPECT_EQ(wide[1], '6');
+    EXPECT_EQ(wide[2], 'e');
 }
 
 TEST(OdbcConvert, NativeValuesToCharacterParameters) {

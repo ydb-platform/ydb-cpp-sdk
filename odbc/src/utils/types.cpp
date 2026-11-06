@@ -77,7 +77,7 @@ TYdbTypeInfo DescribeYdbType(const TType& type) {
         const auto it = std::ranges::find(PrimitiveSpecs, type, &TPrimitiveSpec::Type);
         if (it != PrimitiveSpecs.end()) {
             info.SqlType = it->SqlType;
-            info.ColumnSize = GetColumnSize(info.SqlType);
+            info.ColumnSize = type == EPrimitiveType::Uint64 ? 20 : GetColumnSize(info.SqlType);
             if (it->Integer) {
                 info.Unsigned = it->Unsigned;
                 info.DecimalDigits = 0;
