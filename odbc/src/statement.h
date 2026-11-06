@@ -172,7 +172,8 @@ private:
                         SQLULEN* fetched, SQLUSMALLINT* statuses, bool extended);
     std::vector<TBoundParam> GetBoundParams(SQLULEN paramSet) const;
     void EnsurePreparedColumnMeta();
-    std::vector<TColumnMeta> ReadQueryMetadata(const std::string& sql, bool parameters = false);
+    std::vector<TColumnMeta> ReadQueryMetadata(const std::string& sql, bool parameters = false,
+                                             const NYdb::TParams* suppliedParams = nullptr);
     void InvalidateInferredParamMetadata();
     void InvalidatePreparedColumnMeta();
     void SetImpRowDesc(const std::vector<TColumnMeta>& columns);

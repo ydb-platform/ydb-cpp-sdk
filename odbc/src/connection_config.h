@@ -14,6 +14,7 @@ struct TResolvedConnectionSettings {
     std::string Database;
     std::string DataSourceName;
     TDriverConfig DriverConfig;
+    bool AnsiSql = false;
 };
 TConnectionParameters ParseAndNormalizeConnectionString(
     std::string_view connectionString, std::vector<std::string>& ignoredAttributes);

@@ -83,6 +83,20 @@ TEST(OdbcConvert, TimestampStructToYdbTimestamp) {
     ASSERT_TRUE(value);
     CheckProto(value->GetType().GetProto(), "type_id: TIMESTAMP\n");
 
+    SQL_DATE_STRUCT date{1960, 2, 29}, fetched{};
+    TBoundParam wideDate{1, SQL_C_TYPE_DATE, SQL_TYPE_DATE, 0, 0, &date, sizeof(date), nullptr};
+    wideDate.WideTemporal = true;
+    TParamsBuilder wideBuilder;
+    ASSERT_EQ(ConvertParam(wideDate, wideBuilder.AddParam("$date")), SQL_SUCCESS);
+    const auto dateValue = wideBuilder.Build().GetValue("$date");
+    ASSERT_TRUE(dateValue);
+    CheckProto(dateValue->GetType().GetProto(), "type_id: DATE32\n");
+    TValueParser dateParser(*dateValue);
+    ASSERT_EQ(ConvertColumn(dateParser, SQL_C_TYPE_DATE, &fetched, sizeof(fetched), nullptr), SQL_SUCCESS);
+    EXPECT_EQ(fetched.year, 1960);
+    EXPECT_EQ(fetched.month, 2);
+    EXPECT_EQ(fetched.day, 29);
+
     const std::tuple<const char*, SQLSMALLINT, const char*> temporal[] = {
         {"2024-06-15", SQL_TYPE_DATE, ""}, {"14:30:20", SQL_TYPE_TIME, ""},
         {"2024-06-15", SQL_TYPE_TIME, "22018"},

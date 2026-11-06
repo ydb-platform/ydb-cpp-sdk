@@ -5,6 +5,7 @@
 #include <util/charset/wide.h>
 #include <util/datetime/base.h>
 #include <util/string/cast.h>
+#include <util/string/hex.h>
 
 #include <algorithm>
 #include <cctype>
@@ -15,6 +16,8 @@
 #include <cstring>
 #include <limits>
 #include <optional>
+#include <sstream>
+#include <iomanip>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -252,74 +255,79 @@ std::string FormatDecimalText(const TDecimalValue& decimal) {
     return text;
 }
 
-std::optional<TInstant> ReadTemporal(const TBoundParam& param, EParamType type) {
-    if (!param.ParameterValuePtr) {
-        return std::nullopt;
-    }
+using TSqlTime = std::chrono::sys_time<std::chrono::microseconds>;
+
+std::optional<TSqlTime> ReadTemporal(const TBoundParam& param, EParamType type) {
+    if (!param.ParameterValuePtr) return std::nullopt;
+    const bool date = type == EParamType::Date || type == EParamType::Date32;
+    const bool time = type == EParamType::Datetime;
+    int year = 1970;
+    unsigned month = 1, day = 1, hour = 0, minute = 0, second = 0, fraction = 0;
     if (param.ValueType == SQL_C_CHAR || param.ValueType == SQL_C_WCHAR) {
         auto text = ReadCharacterText(param);
         if (!text) return std::nullopt;
         const auto first = text->find_first_not_of(" \t\r\n");
-        if (first == std::string::npos) {
-            Error("22018");
-            return std::nullopt;
-        }
+        if (first == std::string::npos) { Error("22018"); return std::nullopt; }
         text->erase(text->find_last_not_of(" \t\r\n") + 1);
         text->erase(0, first);
-        if (text->size() == 10 && (*text)[4] == '-') {
-            if (type == EParamType::Datetime) {
-                Error("22018");
-                return std::nullopt;
+        if (text->size() >= 8 && (*text)[2] == ':' && (*text)[5] == ':') {
+            *text = (time ? "1970-01-01T" : FormatInstant(TInstant::Now(), "%Y-%m-%dT", false)) + *text;
+        }
+        std::tm parts = {};
+        std::istringstream input(*text);
+        const auto next = [&] { return input.eof() ? EOF : input.peek(); };
+        input >> std::get_time(&parts, "%Y-%m-%d");
+        if (!input.fail() && next() != EOF && (next() == 'T' || next() == ' ')) {
+            input.get();
+            input >> std::get_time(&parts, "%H:%M:%S");
+        } else if (time) {
+            Error("22018"); return std::nullopt;
+        }
+        if (input.fail()) { Error("22018"); return std::nullopt; }
+        if (next() == '.') {
+            input.get();
+            unsigned digits = 0;
+            while (next() >= '0' && next() <= '9') {
+                const unsigned digit = input.get() - '0';
+                if (digits < 6) fraction = fraction * 10 + digit;
+                else if (digit != 0) { Error("22008"); return std::nullopt; }
+                ++digits;
             }
-            *text += "T00:00:00";
-        } else if (text->size() >= 19 && (*text)[10] == ' ') {
-            (*text)[10] = 'T';
-        } else if (type != EParamType::Date && text->size() >= 8 && (*text)[2] == ':' && (*text)[5] == ':') {
-            *text = (type == EParamType::Datetime ? "1970-01-01T"
-                : FormatInstant(TInstant::Now(), "%Y-%m-%dT", false)) + *text;
+            if (!digits) { Error("22018"); return std::nullopt; }
+            while (digits++ < 6) fraction *= 10;
+            fraction *= 1000;
         }
-        *text += 'Z';
-        TInstant instant;
-        if (!TInstant::TryParseIso8601(TStringBuf(text->data(), text->size()), instant)) {
-            Error("22018");
-            return std::nullopt;
+        if (next() == 'Z') input.get();
+        if (next() != EOF) { Error("22018"); return std::nullopt; }
+        year = parts.tm_year + 1900; month = parts.tm_mon + 1; day = parts.tm_mday;
+        hour = parts.tm_hour; minute = parts.tm_min; second = parts.tm_sec;
+        if ((date && (hour || minute || second || fraction)) || (time && fraction)) {
+            Error("22008"); return std::nullopt;
         }
-        const auto fraction = text->find('.');
-        if ((fraction != std::string::npos && text->size() > fraction + 8
-                && std::any_of(text->begin() + fraction + 7, text->end() - 1, [](char ch) { return ch != '0'; }))
-            || (type == EParamType::Date && instant.MicroSeconds() % TDuration::Days(1).MicroSeconds())
-            || (type == EParamType::Datetime && instant.MicroSeconds() % 1000000)) {
-            Error("22008");
-            return std::nullopt;
-        }
-        return type == EParamType::Datetime
-            ? TInstant::Seconds(instant.Seconds() % TDuration::Days(1).Seconds()) : instant;
-    }
-    char text[64] = {};
-    if (type == EParamType::Date
-        && (param.ValueType == SQL_C_TYPE_DATE || param.ValueType == SQL_C_DATE)) {
+        if (time) { year = 1970; month = day = 1; }
+    } else if (date && (param.ValueType == SQL_C_TYPE_DATE || param.ValueType == SQL_C_DATE)) {
         const auto& v = *static_cast<const SQL_DATE_STRUCT*>(param.ParameterValuePtr);
-        std::snprintf(text, sizeof(text), "%04d-%02u-%02uT00:00:00Z", v.year, v.month, v.day);
-    } else if (type == EParamType::Datetime
-               && (param.ValueType == SQL_C_TYPE_TIME || param.ValueType == SQL_C_TIME)) {
+        year = v.year; month = v.month; day = v.day;
+    } else if (time && (param.ValueType == SQL_C_TYPE_TIME || param.ValueType == SQL_C_TIME)) {
         const auto& v = *static_cast<const SQL_TIME_STRUCT*>(param.ParameterValuePtr);
-        std::snprintf(text, sizeof(text), "1970-01-01T%02u:%02u:%02uZ",
-                      v.hour, v.minute, v.second);
-    } else if (type == EParamType::Timestamp
-               && (param.ValueType == SQL_C_TYPE_TIMESTAMP || param.ValueType == SQL_C_TIMESTAMP)) {
+        hour = v.hour; minute = v.minute; second = v.second;
+    } else if (!date && !time && (param.ValueType == SQL_C_TYPE_TIMESTAMP || param.ValueType == SQL_C_TIMESTAMP)) {
         const auto& v = *static_cast<const SQL_TIMESTAMP_STRUCT*>(param.ParameterValuePtr);
-        std::snprintf(text, sizeof(text), "%04d-%02u-%02uT%02u:%02u:%02u.%09uZ",
-                      v.year, v.month, v.day, v.hour, v.minute, v.second, v.fraction);
-    } else {
-        Error("22007");
-        return std::nullopt;
+        year = v.year; month = v.month; day = v.day;
+        hour = v.hour; minute = v.minute; second = v.second; fraction = v.fraction;
+    } else { Error("22007"); return std::nullopt; }
+    const std::chrono::year_month_day civil{std::chrono::year(year), std::chrono::month(month), std::chrono::day(day)};
+    if (year < 1 || year > 32767 || !civil.ok() || hour > 23 || minute > 59 || second > 59
+        || fraction >= 1000000000 || fraction % 1000) {
+        Error("22007"); return std::nullopt;
     }
-    TInstant instant;
-    if (!TInstant::TryParseIso8601(text, instant)) {
-        Error("22007");
-        return std::nullopt;
+    const auto value = std::chrono::sys_days(civil) + std::chrono::hours(hour) + std::chrono::minutes(minute)
+        + std::chrono::seconds(second) + std::chrono::microseconds(fraction / 1000);
+    if ((type == EParamType::Date || type == EParamType::Datetime || type == EParamType::Timestamp)
+        && (value.time_since_epoch().count() < 0 || year >= 2106)) {
+        Error("22008"); return std::nullopt;
     }
-    return instant;
+    return value;
 }
 
 SQLRETURN CopyVariable(const void* data, SQLLEN size, SQLLEN terminator, SQLLEN unit,
@@ -402,32 +410,14 @@ SQLRETURN WriteReal(double value, SQLSMALLINT type, SQLPOINTER target, SQLLEN* i
         : WriteScalar<SQLREAL>(static_cast<SQLREAL>(value), target, indicator);
 }
 
-std::optional<TInstant> GetAsInstant(TValueParser& parser, EPrimitiveType type) {
+std::optional<TSqlTime> GetAsTime(TValueParser& parser, EPrimitiveType type) {
     switch (type) {
-        case EPrimitiveType::Date: return parser.GetDate();
-        case EPrimitiveType::Datetime: return parser.GetDatetime();
-        case EPrimitiveType::Timestamp: return parser.GetTimestamp();
-        case EPrimitiveType::Date32: {
-            const auto value = parser.GetDate32().time_since_epoch().count();
-            if (value >= 0) {
-                return TInstant::Days(static_cast<uint64_t>(value));
-            }
-            break;
-        }
-        case EPrimitiveType::Datetime64: {
-            const auto value = parser.GetDatetime64().time_since_epoch().count();
-            if (value >= 0) {
-                return TInstant::Seconds(static_cast<uint64_t>(value));
-            }
-            break;
-        }
-        case EPrimitiveType::Timestamp64: {
-            const auto value = parser.GetTimestamp64().time_since_epoch().count();
-            if (value >= 0) {
-                return TInstant::MicroSeconds(static_cast<uint64_t>(value));
-            }
-            break;
-        }
+        case EPrimitiveType::Date: return TSqlTime(std::chrono::microseconds(parser.GetDate().MicroSeconds()));
+        case EPrimitiveType::Datetime: return TSqlTime(std::chrono::microseconds(parser.GetDatetime().MicroSeconds()));
+        case EPrimitiveType::Timestamp: return TSqlTime(std::chrono::microseconds(parser.GetTimestamp().MicroSeconds()));
+        case EPrimitiveType::Date32: return parser.GetDate32();
+        case EPrimitiveType::Datetime64: return parser.GetDatetime64();
+        case EPrimitiveType::Timestamp64: return parser.GetTimestamp64();
         case EPrimitiveType::TzDate:
         case EPrimitiveType::TzDatetime:
         case EPrimitiveType::TzTimestamp: {
@@ -436,7 +426,7 @@ std::optional<TInstant> GetAsInstant(TValueParser& parser, EPrimitiveType type) 
                                                      : parser.GetTzTimestamp();
             TInstant instant;
             if (TInstant::TryParseIso8601(value, instant)) {
-                return instant;
+                return TSqlTime(std::chrono::microseconds(instant.MicroSeconds()));
             }
             break;
         }
@@ -448,12 +438,14 @@ std::optional<TInstant> GetAsInstant(TValueParser& parser, EPrimitiveType type) 
 
 SQLRETURN WriteTemporal(TValueParser& parser, EPrimitiveType type, SQLSMALLINT targetType,
                         SQLPOINTER target, SQLLEN* indicator) {
-    const auto instant = GetAsInstant(parser, type);
+    const auto instant = GetAsTime(parser, type);
     struct tm value = {};
     if (!instant) {
         return SQL_ERROR;
     }
-    if (!instant->GmTime(&value)) {
+    const auto seconds = std::chrono::floor<std::chrono::seconds>(*instant);
+    const time_t epoch = seconds.time_since_epoch().count();
+    if (!GmTimeR(&epoch, &value) || value.tm_year + 1900 < 1 || value.tm_year + 1900 > 32767) {
         return Error("22007");
     }
     if (targetType == SQL_C_TYPE_DATE || targetType == SQL_C_DATE) {
@@ -474,7 +466,7 @@ SQLRETURN WriteTemporal(TValueParser& parser, EPrimitiveType type, SQLSMALLINT t
                              static_cast<SQLUSMALLINT>(value.tm_hour),
                              static_cast<SQLUSMALLINT>(value.tm_min),
                              static_cast<SQLUSMALLINT>(value.tm_sec),
-                             instant->MicroSecondsOfSecond() * 1000};
+                             static_cast<SQLUINTEGER>((*instant - seconds).count()) * 1000};
     return WriteScalar(out, target, indicator);
 }
 
@@ -565,6 +557,15 @@ SQLRETURN WriteText(std::string_view text, SQLSMALLINT type, SQLPOINTER target,
     } catch (...) {
         return Error("22018");
     }
+}
+
+template <typename Number>
+SQLRETURN WriteNumberText(Number value, SQLSMALLINT type, SQLPOINTER target,
+                          SQLLEN bufferLength, SQLLEN* indicator, SQLLEN* offset) {
+    char text[128];
+    const auto [end, error] = std::to_chars(text, text + sizeof(text), value);
+    if (error != std::errc{}) return Error("22003");
+    return WriteText(std::string_view(text, end - text), type, target, bufferLength, indicator, offset);
 }
 
 template <typename Integer>
@@ -739,6 +740,8 @@ std::optional<EPrimitiveType> ParamPrimitive(EParamType type) {
             return EPrimitiveType::Datetime;
         case EParamType::Timestamp:
             return EPrimitiveType::Timestamp;
+        case EParamType::Date32: return EPrimitiveType::Date32;
+        case EParamType::Timestamp64: return EPrimitiveType::Timestamp64;
         case EParamType::Decimal:
             return std::nullopt;
     }
@@ -790,23 +793,19 @@ std::optional<std::string> TemporalText(TValueParser& parser, EPrimitiveType typ
             return FormatInstant(parser.GetDatetime(), "%Y-%m-%d %H:%M:%S", false);
         case EPrimitiveType::Timestamp:
             return FormatInstant(parser.GetTimestamp(), "%Y-%m-%d %H:%M:%S", true);
-        case EPrimitiveType::Date32: {
-            const auto value = parser.GetDate32().time_since_epoch().count();
-            return value < 0 ? std::nullopt
-                             : std::optional<std::string>(FormatInstant(
-                                   TInstant::Days(value), "%Y-%m-%d", false));
-        }
-        case EPrimitiveType::Datetime64: {
-            const auto value = parser.GetDatetime64().time_since_epoch().count();
-            return value < 0 ? std::nullopt
-                             : std::optional<std::string>(FormatInstant(
-                                   TInstant::Seconds(value), "%Y-%m-%d %H:%M:%S", false));
-        }
+        case EPrimitiveType::Date32:
+        case EPrimitiveType::Datetime64:
         case EPrimitiveType::Timestamp64: {
-            const auto value = parser.GetTimestamp64().time_since_epoch().count();
-            return value < 0 ? std::nullopt
-                             : std::optional<std::string>(FormatInstant(
-                                   TInstant::MicroSeconds(value), "%Y-%m-%d %H:%M:%S", true));
+            SQL_TIMESTAMP_STRUCT value;
+            if (WriteTemporal(parser, type, SQL_C_TYPE_TIMESTAMP, &value, nullptr) != SQL_SUCCESS) return std::nullopt;
+            char text[48];
+            if (type == EPrimitiveType::Date32) {
+                std::snprintf(text, sizeof(text), "%04d-%02u-%02u", value.year, value.month, value.day);
+            } else {
+                std::snprintf(text, sizeof(text), "%04d-%02u-%02u %02u:%02u:%02u.%06u", value.year, value.month,
+                    value.day, value.hour, value.minute, value.second, value.fraction / 1000);
+            }
+            return text;
         }
         case EPrimitiveType::TzDate: return parser.GetTzDate();
         case EPrimitiveType::TzDatetime: return parser.GetTzDatetime();
@@ -859,10 +858,16 @@ bool ConvertParamValue(
                     [&](TParamValueBuilder& item) { item.Utf8(v); });
             });
         case EParamType::String: {
-            if (param.ValueType != SQL_C_BINARY) {
-                return false;
+            auto value = param.ValueType == SQL_C_BINARY ? ReadBytes(param) : ReadCharacterText(param);
+            if (value && param.ValueType != SQL_C_BINARY) {
+                try {
+                    const auto bytes = HexDecode(value->data(), value->size());
+                    value = std::string(bytes.data(), bytes.size());
+                } catch (const yexception&) {
+                    Error("22018");
+                    return false;
+                }
             }
-            const auto value = ReadBytes(param);
             if (value) {
                 PutParamValue(builder, optional,
                     [&](TParamValueBuilder& item) { item.String(*value); });
@@ -871,18 +876,24 @@ bool ConvertParamValue(
         }
         case EParamType::Date:
         case EParamType::Datetime:
-        case EParamType::Timestamp: {
+        case EParamType::Timestamp:
+        case EParamType::Date32:
+        case EParamType::Timestamp64: {
             const auto value = ReadTemporal(param, type);
             if (!value) {
                 return false;
             }
             PutParamValue(builder, optional, [&](TParamValueBuilder& item) {
                 if (type == EParamType::Date) {
-                    item.Date(*value);
+                    item.Date(TInstant::MicroSeconds(value->time_since_epoch().count()));
                 } else if (type == EParamType::Datetime) {
-                    item.Datetime(*value);
+                    item.Datetime(TInstant::MicroSeconds(value->time_since_epoch().count()));
+                } else if (type == EParamType::Date32) {
+                    item.Date32(std::chrono::floor<std::chrono::days>(*value));
+                } else if (type == EParamType::Timestamp64) {
+                    item.Timestamp64(*value);
                 } else {
-                    item.Timestamp(*value);
+                    item.Timestamp(TInstant::MicroSeconds(value->time_since_epoch().count()));
                 }
             });
             return true;
@@ -972,8 +983,7 @@ SQLRETURN ConvertColumn(const TOdbcScalar& value, SQLSMALLINT targetType, SQLPOI
                     return WriteReal(scalar, targetType, targetValue, strLenOrInd);
                 }
                 if (targetType == SQL_C_CHAR || targetType == SQL_C_WCHAR) {
-                    return WriteText(std::to_string(scalar), targetType, targetValue, bufferLength,
-                                     strLenOrInd, offset);
+                    return WriteNumberText(scalar, targetType, targetValue, bufferLength, strLenOrInd, offset);
                 }
                 return SQL_ERROR;
             }
@@ -987,7 +997,7 @@ SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER
     if (bufferLength < 0) {
         return Error("HY090");
     }
-    if (parser.IsNull()) {
+    if (parser.GetKind() == TTypeParser::ETypeKind::Null || parser.IsNull()) {
         if (!strLenOrInd) {
             return Error("22002");
         }
@@ -1021,8 +1031,21 @@ SQLRETURN ConvertColumn(TValueParser& parser, SQLSMALLINT targetType, SQLPOINTER
         return CopyVariable(bytes.data(), bytes.size(), 0, 1, targetValue, bufferLength,
                             strLenOrInd, offset);
     }
+    if (type == EPrimitiveType::String && (targetType == SQL_C_CHAR || targetType == SQL_C_WCHAR)) {
+        const auto& bytes = parser.GetString();
+        std::string hex;
+        hex.reserve(bytes.size() * 2);
+        for (unsigned char byte : bytes) {
+            hex += "0123456789abcdef"[byte >> 4];
+            hex += "0123456789abcdef"[byte & 15];
+        }
+        return WriteText(hex, targetType, targetValue, bufferLength, strLenOrInd, offset);
+    }
     if (const auto text = PrimitiveText(parser, type)) {
         return WriteText(*text, targetType, targetValue, bufferLength, strLenOrInd, offset);
+    }
+    if (type == EPrimitiveType::Float && (targetType == SQL_C_CHAR || targetType == SQL_C_WCHAR)) {
+        return WriteNumberText(parser.GetFloat(), targetType, targetValue, bufferLength, strLenOrInd, offset);
     }
     if (const auto scalar = PrimitiveScalar(parser, type)) {
         return ConvertColumn(*scalar, targetType, targetValue, bufferLength, strLenOrInd, offset);

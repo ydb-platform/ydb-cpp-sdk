@@ -13,20 +13,20 @@ constexpr std::array TypeSpecs{
     TSqlTypeSpec{SQL_SMALLINT, "SMALLINT", EParamType::Int16, "Int16", 5, true},
     TSqlTypeSpec{SQL_DOUBLE, "DOUBLE", EParamType::Double, "Double", 15, true},
     TSqlTypeSpec{SQL_REAL, "REAL", EParamType::Float, "Float", 7, true},
-    TSqlTypeSpec{SQL_VARCHAR, "VARCHAR", EParamType::Utf8, "Utf8", 255, true},
-    TSqlTypeSpec{SQL_CHAR, "CHAR", EParamType::Utf8, "Utf8", 255, true},
-    TSqlTypeSpec{SQL_LONGVARCHAR, "LONGVARCHAR", EParamType::Utf8, "Utf8", 4096, false},
-    TSqlTypeSpec{SQL_WCHAR, "WCHAR", EParamType::Utf8, "Utf8", 255, false},
-    TSqlTypeSpec{SQL_WVARCHAR, "WVARCHAR", EParamType::Utf8, "Utf8", 255, false},
-    TSqlTypeSpec{SQL_WLONGVARCHAR, "WLONGVARCHAR", EParamType::Utf8, "Utf8", 4096, false},
+    TSqlTypeSpec{SQL_VARCHAR, "VARCHAR", EParamType::Utf8, "Utf8", 0, true},
+    TSqlTypeSpec{SQL_CHAR, "CHAR", EParamType::Utf8, "Utf8", 0, true},
+    TSqlTypeSpec{SQL_LONGVARCHAR, "LONGVARCHAR", EParamType::Utf8, "Utf8", 0, false},
+    TSqlTypeSpec{SQL_WCHAR, "WCHAR", EParamType::Utf8, "Utf8", 0, false},
+    TSqlTypeSpec{SQL_WVARCHAR, "WVARCHAR", EParamType::Utf8, "Utf8", 0, false},
+    TSqlTypeSpec{SQL_WLONGVARCHAR, "WLONGVARCHAR", EParamType::Utf8, "Utf8", 0, false},
     TSqlTypeSpec{SQL_BIT, "BIT", EParamType::Bool, "Bool", 1, false},
     TSqlTypeSpec{SQL_TINYINT, "TINYINT", EParamType::Int8, "Int8", 3, false},
     TSqlTypeSpec{SQL_FLOAT, "FLOAT", EParamType::Double, "Double", 15, false},
     TSqlTypeSpec{SQL_DECIMAL, "DECIMAL", EParamType::Decimal, "Decimal(22, 9)", 22, false},
     TSqlTypeSpec{SQL_NUMERIC, "NUMERIC", EParamType::Decimal, "Decimal(22, 9)", 22, false},
-    TSqlTypeSpec{SQL_BINARY, "BINARY", EParamType::String, "String", 4096, false},
-    TSqlTypeSpec{SQL_VARBINARY, "VARBINARY", EParamType::String, "String", 4096, false},
-    TSqlTypeSpec{SQL_LONGVARBINARY, "LONGVARBINARY", EParamType::String, "String", 4096, false},
+    TSqlTypeSpec{SQL_BINARY, "BINARY", EParamType::String, "String", 0, false},
+    TSqlTypeSpec{SQL_VARBINARY, "VARBINARY", EParamType::String, "String", 0, false},
+    TSqlTypeSpec{SQL_LONGVARBINARY, "LONGVARBINARY", EParamType::String, "String", 0, false},
     TSqlTypeSpec{SQL_TYPE_DATE, "DATE", EParamType::Date, "Date", 10, false},
     TSqlTypeSpec{SQL_TYPE_TIME, "TIME", EParamType::Datetime, "Datetime", 8, false},
     TSqlTypeSpec{SQL_TYPE_TIMESTAMP, "TIMESTAMP", EParamType::Timestamp, "Timestamp", 26, false},
@@ -66,6 +66,17 @@ std::span<const TSqlTypeSpec> GetSqlTypeSpecs() {
 const TSqlTypeSpec* FindSqlTypeSpec(SQLSMALLINT sqlType) {
     const auto it = std::ranges::find(TypeSpecs, sqlType, &TSqlTypeSpec::Type);
     return it == TypeSpecs.end() ? nullptr : &*it;
+}
+
+SQLLEN GetDisplaySize(SQLSMALLINT sqlType, SQLLEN size, bool isUnsigned) {
+    switch (sqlType) {
+        case SQL_TINYINT: case SQL_SMALLINT: case SQL_INTEGER: case SQL_BIGINT:
+            return size + !isUnsigned;
+        case SQL_REAL: return 14;
+        case SQL_FLOAT: case SQL_DOUBLE: return 24;
+        case SQL_DECIMAL: case SQL_NUMERIC: return size + 2;
+        default: return size;
+    }
 }
 
 SQLULEN GetCTypeSize(SQLSMALLINT cType, SQLLEN variableLength) {
@@ -118,6 +129,8 @@ std::optional<TParamTypeSpec> ResolveParamType(const TBoundParam& param) {
     if (!spec) {
         return std::nullopt;
     }
+    if (param.WideTemporal && sqlType == SQL_TYPE_DATE) return TParamTypeSpec{EParamType::Date32, "Date32"};
+    if (param.WideTemporal && sqlType == SQL_TYPE_TIMESTAMP) return TParamTypeSpec{EParamType::Timestamp64, "Timestamp64"};
     const bool decimal = sqlType == SQL_DECIMAL || sqlType == SQL_NUMERIC;
     if ((IsIntegerType(sqlType) || (decimal && param.DecimalDigits == 0))) {
         if (auto type = UnsignedType(param.ValueType)) {
