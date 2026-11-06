@@ -900,3 +900,109 @@
 +                                dbQuoteIdentifier(con, keys[1]), ")")
 +  types
 +}
+--- a/R/spec-meta-bind-runner.R
++++ b/R/spec-meta-bind-runner.R
+@@ -104,7 +104,8 @@
+   }) else expr({
+     data <- ydb_keyed_fixture(data.frame(a = rep(1:5, 1:5), b = 1:15))
+     table_name <- random_table_name()
+-    dbWriteTable(con, table_name, data, temporary = TRUE, field.types = ydb_field_types(con, data))
++    local_remove_test_table(con, table_name)
++    dbWriteTable(con, table_name, data, field.types = ydb_field_types(con, data))
+ 
+     sql <- paste0("UPDATE ", dbQuoteIdentifier(con, table_name), " SET b = b + 1 WHERE ")
+     !!!map2(result_names, seq_along(result_names), ~ expr({
+--- a/R/spec-meta-bind.R
++++ b/R/spec-meta-bind.R
+@@ -41,7 +41,8 @@
+       names(bind_values) <- names(placeholder)
+       data <- ydb_keyed_fixture(data.frame(a = rep(1:5, 1:5), b = 1:15))
+       table_name <- random_table_name()
+-      dbWriteTable(con, table_name, data, temporary = TRUE, field.types = ydb_field_types(con, data))
++    local_remove_test_table(con, table_name)
++      dbWriteTable(con, table_name, data, field.types = ydb_field_types(con, data))
+       sql <- paste0("UPDATE ", dbQuoteIdentifier(con, table_name), " SET b = b + 1 WHERE ")
+       sql <- paste0(sql, "a = ", placeholder[[1L]])
+       res <- dbSendStatement(con, sql)
+@@ -136,7 +137,8 @@
+       }
+       data <- ydb_keyed_fixture(data.frame(a = rep(1:5, 1:5), b = 1:15))
+       table_name <- random_table_name()
+-      dbWriteTable(con, table_name, data, temporary = TRUE, field.types = ydb_field_types(con, data))
++    local_remove_test_table(con, table_name)
++      dbWriteTable(con, table_name, data, field.types = ydb_field_types(con, data))
+       sql <- paste0("UPDATE ", dbQuoteIdentifier(con, table_name), " SET b = b + 1 WHERE ")
+       sql <- paste0(sql, "a = ", placeholder[[1L]], " AND ")
+       sql <- paste0(sql, "b = ", placeholder[[2L]])
+@@ -300,7 +302,8 @@
+       names(bind_values) <- names(placeholder)
+       data <- ydb_keyed_fixture(data.frame(a = rep(1:5, 1:5), b = 1:15))
+       table_name <- random_table_name()
+-      dbWriteTable(con, table_name, data, temporary = TRUE, field.types = ydb_field_types(con, data))
++    local_remove_test_table(con, table_name)
++      dbWriteTable(con, table_name, data, field.types = ydb_field_types(con, data))
+       sql <- paste0("UPDATE ", dbQuoteIdentifier(con, table_name), " SET b = b + 1 WHERE ")
+       sql <- paste0(sql, "a = ", placeholder[[1L]])
+       res <- dbSendStatement(con, sql)
+@@ -351,7 +354,8 @@
+       names(bind_values) <- names(placeholder)
+       data <- ydb_keyed_fixture(data.frame(a = rep(1:5, 1:5), b = 1:15))
+       table_name <- random_table_name()
+-      dbWriteTable(con, table_name, data, temporary = TRUE, field.types = ydb_field_types(con, data))
++    local_remove_test_table(con, table_name)
++      dbWriteTable(con, table_name, data, field.types = ydb_field_types(con, data))
+       sql <- paste0("UPDATE ", dbQuoteIdentifier(con, table_name), " SET b = b + 1 WHERE ")
+       sql <- paste0(sql, "a = ", placeholder[[1L]])
+       res <- dbSendStatement(con, sql)
+@@ -403,7 +407,8 @@
+       names(bind_values) <- names(placeholder)
+       data <- ydb_keyed_fixture(data.frame(a = rep(1:5, 1:5), b = 1:15))
+       table_name <- random_table_name()
+-      dbWriteTable(con, table_name, data, temporary = TRUE, field.types = ydb_field_types(con, data))
++    local_remove_test_table(con, table_name)
++      dbWriteTable(con, table_name, data, field.types = ydb_field_types(con, data))
+       sql <- paste0("UPDATE ", dbQuoteIdentifier(con, table_name), " SET b = b + 1 WHERE ")
+       sql <- paste0(sql, "a = ", placeholder[[1L]])
+       res <- dbSendStatement(con, sql)
+--- a/R/spec-result-send-query.R
++++ b/R/spec-result-send-query.R
+@@ -74,7 +74,7 @@
+     #' when the connection is closed.
+     con <- connect(ctx)
+     on.exit(dbDisconnect(con))
+-    expect_warning(dbSendQuery(con, trivial_query()), NA)
++    expect_warning(stale <- dbSendQuery(con, trivial_query()), NA)
+ 
+     expect_warning({
+       dbDisconnect(con)
+--- a/R/spec-result-send-statement.R
++++ b/R/spec-result-send-statement.R
+@@ -68,7 +68,7 @@
+     #' when the connection is closed.
+     con <- connect(ctx)
+     on.exit(dbDisconnect(con))
+-    expect_warning(dbSendStatement(con, trivial_query()), NA)
++    expect_warning(stale <- dbSendStatement(con, trivial_query()), NA)
+ 
+     expect_warning({
+       dbDisconnect(con)
+--- a/R/spec-sql-write-table.R
++++ b/R/spec-sql-write-table.R
+@@ -233,7 +233,7 @@
+   append_table_new = function(ctx, con, table_name) {
+     #' If the table doesn't exist yet, it is created.
+     penguins <- get_penguins(ctx)
+-    expect_error(dbWriteTable(con, table_name, penguins[1, ], append = TRUE), NA)
++    expect_error(dbWriteTable(con, table_name, penguins[1, ], append = TRUE, primary_key = names(penguins)[1]), NA)
+     penguins_out <- check_df(dbReadTable(con, table_name))
+     expect_equal_df(penguins_out, penguins[1, ])
+   },
+@@ -702,7 +702,7 @@
+     tbl_exp <- data.frame(a = integer(), b = numeric())
+     test_table_roundtrip(
+       con, tbl_in, tbl_exp,
+-      field.types = c(b = "REAL", a = "INTEGER")
++      field.types = c(b = "Float", a = "INTEGER")
+     )
+   },
+ 

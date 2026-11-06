@@ -16,9 +16,11 @@ end
 File.write(File.join(ENV.fetch('ODBC_NATIVE_RESULTS_DIR'),
                     variant + '.json'), JSON.generate(results))
 begin
-  $c.drop_all if $c
-  $c.do('DROP TABLE IF EXISTS test') if $c
-  $c.disconnect if $c
+  if $c && $c.connected?
+    $c.drop_all
+    $c.do('DROP TABLE IF EXISTS test')
+    $c.disconnect
+  end
 rescue => error
   warn error.message
 end

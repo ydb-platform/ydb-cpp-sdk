@@ -1071,3 +1071,147 @@
      $expect = str_repeat('i', $row[0]);
      if (strcmp($expect, $row[1])) {
          echo "Failed on size $row[id]:\n";
+--- a/ext/pdo/tests/bug_44861.phpt
++++ b/ext/pdo/tests/bug_44861.phpt
+@@ -6,7 +6,7 @@
+ <?php
+ $dir = getenv('REDIR_TEST_DIR');
+ if (false == $dir) die('skip no driver');
+-$allowed = array('oci', 'pgsql');
++$allowed = array('oci', 'pgsql', 'odbc');
+ $ok = false;
+ foreach ($allowed as $driver) {
+     if (!strncasecmp(getenv('PDOTEST_DSN'), $driver, strlen($driver))) {
+@@ -35,7 +35,7 @@
+     $ob = 'r';
+ }
+ 
+-$query = "SELECT 'row1' AS r $from UNION SELECT 'row2' $from UNION SELECT 'row3' $from UNION SELECT 'row4' $from ORDER BY $ob";
++$query = "SELECT 'row1' AS r $from UNION SELECT 'row2' AS r $from UNION SELECT 'row3' AS r $from UNION SELECT 'row4' AS r $from ORDER BY $ob";
+ $aParams = array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL);
+ 
+ $res = $db->prepare($query, $aParams);
+--- a/ext/pdo/tests/bug_64172.phpt
++++ b/ext/pdo/tests/bug_64172.phpt
+@@ -23,7 +23,7 @@
+ echo "===FAIL===\n";
+ $db->query('SELECT * FROM bad_table');
+ echo "\n";
+-echo "===test===\n";
++echo "===TEST===\n";
+ var_dump(is_string($db->errorInfo()[0])) . "\n";
+ var_dump(is_int($db->errorInfo()[1])) . "\n";
+ var_dump(is_string($db->errorInfo()[2])) . "\n";
+@@ -34,9 +34,9 @@
+ var_dump($db->errorInfo());
+ 
+ echo "===FAIL===\n";
+-$db->exec("INSERT INTO bad_table VALUES(1)");
++$db->exec("INSERT INTO bad_table (x) VALUES(1)");
+ echo "\n";
+-echo "===test===\n";
++echo "===TEST===\n";
+ var_dump(is_string($db->errorInfo()[0])) . "\n";
+ var_dump(is_int($db->errorInfo()[1])) . "\n";
+ var_dump(is_string($db->errorInfo()[2])) . "\n";
+--- a/ext/pdo/tests/bug_65946.phpt
++++ b/ext/pdo/tests/bug_65946.phpt
+@@ -22,7 +22,7 @@
+         $sql = 'SELECT TOP :limit * FROM test';
+         break;
+     case 'odbc':
+-        $sql = 'SELECT TOP (:limit) * FROM test';
++        $sql = 'SELECT * FROM test LIMIT :limit';
+         break;
+     case 'firebird':
+         $sql = 'SELECT FIRST :limit * FROM test';
+--- a/ext/pdo/tests/bug_73234.phpt
++++ b/ext/pdo/tests/bug_73234.phpt
+@@ -28,20 +28,22 @@
+         $sql = 'CREATE TABLE test (id INT NULL, PRIMARY KEY (id))';
+         break;
+     default:
+-        $sql = 'CREATE TABLE test (id INT, PRIMARY KEY (id))';
++        $sql = 'CREATE TABLE test (id INT, fixture_key Int32, PRIMARY KEY (fixture_key))';
+         break;
+ }
+ $db->exec($sql);
+ 
+-$stmt = $db->prepare('INSERT INTO test (id) VALUES(:value)');
++$stmt = $db->prepare('INSERT INTO test (fixture_key, id) VALUES(:key, :value)');
+ 
++$stmt->bindValue(':key', 1, PDO::PARAM_INT);
+ $stmt->bindValue(':value', 0, PDO::PARAM_NULL);
+ $stmt->execute();
+ 
++$stmt->bindValue(':key', 2, PDO::PARAM_INT);
+ $stmt->bindValue(':value', null, PDO::PARAM_NULL);
+ $stmt->execute();
+ 
+-$stmt = $db->query('SELECT * FROM test');
++$stmt = $db->query('SELECT id FROM test ORDER BY fixture_key');
+ var_dump($stmt->fetchAll(PDO::FETCH_ASSOC));
+ ?>
+ --EXPECT--
+--- a/ext/pdo/tests/gh8626.phpt
++++ b/ext/pdo/tests/gh8626.phpt
+@@ -49,7 +49,7 @@
+   [1]=>
+   int(%i)
+   [2]=>
+-  string(%d) "%s%w%S"
++  string(%d) "%a"
+ }
+ bool(true)
+ string(5) "00000"
+--- a/ext/pdo/tests/pdo_018.phpt
++++ b/ext/pdo/tests/pdo_018.phpt
+@@ -67,7 +67,7 @@
+ {
+ }
+ 
+-$db->exec('CREATE TABLE classtypes (id int NOT NULL, name Utf8 NOT NULL UNIQUE, PRIMARY KEY (id))');
++$db->exec('CREATE TABLE classtypes (id int NOT NULL, name Utf8 NOT NULL, INDEX by_name GLOBAL UNIQUE ON (name), PRIMARY KEY (id))');
+ $db->exec('INSERT INTO classtypes (id, name) VALUES(0, \'stdClass\')');
+ $db->exec('INSERT INTO classtypes (id, name) VALUES(1, \'TestBase\')');
+ $db->exec('INSERT INTO classtypes (id, name) VALUES(2, \'TestDerived\')');
+@@ -160,7 +160,7 @@
+ echo "===FAILURE===\n";
+ try
+ {
+-    $db->query('SELECT classtypes.name AS name, test.val AS val FROM test LEFT JOIN classtypes ON test.classtype=classtypes.id')->fetchAll(PDO::FETCH_CLASS|PDO::FETCH_CLASSTYPE|PDO::FETCH_SERIALIZE, 'TestLeaf', array());
++    $db->query('SELECT classtypes.name AS name, test.val AS val FROM test LEFT JOIN classtypes ON test.classtype=classtypes.id ORDER BY test.id')->fetchAll(PDO::FETCH_CLASS|PDO::FETCH_CLASSTYPE|PDO::FETCH_SERIALIZE, 'TestLeaf', array());
+ }
+ catch (PDOException $e)
+ {
+@@ -172,7 +172,7 @@
+ var_dump($db->query('SELECT COUNT(*) FROM test LEFT JOIN classtypes ON test.classtype=classtypes.id WHERE (classtypes.id IS NULL OR classtypes.id > 0)')->fetchColumn());
+ 
+ echo "===DATABASE===\n";
+-$stmt = $db->prepare('SELECT classtypes.name AS name, test.val AS val FROM test LEFT JOIN classtypes ON test.classtype=classtypes.id WHERE (classtypes.id IS NULL OR classtypes.id > 0)');
++$stmt = $db->prepare('SELECT classtypes.name AS name, test.val AS val FROM test LEFT JOIN classtypes ON test.classtype=classtypes.id WHERE (classtypes.id IS NULL OR classtypes.id > 0) ORDER BY test.id');
+ 
+ $stmt->execute();
+ var_dump($stmt->fetchAll(PDO::FETCH_ASSOC));
+--- a/ext/pdo/tests/pdo_034.phpt
++++ b/ext/pdo/tests/pdo_034.phpt
+@@ -24,7 +24,7 @@
+ var_dump($db->query("SELECT a,b FROM test")->fetch(PDO::FETCH_KEY_PAIR));
+ var_dump($db->query("SELECT a,b FROM test")->fetchAll(PDO::FETCH_KEY_PAIR));
+ var_dump($db->query("SELECT * FROM test")->fetch(PDO::FETCH_KEY_PAIR));
+-var_dump($db->query("SELECT a,a FROM test")->fetchAll(PDO::FETCH_KEY_PAIR));
++var_dump($db->query("SELECT a,a AS a_copy FROM test ORDER BY a")->fetchAll(PDO::FETCH_KEY_PAIR));
+ 
+ ?>
+ --EXPECTF--
+--- a/ext/pdo_odbc/tests/bug44643.phpt
++++ b/ext/pdo_odbc/tests/bug44643.phpt
+@@ -11,7 +11,7 @@
+ <?php
+ require 'ext/pdo/tests/pdo_test.inc';
+ $db = PDOTest::test_factory(dirname(__FILE__) . '/common.phpt');
+-$sql = "SELECT * FROM (SELECT 'test' = :id1) a WHERE a.test = :id2";
++$sql = "SELECT * FROM (SELECT :id1 AS test) AS a WHERE a.test = :id2";
+ $stmt = $db->prepare($sql);
+ $id1 = 1;
+ $stmt->bindParam(':id1', $id1, PDO::PARAM_INT);

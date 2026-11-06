@@ -1,6 +1,6 @@
 schema_version: 2
 ydb:
-  image: ydbplatform/local-ydb:latest
+  image: ydbplatform/local-ydb:trunk
   endpoint: localhost:2136
   database: /local
 classifications:
@@ -13,7 +13,12 @@ classifications:
     reason: This case updates the table's primary key, which YDB makes immutable.
     match: 'Cannot update primary key column: id'
     tests:
-      qt: [qt.*.qsqltablemodel.setData]
+      qt: [qt.*.qsqltablemodel.setData, qt.*.qsqlrelationaltablemodel.setRecord]
+  - outcome: unsupported
+    reason: YDB returns SELECT results without interleaved DML counts, as advertised by SQL_BATCH_ROW_COUNT=0.
+    match: "'!q.isSelect\\(\\)' returned FALSE"
+    tests:
+      qt: [qt.*.qsqlquery.nextResult]
   - outcome: skipped
     reason: YDB uses UTF-8 databases and cannot create the EUC_JP database required by this case.
     match: 'YDB databases require UTF-8, not EUC_JP'
@@ -25,10 +30,38 @@ classifications:
     tests:
       php-odbc: ['php-odbc.*.ext%2Fodbc%2Ftests%2F{odbc_columns_001,odbc_primarykeys_001,odbc_persistent_close}.phpt']
   - outcome: skipped
+    reason: YDB has no SQL Server stored procedures or sysobjects catalog.
+    match: SQL Server stored procedures and catalogs
+    tests:
+      php-odbc: [php-odbc.*.ext%2Fodbc%2Ftests%2Fbug73448.phpt]
+  - outcome: skipped
     reason: The R-prefix naming convention is optional and does not test ODBC behavior.
     match: 'Optional R-prefix package naming convention'
     tests:
       r: [r.*.package_name]
+  - outcome: unsupported
+    reason: YDB column names cannot contain the whitespace, dots or quote characters exercised by these cases.
+    match: 'Invalid (?:column name|name for user column)'
+    tests:
+      r:
+        - r.*.{quote_identifier_special,read_table_check_names,read_table_check_names_false,create_roundtrip_quotes,append_roundtrip_quotes_column_names,roundtrip_quotes_column_names}
+  - outcome: unsupported
+    reason: YDB table path components cannot contain the whitespace and punctuation exercised by these cases.
+    match: 'symbol .* is not allowed in the path part'
+    tests:
+      r:
+        - r.*.{read_table_name,create_table_name,create_table_name_quoted,append_table_name,append_table_name_quoted,write_table_name,write_table_name_quoted,list_tables_quote,exists_table_name,remove_table_name,remove_table_name_quoted,list_objects_quote}
+  - outcome: unsupported
+    reason: The Query Service pool does not provide connection-scoped temporary tables.
+    match: 'Creating temporary table is not supported'
+    tests:
+      r:
+        - r.*.{create_temporary_table...171,temporary_table...239,list_tables_temporary,exists_table_temporary,remove_table_temporary_arg,remove_table_temporary,list_objects_temporary,list_fields_temporary}
+  - outcome: skipped
+    reason: YDB exposes table paths without SQL schemas.
+    match: 'Reason: No schemas available'
+    tests:
+      r: [r.*.list_objects_features]
   - outcome: skipped
     reason: This upstream deadline reminds odbc maintainers to remove an API in a future release.
     match: 'Maintenance assertion for a future odbc API removal'

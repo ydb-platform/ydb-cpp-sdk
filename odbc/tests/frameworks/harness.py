@@ -72,7 +72,7 @@ def load_registry(path=REGISTRY):
     data = read_yaml(path); require(isinstance(data, dict) and data.get("schema_version") == 2,
                                     "unsupported registry schema")
     ydb = data.get("ydb", {}); consumers = data.get("consumers")
-    require(ydb.get("image") == "ydbplatform/local-ydb:latest", "YDB image must use latest")
+    require(ydb.get("image") == "ydbplatform/local-ydb:trunk", "YDB image must provide logical affected-row statistics")
     require(ydb.get("endpoint") and str(ydb.get("database", "")).startswith("/"),
             "YDB endpoint and absolute database are required")
     require(isinstance(consumers, list) and consumers, "registry has no consumers")
@@ -231,7 +231,7 @@ def install_package(package):
 def write_dsn(consumer_id, endpoint, database):
     dsn = f"YDB_{consumer_id}"
     Path("/etc/odbc.ini").write_text(f"[ODBC Data Sources]\n{dsn}=YDB ODBC Driver\n\n[{dsn}]\nDriver=YDB\n"
-        f"Server={endpoint}\nDatabase={database}\nAuthMode=Anonymous\n")
+        f"Server={endpoint}\nDatabase={database}\nAuthMode=Anonymous\nAnsiSQL=1\n")
     return dsn
 def package_suite(package, native):
     multiarch = command(["dpkg-architecture", "-qDEB_HOST_MULTIARCH"], capture=True).stdout.splitlines()[-1]
@@ -312,7 +312,7 @@ def launch_consumer(consumer, mode, runtime, package, results):
     image_name = f"ydb-odbc-{consumer}:{os.getenv('GITHUB_RUN_ID', 'local')}-{os.getenv('GITHUB_RUN_ATTEMPT', '1')}"
     command(["docker", "build", "--build-arg", f"RUNTIME_IMAGE={runtime}",
              "-f", dockerfile, "-t", image_name, ROOT], timeout=1800)
-    args = ["docker", "run", "--rm", "--network", "host", "--user", "0:0",
+    args = ["docker", "run", "--rm", "--network", "host", "--hostname", "odbc-test", "--user", "0:0",
             "-v", f"{ROOT}:/harness:ro", "-v", f"{package.parent}:/packages:ro",
             "-v", f"{results}:/results", "-e", f"ODBC_PACKAGE_BASENAME={package.name}",
             "-e", f"ODBC_RUNTIME_IMAGE={runtime}", "-e", f"ODBC_TEST_MODE={mode}"]
@@ -519,7 +519,7 @@ def run_consumer(consumer_id, mode):
         env.update({
             "HOME": str(home), "ODBCINI": "/etc/odbc.ini", "YDB_ODBC_DSN": dsn,
             "YDB_ODBC_CONNECTION_STRING":
-                f"Driver={{YDB}};Server={endpoint};Database={database};AuthMode=Anonymous",
+                f"Driver={{YDB}};Server={endpoint};Database={database};AuthMode=Anonymous;AnsiSQL=1",
             "ODBC_NATIVE_RESULTS_DIR": str(native), "ODBC_UPSTREAM_DIR": str(upstream),
             "ODBC_ADAPTER_DIR": str(adapter), "ODBC_HARNESS_DIR": str(ROOT),
             "YDB_ENDPOINT": endpoint, "YDB_DATABASE": database,

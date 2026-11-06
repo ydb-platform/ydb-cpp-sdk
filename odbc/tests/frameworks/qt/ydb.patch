@@ -1885,3 +1885,110 @@ diff -ruN a/kernel/qsqlquery/tst_qsqlquery.cpp b/kernel/qsqlquery/tst_qsqlquery.
 +        QVERIFY(q.prepare(QLatin1String(db.driverName().startsWith("QODBC")
 +                ? "insert into %1 (id, name, name2) values (:id, :name, CAST(:id AS Utf8))"
 +                : "insert into %1 (id, name, name2) values (:id, :name, :id)").arg(qtest_prepare)));
+--- a/kernel/qsqlquery/tst_qsqlquery.cpp
++++ b/kernel/qsqlquery/tst_qsqlquery.cpp
+@@ -1978,7 +1978,7 @@
+                                           : "CREATE TABLE %1 (pk int, col1 Decimal(21, 20), primary key (pk))")
+                             .arg(qtest_precision)));
+ 
+-        QVERIFY_SQL(q, exec(QLatin1String("INSERT INTO %1 (pk, col1) VALUES (1, Decimal(\"%2\", 21, 20))")
++        QVERIFY_SQL(q, exec(QLatin1String("INSERT INTO %1 (pk, col1) VALUES (1, Decimal('%2's, 21, 20))")
+                             .arg(qtest_precision, precStr)));
+         QVERIFY_SQL(q, exec("SELECT col1 FROM " + qtest_precision));
+         QVERIFY(q.next());
+--- a/models/qsqlrelationaldelegate/tst_qsqlrelationaldelegate.cpp
++++ b/models/qsqlrelationaldelegate/tst_qsqlrelationaldelegate.cpp
+@@ -132,6 +132,7 @@
+     QSqlRelationalTableModel model(0, db);
+     model.setEditStrategy(QSqlTableModel::OnManualSubmit);
+     model.setTable(reltest1);
++    model.setSort(0, Qt::AscendingOrder);
+     model.setRelation(2, QSqlRelation(reltest2, idField, titleKeyField));
+     model.setRelation(3, QSqlRelation(reltest2, idField, titleKeyField));
+     tv.setModel(&model);
+--- a/models/qsqlrelationaltablemodel/tst_qsqlrelationaltablemodel.cpp
++++ b/models/qsqlrelationaltablemodel/tst_qsqlrelationaltablemodel.cpp
+@@ -190,6 +190,7 @@
+     QSqlRelationalTableModel model(0, db);
+ 
+     model.setTable(reltest1);
++    model.setSort(0, Qt::AscendingOrder);
+     model.setRelation(2, QSqlRelation(reltest2, "id", "title"));
+     QVERIFY_SQL(model, select());
+ 
+@@ -215,6 +216,7 @@
+     //in this case a string
+     QSqlRelationalTableModel model2(0,db);
+     model2.setTable(reltest2);
++    model2.setSort(0, Qt::AscendingOrder);
+     model2.setRelation(1, QSqlRelation(reltest5,"title","abbrev"));
+     QVERIFY_SQL(model2, select());
+ 
+@@ -657,6 +659,7 @@
+     QSqlRelationalTableModel model(0, db);
+ 
+     model.setTable(reltest1);
++    model.setSort(0, Qt::AscendingOrder);
+     model.setRelation(2, QSqlRelation(reltest2, "id", "title"));
+     QVERIFY_SQL(model, select());
+ 
+@@ -683,6 +686,8 @@
+     QSqlRelationalTableModel lmodel(0, db);
+ 
+     lmodel.setTable(reltest1);
++
++    lmodel.setSort(0, Qt::AscendingOrder);
+     lmodel.setRelation(2, QSqlRelation(reltest2, "id", "title"));
+     lmodel.setJoinMode(QSqlRelationalTableModel::LeftJoin);
+     QVERIFY_SQL(lmodel, select());
+@@ -1016,6 +1021,7 @@
+ 
+     QSqlRelationalTableModel model(0, db);
+     model.setTable(reltest1);
++    model.setSort(0, Qt::AscendingOrder);
+     model.setRelation(2, QSqlRelation(reltest2, "id", "title"));
+     QVERIFY_SQL(model, select());
+ 
+@@ -1159,6 +1165,7 @@
+ 
+     QSqlRelationalTableModel model(0, db);
+     model.setTable(reltest1);
++    model.setSort(0, Qt::AscendingOrder);
+ 
+     //try with relation table name quoted
+     if (dbType == QSqlDriver::Interbase || dbType == QSqlDriver::Oracle || dbType == QSqlDriver::DB2) {
+@@ -1483,6 +1490,7 @@
+ 
+     QSqlRelationalTableModel model(0, db);
+     model.setTable(reltest1);
++    model.setSort(0, Qt::AscendingOrder);
+     model.setRelation(2, QSqlRelation(reltest2, "id", "title"));
+     QVERIFY_SQL(model, select());
+     QCOMPARE(model.relationModel(2)->rowCount(), 2);
+@@ -1530,6 +1538,7 @@
+     //set test model
+     QSqlRelationalTableModel model(NULL, db);
+     model.setTable(testTable1);
++    model.setSort(1, Qt::AscendingOrder);
+     model.setRelation(0, QSqlRelation(testTable2, "id", "name"));
+     QVERIFY_SQL(model, select());
+ 
+--- a/models/qsqltablemodel/tst_qsqltablemodel.cpp
++++ b/models/qsqltablemodel/tst_qsqltablemodel.cpp
+@@ -1922,6 +1922,7 @@
+     QSignalSpy modelResetSpy(&model, SIGNAL(modelReset()));
+     QSignalSpy spyRowsInserted(&model, SIGNAL(rowsInserted(QModelIndex,int,int)));
+     for (int i = 0; i < 10; i++) {
++        record.setValue(0, 10 + i);
+         QVERIFY(model.insertRecord(model.rowCount(), record));
+         QCOMPARE(spyRowsInserted.at(i).at(1).toInt(), i+3); // The table already contains three rows
+         QCOMPARE(spyRowsInserted.at(i).at(2).toInt(), i+3);
+@@ -2055,7 +2056,7 @@
+     QCOMPARE(model.rowCount(), 3);
+     QCOMPARE(model.columnCount(), 3);
+ 
+-    QVERIFY(model.removeColumn(0));
++    QVERIFY(model.removeColumn(1));
+     QVERIFY(model.removeRow(0));
+     QVERIFY(model.submitAll());
+     QCOMPARE(model.rowCount(), 2);

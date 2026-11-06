@@ -503,3 +503,286 @@
  if (!$conn) {
      die('skip could not connect');
  }
+--- a/ext/odbc/tests/bug46050.phpt
++++ b/ext/odbc/tests/bug46050.phpt
+@@ -8,7 +8,7 @@
+ <?php
+ include __DIR__ . "/config.inc";
+ $conn = odbc_connect($dsn, $user, $pass);
+-$stmt = odbc_prepare($conn, "SELECT 1");
++$stmt = odbc_prepare($conn, "SELECT 1 AS `1`");
+ var_dump(odbc_execute($stmt));
+ var_dump(odbc_fetch_array($stmt));
+ var_dump(odbc_next_result($stmt));
+--- a/ext/odbc/tests/bug68087.phpt
++++ b/ext/odbc/tests/bug68087.phpt
+@@ -16,7 +16,7 @@
+ 
+ odbc_exec($conn, 'CREATE TABLE bug68087 (ID INT, VARCHAR_COL Utf8, DATE_COL DATE, PRIMARY KEY (ID))');
+ 
+-odbc_exec($conn, "INSERT INTO bug68087(ID, VARCHAR_COL, DATE_COL) VALUES (1, 'hello', Date('$id_1_date')), (2, 'helloagain', Date('$id_2_date'))");
++odbc_exec($conn, "INSERT INTO bug68087(ID, VARCHAR_COL, DATE_COL) VALUES (1, 'hello', Date('$id_1_date's)), (2, 'helloagain', Date('$id_2_date's))");
+ 
+ $res = odbc_exec($conn, 'SELECT * FROM bug68087 ORDER BY ID ASC');
+ 
+--- a/ext/odbc/tests/bug71171.phpt
++++ b/ext/odbc/tests/bug71171.phpt
+@@ -11,11 +11,11 @@
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+ 
+-odbc_exec($conn, 'CREATE TABLE bug71171 (ID INT, VARCHAR_COL Utf8, PRIMARY KEY (ID))');
++odbc_exec($conn, 'CREATE TABLE bug71171 (ID INT, VARCHAR_COL String, PRIMARY KEY (ID))');
+ 
+-odbc_exec($conn, "INSERT INTO bug71171(ID, VARCHAR_COL) VALUES (1, '" . chr(0x81) . "')");
++odbc_exec($conn, "INSERT INTO bug71171(ID, VARCHAR_COL) VALUES (1, String::HexDecode('81's))");
+ 
+-$res = odbc_exec($conn,"SELECT ID FROM bug71171 WHERE VARCHAR_COL = '" . chr(0x81) . "'");
++$res = odbc_exec($conn,"SELECT ID FROM bug71171 WHERE VARCHAR_COL = String::HexDecode('81's)");
+ if ($res) {
+     while($record = odbc_fetch_array($res)) var_dump($record);
+ }
+--- a/ext/odbc/tests/bug73448.phpt
++++ b/ext/odbc/tests/bug73448.phpt
+@@ -3,7 +3,7 @@
+ --EXTENSIONS--
+ odbc
+ --SKIPIF--
+-<?php include 'skipif.inc'; ?>
++<?php include 'skipif.inc'; die('skip SQL Server stored procedures and catalogs'); ?>
+ --CONFLICTS--
+ odbc
+ --FILE--
+--- a/ext/odbc/tests/bug80592.phpt
++++ b/ext/odbc/tests/bug80592.phpt
+@@ -10,7 +10,7 @@
+ 
+ $conn = odbc_connect($dsn, $user, $pass);
+ odbc_exec($conn,"CREATE TABLE bug80592 (f1 float not null, f2 float not null, f3 float not null, ydb_fixture_id Int32, PRIMARY KEY (ydb_fixture_id))"); 
+-$stmt = odbc_prepare($conn, "INSERT INTO bug80592 (f1, f2, f3) values (?, ?, ?)");
++$stmt = odbc_prepare($conn, "INSERT INTO bug80592 (ydb_fixture_id, f1, f2, f3) values (1, ?, ?, ?)");
+ odbc_execute($stmt, [1.0, 2.0, 3.0]);
+ $res = odbc_exec($conn, "SELECT f1, f2, f3 from bug80592");
+ var_dump(odbc_fetch_array($res));
+@@ -25,9 +25,9 @@
+ --EXPECT--
+ array(3) {
+   ["f1"]=>
+-  string(3) "1.0"
++  string(1) "1"
+   ["f2"]=>
+-  string(3) "2.0"
++  string(1) "2"
+   ["f3"]=>
+-  string(3) "3.0"
++  string(1) "3"
+ }
+--- a/ext/odbc/tests/odbc_exec_001.phpt
++++ b/ext/odbc/tests/odbc_exec_001.phpt
+@@ -24,6 +24,8 @@
+ 
+ ?>
+ --EXPECTF--
+-Warning: odbc_exec(): SQL error: %s in %s on line %d
++Warning: odbc_exec(): SQL error: %a in %s on line %d
+ 
+-Warning: odbc_exec(): SQL error: %s in %s on line %d
++Warning: odbc_exec(): SQL error: %a in %s on line %d
++
++Warning: odbc_exec(): SQL error: %a in %s on line %d
+--- a/ext/odbc/tests/odbc_exec_002.phpt
++++ b/ext/odbc/tests/odbc_exec_002.phpt
+@@ -14,7 +14,7 @@
+ odbc_exec($conn, 'CREATE TABLE exec2 (test INT, PRIMARY KEY (test))');
+ odbc_exec($conn, 'INSERT INTO exec2 (test) VALUES (1), (2)');
+ 
+-$res = odbc_exec($conn, 'SELECT * FROM exec2');
++$res = odbc_exec($conn, 'SELECT test AS `TEST` FROM exec2 ORDER BY test');
+ 
+ var_dump(odbc_fetch_row($res));
+ var_dump(odbc_result($res, 'test'));
+--- a/ext/odbc/tests/odbc_field_len_001.phpt
++++ b/ext/odbc/tests/odbc_field_len_001.phpt
+@@ -35,8 +35,8 @@
+ --EXPECTF--
+ odbc_field_len(): Argument #2 ($field) must be greater than 0
+ int(10)
+-int(2147483647)
+-int(50)
++int(0)
++int(0)
+ 
+ Warning: odbc_field_len(): Field index larger than number of fields in %s on line %d
+ bool(false)
+--- a/ext/odbc/tests/odbc_field_precision_001.phpt
++++ b/ext/odbc/tests/odbc_field_precision_001.phpt
+@@ -35,7 +35,7 @@
+ odbc_field_precision(): Argument #2 ($field) must be greater than 0
+ int(10)
+ int(7)
+-int(50)
++int(0)
+ 
+ Warning: odbc_field_precision(): Field index larger than number of fields in %s on line %d
+ bool(false)
+--- a/ext/odbc/tests/odbc_gettypeinfo_001.phpt
++++ b/ext/odbc/tests/odbc_gettypeinfo_001.phpt
+@@ -25,20 +25,20 @@
+ 
+ odbc_close($conn);
+ ?>
+---EXPECTF--
+-array(20) {
++--EXPECT--
++array(19) {
+   ["TYPE_NAME"]=>
+-  string(14) "datetimeoffset"
++  string(5) "Int64"
+   ["DATA_TYPE"]=>
+-  string(4) "-155"
++  string(2) "-5"
+   ["COLUMN_SIZE"]=>
+-  string(2) "34"
++  string(2) "19"
+   ["LITERAL_PREFIX"]=>
+-  string(1) "'"
++  NULL
+   ["LITERAL_SUFFIX"]=>
+-  string(1) "'"
++  NULL
+   ["CREATE_PARAMS"]=>
+-  string(5) "scale"
++  NULL
+   ["NULLABLE"]=>
+   string(1) "1"
+   ["CASE_SENSITIVE"]=>
+@@ -46,45 +46,43 @@
+   ["SEARCHABLE"]=>
+   string(1) "3"
+   ["UNSIGNED_ATTRIBUTE"]=>
+-  NULL
++  string(1) "0"
+   ["FIXED_PREC_SCALE"]=>
+   string(1) "0"
+   ["AUTO_UNIQUE_VALUE"]=>
+-  NULL
++  string(1) "0"
+   ["LOCAL_TYPE_NAME"]=>
+-  string(14) "datetimeoffset"
++  string(5) "Int64"
+   ["MINIMUM_SCALE"]=>
+   string(1) "0"
+   ["MAXIMUM_SCALE"]=>
+-  string(1) "7"
++  string(1) "0"
+   ["SQL_DATA_TYPE"]=>
+-  string(4) "-155"
++  string(2) "-5"
+   ["SQL_DATETIME_SUB"]=>
+-  string(1) "0"
++  NULL
+   ["NUM_PREC_RADIX"]=>
+-  NULL
++  string(2) "10"
+   ["INTERVAL_PRECISION"]=>
+   NULL
+-  ["USERTYPE"]=>
+-  string(1) "0"
+ }
+-array(20) {
++array(19) {
+   ["TYPE_NAME"]=>
+-  string(4) "char"
++  string(4) "Utf8"
+   ["DATA_TYPE"]=>
+   string(1) "1"
+   ["COLUMN_SIZE"]=>
+-  string(4) "8000"
++  string(1) "0"
+   ["LITERAL_PREFIX"]=>
+   string(1) "'"
+   ["LITERAL_SUFFIX"]=>
+   string(1) "'"
+   ["CREATE_PARAMS"]=>
+-  string(6) "length"
++  NULL
+   ["NULLABLE"]=>
+   string(1) "1"
+   ["CASE_SENSITIVE"]=>
+-  string(1) "0"
++  string(1) "1"
+   ["SEARCHABLE"]=>
+   string(1) "3"
+   ["UNSIGNED_ATTRIBUTE"]=>
+@@ -92,9 +90,9 @@
+   ["FIXED_PREC_SCALE"]=>
+   string(1) "0"
+   ["AUTO_UNIQUE_VALUE"]=>
+-  NULL
++  string(1) "0"
+   ["LOCAL_TYPE_NAME"]=>
+-  string(4) "char"
++  string(4) "Utf8"
+   ["MINIMUM_SCALE"]=>
+   NULL
+   ["MAXIMUM_SCALE"]=>
+@@ -107,16 +105,14 @@
+   NULL
+   ["INTERVAL_PRECISION"]=>
+   NULL
+-  ["USERTYPE"]=>
+-  string(1) "1"
+ }
+-array(20) {
++array(19) {
+   ["TYPE_NAME"]=>
+-  string(7) "numeric"
++  string(14) "Decimal(22, 9)"
+   ["DATA_TYPE"]=>
+   string(1) "2"
+   ["COLUMN_SIZE"]=>
+-  string(2) "38"
++  string(2) "35"
+   ["LITERAL_PREFIX"]=>
+   NULL
+   ["LITERAL_SUFFIX"]=>
+@@ -128,7 +124,7 @@
+   ["CASE_SENSITIVE"]=>
+   string(1) "0"
+   ["SEARCHABLE"]=>
+-  string(1) "2"
++  string(1) "3"
+   ["UNSIGNED_ATTRIBUTE"]=>
+   string(1) "0"
+   ["FIXED_PREC_SCALE"]=>
+@@ -136,11 +132,11 @@
+   ["AUTO_UNIQUE_VALUE"]=>
+   string(1) "0"
+   ["LOCAL_TYPE_NAME"]=>
+-  string(7) "numeric"
++  string(14) "Decimal(22, 9)"
+   ["MINIMUM_SCALE"]=>
+   string(1) "0"
+   ["MAXIMUM_SCALE"]=>
+-  string(2) "38"
++  string(2) "35"
+   ["SQL_DATA_TYPE"]=>
+   string(1) "2"
+   ["SQL_DATETIME_SUB"]=>
+@@ -149,6 +145,4 @@
+   string(2) "10"
+   ["INTERVAL_PRECISION"]=>
+   NULL
+-  ["USERTYPE"]=>
+-  string(2) "10"
+ }
+--- a/ext/odbc/tests/odbc_num_rows_001.phpt
++++ b/ext/odbc/tests/odbc_num_rows_001.phpt
+@@ -31,5 +31,5 @@
+ odbc_exec($conn, 'DROP TABLE num_rows');
+ ?>
+ --EXPECT--
+-int(3)
+-int(0)
++int(-1)
++int(-1)

@@ -13,4 +13,5 @@ RUN apt-get update \
         python3-yaml \
         qt6-base-dev \
         qt6-base-private-dev \
+        unixodbc-dev \
     && rm -rf /var/lib/apt/lists/*

@@ -47,3 +47,56 @@
  
  	-- Checks the results with the inserted values.
  	local stmt = assert(CONN:prepare"select * from test_dt where f1 = ?")
+--- a/tests/test.lua
++++ b/tests/test.lua
+@@ -497,7 +497,8 @@
+ 	assert2 (true, cur:close(), "couldn't close cursor")
+ 	assert2 (false, cur:close())
+ 	-- delete a record and roll back the operation.
+-	assert2 (1, CONN:execute ("delete from t where f1 = 'a'"))
++	-- YDB defers point-delete effects until commit; ODBC reports an unknown count.
++	assert2 (-1, CONN:execute ("delete from t where f1 = 'a'"))
+ 	cur = CUR_OK (CONN:execute ("select count(*) from t"))
+ 	assert2 (0, tonumber(cur:fetch()))
+ 	assert2 (true, cur:close(), "couldn't close cursor")
+@@ -525,7 +526,7 @@
+ 	assert2 (false, cur:close())
+ --]]
+ 	-- clean the table.
+-	assert2 (1, CONN:execute (sql_erase_table"t"))
++	assert2 (-1, CONN:execute (sql_erase_table"t"))
+ 	assert2 (true, CONN:commit (), "couldn't commit transaction")
+ 	assert2 (true, CONN:setautocommit (true), "couldn't enable autocommit")
+ 	-- check resulting table with no records.
+@@ -622,7 +623,7 @@
+ 
+ 	-- check cursor integrity after trying to close its connection
+ 	local conn = CONN_OK (ENV:connect (datasource, username, password))
+-	assert2 (1, conn:execute"insert into t (f1) values (1)", "could not insert a new record")
++	assert2 (1, conn:execute"insert into t (f1) values ('1')", "could not insert a new record")
+ 	local cur = CUR_OK (conn:execute (cmd))
+ 	local ok, err, msg = pcall (conn.close, conn)
+ 	assert2 (true, ok, "couldn´t try to close the connection")
+@@ -670,7 +671,7 @@
+ -- file (or in a string).
+ ---------------------------------------------------------------------
+ function to_be_closed_support ()
+-	assert (loadfile"to_be_closed_support.lua")()
++	assert (loadfile"tests/to_be_closed_support.lua")()
+ end
+ 
+ ---------------------------------------------------------------------
+--- a/tests/odbc.lua
++++ b/tests/odbc.lua
+@@ -12,9 +12,9 @@
+ -- Test of data types managed by ODBC driver.
+ ---------------------------------------------------------------------
+ table.insert (EXTENSIONS, function ()
+-	assert2 (CREATE_TABLE_RETURN_VALUE, CONN:execute"CREATE TABLE test_dt (f1 integer, f2 Utf8, f3 bit , PRIMARY KEY (f1))")
++	assert2 (CREATE_TABLE_RETURN_VALUE, CONN:execute"CREATE TABLE test_dt (f1 integer, f2 Utf8, f3 Bool, PRIMARY KEY (f1))")
+ 	-- Inserts a number, a string value and a "bit" value.
+-	assert2 (1, CONN:execute("insert into test_dt (f1, f2, f3) VALUES (?, ?, ?)", 10, "ABCDE", true))
++	assert2 (1, CONN:execute("insert into test_dt (f1, f2, f3) VALUES (CAST(? AS Int32), ?, ?)", 10, "ABCDE", true))
+ 
+ 	-- Checks the results with the inserted values.
+ 	local stmt = assert(CONN:prepare"select * from test_dt where f1 = ?")

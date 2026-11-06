@@ -64,7 +64,7 @@ class HarnessTests(unittest.TestCase):
                                f"{consumer['id']}.*.future_suite.case")
         cases = [(duplicate, "duplicate consumer"),
                  (unpinned, "digest-pinned"),
-                 (unpinned_ydb, "YDB image must use latest"),
+                 (unpinned_ydb, "YDB image must provide logical affected-row statistics"),
                  (changed_source, "upstream.lock"),
                  (broad_failure, "suite-wide expected-result patterns"),
                  (duplicate_classification, "duplicate or unexplained expectations"),
@@ -250,6 +250,9 @@ class HarnessTests(unittest.TestCase):
             shape = re.sub(r"\s+", "", string_literal.sub('""', line[1:]))
             if shape.startswith("QVERIFY(q.prepare("):
                 return "QVERIFY(q.prepare(...))"
+            # The YDB fixture adds a primary key in column 0; remove a non-key column.
+            if shape in {"QVERIFY(model.removeColumn(0));", "QVERIFY(model.removeColumn(1));"}:
+                return "QVERIFY(model.removeColumn(...));"
             return shape
         removed_assertions = [assertion_shape(line) for line in changed
                               if line.startswith("-") and assertion.search(line)]

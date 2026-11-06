@@ -2,7 +2,18 @@
 +++ b/test/10create_table.rb
 @@ -1 +1 @@
 -$c.run("create table test (id int not null, str varchar(32) not null)")
-+$c.run("CREATE TABLE test (id int not null, str Utf8 not null, PRIMARY KEY (id))")
++$c.run("CREATE TABLE test (fixture_key Int32, id int not null, str Utf8 not null, PRIMARY KEY (fixture_key))")
+--- a/test/20insert.rb
++++ b/test/20insert.rb
+@@ -1,5 +1,5 @@
+-$q = $c.run("insert into test (id, str) values (1, 'foo')")
+-$q.run("insert into test (id, str) values (2, 'bar')")
++$q = $c.run("insert into test (fixture_key, id, str) values (1, 1, 'foo')")
++$q.run("insert into test (fixture_key, id, str) values (2, 2, 'bar')")
+
+-$p = $c.proc("insert into test (id, str) values (?, ?)") {}
++$p = $c.proc("insert into test (fixture_key, id, str) SELECT id AS fixture_key, id, str FROM (SELECT Unwrap(CAST(? AS Int32)) AS id, ? AS str)") {}
+ $p.call(3, "FOO")
 --- a/test/00connect.rb
 +++ b/test/00connect.rb
 @@ -1 +1 @@
