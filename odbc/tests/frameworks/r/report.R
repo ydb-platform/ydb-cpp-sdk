@@ -31,6 +31,7 @@ context <- DBItest::make_context(odbc::odbc(),
         placeholder_pattern="?", date_cast=function(x) paste0("Date32('",x,"'s)"),
         time_cast=function(x) paste0("Utf8('",x,"'s)"),
         blob_cast=function(x) {
+            if (all(x == "NULL")) return(x)
             if (all(x == "?")) return(paste0("CAST(",x," AS String)"))
             if (all(grepl("^String::HexDecode",x))) return(x)
             hex <- sub("^(?:[xX]'([0-9A-Fa-f]*)'|0[xX]([0-9A-Fa-f]*))$", "\\1\\2",as.character(x),perl=TRUE)
