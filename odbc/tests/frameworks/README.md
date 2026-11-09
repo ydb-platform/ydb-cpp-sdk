@@ -46,13 +46,17 @@ versions, driver commit, package checksum, YDB image and connection mode.
 
 Adapters discover an inventory before execution and report native `results.json` with
 `inventory` and `tests`. IDs include the consumer and connection mode. Missing cases,
-invalid output, crashes, setup errors, unexplained skips and unexpected passes fail
+invalid output, adapter crashes, setup errors, unexplained skips and unexpected passes fail
 validation. Framework data rows and diagnostics remain in native output and attachments.
 Qt also checks data-row counts against its pinned source and fixture profile.
 
-Every applicable test must pass. Only fundamentally unsupported functionality or
-explicitly inapplicable backend/platform cases may be classified. Driver and binding
-defects remain failures. Never classify a broken fixture or missing dependency.
+Every applicable test must pass. Classifications cover fundamentally unsupported
+functionality, inapplicable backend/platform cases, and independently reproduced
+upstream consumer defects. Driver defects remain failures. Never classify a broken
+fixture or missing dependency. `upstream_failure` requires an upstream `reference`,
+a checked-in `reproducer`, and an exact case and diagnostic match; see [reproductions](repros/README.md).
+Raw failures remain failures in Allure and are counted separately from passes.
+Isolated consumer crashes retain debugger output and require the same diagnostic match.
 
 ```yaml
 classifications:
@@ -66,11 +70,12 @@ classifications:
 `unsupported` requires a failed test; `skipped` requires an upstream skip. Every
 reported problem must match the diagnostic. `broken` and setup failures are never
 expected. Patterns must match results, must not overlap, and must not exempt entire
-suites. Raw status, message and trace are preserved; Allure adds the classification
+suites. Only reproduced intermittent upstream defects may set `allow_pass: true`;
+other newly passing exceptions fail review. Raw status, message and trace are preserved; Allure adds the classification
 separately. A changed diagnostic or a newly passing exception requires review.
 
 Aggregation requires every registered run and matching driver/package/YDB provenance.
-It preserves attachment filenames and reports passes, expected limitations/skips and
+It preserves attachment filenames and reports passes, upstream defects, expected limitations/skips and
 unexpected outcomes separately. Genuine compatibility gaps keep the matrix red.
 
 ## Running

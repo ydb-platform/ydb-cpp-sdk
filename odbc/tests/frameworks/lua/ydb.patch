@@ -18,12 +18,30 @@
  end
  
  
-@@ -834,10 +834,14 @@
+@@ -834,10 +834,32 @@
  end
  io.write (" driver test.  "..luasql._COPYRIGHT.."\n")
  
 +for _, t in ipairs(tests) do print("@YDB_INVENTORY\t"..t[1]) end
 +if os.getenv("ODBC_DISCOVER_ONLY") == "1" then return end
++local selected = os.getenv("ODBC_TEST_CASE")
++if selected then
++    for _, t in ipairs(tests) do
++        if t[1] == selected then
++            local ok, err = xpcall(function()
++                if t[2] ~= basic_test then basic_test() end
++                if t[2] ~= basic_test and t[2] ~= create_table then create_table() end
++            end, debug.traceback)
++            if not ok then
++                local diagnostic = err:gsub(".", function(c) return string.format("%02x", string.byte(c)) end)
++                print("@YDB_CASE\t"..t[1].."\tbroken\t"..diagnostic)
++                return
++            end
++            tests = {t}
++            break
++        end
++    end
++end
  for i = 1, table.getn (tests) do
  	local t = tests[i]
  	io.write (t[1].." ...")

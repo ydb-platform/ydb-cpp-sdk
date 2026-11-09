@@ -58,11 +58,6 @@ classifications:
       r:
         - r.*.{create_temporary_table...171,temporary_table...239,list_tables_temporary,exists_table_temporary,remove_table_temporary_arg,remove_table_temporary,list_objects_temporary,list_fields_temporary}
   - outcome: skipped
-    reason: YDB exposes table paths without SQL schemas.
-    match: 'Reason: No schemas available'
-    tests:
-      r: [r.*.list_objects_features]
-  - outcome: skipped
     reason: This upstream deadline reminds odbc maintainers to remove an API in a future release.
     match: 'Maintenance assertion for a future odbc API removal'
     tests:
@@ -315,6 +310,188 @@ classifications:
     tests:
       r: ['r.*.test-odbc-connection.R%3AodbcConnectionColumns%20warns%20on%20usage%20%28%23699%29']
 
+  - outcome: upstream_failure
+    reason: R odbc rejects NA row limits before calling ODBC.
+    match: missing value where TRUE/FALSE needed
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/R/dbi-result.R
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.fetch_na_rows
+  - outcome: upstream_failure
+    reason: R odbc omits the DBI warning when fetching a statement with no result columns.
+    match: did not throw the expected warning
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/R/dbi-result.R
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.{fetch_no_return_value,row_count_statement,rows_affected_statement}
+  - outcome: upstream_failure
+    reason: R odbc warns when clearing intentionally unread rows in dbGetQuery.
+    match: Pending rows
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/R/dbi-result.R
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.{get_query_n_zero_rows,get_query_n_incomplete}
+  - outcome: upstream_failure
+    reason: R odbc converts factor columns without the required DBI warning.
+    match: did not throw the expected warning
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/R/dbi-table.R
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.append_roundtrip_factor
+  - outcome: upstream_failure
+    reason: R odbc treats difftime minutes as seconds.
+    match: (?s)actual\[1, \]\s+00:00:01.*expected\[1, \]\s+00:01:00
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/src/odbc_result.cpp
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.{append_roundtrip_time,roundtrip_time}
+  - outcome: upstream_failure
+    reason: R odbc warns instead of rejecting unknown field.types names.
+    match: Some columns in `field.types` not in the input
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/R/dbi-table.R
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.write_table_error
+  - outcome: upstream_failure
+    reason: R odbc ignores fail_if_missing=FALSE when generating DROP TABLE.
+    match: (?s)fail_if_missing = FALSE.*Cannot find table .*because it does not exist
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/R/dbi-table.R
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.remove_table_missing_succeed
+  - outcome: upstream_failure
+    reason: DBI identifier unquoting loses the named Id component used by dbListObjects; an empty catalog hides this
+      defect.
+    match: '(?s)names\(actual\[\[1\]\]@name\).*names\(expected\[\[1\]\]@name\)|Reason: No schemas available'
+    reference: https://dbi.r-dbi.org/reference/dbUnquoteIdentifier.html
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.list_objects_features
+  - outcome: upstream_failure
+    reason: R odbc returns an empty field list instead of the required DBI error for a missing table.
+    match: dbListFields\(con, name\).*did not throw the expected error
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/R/dbi-connection.R
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.list_fields_wrong_table
+  - outcome: upstream_failure
+    reason: R odbc accepts an empty parameter list without calling ODBC.
+    match: dbBind\(res, list\(\)\).*did not throw the expected error
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/R/dbi-result.R
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.bind_empty
+  - outcome: upstream_failure
+    reason: R odbc reports completion and affected rows before parameters have been bound.
+    match: (?s)dbHasCompleted\(res\) is not FALSE|dbGetRowsAffected\(res\).*NA_integer_
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/src/result.cpp
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.{bind_return_value,bind_return_value_statement}
+  - outcome: upstream_failure
+    reason: R odbc does not reject unequal parameter lengths or names on positional parameters.
+    match: dbBind\(res, bind_values_patched\).*did not throw the expected error
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/R/dbi-result.R
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.{bind_multi_row_unequal_length,bind_unnamed_param_named_placeholders}
+  - outcome: upstream_failure
+    reason: R odbc rejects zero-length binding while parsing batch_rows, before calling ODBC.
+    match: (?s)`batch_rows` is not a valid size:.*Must be a positive integer
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/R/utils.R
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.bind_multi_row_zero_length
+  - outcome: upstream_failure
+    reason: R odbc binds factor codes rather than labels and omits the factor warning.
+    match: (?s)did not throw the expected warning|actual\[1, \].*2\.5.*expected\[1, \].*1\.5
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/src/odbc_result.cpp
+    reproducer: repros/r-bind-types.R
+    tests:
+      r:
+      - r.*.bind_factor
+  - outcome: upstream_failure
+    reason: R odbc loses integer Date classes or difftime units, and timestamp binding does not match its own quoted
+      timestamp literal.
+    match: (?s)actual\[1, \].*2\.5.*expected\[1, \].*1\.5
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/src/odbc_result.cpp
+    reproducer: repros/r-bind-types.R
+    tests:
+      r:
+      - r.*.{bind_date_integer,bind_timestamp,bind_time_hours,bind_time_minutes_integer}
+  - outcome: upstream_failure
+    reason: R odbc treats POSIXlt lists as raw-vector lists and fails before calling ODBC.
+    match: RAW\(\) can only be applied to a 'raw', not a 'double'
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/src/odbc_result.cpp
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.bind_timestamp_lt
+  - outcome: upstream_failure
+    reason: R odbc calls SQLRowCount after SQLMoreResults has left the statement unexecuted.
+    match: Function sequence error
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/src/nanodbc/nanodbc.cpp
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.rows_affected_query
+  - outcome: upstream_failure
+    reason: R odbc 1.4.2 does not reexport the DBI APIs checked by DBItest 1.8.0.
+    match: Id, dbAppendTableArrow, dbBindArrow, dbCanConnect
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/NAMESPACE
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.reexport
+  - outcome: upstream_failure
+    reason: Qt QODBC returns an invalid QVariant for a NULL string instead of a typed NULL.
+    match: NULL relation reported with invalid QVariant
+    reference: https://github.com/qt/qtbase/blob/v6.4.2/src/plugins/sqldrivers/odbc/qsql_odbc.cpp
+    reproducer: repros/qt-null.cpp
+    tests:
+      qt:
+      - qt.*.qsqlrelationaltablemodel.data
+  - outcome: upstream_failure
+    reason: PDO_ODBC rereads an exhausted SQLGetData stream for repeated FETCH_LAZY accesses instead of caching the
+      value.
+    match: (?s)Null coalesce:.*string\(7\) "default".*Read:.*NULL
+    reference: https://github.com/php/php-src/blob/php-8.3.6/ext/pdo_odbc/odbc_stmt.c
+    reproducer: repros/pdo-lazy.php
+    tests:
+      php-pdo:
+      - php-pdo.*.ext%2Fpdo%2Ftests%2Fpdo_035.phpt
+  - outcome: upstream_failure
+    reason: LuaSQL reads SQL_C_SLONG into SQLLEN with uninitialized upper bytes and leaves luaL_Buffer stack slots
+      on NULL reads; outcomes are intermittent.
+    match: (?s)wrong value \(-?\d{10,} instead of (?:0|1|10)\).*in function \'(?:fetch2|fetch_new_table|fetch_many|unicode_values|rollback|extensions_test|check_close)\'|wrong
+      value \(c instead of b\).*in function \'fetch2\'|Program received signal SIG(?:SEGV|ABRT).*\b(?:cur_fetch|lua|free)\b
+    reference: https://github.com/lunarmodules/luasql/pull/219
+    reproducer: repros/lua-fetch.lua
+    tests:
+      lua:
+      - lua.*.{fetch%20two%20values,fetch%20new%20table,fetch%20many,unicode%20values,rollback,extensions,close%20objects}
+    allow_pass: true
+  - outcome: unsupported
+    reason: R generic dbDataType emits BIT, DOUBLE PRECISION and bounded VARCHAR/VARBINARY instead of the native types
+      advertised by SQLGetTypeInfo. YDB has no such type aliases or length parameters.
+    match: Unknown simple type 'BIT'|no viable alternative at input 'PRECISION'|mismatched input '255'|Cannot find
+      table .*because it does not exist
+    tests:
+      r:
+      - r.*.{data_type_create_table,append_table_new,roundtrip_field_types}
 consumers:
   - id: package-contract
     display_name: Debian package contract

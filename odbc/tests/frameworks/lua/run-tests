@@ -5,7 +5,7 @@ sys.path.insert(0,'/harness/bindings')
 from adapter import run
 
 def main(s):
-    s.command(['make','odbc','LUA_SYS_VER=5.4'], 'build')
+    s.command(['make','odbc','LUA_SYS_VER=5.4','CC=gcc -g'], 'build')
     module=Path('/work/modules/luasql');module.mkdir(parents=True)
     shutil.copyfile(s.source/'src/odbc.so',module/'odbc.so')
     env={'LUA_CPATH':'/work/modules/?.so;;'}
@@ -13,10 +13,16 @@ def main(s):
     inventory=s.command(cmd,'inventory',env=env|{'ODBC_DISCOVER_ONLY':'1'}).stdout
     names=[line.split('\t',1)[1] for line in inventory.splitlines() if line.startswith('@YDB_INVENTORY\t')]
     s.plan(names)
-    result=s.command(cmd,'upstream',env=env,check=False)
-    for line in result.stdout.splitlines():
-        if line.startswith('@YDB_CASE\t'):
-            _,name,status,diagnostic=line.split('\t',3)
-            s.add(name,status,bytes.fromhex(diagnostic).decode('utf-8',errors='replace'),attachments=[s.native/'upstream.log'])
+    for index,name in enumerate(names):
+        result=s.command(['gdb','--batch','-ex','run','-ex','bt','--args',*cmd],
+                         f'upstream-{index}',env=env|{'ODBC_TEST_CASE':name},check=False)
+        if 'Program received signal' in result.stdout:
+            s.add(name,'failed',result.stdout,attachments=[s.native/f'upstream-{index}.log'])
+            continue
+        for line in result.stdout.splitlines():
+            if line.startswith('@YDB_CASE\t'):
+                _,case,status,diagnostic=line.split('\t',3)
+                s.add(case,status,bytes.fromhex(diagnostic).decode('utf-8',errors='replace'),
+                      attachments=[s.native/f'upstream-{index}.log'])
 
 raise SystemExit(run(main))

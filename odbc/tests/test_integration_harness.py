@@ -69,6 +69,14 @@ class HarnessTests(unittest.TestCase):
                  (broad_failure, "suite-wide expected-result patterns"),
                  (duplicate_classification, "duplicate or unexplained expectations"),
                  (empty_reason, "reason must be a non-empty string")]
+        def missing_reference(data, _):
+            data["classifications"].append(dict(outcome="upstream_failure", reason="consumer bug",
+                match="assertion", tests={"lua": ["lua.*.case"]}))
+        def missing_reproducer(data, root):
+            missing_reference(data, root)
+            data["classifications"][-1]["reference"] = "https://example.org/issue/1"
+        cases += [(missing_reference, "upstream reference is required"),
+                  (missing_reproducer, "checked-in reproducer is required")]
         for change, message in cases:
             with self.subTest(message=message), self.assertRaisesRegex(harness.HarnessError, message):
                 harness.load_registry(self.registry(change))
@@ -129,6 +137,17 @@ class HarnessTests(unittest.TestCase):
             changed = [dict(t) for t in tests]
             changed[2]["problems"] = problems
             self.assertTrue(self.validate(changed, discovered, test_rc=1))
+        upstream = {"required": ["sample.case"], "upstream_failure": {
+            "sample.case": {"reason": "reproduced consumer defect", "match": "consumer assertion"}}}
+        self.assertFalse(self.validate(
+            [{"id": "sample.case", "status": "failed", "message": "consumer assertion"}], upstream, test_rc=1))
+        self.assertTrue(self.validate([{"id": "sample.case", "status": "passed"}], upstream))
+        upstream["upstream_failure"]["sample.case"]["allow_pass"] = True
+        self.assertFalse(self.validate([{"id": "sample.case", "status": "passed"}], upstream))
+        for test in [{"id": "sample.case", "status": "failed", "message": "driver assertion"},
+                     {"id": "sample.case", "status": "broken", "message": "consumer assertion"},
+                     {"id": "sample.case", "status": "failed", "message": "consumer assertion", "phase": "setup"}]:
+            self.assertTrue(self.validate([test], upstream))
         self.assertTrue(self.validate(tests, discovered, test_rc=-9))
         self.assertTrue(self.validate(tests, discovered, inventory=[t["id"] for t in tests] + ["sample.missing.row"]))
         rows = {
