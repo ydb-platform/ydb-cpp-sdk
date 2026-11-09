@@ -893,7 +893,7 @@
 +  # Preserve partial field.types: omitted payload columns still exercise inference.
 +  if (!keys[1] %in% names(types)) types[keys[1]] <- dbDataType(con, value[[keys[1]]])
 +  aliases <- c("BIT" = "Bool", "DOUBLE PRECISION" = "Double", "VARCHAR(255)" = "Utf8",
-+               "VARBINARY(255)" = "String")
++               "VARBINARY(255)" = "String", "DATE" = "Date32", "TIMESTAMP" = "Timestamp64", "TIME" = "Datetime")
 +  mapped <- aliases[types]
 +  types[!is.na(mapped)] <- mapped[!is.na(mapped)]
 +  types[length(types)] <- paste0(types[length(types)], ", PRIMARY KEY (",
