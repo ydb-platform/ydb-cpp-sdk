@@ -214,6 +214,18 @@ TEST(OdbcConvert, StringToYdbBinary) {
     EXPECT_EQ(wide[0], '9');
     EXPECT_EQ(wide[1], '6');
     EXPECT_EQ(wide[2], 'e');
+
+    // Binary input to character SQL types preserves its bytes, including NULs.
+    char bytes[] = {'a', 0, 'b'};
+    SQLLEN length = sizeof(bytes);
+    for (SQLSMALLINT type : {SQL_VARCHAR, SQL_WVARCHAR}) {
+        TParamsBuilder builder;
+        ASSERT_EQ(ConvertParam({1, SQL_C_BINARY, type, 0, 0, bytes, sizeof(bytes), &length},
+            builder.AddParam("$p1")), SQL_SUCCESS);
+        const auto converted = builder.Build().GetValue("$p1");
+        TValueParser text(*converted);
+        EXPECT_EQ(text.GetUtf8(), std::string(bytes, sizeof(bytes)));
+    }
 }
 
 TEST(OdbcConvert, NativeValuesToCharacterParameters) {
