@@ -460,6 +460,7 @@ TEST(StatementApi, GetDataWithoutBindCol) {
     SQLLEN ind;
     ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_LONG, &value, 0, &ind), SQL_SUCCESS);
     ASSERT_EQ(value, 100);
+    EXPECT_EQ(SQLGetData(stmt, 1, SQL_C_LONG, &value, 0, &ind), SQL_NO_DATA);
     
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
@@ -487,7 +488,70 @@ TEST(StatementApi, GetDataMultipleColumns) {
     SQLLEN col2Ind;
     SQLGetData(stmt, 2, SQL_C_CHAR, col2, sizeof(col2), &col2Ind);
     ASSERT_STREQ(col2, "hello world");
+
+    // Switching columns restarts their streams; consecutive reads still advance.
+    ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_LONG, &col1, 0, &col1Ind), SQL_SUCCESS);
+    char chunk[6];
+    ASSERT_EQ(SQLGetData(stmt, 2, SQL_C_CHAR, chunk, sizeof(chunk), &col2Ind), SQL_SUCCESS_WITH_INFO);
+    EXPECT_STREQ(chunk, "hello");
+    EXPECT_EQ(col2Ind, 11);
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "01004"));
+    ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_LONG, &col1, 0, &col1Ind), SQL_SUCCESS);
+    ASSERT_EQ(SQLGetData(stmt, 2, SQL_C_CHAR, chunk, sizeof(chunk), &col2Ind), SQL_SUCCESS_WITH_INFO);
+    EXPECT_STREQ(chunk, "hello");
+    ASSERT_EQ(SQLGetData(stmt, 2, SQL_C_CHAR, col2, sizeof(col2), &col2Ind), SQL_SUCCESS);
+    EXPECT_STREQ(col2, " world");
+    EXPECT_EQ(col2Ind, 6);
+    EXPECT_EQ(SQLGetData(stmt, 2, SQL_C_CHAR, col2, sizeof(col2), &col2Ind), SQL_NO_DATA);
     
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(StatementApi, TemporalBindingsWithoutDescribeParam) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    SQL_DATE_STRUCT date{1960, 2, 29};
+    SQL_TIMESTAMP_STRUCT timestamp{1960, 2, 29, 12, 0, 0, 123456000};
+    SQLLEN dateLength = sizeof(date), timestampLength = sizeof(timestamp);
+    for (bool wide : {true, false}) {
+        CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)
+            "DROP TABLE IF EXISTS temporal_binding_test", SQL_NTS), stmt, SQL_HANDLE_STMT);
+        CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)(wide
+            ? "CREATE TABLE temporal_binding_test(d Date32, ts Timestamp64, PRIMARY KEY(d))"
+            : "CREATE TABLE temporal_binding_test(d Date, ts Timestamp, PRIMARY KEY(d))"), SQL_NTS),
+            stmt, SQL_HANDLE_STMT);
+        if (!wide) date.year = timestamp.year = 2024;
+        CHECK_ODBC_OK(SQLPrepare(stmt, (SQLCHAR*)
+            "INSERT INTO temporal_binding_test(d,ts) VALUES(?,?)", SQL_NTS), stmt, SQL_HANDLE_STMT);
+        CHECK_ODBC_OK(SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_TYPE_DATE, SQL_TYPE_DATE,
+            10, 0, &date, sizeof(date), &dateLength), stmt, SQL_HANDLE_STMT);
+        CHECK_ODBC_OK(SQLBindParameter(stmt, 2, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP,
+            26, 6, &timestamp, sizeof(timestamp), &timestampLength), stmt, SQL_HANDLE_STMT);
+        CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
+        CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)
+            "SELECT d,ts FROM temporal_binding_test", SQL_NTS), stmt, SQL_HANDLE_STMT);
+        ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+        SQL_DATE_STRUCT actualDate{};
+        SQL_TIMESTAMP_STRUCT actualTimestamp{};
+        CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_TYPE_DATE, &actualDate, sizeof(actualDate), nullptr),
+            stmt, SQL_HANDLE_STMT);
+        CHECK_ODBC_OK(SQLGetData(stmt, 2, SQL_C_TYPE_TIMESTAMP, &actualTimestamp, sizeof(actualTimestamp), nullptr),
+            stmt, SQL_HANDLE_STMT);
+        EXPECT_EQ(actualDate.year, date.year);
+        EXPECT_EQ(actualDate.month, date.month);
+        EXPECT_EQ(actualDate.day, date.day);
+        EXPECT_EQ(actualTimestamp.year, timestamp.year);
+        EXPECT_EQ(actualTimestamp.fraction, timestamp.fraction);
+        SQLFreeStmt(stmt, SQL_CLOSE);
+    }
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)
+        "DROP TABLE temporal_binding_test", SQL_NTS), stmt, SQL_HANDLE_STMT);
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);

@@ -5,6 +5,7 @@
 
 #include "odbc_compat.h"
 
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -35,7 +36,7 @@ struct TDescRecord {
     SQLSMALLINT ParameterType = SQL_PARAM_INPUT;
     bool Active = false;
     bool Inferred = false;
-    SQLSMALLINT WideTemporalType = SQL_UNKNOWN_TYPE;
+    std::optional<SQLSMALLINT> WideTemporalType;
 };
 
 struct TResolvedBinding {
