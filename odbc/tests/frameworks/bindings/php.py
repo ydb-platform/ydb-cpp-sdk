@@ -4,18 +4,6 @@ from urllib.parse import quote
 from pathlib import Path
 
 def main(s):
-    module_env = {}
-    if s.consumer == 'php-pdo':
-        s.command(['patch', '--batch', '--fuzz=0', '-p1', '-i', s.adapter/'upstream.patch'], 'upstream-patch')
-        module = s.source/'ext/pdo_odbc'
-        s.command(['phpize'], 'module-prepare', cwd=module)
-        s.command(['./configure', '--with-pdo-odbc=unixODBC,/usr'], 'module-configure', cwd=module)
-        s.command(['make', '-j2'], 'module-build', cwd=module)
-        config = Path('/work/php-ini'); config.mkdir()
-        for path in Path('/etc/php').glob('*/cli/conf.d/*.ini'):
-            if 'pdo_odbc' not in path.name: shutil.copyfile(path, config/path.name)
-        (config/'99-pdo_odbc.ini').write_text(f'extension={module}/modules/pdo_odbc.so\n')
-        module_env = {'PHP_INI_SCAN_DIR': str(config)}
     directory = 'ext/odbc/tests' if s.consumer == 'php-odbc' else 'ext/pdo_odbc/tests'
     paths = sorted((s.source / directory).glob('*.phpt'))
     if s.consumer == 'php-pdo': paths += sorted((s.source / 'ext/pdo/tests').glob('*.phpt'))
@@ -29,7 +17,7 @@ def main(s):
             s.command(['php','-l',target], 'syntax-'+str(index))
     names = [str(p.relative_to(s.source)) for p in paths]
     s.plan(names)
-    env = module_env | {'ODBC_TEST_DSN': s.connection, 'ODBC_TEST_USER': '', 'ODBC_TEST_PASS': '',
+    env = {'ODBC_TEST_DSN': s.connection, 'ODBC_TEST_USER': '', 'ODBC_TEST_PASS': '',
            'PDOTEST_DSN': 'odbc:' + ('DSN=' if s.mode == 'dsn' else '') + s.connection,
            'PDOTEST_USER': '', 'PDOTEST_PASS': '', 'NO_INTERACTION': '1',
            'REDIR_TEST_DIR':str(s.source/'ext/pdo/tests')+'/', 'TEST_PHP_EXECUTABLE': '/usr/bin/php', 'TEST_PHP_JUNIT': str(s.native / 'php.xml')}

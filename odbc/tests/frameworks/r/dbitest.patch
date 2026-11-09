@@ -993,7 +993,7 @@
      #' If the table doesn't exist yet, it is created.
      penguins <- get_penguins(ctx)
 -    expect_error(dbWriteTable(con, table_name, penguins[1, ], append = TRUE), NA)
-+    expect_error(dbWriteTable(con, table_name, penguins[1, ], append = TRUE, primary_key = names(penguins)[1]), NA)
++    expect_error(dbWriteTable(con, table_name, penguins[1, ], append = TRUE, field.types = ydb_field_types(con, penguins[1, ])), NA)
      penguins_out <- check_df(dbReadTable(con, table_name))
      expect_equal_df(penguins_out, penguins[1, ])
    },

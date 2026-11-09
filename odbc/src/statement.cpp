@@ -142,7 +142,7 @@ SQLRETURN TStatement::Prepare(const std::string& statementText) {
         for (SQLSMALLINT i = 1; i <= ParamCount_; ++i) {
             desc.RemoveInferredRecord(i);
             desc.Record(i).Nullable = SQL_NULLABLE_UNKNOWN;
-            desc.Record(i).WideTemporalType = SQL_UNKNOWN_TYPE;
+            desc.Record(i).WideTemporalType.reset();
         }
     });
     return SQL_SUCCESS;
@@ -153,6 +153,13 @@ SQLRETURN TStatement::Execute() {
         throw TOdbcException("HY007", 0, "No prepared statement");
     }
     RefreshParamBindings();
+    for (SQLSMALLINT number = 1; number <= ParamCount_; ++number) {
+        const auto* record = ImpParamBindings_.FindRecord(number);
+        if (record && !record->WideTemporalType
+            && (record->Type == SQL_TYPE_DATE || record->Type == SQL_TYPE_TIMESTAMP)) {
+            DescribeParam(number, nullptr, nullptr, nullptr, nullptr);
+        }
+    }
     const SQLULEN paramsetSize = ParamCount_ > 0 ? ParamBindings_.GetArraySize() : 1;
     ClearResults();
     RowCount_ = -1;
@@ -458,7 +465,7 @@ SQLRETURN TStatement::FetchRows(SQLSMALLINT orientation, SQLLEN offset, SQLULEN 
     const TFetchResult fetch = Cursor_->Fetch(
         orientation, offset, rowArraySize, Attributes_.GetMaxRows());
     if (fetch.Rows == 0) {
-        GetDataOffsets_.clear();
+        GetDataColumn_ = 0;
         return SQL_NO_DATA;
     }
 
@@ -482,7 +489,7 @@ SQLRETURN TStatement::FetchRows(SQLSMALLINT orientation, SQLLEN offset, SQLULEN 
             result = SQL_SUCCESS_WITH_INFO;
         }
     }
-    GetDataOffsets_.assign(Cursor_->GetColumnMeta().size(), 0);
+    GetDataColumn_ = 0;
     if (fetch.OverlappedStart) {
         AddError("01S06", 0, "Attempt to fetch before the result set returned the first rowset",
                  SQL_SUCCESS_WITH_INFO);
@@ -498,14 +505,30 @@ SQLRETURN TStatement::GetData(SQLUSMALLINT columnNumber, SQLSMALLINT targetType,
     if (!Cursor_) {
         return SQL_NO_DATA;
     }
-    if (columnNumber < 1 || columnNumber > GetDataOffsets_.size()) {
+    if (columnNumber < 1 || columnNumber > Cursor_->GetColumnMeta().size()) {
         return AddError("07009", 0, "Invalid descriptor index");
     }
+    if (bufferLength < 0) {
+        return AddError("HY090", 0, "Invalid string or buffer length");
+    }
+    if (columnNumber != GetDataColumn_) {
+        GetDataColumn_ = columnNumber;
+        GetDataOffset_ = 0;
+    }
+    if (GetDataOffset_ < 0) {
+        return SQL_NO_DATA;
+    }
+    SQLLEN offset = GetDataOffset_;
     const SQLRETURN rc = Cursor_->GetData(
         0, columnNumber, targetType, targetValue, bufferLength, strLenOrInd,
-        &GetDataOffsets_[columnNumber - 1]);
+        &offset);
+    if (targetValue && SQL_SUCCEEDED(rc)) {
+        GetDataOffset_ = rc == SQL_SUCCESS ? -1 : offset;
+    }
     if (const char* sqlState = ConsumeLastConvertSqlState()) {
         AddError(sqlState, 0, std::strcmp(sqlState, "22003") == 0 ? "Numeric value out of range" : "Conversion error");
+    } else if (rc == SQL_SUCCESS_WITH_INFO) {
+        AddError("01004", 0, "String data, right truncated", SQL_SUCCESS_WITH_INFO);
     }
     return rc;
 }
@@ -762,7 +785,9 @@ SQLRETURN TStatement::DescribeParam(SQLUSMALLINT paramNumber, SQLSMALLINT* dataT
     }
     RefreshParamBindings();
     const TDescRecord* record = ImpParamBindings_.FindRecord(static_cast<SQLSMALLINT>(paramNumber));
-    if (!record || (record->Type == SQL_UNKNOWN_TYPE && !record->Inferred)) {
+    const bool temporal = record && !record->WideTemporalType
+        && (record->Type == SQL_TYPE_DATE || record->Type == SQL_TYPE_TIMESTAMP);
+    if (!record || (record->Type == SQL_UNKNOWN_TYPE && !record->Inferred) || temporal) {
         if (const auto query = BuildParamMetadataQuery(
                 PreparedQuery_, Attributes_.GetNoScanMode() != SQL_NOSCAN_ON, paramNumber, ParamCount_)) {
             auto columns = ReadQueryMetadata(*query, true);
@@ -776,23 +801,27 @@ SQLRETURN TStatement::DescribeParam(SQLUSMALLINT paramNumber, SQLSMALLINT* dataT
                 for (size_t index = 0; index < columns.size(); ++index) {
                     const auto i = static_cast<SQLSMALLINT>(index + 1);
                     const auto& column = columns[index];
-                    const auto* current = desc.FindRecord(i);
-                    if (current && current->Type != SQL_UNKNOWN_TYPE) {
+                    auto& parameter = desc.Record(i);
+                    parameter.WideTemporalType = column.WideTemporal ? column.SqlType : SQL_UNKNOWN_TYPE;
+                    if (parameter.Type != SQL_UNKNOWN_TYPE) {
                         continue;
                     }
-                    auto& parameter = desc.Record(i);
                     parameter.Type = column.SqlType;
                     parameter.Length = parameter.OctetLength = column.Size;
                     parameter.Precision = static_cast<SQLSMALLINT>(column.Size);
                     parameter.Scale = column.DecimalDigits;
                     parameter.Nullable = column.Nullable;
                     parameter.Inferred = true;
-                    parameter.WideTemporalType = column.WideTemporal ? column.SqlType : SQL_UNKNOWN_TYPE;
                 }
                 desc.SnapshotUnlocked(ImpParamBindings_, ImpParamGeneration_);
             });
-            record = ImpParamBindings_.FindRecord(static_cast<SQLSMALLINT>(paramNumber));
+        } else if (temporal) {
+            ImpParamDesc_.WithLock([&](TDescriptor& desc) {
+                desc.Record(paramNumber).WideTemporalType = SQL_UNKNOWN_TYPE;
+                desc.SnapshotUnlocked(ImpParamBindings_, ImpParamGeneration_);
+            });
         }
+        record = ImpParamBindings_.FindRecord(static_cast<SQLSMALLINT>(paramNumber));
     }
     if (!record || record->Type == SQL_UNKNOWN_TYPE) {
         throw TOdbcException("HYC00", 0, "Parameter metadata is unavailable for this SQL expression");
@@ -1131,6 +1160,9 @@ void TStatement::InvalidateInferredParamMetadata() {
     // The caller holds the exclusive connection lifecycle gate.
     for (SQLSMALLINT i = ImpParamDesc_.GetRecordCount(); i > 0; --i) {
         ImpParamDesc_.RemoveInferredRecord(i);
+        if (ImpParamDesc_.FindRecord(i)) {
+            ImpParamDesc_.Record(i).WideTemporalType.reset();
+        }
     }
 }
 
@@ -1143,7 +1175,7 @@ void TStatement::InvalidatePreparedColumnMeta() {
 
 void TStatement::SetCursor(std::unique_ptr<ICursor> cursor) {
     Cursor_ = std::move(cursor);
-    GetDataOffsets_.clear();
+    GetDataColumn_ = 0;
     static const std::vector<TColumnMeta> EmptyColumns;
     SetImpRowDesc(Cursor_ ? Cursor_->GetColumnMeta()
                          : PreparedColumnMeta_ ? *PreparedColumnMeta_ : EmptyColumns);

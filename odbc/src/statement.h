@@ -162,7 +162,8 @@ private:
     SQLUSMALLINT NeedDataParam_ = 0;
     bool InAtExec_ = false;
     std::vector<TAtExecValue> AtExecValues_; // indexed by parameter number
-    std::vector<SQLLEN> GetDataOffsets_;
+    SQLUSMALLINT GetDataColumn_ = 0;
+    SQLLEN GetDataOffset_ = 0;
 
     SQLRETURN BuildParams(NYdb::TParams& out, SQLULEN paramSet);
     SQLRETURN ExecuteParamSet(SQLULEN paramSet, std::optional<SQLLEN>& affectedRows);
