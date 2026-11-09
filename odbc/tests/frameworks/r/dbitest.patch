@@ -997,3 +997,23 @@
      )
    },
  
+--- a/R/spec-meta-bind.R
++++ b/R/spec-meta-bind.R
+@@ -809,7 +809,7 @@
+       bind_values <- list(list(as.raw(c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10))), list(raw(3)), list(NULL))
+       placeholder <- placeholder_fun(3L)
+       names(bind_values) <- names(placeholder)
+-      placeholder_values <- map_chr(bind_values, function(x) DBI::dbQuoteLiteral(con, x[1]))
++      placeholder_values <- map_chr(bind_values, function(x) cast_fun(DBI::dbQuoteLiteral(con, x[1])))
+       result_check <- paste0("(", cast_fun(placeholder), " = ", placeholder_values, ")")
+       result_check[3L] <- paste0("(", is_null_check(cast_fun(placeholder)[3L]), ")")
+       sql <- "SELECT "
+@@ -840,7 +840,7 @@
+       )
+       placeholder <- placeholder_fun(3L)
+       names(bind_values) <- names(placeholder)
+-      placeholder_values <- map_chr(bind_values, function(x) DBI::dbQuoteLiteral(con, x[1]))
++      placeholder_values <- map_chr(bind_values, function(x) cast_fun(DBI::dbQuoteLiteral(con, x[1])))
+       result_check <- paste0("(", cast_fun(placeholder), " = ", placeholder_values, ")")
+       result_check[3L] <- paste0("(", is_null_check(cast_fun(placeholder)[3L]), ")")
+       sql <- "SELECT "
