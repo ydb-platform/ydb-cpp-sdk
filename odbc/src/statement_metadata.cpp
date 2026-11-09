@@ -101,15 +101,9 @@ const TColumnMeta kStatisticsSchema[] = {
 
 using EEntry = NScheme::ESchemeEntryType;
 constexpr std::pair<EEntry, std::string_view> kTableTypes[] = {
-    {EEntry::Table, "TABLE"}, {EEntry::View, "VIEW"}, {EEntry::ColumnStore, "COLUMN_STORE"},
-    {EEntry::ColumnTable, "COLUMN_TABLE"}, {EEntry::Sequence, "SEQUENCE"},
-    {EEntry::Replication, "REPLICATION"}, {EEntry::Topic, "TOPIC"},
-    {EEntry::ExternalTable, "EXTERNAL_TABLE"},
-    {EEntry::ExternalDataSource, "EXTERNAL_DATA_SOURCE"}, {EEntry::ResourcePool, "RESOURCE_POOL"},
-    {EEntry::PqGroup, "PQ_GROUP"}, {EEntry::RtmrVolume, "RTMR_VOLUME"},
-    {EEntry::BlockStoreVolume, "BLOCK_STORE_VOLUME"},
-    {EEntry::CoordinationNode, "COORDINATION_NODE"}, {EEntry::Unknown, "UNKNOWN"},
-    {EEntry::SysView, "SYSTEM VIEW"}, {EEntry::Transfer, "TRANSFER"},
+    {EEntry::Table, "TABLE"}, {EEntry::View, "VIEW"},
+    {EEntry::ColumnTable, "COLUMN_TABLE"}, {EEntry::ExternalTable, "EXTERNAL_TABLE"},
+    {EEntry::SysView, "SYSTEM VIEW"},
 };
 
 bool IsTable(EEntry type) {

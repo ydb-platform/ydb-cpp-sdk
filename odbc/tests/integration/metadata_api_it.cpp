@@ -519,6 +519,8 @@ TEST(MetadataApi, SQLTablesSpecialEnumerationsAndEmptyArguments) {
     }
     EXPECT_TRUE(tableTypes.contains("TABLE"));
     EXPECT_TRUE(tableTypes.contains("VIEW"));
+    EXPECT_FALSE(tableTypes.contains("RESOURCE_POOL"));
+    EXPECT_FALSE(tableTypes.contains("EXTERNAL_DATA_SOURCE"));
     ASSERT_EQ(SQLFreeStmt(stmt, SQL_CLOSE), SQL_SUCCESS);
 
     CHECK_ODBC_OK(SQLTables(
