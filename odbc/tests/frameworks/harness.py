@@ -22,6 +22,7 @@ RESULTS = Path("/results")
 WORK = Path("/work")
 IMAGE_RE = re.compile(r"^.+@sha256:[0-9a-f]{64}$")
 SOURCE_RE = re.compile(r"^[0-9a-f]{64}$")
+EXPECTED_OUTCOMES = ("unsupported", "skipped", "upstream_failure")
 class HarnessError(ValueError):
     pass
 def require(condition, message):
@@ -42,13 +43,13 @@ def read_yaml(path):
         raise HarnessError(f"cannot read {path}: {error}") from error
 def load_classifications(data, consumers):
     consumer_ids = {item.get("id") for item in consumers if isinstance(item, dict)}
-    grouped = {consumer: {"unsupported": {}, "skipped": {}} for consumer in consumer_ids}
+    grouped = {consumer: {outcome: {} for outcome in EXPECTED_OUTCOMES} for consumer in consumer_ids}
     classifications = data.get("classifications", [])
     require(isinstance(classifications, list), "classifications must be a list")
     for index, group in enumerate(classifications):
         require(isinstance(group, dict), f"classification {index}: must be a mapping")
         outcome, reason, tests = group.get("outcome"), group.get("reason"), group.get("tests")
-        require(outcome in {"unsupported", "skipped"},
+        require(outcome in EXPECTED_OUTCOMES,
                 f"classification {index}: invalid outcome")
         require(isinstance(reason, str) and reason.strip(),
                 f"classification {index}: reason must be a non-empty string")
@@ -56,6 +57,17 @@ def load_classifications(data, consumers):
         require(isinstance(match, str) and match.strip(),
                 f"classification {index}: a diagnostic match is required")
         re.compile(match)
+        allow_pass = group.get("allow_pass", False)
+        require(isinstance(allow_pass, bool) and (not allow_pass or outcome == "upstream_failure"),
+                f"classification {index}: only upstream failures may allow intermittent passes")
+        if outcome == "upstream_failure":
+            reference, reproducer = group.get("reference", ""), group.get("reproducer", "")
+            require(isinstance(reference, str) and reference.startswith("https://"),
+                    f"classification {index}: upstream reference is required")
+            require(isinstance(reproducer, str) and reproducer.startswith("repros/")
+                    and ".." not in Path(reproducer).parts and (ROOT / reproducer).is_file(),
+                    f"classification {index}: checked-in reproducer is required")
+            reason += f" Reference: {reference}. Reproducer: {reproducer}."
         require(isinstance(tests, dict) and tests,
                 f"classification {index}: tests must be a non-empty consumer mapping")
         for consumer, patterns in tests.items():
@@ -66,7 +78,7 @@ def load_classifications(data, consumers):
             for pattern in patterns:
                 require(pattern not in grouped[consumer][outcome],
                         f"duplicate classification: {consumer}: {pattern}")
-                grouped[consumer][outcome][pattern] = {"reason": reason, "match": match}
+                grouped[consumer][outcome][pattern] = {"reason": reason, "match": match, "allow_pass": allow_pass}
     return grouped
 def load_registry(path=REGISTRY):
     data = read_yaml(path); require(isinstance(data, dict) and data.get("schema_version") == 2,
@@ -104,13 +116,14 @@ def load_registry(path=REGISTRY):
             if test.get("output_regex"): re.compile(test["output_regex"])
         expected = item.get("expected", {})
         require(isinstance(expected, dict), f"{consumer}: expected results must be a mapping")
-        require(not ({"unsupported", "skipped"} & set(expected)),
+        require(not (set(EXPECTED_OUTCOMES) & set(expected)),
                 f"{consumer}: classifications must be declared in the top-level classification list")
         expected.update(classifications[consumer])
         discovered = expected.get("discovered", False)
         required = expected.get("required", [])
         unsupported = expected.get("unsupported", {})
         skipped = expected.get("skipped", {})
+        upstream_failure = expected.get("upstream_failure", {})
         require(isinstance(discovered, bool), f"{consumer}: discovered must be boolean")
         require(isinstance(required, list) and (required or discovered),
                 f"{consumer}: required tests are empty")
@@ -121,11 +134,12 @@ def load_registry(path=REGISTRY):
         require(isinstance(skipped, dict), f"{consumer}: skipped tests must be a mapping")
         require(all(isinstance(pattern, str) and pattern and isinstance(rule, dict)
                     and rule.get("reason") and rule.get("match")
-                    for patterns in (unsupported, skipped) for pattern, rule in patterns.items()),
+                    for patterns in (unsupported, skipped, upstream_failure) for pattern, rule in patterns.items()),
                 f"{consumer}: expected-result patterns and reasons must be non-empty strings")
-        require(not (set(unsupported) & set(skipped)),
+        require(sum(len(rules) for rules in (unsupported, skipped, upstream_failure))
+                == len(set(unsupported) | set(skipped) | set(upstream_failure)),
                 f"{consumer}: duplicate or unexplained expectations")
-        broad = [pattern for patterns in (unsupported, skipped) for pattern in patterns
+        broad = [pattern for patterns in (unsupported, skipped, upstream_failure) for pattern in patterns
                  if pattern.endswith(".*")]
         require(not discovered or not broad,
                 f"{consumer}: suite-wide expected-result patterns are forbidden: {', '.join(broad)}")
@@ -371,7 +385,7 @@ def matching_ids(actual, pattern):
             if glob_ids({test_id, test.get("parent_id", test_id)}, pattern)}
 
 def expected_result(test, expectations):
-    matches = [(outcome, rule) for outcome in ("unsupported", "skipped")
+    matches = [(outcome, rule) for outcome in EXPECTED_OUTCOMES
                for pattern, rule in expectations.get(outcome, {}).items()
                if glob_ids({test["id"], test.get("parent_id", test["id"])}, pattern)]
     if len(matches) != 1:
@@ -393,7 +407,8 @@ def validate_classified_results(actual, expectations):
     errors = []
     patterns = {"required": expectations.get("required", []),
                 "unsupported": expectations.get("unsupported", {}),
-                "skipped": expectations.get("skipped", {})}
+                "skipped": expectations.get("skipped", {}),
+                "upstream_failure": expectations.get("upstream_failure", {})}
     matches = {outcome: {pattern: matching_ids(actual, pattern) for pattern in values}
                for outcome, values in patterns.items()}
     for outcome, classified in matches.items():
@@ -401,12 +416,15 @@ def validate_classified_results(actual, expectations):
             if not test_ids and (expectations.get("discovered") or outcome != "required"):
                 errors.append(f"{outcome} expectation pattern matched no tests: {pattern}")
     for test_id, test in actual.items():
-        exceptions = [(outcome, pattern) for outcome in ("unsupported", "skipped")
+        exceptions = [(outcome, pattern) for outcome in EXPECTED_OUTCOMES
                       for pattern, ids in matches[outcome].items() if test_id in ids]
         if len(exceptions) > 1:
             errors.append(f"{test_id}: ambiguous expected result: {exceptions}")
         elif exceptions:
             outcome = exceptions[0][0]
+            rule = expectations[outcome][exceptions[0][1]]
+            if test.get("status") == "passed" and rule.get("allow_pass") and test.get("phase", "test") == "test":
+                continue
             if not expected_result(test, expectations):
                 errors.append(f"{test_id}: unexpected status or diagnostic for {outcome}: "
                               f"{test.get('status')}: {test.get('message', '')}")
@@ -474,7 +492,7 @@ def validate_results(consumer, native, allure, test_rc=0):
                   "counts": {name: sum((expected_result(test, expectations) or
                                                ("unexpected_skip" if test.get("status") == "skipped" else test.get("status"),))[0] == name
                                        for test in actual.values())
-                             for name in ("passed", "unsupported", "skipped", "unexpected_skip", "failed", "broken")}}
+                             for name in ("passed", *EXPECTED_OUTCOMES, "unexpected_skip", "failed", "broken")}}
 
     (RESULTS / "validation.json").write_text(json.dumps(validation, indent=2, sort_keys=True) + "\n")
     for error in errors: print(f"result error: {error}", file=sys.stderr)
@@ -592,10 +610,10 @@ def aggregate(source, output):
         except (OSError, KeyError, json.JSONDecodeError, HarnessError) as error:
             errors.append(f"invalid artifact at {root}: {error}")
     if expected - found: errors.append(f"missing result artifacts: {', '.join(sorted(expected - found))}")
-    lines = ["## ODBC integration results", "", "| Consumer | Tests | Passed | Unsupported | Expected skips | Unexpected | Status |",
-             "| --- | ---: | ---: | ---: | ---: | ---: | --- |"]
+    lines = ["## ODBC integration results", "", "| Consumer | Tests | Passed | Unsupported | Upstream failures | Expected skips | Unexpected | Status |",
+             "| --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |"]
     lines += [f"| {name} | {count} | {counts.get('passed', 0)} | {counts.get('unsupported', 0)} | "
-              f"{counts.get('skipped', 0)} | {sum(counts.get(key, 0) for key in ('failed','broken','unexpected_skip'))} | {status} |" for name, count, counts, status in sorted(rows)]
+              f"{counts.get('upstream_failure', 0)} | {counts.get('skipped', 0)} | {sum(counts.get(key, 0) for key in ('failed','broken','unexpected_skip'))} | {status} |" for name, count, counts, status in sorted(rows)]
     if errors: lines += ["", "### Validation failures", ""] + [f"- {error}" for error in errors]
     summary = "\n".join(lines) + "\n"; (output / "summary.md").write_text(summary); print(summary)
     return int(bool(errors))

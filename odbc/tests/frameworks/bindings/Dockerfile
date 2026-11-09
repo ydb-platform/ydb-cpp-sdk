@@ -2,7 +2,7 @@ ARG RUNTIME_IMAGE
 FROM ${RUNTIME_IMAGE}
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential ca-certificates patch python3 python3-yaml unixodbc unixodbc-dev odbcinst \
+    build-essential ca-certificates gdb patch python3 python3-yaml unixodbc unixodbc-dev odbcinst \
     php-cli php-odbc \
     ruby ruby-dev \
     lua5.4 liblua5.4-dev \
