@@ -252,7 +252,7 @@ class HarnessTests(unittest.TestCase):
         lock = yaml.safe_load((FRAMEWORKS / "qt" / "upstream.lock").read_text())
         runner = (FRAMEWORKS / "qt" / "run-tests").read_text()
         self.assertIn(f"Applies to qtbase revision {lock['revision']}.", patch)
-        self.assertIn('["patch", "--batch", "--forward", "-p1", "-i", patch]', runner)
+        self.assertIn('["patch", "--batch", "--forward", "--fuzz=0", "-p1", "-i", patch]', runner)
         self.assertNotIn("adapt_fixtures", runner)
         self.assertNotIn("re.subn", runner)
         self.assertNotIn("retry", runner)
@@ -269,15 +269,14 @@ class HarnessTests(unittest.TestCase):
             shape = re.sub(r"\s+", "", string_literal.sub('""', line[1:]))
             if shape.startswith("QVERIFY(q.prepare("):
                 return "QVERIFY(q.prepare(...))"
-            # The YDB fixture adds a primary key in column 0; remove a non-key column.
-            if shape in {"QVERIFY(model.removeColumn(0));", "QVERIFY(model.removeColumn(1));"}:
-                return "QVERIFY(model.removeColumn(...));"
             return shape
         removed_assertions = [assertion_shape(line) for line in changed
                               if line.startswith("-") and assertion.search(line)]
         added_assertions = [assertion_shape(line) for line in changed
                             if line.startswith("+") and assertion.search(line)]
         self.assertCountEqual(added_assertions, removed_assertions)
+        self.assertFalse(any(line.startswith("-") and re.search(r"\bq\.(?:addBindValue|bindValue)\(", line)
+                             for line in changed), "Fixture patches must preserve original parameter bindings")
         removed_keys = [line for line in changed
                         if line.startswith("-") and "primary key" in line.lower()]
         added_keys = [line for line in changed

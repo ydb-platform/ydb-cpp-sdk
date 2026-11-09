@@ -31,7 +31,7 @@ def prepare_source():
     shutil.copytree(PRISTINE, SOURCE, copy_function=shutil.copyfile)
     for root, _, _ in os.walk(SOURCE): Path(root).chmod(0o755)
     patch = ADAPTER / "ydb.patch"
-    applied = run(["patch", "--batch", "--forward", "-p1", "-i", patch], cwd=SOURCE,
+    applied = run(["patch", "--batch", "--forward", "--fuzz=0", "-p1", "-i", patch], cwd=SOURCE,
                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     (NATIVE / "fixture-patch.log").write_text(applied.stdout or "")
     if applied.returncode:
