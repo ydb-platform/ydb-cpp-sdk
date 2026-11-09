@@ -863,7 +863,7 @@ bool ConvertParamValue(
             return false;
         }
         case EParamType::Utf8:
-            return PutValue(ReadText(param), [&](const auto& v) {
+            return PutValue(param.ValueType == SQL_C_BINARY ? ReadBytes(param) : ReadText(param), [&](const auto& v) {
                 PutParamValue(builder, optional,
                     [&](TParamValueBuilder& item) { item.Utf8(v); });
             });
