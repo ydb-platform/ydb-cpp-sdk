@@ -358,7 +358,7 @@ SQLRETURN TStatement::Columns(const TMetadataArgument& catalogName,
     const std::string catalog = GetMetadataCatalogName(GetConnection());
     TTable table;
     for (const auto& entry : GetMetadataEntries(tableName, patternsAllowed)) {
-        if (!IsTable(entry.Type)) {
+        if (!IsTable(entry.Type) && entry.Type != EEntry::SysView) {
             continue;
         }
         DescribeTable(GetConnection(), entry.Name, [&](const auto& description) {

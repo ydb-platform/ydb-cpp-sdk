@@ -359,6 +359,11 @@ TEST(MetadataApi, SQLColumnsAll) {
         ++colCount;
     }
     ASSERT_EQ(colCount, 3);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLColumns(stmt, nullptr, 0, nullptr, 0,
+                            (SQLCHAR*)".sys/partition_stats", SQL_NTS, nullptr, 0),
+                  stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(SQLFetch(stmt), SQL_SUCCESS);
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);
