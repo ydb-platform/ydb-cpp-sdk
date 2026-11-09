@@ -55,6 +55,9 @@ TEST(OdbcParamRewrite, ParameterMetadataProbes) {
          "SELECT value AS __p1, id AS __p2, id AS __p3 FROM t LIMIT 0"},
         {"SELECT CASE WHEN (? = 1) THEN 1.5 ELSE 2.5 END, (? = 'x'), ? IS NULL",
          "SELECT Just(1) AS __p1, NULL AS __p2, NULL AS __p3 LIMIT 0"},
+        {"SELECT ? + 1.0 AS a", "SELECT Just(1.0) AS __p1 LIMIT 0"},
+        {"SELECT 1.0 + ? AS a", "SELECT Just(1.0) AS __p1 LIMIT 0"},
+        {"SELECT (? * 1e-3)", "SELECT Just(1e-3) AS __p1 LIMIT 0"},
         {"SELECT (? = -1)", "SELECT Just(-1) AS __p1 LIMIT 0"},
         {"--!ansi_lexer\nPRAGMA UnicodeLiterals;\nINSERT INTO t (id) VALUES (?)",
          "--!ansi_lexer\nPRAGMA UnicodeLiterals;\nSELECT id AS __p1 FROM t LIMIT 0"},
@@ -70,6 +73,7 @@ TEST(OdbcParamRewrite, ParameterMetadataProbes) {
             "PRAGMA TablePathPrefix = '/local'; SELECT ? = 1",
             "SELECT * FROM t VIEW idx WHERE id = ?", "SELECT * FROM t SAMPLE 0.1 WHERE id = ?",
             "SELECT * FROM t TABLESAMPLE SYSTEM(1) WHERE id = ?", "SELECT * FROM t FLATTEN BY a WHERE id = ?",
+            "SELECT ? + 1", "SELECT ? + 1.0 + 2",
             "SELECT ? = 'x'", "SELECT CAST(? AS Int32)",
             "DECLARE $p1 AS Int32?; SELECT $p1 = 1",
             "SELECT * FROM t JOIN u ON t.id = u.id WHERE t.id = ?"}) {

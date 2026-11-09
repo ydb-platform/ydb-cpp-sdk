@@ -721,7 +721,8 @@ std::optional<std::string> BuildParamMetadataQuery(
     const auto boundary = [&](size_t i) {
         return i >= tokens.size() || is(i, "(") || is(i, ")") || is(i, ",") || is(i, ";")
             || is(i, "WHERE") || is(i, "SET") || is(i, "AND") || is(i, "OR")
-            || is(i, "WHEN") || is(i, "THEN") || is(i, "ORDER") || is(i, "LIMIT");
+            || is(i, "WHEN") || is(i, "THEN") || is(i, "ORDER") || is(i, "LIMIT")
+            || is(i, "SELECT") || is(i, "AS");
     };
     const auto comparison = [&](size_t i) {
         return is(i, "=") || is(i, "<>") || is(i, "!=") || is(i, "<") || is(i, "<=") || is(i, ">") || is(i, ">=");
@@ -740,12 +741,18 @@ std::optional<std::string> BuildParamMetadataQuery(
             expression = span(i, end);
         }
         if (expression.empty()) continue;
-        if ((i == body || boundary(i - 1)) && comparison(end) && end + 1 < tokens.size()
+        // A floating literal fixes the arithmetic result type without narrowing integer inputs.
+        const auto operation = [&](size_t op) {
+            return comparison(op) || (text.find_first_of(".eE") != std::string_view::npos
+                && std::isdigit(static_cast<unsigned char>(text.front()))
+                && (is(op, "+") || is(op, "-") || is(op, "*") || is(op, "/")));
+        };
+        if ((i == body || boundary(i - 1)) && operation(end) && end + 1 < tokens.size()
             && tokens[end + 1].Parameter && boundary(end + 2)) {
             assign(tokens[end + 1].Parameter, expression);
         }
         if (i >= body + 3 && (i == body + 3 || boundary(i - 3))
-            && tokens[i - 2].Parameter && comparison(i - 1) && !is(end, "(") && boundary(end)) {
+            && tokens[i - 2].Parameter && operation(i - 1) && !is(end, "(") && boundary(end)) {
             assign(tokens[i - 2].Parameter, expression);
         }
     }
