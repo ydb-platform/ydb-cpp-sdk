@@ -90,12 +90,6 @@ classifications:
         - qt.*.qsqldatabase.{recordPSQL,psql_schemas,psql_escapedIdentifiers,psql_escapeBytea,psql_bug249059}
         - qt.*.qsqlquery.{psql_forwardOnlyQueryResultsLost,psql_bindWithDoubleColonCastOperator,psql_specialFloatValues,task_233829,QTBUG_12477,QTBUG_5251,QTBUG_36211}
   - outcome: skipped
-    reason: Requires Qt's PostgreSQL plugin and PostgreSQL-specific SQL rather than QODBC.
-    match: checking\ for\ infinity/nan\ currently\ only\ works\ for\ PostgreSQL
-    tests:
-      qt:
-        - qt.*.qsqldatabase.infinityAndNan
-  - outcome: skipped
     reason: Exercises SQL Server or TDS-specific behavior outside the YDB binding contract.
     match: Database\ driver\ QTDS7?\ not\ available
     tests:
@@ -125,7 +119,7 @@ classifications:
     match: Test\ is\ specific\ to\ SQL\ Server
     tests:
       qt:
-        - qt.*.qsqlquery.{sqlServerLongStrings,sqlServerReturn0,QTBUG_6618,QTBUG_18435}
+        - qt.*.qsqlquery.{sqlServerReturn0,QTBUG_6618,QTBUG_18435}
   - outcome: skipped
     reason: Requires Qt's DB2 plugin and DB2-specific behavior rather than QODBC.
     match: No\ database\ drivers\ of\ type\ QDB2\ are\ available\ in\ this\ Qt\ configuration
@@ -156,7 +150,7 @@ classifications:
     match: MS\ Access\ specific\ test
     tests:
       qt:
-        - qt.*.qsqldatabase.{recordAccess,accessOdbc_strings}
+        - qt.*.qsqldatabase.recordAccess
   - outcome: skipped
     reason: Requires Qt's InterBase plugin and InterBase-specific SQL rather than QODBC.
     match: No\ database\ drivers\ of\ type\ QIBASE\ are\ available\ in\ this\ Qt\ configuration
@@ -219,12 +213,6 @@ classifications:
       qt:
         - qt.*.qsqlquery.{record_sqlite,sqlite_finish,sqliteVirtualTable,QTBUG_12186,QTBUG_21884,QTBUG_16967,QTBUG_23895,QTBUG_14904,sqlite_constraint,sqlite_real,QTBUG_57138}
   - outcome: skipped
-    reason: Exercises non-QODBC backend plugins selected explicitly by the upstream test.
-    match: Test\ is\ specific\ for\ PostgreSQL,\ Oracle,\ MySql\ and\ DB2
-    tests:
-      qt:
-        - qt.*.qsqlquery.createQueryOnClosedDatabase
-  - outcome: skipped
     reason: Stored procedures and output parameters are optional ODBC features outside the binding contract.
     match: Don't\ know\ how\ to\ create\ a\ stored\ procedure\ for\ this\ database\ server,\ please\ fix\ this\ test
     tests:
@@ -236,12 +224,6 @@ classifications:
     tests:
       qt:
         - qt.*.qsqlquery.lastInsertId
-  - outcome: skipped
-    reason: Exercises generic ANSI join syntax instead of the YQL dialect accepted by the driver.
-    match: DBMS\ cannot\ understand\ standard\ SQL
-    tests:
-      qt:
-        - qt.*.qsqlquery.joins
   - outcome: skipped
     reason: Upstream permanently disables this query-level experiment; qsqldatabase.transaction exercises the required transaction contract.
     match: only\ tested\ manually\ by\ trained\ staff
@@ -260,24 +242,6 @@ classifications:
     tests:
       qt:
         - qt.*.qsqltablemodel.tablesAndSchemas
-  - outcome: skipped
-    reason: Qt 6.4 QODBC exposes its BLOB feature only for MySQL; YDB binary binding is covered by native ODBC integration tests.
-    match: DBMS\ not\ BLOB\ capable
-    tests:
-      qt:
-        - qt.*.qsqlquery.blob
-  - outcome: skipped
-    reason: Qt 6.4 QODBC exposes its BLOB feature only for MySQL; YDB binary binding is covered by native ODBC integration tests.
-    match: DBMS\ does\ not\ support\ BLOBs\ or\ prepared\ queries
-    tests:
-      qt:
-        - qt.*.qsqlquery.blobsPreparedQuery
-  - outcome: skipped
-    reason: Qt skips its DML assertions when a preceding SELECT returns the ODBC-defined unknown row count; YDB DML counts are covered by native ODBC integration tests.
-    match: Database\ doesn't\ support\ numRowsAffected
-    tests:
-      qt:
-        - qt.*.qsqlquery.numRowsAffected
   - outcome: skipped
     reason: Upstream disables these cases for the unixODBC driver manager.
     match: Fails with unixODBC
@@ -304,11 +268,6 @@ classifications:
     match: '(?m)^not supported$'
     tests:
       php-pdo: ['php-pdo.*.ext%2Fpdo%2Ftests%2Fpdo_dsn_containing_credentials.phpt']
-  - outcome: skipped
-    reason: This generic binding test explicitly requires SQLite.
-    match: "Reason: env var 'ODBC_CS_SQLITE' not set"
-    tests:
-      r: ['r.*.test-odbc-connection.R%3AodbcConnectionColumns%20warns%20on%20usage%20%28%23699%29']
 
   - outcome: upstream_failure
     reason: R odbc rejects NA row limits before calling ODBC.
@@ -492,6 +451,11 @@ classifications:
     tests:
       r:
       - r.*.{data_type_create_table,append_table_new,roundtrip_field_types}
+  - outcome: unsupported
+    reason: YDB requires unique primary keys; appending the same complete fixture records repeats those keys.
+    match: 'Conflict with existing key'
+    tests:
+      r: ['r.*.test-driver-sql-server.R%3Aworks%20with%20dbAppendTable%20%28%23215%29']
 consumers:
   - id: package-contract
     display_name: Debian package contract

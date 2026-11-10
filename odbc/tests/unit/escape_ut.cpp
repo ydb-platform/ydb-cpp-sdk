@@ -17,23 +17,32 @@ TEST(OdbcEscapeRewrite, OjUnwraps) {
 }
 
 TEST(OdbcEscapeRewrite, DateLiteral) {
-    EXPECT_EQ(RewriteOdbcEscapes("SELECT {d '2024-01-01'}"), "SELECT CAST('2024-01-01' AS Date)");
+    EXPECT_EQ(RewriteOdbcEscapes("SELECT {d '2024-01-01'}"), "SELECT CAST('2024-01-01's AS Date)");
 }
 
 TEST(OdbcEscapeRewrite, TimeLiteral) {
-    EXPECT_EQ(RewriteOdbcEscapes("{t '14:30:00'}"), "CAST('14:30:00' AS Time)");
+    EXPECT_EQ(RewriteOdbcEscapes("{t '14:30:00'}"), "CAST('1970-01-01T14:30:00Z's AS Datetime)");
 }
 
 TEST(OdbcEscapeRewrite, TimestampLiteralNormalizesSpaceToT) {
     EXPECT_EQ(
-        RewriteOdbcEscapes("SELECT {ts '2024-06-15 14:30:00'} AS v"),
-        "SELECT CAST('2024-06-15T14:30:00Z' AS Datetime) AS v");
+        RewriteOdbcEscapes("SELECT {ts '2024-06-15 14:30:00.123456'} AS v"),
+        "SELECT CAST('2024-06-15T14:30:00.123456Z's AS Timestamp) AS v");
 }
 
 TEST(OdbcEscapeRewrite, TimestampLiteralKeepsExistingZ) {
     EXPECT_EQ(
         RewriteOdbcEscapes("SELECT {ts '2024-06-15T14:30:00Z'} AS v"),
-        "SELECT CAST('2024-06-15T14:30:00Z' AS Datetime) AS v");
+        "SELECT CAST('2024-06-15T14:30:00Z's AS Timestamp) AS v");
+}
+
+TEST(OdbcEscapeRewrite, TemporalLiteralsWithUnicodeLiterals) {
+    EXPECT_EQ(
+        RewriteOdbcEscapes("--!ansi_lexer\nPRAGMA UnicodeLiterals;\n"
+            "SELECT {d '2024-01-01'}, {t '14:30:00'}, {ts '2024-06-15 14:30:00.123456'}"),
+        "--!ansi_lexer\nPRAGMA UnicodeLiterals;\n"
+            "SELECT CAST('2024-01-01's AS Date), CAST('1970-01-01T14:30:00Z's AS Datetime), "
+            "CAST('2024-06-15T14:30:00.123456Z's AS Timestamp)");
 }
 
 TEST(OdbcEscapeRewrite, Call) {

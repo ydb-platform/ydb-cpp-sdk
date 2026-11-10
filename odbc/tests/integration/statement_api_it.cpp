@@ -1032,6 +1032,15 @@ TEST(StatementApi, RowCount) {
     EXPECT_EQ(rowCount, 0);
     SQLFreeStmt(stmt, SQL_CLOSE);
 
+    for (const char* query : {
+            "UPDATE row_count_test SET value = 0 WHERE NOT(1 = 1)",
+            "DELETE FROM row_count_test WHERE NOT(1 = 1)"}) {
+        CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)query, SQL_NTS), stmt, SQL_HANDLE_STMT);
+        CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
+        EXPECT_EQ(rowCount, 0);
+        SQLFreeStmt(stmt, SQL_CLOSE);
+    }
+
     CHECK_ODBC_OK(SQLExecDirect(stmt,
         (SQLCHAR*)"PRAGMA TablePathPrefix = \"/local\";\n"
                   "UPDATE row_count_test SET value = value + 1 WHERE id = 1",

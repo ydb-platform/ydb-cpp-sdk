@@ -396,7 +396,49 @@
      q.bindValue(0, 1);
      q.bindValue(1, 123);
      QVERIFY_SQL(q, exec());
-@@ -1640,9 +1649,9 @@
+@@ -1532,15 +1541,16 @@
+     QSqlDatabase db = QSqlDatabase::database(dbName);
+     CHECK_DATABASE(db);
+ 
+-    if (tst_Databases::getDatabaseType(db) != QSqlDriver::PostgreSQL)
++    if (tst_Databases::getDatabaseType(db) != QSqlDriver::PostgreSQL
++        && !db.driverName().startsWith("QODBC"))
+        QSKIP("checking for infinity/nan currently only works for PostgreSQL");
+ 
+     QSqlQuery q(db);
+     const QString tableName(qTableName("infititytest", __FILE__, db));
+     tst_Databases::safeDropTables(db, {tableName});
+-    QVERIFY_SQL(q, exec(QString("CREATE TABLE %1 (id smallint, val double precision)").arg(tableName)));
+-
+-    QVERIFY_SQL(q, prepare(QString("INSERT INTO %1 VALUES (?, ?)").arg(tableName)));
++    QVERIFY_SQL(q, exec(QString("CREATE TABLE %1 (id int, val Double, primary key (id))").arg(tableName)));
++
++    QVERIFY_SQL(q, prepare(QString("INSERT INTO %1 (id, val) VALUES (?, ?)").arg(tableName)));
+ 
+     q.bindValue(0, 1);
+     q.bindValue(1, qQNaN());
+@@ -1597,15 +1607,15 @@
+     QSqlDatabase db = QSqlDatabase::database(dbName);
+     CHECK_DATABASE(db);
+ 
+-    if (!tst_Databases::isMSAccess(db))
++    if (!tst_Databases::isMSAccess(db) && !db.driverName().startsWith("QODBC"))
+         QSKIP("MS Access specific test");
+ 
+     QSqlQuery q(db);
+     const QString tableName(qTableName("strings", __FILE__, db));
+-    QVERIFY_SQL(q, exec(QString("CREATE TABLE %1 (aStr memo, bStr memo, cStr memo, dStr memo"
+-            ", eStr memo, fStr memo, gStr memo, hStr memo)").arg(tableName)));
+-
+-    QVERIFY_SQL(q, prepare(QString("INSERT INTO %1 VALUES (?, ?, ?, ?, ?, ?, ?, ?)").arg(tableName)));
++    QVERIFY_SQL(q, exec(QString("CREATE TABLE %1 (aStr Utf8, bStr Utf8, cStr Utf8, dStr Utf8"
++            ", eStr Utf8, fStr Utf8, gStr Utf8, hStr Utf8, primary key (aStr))").arg(tableName)));
++
++    QVERIFY_SQL(q, prepare(QString("INSERT INTO %1 (aStr, bStr, cStr, dStr, eStr, fStr, gStr, hStr) VALUES (?, ?, ?, ?, ?, ?, ?, ?)").arg(tableName)));
+     QString aStr, bStr, cStr, dStr, eStr, fStr, gStr, hStr;
+ 
+     q.bindValue(0, aStr.fill('A', 32));
+@@ -1640,9 +1650,9 @@
  
      QSqlQuery q(db);
      const QString tableName(qTableName("numericfields", __FILE__, db));
@@ -409,7 +451,7 @@
  
      QVERIFY_SQL(q, exec(QString("INSERT INTO %1 VALUES (1, 1.1, 123.45, 1234567.123, 10203040506070.8090)").arg(tableName)));
  
-@@ -1746,7 +1755,7 @@
+@@ -1746,7 +1756,7 @@
      QSqlQuery q(db);
      const QString procName(qTableName("qtest_proc1", __FILE__, db));
      q.exec(QString("drop procedure %1").arg(procName));
@@ -418,7 +460,7 @@
      QVERIFY_SQL(q, exec(QString("execute procedure %1('qtest')").arg(procName)));
      q.exec(QString("drop procedure %1").arg(procName));
  }
-@@ -1848,10 +1857,10 @@
+@@ -1848,10 +1858,10 @@
  
      QSqlQuery q(db);
      const QString tableName = qTableName("qtestBindBool", __FILE__, db);
@@ -431,7 +473,7 @@
      q.bindValue(0, 1);
      q.bindValue(1, true);
      QVERIFY_SQL(q, exec());
-@@ -1883,13 +1892,13 @@
+@@ -1883,13 +1893,13 @@
      else if(tst_Databases::isMSAccess(db))
          QVERIFY_SQL(q, exec("CREATE TABLE " + testqGetString + "(id int, vcvalue memo)"));
      else
@@ -447,7 +489,7 @@
      q.bindValue(0, 1);
      q.bindValue(1, largeString);
      QVERIFY_SQL(q, exec());
-@@ -1945,7 +1954,7 @@
+@@ -1945,7 +1955,7 @@
      QSqlQuery q(db);
      QEXPECT_FAIL("", "Currently fails, potentially due to invalid test - needs further "
                       "investigation - QTBUG-85828", Abort);
@@ -456,7 +498,7 @@
      QVERIFY_SQL(q, prepare(QString("INSERT INTO %1 VALUES(?)").arg(tableName)));
      q.addBindValue(nonlatin1string);
      QVERIFY_SQL(q, exec());
-@@ -2033,7 +2042,7 @@
+@@ -2033,7 +2043,7 @@
      db2.close();
      QVERIFY_SQL(db2, open(creator,creator));
      QSqlQuery q2(db2);
@@ -465,7 +507,7 @@
      QVERIFY_SQL(q, exec(QString("create user %1 identified by %2 default tablespace users temporary tablespace temp").arg(appuser).arg(appuser)));
      QVERIFY_SQL(q, exec(QString("grant CREATE ANY SYNONYM to %1").arg(appuser)));
      QVERIFY_SQL(q, exec(QString("grant CONNECT to %1").arg(appuser)));
-@@ -2108,8 +2117,8 @@
+@@ -2108,8 +2118,8 @@
      if ( tst_Databases::isMSAccess( db ) )
          QVERIFY_SQL(q, exec(QString("CREATE TABLE %1(num number)").arg(tableName)));
      else
@@ -476,7 +518,7 @@
      q.addBindValue(val);
      QVERIFY_SQL(q, exec());
  
-@@ -2337,7 +2346,7 @@
+@@ -2337,7 +2347,7 @@
      CHECK_DATABASE(db);
      QSqlQuery q(db);
      const QString systemTableName("sys." + qTableName("mypassword", __FILE__, db).toUpper());
@@ -532,7 +574,17 @@
      if (dbType == QSqlDriver::MySqlServer || dbType == QSqlDriver::SQLite || dbType == QSqlDriver::Sybase
 --- a/kernel/qsqlquery/tst_qsqlquery.cpp
 +++ b/kernel/qsqlquery/tst_qsqlquery.cpp
-@@ -400,18 +400,18 @@
+@@ -370,7 +370,8 @@
+     if (dbType == QSqlDriver::SQLite)
+         tablenames << qTableName("record_sqlite", __FILE__, db);
+ 
+-    if (dbType == QSqlDriver::MSSqlServer || dbType == QSqlDriver::Oracle)
++    if (dbType == QSqlDriver::MSSqlServer || dbType == QSqlDriver::Oracle
++        || db.driverName().startsWith("QODBC"))
+         tablenames << qTableName("qtest_longstr", __FILE__, db);
+ 
+     if (dbType == QSqlDriver::MSSqlServer)
+@@ -400,18 +401,18 @@
  
      if (dbType == QSqlDriver::PostgreSQL) {
          QVERIFY_SQL(q, exec(QLatin1String(
@@ -557,7 +609,7 @@
      QVERIFY_SQL(q, exec(creator.arg(qTableName("qtest_null", __FILE__, db))));
  }
  
-@@ -420,22 +420,22 @@
+@@ -420,22 +421,22 @@
      QSqlQuery q(db);
      const QString qtest_null(qTableName("qtest_null", __FILE__, db));
      q.exec("delete from " + qtest);
@@ -589,7 +641,7 @@
  }
  
  // There were problems with char fields of size 1
-@@ -449,8 +449,8 @@
+@@ -449,8 +450,8 @@
          QSqlQuery q(db);
          const QString tbl = qTableName("char1Select", __FILE__, db);
          q.exec("drop table " + tbl);
@@ -600,7 +652,7 @@
          QVERIFY_SQL(q, exec("select * from " + tbl));
          QVERIFY(q.next());
          if (tst_Databases::getDatabaseType(db) == QSqlDriver::Interbase)
-@@ -486,21 +486,21 @@
+@@ -486,21 +487,21 @@
      case QSqlDriver::DB2:
      case QSqlDriver::Oracle:
      case QSqlDriver::PostgreSQL:
@@ -627,7 +679,7 @@
  
      q.bindValue(0, uniStr);
      QVERIFY_SQL(q, exec());
-@@ -527,7 +527,7 @@
+@@ -527,7 +528,7 @@
      QCOMPARE(q.value(0).metaType().id(), QMetaType::QString);
      QVERIFY(!q.value(0).toString().isEmpty());
  
@@ -636,7 +688,7 @@
  
      QVERIFY_SQL(q, exec(QLatin1String("insert into %1 values('a')").arg(oraRowId)));
      QVariant v1 = q.lastInsertId();
-@@ -562,7 +562,7 @@
+@@ -562,7 +563,7 @@
      q.exec("drop function " + hello);
  
      QVERIFY_SQL(q, exec(QLatin1String(
@@ -645,7 +697,7 @@
                              "READS SQL DATA return concat('Hello ', s)").arg(hello)));
  
      QVERIFY_SQL(q, exec(QLatin1String("select %1('world')").arg(hello)));
-@@ -616,8 +616,10 @@
+@@ -616,8 +617,10 @@
  
      q.exec("DROP TABLE " + tableName);
      const bool useBooleanType = (dbType == QSqlDriver::PostgreSQL || dbType == QSqlDriver::Interbase);
@@ -658,7 +710,7 @@
  
      for (int i = 0; i < 2; ++i) {
          bool flag = i;
-@@ -783,7 +785,7 @@
+@@ -783,7 +786,7 @@
      QSqlQuery q(db);
  
      // Simple short string:
@@ -667,7 +719,7 @@
                          .arg(clobby)));
      QVERIFY_SQL(q, prepare(QLatin1String("insert into %1 (id, cl, bl) values(?, ?, ?)")
                             .arg(clobby)));
-@@ -859,7 +861,7 @@
+@@ -859,7 +862,7 @@
      const auto procName = qTableName("TESTPROC", __FILE__, db);
      q.exec("drop procedure " + procName);
  
@@ -676,7 +728,7 @@
                                        "AS BEGIN "
                                        "  x = 42; "
                                        "  y = 'Hello Anders'; "
-@@ -900,7 +902,7 @@
+@@ -900,7 +903,7 @@
      const QString procName = qTableName("tst_outValues", __FILE__, db);
      q.exec("drop procedure " + procName); // non-fatal
      QVERIFY_SQL(q, exec(QLatin1String("CREATE PROCEDURE %1 "
@@ -685,7 +737,17 @@
                                        "LANGUAGE SQL\n"
                                        "P1: BEGIN\n"
                                        " SET x = 42;\n"
-@@ -995,8 +997,10 @@
+@@ -983,7 +986,8 @@
+     QSqlDatabase db = QSqlDatabase::database(dbName);
+     CHECK_DATABASE(db);
+ 
+-    if (!db.driver()->hasFeature(QSqlDriver::BLOB))
++    if (!db.driver()->hasFeature(QSqlDriver::BLOB)
++        && !db.driverName().startsWith("QODBC"))
+         QSKIP("DBMS not BLOB capable");
+ 
+     // Don't make it too big otherwise sybase and mysql will complain:
+@@ -995,8 +999,10 @@
      q.setForwardOnly(true);
      const QString tableName = qTableName("qtest_blob", __FILE__, db);
  
@@ -698,7 +760,7 @@
  
      QVERIFY_SQL(q, prepare(QLatin1String("insert into %1 (id, t_blob) values (?, ?)")
                             .arg(tableName)));
-@@ -1060,10 +1064,10 @@
+@@ -1060,10 +1066,10 @@
  
  #define SETUP_RECORD_TABLE \
      do { \
@@ -711,7 +773,7 @@
                                  .arg(tst_record).arg(i))); \
      } while (0)
  
-@@ -1158,14 +1162,14 @@
+@@ -1158,14 +1164,14 @@
          QVERIFY(!q.next());
      QVERIFY(q.isActive());
  
@@ -729,7 +791,16 @@
      QVERIFY(q.isActive());
  
      QVERIFY_SQL(q, exec(QLatin1String("delete from %1 where id = 42").arg(qtest)));
-@@ -1194,35 +1198,35 @@
+@@ -1187,42 +1193,43 @@
+     while (q.next())
+         ++i;
+ 
+-    if (q.numRowsAffected() == -1 || q.numRowsAffected() == 0)
++    if ((q.numRowsAffected() == -1 || q.numRowsAffected() == 0)
++        && !db.driverName().startsWith("QODBC"))
+         QSKIP("Database doesn't support numRowsAffected");
+ 
+     // Value is undefined for SELECT, this check is just here for curiosity:
      if (q.numRowsAffected() != -1 && q.numRowsAffected() != 0 && q.numRowsAffected() != i)
          qDebug("Expected numRowsAffected to be -1, 0 or %d, got %d", i, q.numRowsAffected());
  
@@ -771,7 +842,7 @@
                           .arg(qtest)));
  
      if (!db.driverName().startsWith("QSQLITE2")) {
-@@ -1264,7 +1268,7 @@
+@@ -1264,7 +1271,7 @@
  
      q2.clear();
  
@@ -780,7 +851,7 @@
      QCOMPARE(q.size(), -1);
      QCOMPARE(q.size(), -1); // yes, twice
  }
-@@ -1279,7 +1283,7 @@
+@@ -1279,7 +1286,7 @@
      QVERIFY_SQL(q, exec("select * from " + qtest));
      QVERIFY(q.isSelect());
  
@@ -789,7 +860,7 @@
      QVERIFY(!q.isSelect());
  }
  
-@@ -1791,11 +1795,11 @@
+@@ -1791,11 +1798,11 @@
      // cases from the QSqlResultPrivate::isVariantNull helper. Only PostgreSQL supports
      // QUuid.
      QMultiHash<QString, QVariant> nullableTypes = {
@@ -806,7 +877,7 @@
      };
      if (dbType == QSqlDriver::PostgreSQL)
          nullableTypes["uuid"] = QUuid::createUuid();
-@@ -1822,7 +1826,7 @@
+@@ -1822,7 +1829,7 @@
              while (q.next())
                  qWarning() << q.value(0) << q.value(1);
          });
@@ -815,7 +886,7 @@
              .arg(nullableType,
                   dbType == QSqlDriver::MSSqlServer || dbType == QSqlDriver::Sybase ? " null" : "",
                   tableName);
-@@ -1830,14 +1834,14 @@
+@@ -1830,14 +1837,14 @@
  
          int expectedNullCount = 0;
          // Verify that inserting a non-null value works:
@@ -832,7 +903,7 @@
          q.bindValue(":id", ++expectedNullCount);
          q.bindValue(":data", QVariant());
          QVERIFY_SQL(q, exec());
-@@ -1856,7 +1860,7 @@
+@@ -1856,7 +1863,7 @@
          const QVariant nullValueVariant(nullableMetaType, defaultData);
          QVERIFY(!nullValueVariant.isNull());
  
@@ -841,7 +912,7 @@
          q.bindValue(":id", ++expectedNullCount);
          q.bindValue(":data", nullValueVariant);
          QVERIFY_SQL(q, exec());
-@@ -1897,7 +1901,7 @@
+@@ -1897,7 +1904,7 @@
      const QString qtest_nullblob(qTableName("qtest_nullblob", __FILE__, db));
  
      QSqlQuery q(db);
@@ -850,7 +921,7 @@
                          .arg(qtest_nullblob)));
      QVERIFY_SQL(q, exec(QLatin1String("insert into %1 values (0, EMPTY_BLOB())")
                          .arg(qtest_nullblob)));
-@@ -1932,7 +1936,7 @@
+@@ -1932,7 +1939,7 @@
      QSqlQuery q(db);
      q.setForwardOnly(true);
      QVERIFY_SQL(q, exec(QLatin1String("create table %1 (id int, col raw(20))").arg(qtest_rawtest)));
@@ -859,7 +930,7 @@
      QVERIFY_SQL(q, exec(QLatin1String("insert into %1 values (1, '00aa1100ddeeff')")
                          .arg(qtest_rawtest)));
      QVERIFY_SQL(q, exec(QLatin1String("select col from %1 order by id").arg(qtest_rawtest)));
-@@ -1971,12 +1975,12 @@
+@@ -1971,12 +1978,12 @@
          q.exec("drop table " + qtest_precision);
          QVERIFY_SQL(q, exec(QLatin1String(tst_Databases::isMSAccess(db)
                                            ? "CREATE TABLE %1 (col1 number)"
@@ -875,16 +946,42 @@
          QVERIFY(q.next());
          const QString val = q.value(0).toString();
          if (!val.startsWith(precStr)) {
-@@ -2112,7 +2116,7 @@
+@@ -2104,25 +2111,26 @@
+     const QString qtestj2(qTableName("qtestj2", __FILE__, db));
+ 
+     if (dbType == QSqlDriver::Oracle || dbType == QSqlDriver::Sybase
+-            || dbType == QSqlDriver::Interbase || db.driverName().startsWith("QODBC")) {
++            || dbType == QSqlDriver::Interbase) {
+         // Oracle broken beyond recognition - cannot outer join on more than one table:
+         QSKIP("DBMS cannot understand standard SQL");
+     }
+ 
      QSqlQuery q(db);
  
-     QVERIFY_SQL(q, exec(QLatin1String("create table %1 (id1 int, id2 int)").arg(qtestj1)));
+-    QVERIFY_SQL(q, exec(QLatin1String("create table %1 (id1 int, id2 int)").arg(qtestj1)));
 -    QVERIFY_SQL(q, exec(QLatin1String("create table %1 (id int, name varchar(20))").arg(qtestj2)));
-+    QVERIFY_SQL(q, exec(QLatin1String("create table %1 (id int, name Utf8)").arg(qtestj2)));
-     QVERIFY_SQL(q, exec(QLatin1String("insert into %1 values (1, 1)").arg(qtestj1)));
-     QVERIFY_SQL(q, exec(QLatin1String("insert into %1 values (1, 2)").arg(qtestj1)));
-     QVERIFY_SQL(q, exec(QLatin1String("insert into %1 values(1, 'trenton')").arg(qtestj2)));
-@@ -2193,20 +2197,20 @@
+-    QVERIFY_SQL(q, exec(QLatin1String("insert into %1 values (1, 1)").arg(qtestj1)));
+-    QVERIFY_SQL(q, exec(QLatin1String("insert into %1 values (1, 2)").arg(qtestj1)));
+-    QVERIFY_SQL(q, exec(QLatin1String("insert into %1 values(1, 'trenton')").arg(qtestj2)));
+-    QVERIFY_SQL(q, exec(QLatin1String("insert into %1 values(2, 'marius')").arg(qtestj2)));
++    QVERIFY_SQL(q, exec(QLatin1String("create table %1 (id1 int, id2 int, primary key (id1, id2))").arg(qtestj1)));
++    QVERIFY_SQL(q, exec(QLatin1String("create table %1 (id int, name Utf8, primary key (id))").arg(qtestj2)));
++    QVERIFY_SQL(q, exec(QLatin1String("insert into %1 (id1, id2) values (1, 1)").arg(qtestj1)));
++    QVERIFY_SQL(q, exec(QLatin1String("insert into %1 (id1, id2) values (1, 2)").arg(qtestj1)));
++    QVERIFY_SQL(q, exec(QLatin1String("insert into %1 (id, name) values(1, 'trenton')").arg(qtestj2)));
++    QVERIFY_SQL(q, exec(QLatin1String("insert into %1 (id, name) values(2, 'marius')").arg(qtestj2)));
+ 
+     QVERIFY_SQL(q, exec(QLatin1String(
+                             "select qtestj1.id1, qtestj1.id2, qtestj2.id, qtestj2.name, "
+                             "qtestj3.id, qtestj3.name from %1 qtestj1 left outer join %2 qtestj2 "
+                             "on (qtestj1.id1 = qtestj2.id) left outer join %2 as qtestj3 "
+-                            "on (qtestj1.id2 = qtestj3.id)").arg(qtestj1, qtestj2)));
++                            "on (qtestj1.id2 = qtestj3.id) order by qtestj1.id1, qtestj1.id2")
++                        .arg(qtestj1, qtestj2)));
+ 
+     QVERIFY(q.next());
+     QCOMPARE(q.value(0).toInt(), 1);
+@@ -2193,20 +2201,20 @@
          switch (dbType) {
          case QSqlDriver::MSSqlServer:
          case QSqlDriver::Sybase:
@@ -912,7 +1009,7 @@
              break;
          }
  
-@@ -2444,8 +2448,9 @@
+@@ -2444,8 +2452,9 @@
  
          // Test that duplicated named placeholders before the next unique one
          // works correctly - QTBUG-65150
@@ -924,7 +1021,7 @@
          for (i = 104; i < 106; ++i) {
              q.bindValue(":id", i);
              q.bindValue(":name", "name");
-@@ -2459,8 +2464,9 @@
+@@ -2459,8 +2468,9 @@
          QCOMPARE(q.value(2).toString(), u"name");
  
          // Test that duplicated named placeholders in any order
@@ -936,16 +1033,36 @@
          for (i = 107; i < 109; ++i) {
              q.bindValue(":id", i);
              q.bindValue(":name", "name");
-@@ -2533,7 +2539,7 @@
+@@ -2527,15 +2537,16 @@
+     QFETCH(QString, dbName);
+     QSqlDatabase db = QSqlDatabase::database(dbName);
+     CHECK_DATABASE(db);
+-    if (tst_Databases::getDatabaseType(db) != QSqlDriver::MSSqlServer)
++    if (tst_Databases::getDatabaseType(db) != QSqlDriver::MSSqlServer
++        && !db.driverName().startsWith("QODBC"))
+         QSKIP("Test is specific to SQL Server");
+ 
      QSqlQuery q(db);
      const QString tableName = qTableName("qtest_longstr", __FILE__, db);
  
 -    QVERIFY_SQL(q, exec(QLatin1String("CREATE TABLE %1 (id int primary key, longstring ntext)")
-+    QVERIFY_SQL(q, exec(QLatin1String("CREATE TABLE %1 (id int, longstring ntext, primary key (id))")
++    QVERIFY_SQL(q, exec(QLatin1String("CREATE TABLE %1 (id int, longstring Utf8, primary key (id))")
                          .arg(tableName)));
-     QVERIFY_SQL(q, prepare(QLatin1String("INSERT INTO %1 VALUES (?, ?)").arg(tableName)));
+-    QVERIFY_SQL(q, prepare(QLatin1String("INSERT INTO %1 VALUES (?, ?)").arg(tableName)));
++    QVERIFY_SQL(q, prepare(QLatin1String("INSERT INTO %1 (id, longstring) VALUES (?, ?)").arg(tableName)));
  
-@@ -2595,13 +2601,15 @@
+     q.addBindValue(0);
+     q.addBindValue(u"bubu"_s);
+@@ -2546,7 +2557,7 @@
+     q.addBindValue(1);
+     q.addBindValue(testStr);
+     QVERIFY_SQL(q, exec());
+-    QVERIFY_SQL(q, exec("select * from " + tableName));
++    QVERIFY_SQL(q, exec("select * from " + tableName + " order by id"));
+ 
+     QVERIFY_SQL(q, next());
+     QCOMPARE(q.value(0).toInt(), 0);
+@@ -2595,13 +2606,15 @@
      tst_Databases::safeDropTable(db, tableName);
  
      const auto dbType = tst_Databases::getDatabaseType(db);
@@ -964,7 +1081,7 @@
      const QVariantList intCol = { 1, 2, QVariant(QMetaType(QMetaType::Int)) };
      const QVariantList charCol = { u"harald"_s, u"boris"_s,
                                     QVariant(QMetaType(QMetaType::QString)) };
-@@ -2614,8 +2622,9 @@
+@@ -2614,8 +2627,9 @@
  
      // Test with positional placeholders
      QVERIFY_SQL(q, prepare(QLatin1String("insert into %1 "
@@ -976,7 +1093,7 @@
      q.addBindValue(intCol);
      q.addBindValue(charCol);
      q.addBindValue(dateCol);
-@@ -2647,9 +2656,10 @@
+@@ -2647,9 +2661,10 @@
      // Empty table ready for retesting with duplicated named placeholders
      QVERIFY_SQL(q, exec(QLatin1String("delete from ") + tableName));
      QVERIFY_SQL(q, prepare(QLatin1String(
@@ -989,7 +1106,7 @@
      q.bindValue(":id", intCol);
      q.bindValue(":name", charCol);
      q.bindValue(":dt", dateCol);
-@@ -2707,7 +2717,7 @@
+@@ -2707,7 +2722,7 @@
      QSqlQuery q(db);
      const QString tableName = qTableName("bug43874", __FILE__, db);
  
@@ -998,7 +1115,7 @@
      QVERIFY_SQL(q, prepare(QLatin1String("INSERT INTO %1 (id) VALUES (?)").arg(tableName)));
  
      for (int i = 0; i < 2; ++i) {
-@@ -2737,7 +2747,7 @@
+@@ -2737,7 +2752,7 @@
  
      QVERIFY_SQL(q, exec("CREATE OR REPLACE PACKAGE ora_array_test "
                            "IS TYPE names_type IS "
@@ -1007,7 +1124,7 @@
                          "names_tab names_type; "
                          "PROCEDURE set_name(name_in IN VARCHAR2, row_in in INTEGER); "
                          "PROCEDURE get_name(row_in IN INTEGER, str_out OUT VARCHAR2); "
-@@ -2814,7 +2824,7 @@
+@@ -2814,7 +2829,7 @@
      const QString tableName = qTableName("record_sqlite", __FILE__, db);
  
      QVERIFY_SQL(q, exec(QLatin1String(
@@ -1016,7 +1133,7 @@
                          .arg(tableName)));
  
      QSqlRecord rec = db.record(tableName);
-@@ -2845,7 +2855,7 @@
+@@ -2845,7 +2860,7 @@
      QString aLotOfText(127000, QLatin1Char('H'));
      const QString tableName = qTableName("qtest_longstr", __FILE__, db);
  
@@ -1025,7 +1142,7 @@
                          .arg(tableName)));
      QVERIFY_SQL(q, prepare(QLatin1String("insert into %1 (id, astr) values (?, ?)")
                             .arg(tableName)));
-@@ -2870,8 +2880,8 @@
+@@ -2870,8 +2885,8 @@
  
      const QString tbl = qTableName("qtest_exerr", __FILE__, db);
      q.exec("drop table " + tbl);
@@ -1036,7 +1153,7 @@
  
      q.addBindValue(1);
      QVERIFY_SQL(q, exec());
-@@ -2931,7 +2941,7 @@
+@@ -2931,7 +2946,7 @@
          const auto tst_lastInsertId = qTableName("tst_lastInsertId", __FILE__, db);
          tst_Databases::safeDropTable(db, tst_lastInsertId);
          QVERIFY_SQL(q, exec(QLatin1String("create table %1 (id serial not null, t_varchar "
@@ -1045,7 +1162,17 @@
                              .arg(tst_lastInsertId)));
          QVERIFY_SQL(q, exec(QLatin1String("insert into %1 (t_varchar, t_char) values "
                                            "('VarChar41', 'Char41')").arg(tst_lastInsertId)));
-@@ -3190,7 +3200,7 @@
+@@ -3084,7 +3099,8 @@
+     // Only supported by these drivers
+ 
+     if (dbType != QSqlDriver::PostgreSQL && dbType != QSqlDriver::Oracle
+-            && dbType != QSqlDriver::MySqlServer && dbType != QSqlDriver::DB2) {
++            && dbType != QSqlDriver::MySqlServer && dbType != QSqlDriver::DB2
++            && !db.driverName().startsWith("QODBC")) {
+         QSKIP("Test is specific for PostgreSQL, Oracle, MySql and DB2");
+     }
+ 
+@@ -3190,7 +3206,7 @@
          QSqlQuery q(db);
  
          tst_Databases::safeDropTable(db, tableName);
@@ -1054,7 +1181,7 @@
                 .arg(tableName));
          q.exec(QLatin1String("INSERT INTO %1 values(1, 'whatever')").arg(tableName));
          q.exec(QLatin1String("INSERT INTO %1 values(2, 'whatever more')").arg(tableName));
-@@ -3225,14 +3235,14 @@
+@@ -3225,14 +3241,14 @@
      const QString tableName(qTableName("more_results", __FILE__, db));
  
      QVERIFY_SQL(q, exec(QLatin1String(
@@ -1076,7 +1203,17 @@
                          .arg(tableName)));
  
      const QString tstStrings[] = { u"one"_s, u"two"_s, u"three"_s, u"four"_s };
-@@ -3459,10 +3469,11 @@
+@@ -3444,7 +3460,8 @@
+     QSqlDatabase db = QSqlDatabase::database(dbName);
+     CHECK_DATABASE(db);
+ 
+-    if (!db.driver()->hasFeature(QSqlDriver::BLOB)
++    if ((!db.driver()->hasFeature(QSqlDriver::BLOB)
++         && !db.driverName().startsWith("QODBC"))
+         || !db.driver()->hasFeature(QSqlDriver::PreparedQueries)) {
+         QSKIP("DBMS does not support BLOBs or prepared queries");
+     }
+@@ -3459,10 +3476,11 @@
      // In PostgreSQL a BLOB is not called a BLOB, but a BYTEA! :-)
      // ... and in SQL Server it can be called a lot, but IMAGE will do.
      QSqlDriver::DbmsType dbType = tst_Databases::getDatabaseType(db);
@@ -1090,7 +1227,7 @@
                          .arg(tableName, typeName)));
      q.prepare(QLatin1String("INSERT INTO %1(id, data) VALUES(:id, :data)").arg(tableName));
      q.bindValue(":id", 1);
-@@ -3505,7 +3516,7 @@
+@@ -3505,7 +3523,7 @@
          QSqlQuery q(db);
          const QString tbl = qTableName("qtest_empty", __FILE__, db);
          q.exec("drop table " + tbl);
@@ -1099,7 +1236,7 @@
          QVERIFY_SQL(q, prepare("select * from " + tbl));
          QVERIFY_SQL(q, exec());
          QVERIFY(!q.next());
-@@ -3528,7 +3539,7 @@
+@@ -3528,7 +3546,7 @@
                                  "datefield timestamp, primary key(id));");
          break;
      case QSqlDriver::MySqlServer:
@@ -1108,7 +1245,7 @@
                                  "datefield timestamp, primary key(id));");
          break;
      case QSqlDriver::Interbase:
-@@ -3536,15 +3547,19 @@
+@@ -3536,15 +3554,19 @@
          creator = QLatin1String("CREATE TABLE %1(id integer, datefield timestamp);");
          break;
      default:
@@ -1134,7 +1271,7 @@
      while (q.next())
          QVERIFY(q.value(1).toDateTime().isValid());
  }
-@@ -3558,18 +3573,18 @@
+@@ -3558,18 +3580,18 @@
      const QString planets = qTableName("Planet", __FILE__, db);
  
      q.exec("drop table " + planets);
@@ -1161,7 +1298,7 @@
      QVERIFY_SQL(q, seek(3));
      QCOMPARE(q.value(0).toString(), u"Mars");
      QVERIFY_SQL(q, seek(0));
-@@ -3587,7 +3602,7 @@
+@@ -3587,7 +3609,7 @@
  
      const QString tableName(qTableName("task_250026", __FILE__, db));
  
@@ -1170,7 +1307,7 @@
          qDebug() << "Error" << q.lastError();
          QSKIP("Db doesn't support \"1100\" as a size for fields");
      }
-@@ -3652,7 +3667,7 @@
+@@ -3652,7 +3674,7 @@
  
      QSqlQuery q(db);
      QVERIFY_SQL(q, exec("SELECT 1::bit, '10101010000111101101'::varbit, "
@@ -1179,7 +1316,7 @@
                                "'333333'::numeric(18), '444444'::numeric"));
      QVERIFY_SQL(q, next());
      QSqlRecord r = q.record();
-@@ -3867,7 +3882,7 @@
+@@ -3867,7 +3889,7 @@
      const QString tableName(qTableName("bug6421", __FILE__, db).toUpper());
  
      QVERIFY_SQL(q, exec(QLatin1String(
@@ -1188,7 +1325,7 @@
                          .arg(tableName)));
      QVERIFY_SQL(q, exec(QLatin1String("create index INDEX1 on %1 (COL1 desc)").arg(tableName)));
      QVERIFY_SQL(q, exec(QLatin1String("create index INDEX2 on %1 (COL2 desc)").arg(tableName)));
-@@ -3918,8 +3933,8 @@
+@@ -3918,8 +3940,8 @@
  
      QVERIFY_SQL(q, exec("DROP PROCEDURE IF EXISTS " + procName));
      QVERIFY_SQL(q, exec(QLatin1String("CREATE TABLE %1(\n"
@@ -1199,7 +1336,7 @@
                                        "PRIMARY KEY(`MainKey`))").arg(tableName)));
      QVERIFY_SQL(q, exec(QLatin1String("INSERT INTO %1 VALUES(0, \"Disabled\")").arg(tableName)));
      QVERIFY_SQL(q, exec(QLatin1String("INSERT INTO %1 VALUES(5, \"Error Only\")").arg(tableName)));
-@@ -3989,7 +4004,7 @@
+@@ -3989,7 +4011,7 @@
  
      {
          const QString good[] = {
@@ -1208,7 +1345,7 @@
              QLatin1String("select * from %1;").arg(tableName),
              QLatin1String("select * from %1;  \t\n\r").arg(tableName),
              QLatin1String("drop table %1").arg(tableName)
-@@ -4006,10 +4021,10 @@
+@@ -4006,10 +4028,10 @@
  
      {
          const QString bad[] = {
@@ -1223,7 +1360,7 @@
          };
  
          QLatin1String shouldFail("the statement is expected to fail! %1");
-@@ -4040,7 +4055,7 @@
+@@ -4040,7 +4062,7 @@
          CHECK_DATABASE(db);
          QSqlQuery q(db);
          q2 = q;
@@ -1232,7 +1369,7 @@
          db.close();
          QCOMPARE(db.lastError().type(), QSqlError::NoError);
      }
-@@ -4049,7 +4064,7 @@
+@@ -4049,7 +4071,7 @@
          CHECK_DATABASE(db);
          QSqlQuery q(db);
          q2 = q;
@@ -1241,7 +1378,7 @@
          q2.exec();
          db.close();
          QCOMPARE(db.lastError().type(), QSqlError::NoError);
-@@ -4089,7 +4104,7 @@
+@@ -4089,7 +4111,7 @@
      QSqlQuery q(db);
  
      QString tableName(qTableName("bug23895", __FILE__, db));
@@ -1250,7 +1387,7 @@
                .arg(tableName));
      QVERIFY_SQL(q, exec());
      q.prepare(QLatin1String("insert into %1(id, val1, val2) values(?, ?, ?);").arg(tableName));
-@@ -4177,8 +4192,10 @@
+@@ -4177,8 +4199,10 @@
          tst_Databases::safeDropTable(db, tableName);
  
          QSqlQuery q(db);
@@ -1263,7 +1400,7 @@
  
          QDateTime dt = QDateTime(QDate(2012, 7, 4), QTime(23, 59, 59, 999));
          QVERIFY_SQL(q, prepare(QLatin1String("INSERT INTO %1 (dt) VALUES (?)").arg(tableName)));
-@@ -4460,13 +4477,16 @@
+@@ -4460,13 +4484,16 @@
      } else if (dbType == QSqlDriver::MySqlServer) {
          sumType = QMetaType::Double;
          countType = QMetaType::LongLong;
@@ -1281,7 +1418,7 @@
  
          // First test without any entries
          QVERIFY_SQL(q, exec("SELECT SUM(id) FROM " + tableName));
-@@ -4487,7 +4507,8 @@
+@@ -4487,7 +4514,8 @@
          QVERIFY_SQL(q, exec("SELECT AVG(id) FROM " + tableName));
          QVERIFY(q.next());
          if (dbType == QSqlDriver::SQLite || dbType == QSqlDriver::PostgreSQL
@@ -1291,7 +1428,7 @@
              QCOMPARE(q.value(0).toDouble(), 1.5);
              QCOMPARE(q.record().field(0).metaType().id(), QMetaType::Double);
          } else {
-@@ -4516,7 +4537,7 @@
+@@ -4516,7 +4544,7 @@
          tst_Databases::safeDropTable(db, tableName);
  
          QSqlQuery q(db);
@@ -1300,7 +1437,7 @@
  
          // First test without any entries
          QVERIFY_SQL(q, exec("SELECT SUM(id) FROM " + tableName));
-@@ -4526,8 +4547,8 @@
+@@ -4526,8 +4554,8 @@
          else
              QCOMPARE(q.record().field(0).metaType().id(), QMetaType::Double);
  
@@ -1311,7 +1448,7 @@
  
          QVERIFY_SQL(q, exec("SELECT SUM(id) FROM " + tableName));
          QVERIFY(q.next());
-@@ -4560,14 +4581,18 @@
+@@ -4560,14 +4588,18 @@
          if (dbType == QSqlDriver::PostgreSQL)
              field += "::NUMERIC";
  
@@ -1334,7 +1471,7 @@
          QVERIFY(q.next());
          if (dbType == QSqlDriver::MySqlServer)
              QCOMPARE(q.value(0).toDouble(), 2.0);
-@@ -4580,7 +4605,7 @@
+@@ -4580,7 +4612,7 @@
          tst_Databases::safeDropTable(db, tableName);
  
          QSqlQuery q(db);
@@ -1343,7 +1480,7 @@
                              .arg(tableName)));
  
          QVERIFY_SQL(q, exec("SELECT MAX(txt) FROM " + tableName));
-@@ -4750,10 +4775,10 @@
+@@ -4750,10 +4782,10 @@
      tst_Databases::safeDropTable(db, tableName);
  
      QVERIFY_SQL(create, exec(QLatin1String(
@@ -1357,7 +1494,7 @@
                                  .arg(tableName)));
  
      create.addBindValue("99.99");
-@@ -4997,7 +5022,7 @@
+@@ -4997,7 +5029,7 @@
      QSqlQuery qry(db);
      QVERIFY_SQL(qry, exec(QLatin1String(
                                "create table %1 (intData int[0:4], longData bigint[5], "

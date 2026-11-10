@@ -184,7 +184,7 @@ TEST(MetadataApi, RelativeTableMetadataUsesCurrentCatalog) {
     SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE IF EXISTS test_relative_metadata", SQL_NTS);
     SQLFreeStmt(stmt, SQL_CLOSE);
     CHECK_ODBC_OK(SQLExecDirect(stmt,
-        (SQLCHAR*)"CREATE TABLE test_relative_metadata (id Int32, value Utf8, PRIMARY KEY (id))",
+        (SQLCHAR*)"CREATE TABLE test_relative_metadata (id Int32 NOT NULL, value Utf8, PRIMARY KEY (id))",
         SQL_NTS), stmt, SQL_HANDLE_STMT);
     SQLFreeStmt(stmt, SQL_CLOSE);
 
@@ -557,8 +557,15 @@ TEST(MetadataApi, SQLColumnsFieldsAndCompositePrimaryKey) {
     ExecuteAndClose(stmt, "DROP TABLE IF EXISTS test_column_metadata_fields");
     ExecuteAndClose(stmt,
         "CREATE TABLE test_column_metadata_fields ("
-        "pk_a Int32, pk_b Int64, text_value Utf8, payload String, created Timestamp, "
+        "pk_a Int32, pk_b Int64 NOT NULL, text_value Utf8, payload String, created Timestamp, "
         "PRIMARY KEY (pk_b, pk_a))");
+    ExecuteAndClose(stmt,
+        "INSERT INTO test_column_metadata_fields (pk_a, pk_b) VALUES (NULL, 1)");
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"SELECT pk_a FROM test_column_metadata_fields WHERE pk_b = 1", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
+    ExpectRow(stmt, {{1, nullptr}});
+    FinishResult(stmt);
 
     struct TExpectedColumn {
         const char* Name;
@@ -569,7 +576,7 @@ TEST(MetadataApi, SQLColumnsFieldsAndCompositePrimaryKey) {
         TExpectedValue CharOctetLength;
     };
     const std::array expectedColumns{
-        TExpectedColumn{"pk_a", SQL_INTEGER, SQL_NO_NULLS, SQL_INTEGER, nullptr, nullptr},
+        TExpectedColumn{"pk_a", SQL_INTEGER, SQL_NULLABLE, SQL_INTEGER, nullptr, nullptr},
         TExpectedColumn{"pk_b", SQL_BIGINT, SQL_NO_NULLS, SQL_BIGINT, nullptr, nullptr},
         TExpectedColumn{"text_value", SQL_VARCHAR, SQL_NULLABLE, SQL_VARCHAR, nullptr, 0},
         TExpectedColumn{"payload", SQL_VARBINARY, SQL_NULLABLE, SQL_VARBINARY, nullptr, 0},
@@ -615,6 +622,102 @@ TEST(MetadataApi, SQLColumnsFieldsAndCompositePrimaryKey) {
         });
     }
     FinishResult(stmt);
+
+    CHECK_ODBC_OK(SQLSpecialColumns(
+        stmt, SQL_BEST_ROWID, nullptr, 0, nullptr, 0, tableName, SQL_NTS,
+        SQL_SCOPE_SESSION, SQL_NULLABLE), stmt, SQL_HANDLE_STMT);
+    for (const auto* key : expectedKeys) {
+        ExpectRow(stmt, {{2, key}});
+    }
+    FinishResult(stmt);
+    CHECK_ODBC_OK(SQLSpecialColumns(
+        stmt, SQL_BEST_ROWID, nullptr, 0, nullptr, 0, tableName, SQL_NTS,
+        SQL_SCOPE_SESSION, SQL_NO_NULLS), stmt, SQL_HANDLE_STMT);
+    FinishResult(stmt);
+}
+
+TEST(MetadataApi, SQLGetTypeInfoDecimalParameters) {
+    TMetadataHandles handles;
+    const SQLHSTMT stmt = handles.Stmt;
+
+    for (const auto type : {SQL_DECIMAL, SQL_NUMERIC}) {
+        CHECK_ODBC_OK(SQLGetTypeInfo(stmt, type), stmt, SQL_HANDLE_STMT);
+        ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+        const auto name = ReadText(stmt, 1);
+        ASSERT_TRUE(name);
+        EXPECT_EQ(*name, "Decimal");
+        EXPECT_EQ(ReadText(stmt, 3), "35");
+        EXPECT_EQ(ReadText(stmt, 6), "precision,scale");
+        EXPECT_EQ(ReadText(stmt, 14), "0");
+        EXPECT_EQ(ReadText(stmt, 15), "35");
+        FinishResult(stmt);
+
+        ExecuteAndClose(stmt, "DROP TABLE IF EXISTS test_decimal_type_info");
+        const std::string create = "CREATE TABLE test_decimal_type_info ("
+            "id Int32 NOT NULL, value " + *name + "(18, 5), PRIMARY KEY (id))";
+        ExecuteAndClose(stmt, create.c_str());
+        CHECK_ODBC_OK(SQLColumns(stmt, nullptr, 0, nullptr, 0,
+            (SQLCHAR*)"test_decimal_type_info", SQL_NTS, (SQLCHAR*)"value", SQL_NTS),
+            stmt, SQL_HANDLE_STMT);
+        ExpectRow(stmt, {{5, SQL_DECIMAL}, {7, 18}, {9, 5}});
+        FinishResult(stmt);
+        ExecuteAndClose(stmt, "DROP TABLE test_decimal_type_info");
+    }
+}
+
+TEST(MetadataApi, SQLGetTypeInfoTemporalLiterals) {
+    TMetadataHandles handles;
+    const SQLHSTMT stmt = handles.Stmt;
+    struct TLiteralCase {
+        SQLSMALLINT Type;
+        const char* Value;
+        SQL_TIMESTAMP_STRUCT Expected;
+    };
+    const std::array cases{
+        TLiteralCase{SQL_TYPE_DATE, "2024-01-02", {2024, 1, 2, 0, 0, 0, 0}},
+        TLiteralCase{SQL_TYPE_TIME, "10:11:12", {1970, 1, 1, 10, 11, 12, 0}},
+        TLiteralCase{SQL_TYPE_TIMESTAMP, "2024-01-02 13:14:15.123456",
+                     {2024, 1, 2, 13, 14, 15, 123456000}},
+    };
+    for (const auto& item : cases) {
+        SCOPED_TRACE(item.Type);
+        CHECK_ODBC_OK(SQLGetTypeInfo(stmt, item.Type), stmt, SQL_HANDLE_STMT);
+        ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+        const auto name = ReadText(stmt, 1);
+        const auto prefix = ReadText(stmt, 4);
+        const auto suffix = ReadText(stmt, 5);
+        ASSERT_TRUE(name);
+        ASSERT_TRUE(prefix);
+        ASSERT_TRUE(suffix);
+        FinishResult(stmt);
+
+        ExecuteAndClose(stmt, "DROP TABLE IF EXISTS test_temporal_type_info");
+        const std::string create = "CREATE TABLE test_temporal_type_info ("
+            "id Int32 NOT NULL, value " + *name + ", PRIMARY KEY (id))";
+        ExecuteAndClose(stmt, create.c_str());
+        const std::string insert = "--!ansi_lexer\nPRAGMA UnicodeLiterals;\n"
+            "INSERT INTO test_temporal_type_info (id, value) VALUES (1, "
+            + *prefix + item.Value + *suffix + ")";
+        ExecuteAndClose(stmt, insert.c_str());
+        CHECK_ODBC_OK(SQLExecDirect(stmt,
+            (SQLCHAR*)"SELECT value FROM test_temporal_type_info WHERE id = 1", SQL_NTS),
+            stmt, SQL_HANDLE_STMT);
+        ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+        SQL_TIMESTAMP_STRUCT actual{};
+        SQLLEN indicator = 0;
+        CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_TYPE_TIMESTAMP, &actual, sizeof(actual), &indicator),
+            stmt, SQL_HANDLE_STMT);
+        EXPECT_EQ(indicator, sizeof(actual));
+        EXPECT_EQ(actual.year, item.Expected.year);
+        EXPECT_EQ(actual.month, item.Expected.month);
+        EXPECT_EQ(actual.day, item.Expected.day);
+        EXPECT_EQ(actual.hour, item.Expected.hour);
+        EXPECT_EQ(actual.minute, item.Expected.minute);
+        EXPECT_EQ(actual.second, item.Expected.second);
+        EXPECT_EQ(actual.fraction, item.Expected.fraction);
+        FinishResult(stmt);
+        ExecuteAndClose(stmt, "DROP TABLE test_temporal_type_info");
+    }
 }
 
 TEST(MetadataApi, MetadataUsesCurrentCatalogForSameNamedTables) {
@@ -811,7 +914,7 @@ TEST(MetadataApi, SQLSpecialColumnsDistinguishesNullAndEmptyArguments) {
 
     ExecuteAndClose(stmt, "DROP TABLE IF EXISTS test_special_columns_metadata");
     ExecuteAndClose(stmt,
-        "CREATE TABLE test_special_columns_metadata (id Int32, PRIMARY KEY (id))");
+        "CREATE TABLE test_special_columns_metadata (id Int32 NOT NULL, PRIMARY KEY (id))");
 
     SQLCHAR tableName[] = "test_special_columns_metadata";
     SQLCHAR catalog[] = "local";
@@ -840,4 +943,13 @@ TEST(MetadataApi, SQLSpecialColumnsDistinguishesNullAndEmptyArguments) {
         SQL_SCOPE_SESSION, SQL_NULLABLE), stmt, SQL_HANDLE_STMT);
     ExpectRow(stmt, {{2, "id"}});
     FinishResult(stmt);
+
+    CHECK_ODBC_OK(SQLSpecialColumns(
+        stmt, SQL_BEST_ROWID, catalog, SQL_NTS, empty, 0, tableName, SQL_NTS,
+        SQL_SCOPE_SESSION, SQL_NO_NULLS), stmt, SQL_HANDLE_STMT);
+    ExpectRow(stmt, {{2, "id"}});
+    FinishResult(stmt);
+    ExpectError(SQLSpecialColumns(
+        stmt, SQL_BEST_ROWID, catalog, SQL_NTS, empty, 0, tableName, SQL_NTS,
+        SQL_SCOPE_SESSION, SQL_NULLABLE_UNKNOWN), stmt, "HY099");
 }
