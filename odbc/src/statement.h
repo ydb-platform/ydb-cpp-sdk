@@ -62,7 +62,8 @@ public:
                              const TMetadataArgument& schemaName,
                              const TMetadataArgument& tableName,
                              SQLUSMALLINT identifierType,
-                             SQLUSMALLINT scope);
+                             SQLUSMALLINT scope,
+                             SQLUSMALLINT nullable);
     SQLRETURN PrimaryKeys(const TMetadataArgument& catalogName, const TMetadataArgument& schemaName,
                           const TMetadataArgument& tableName);
     SQLRETURN ForeignKeys(const std::string& pkCatalogName,

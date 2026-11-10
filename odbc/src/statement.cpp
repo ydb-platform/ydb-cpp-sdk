@@ -36,6 +36,11 @@ namespace {
         const auto phases = stats->GetQueryPhases();
         const auto tables = phases | std::views::transform(&NQuery::TQueryPhaseStats::GetTableAccess)
             | std::views::join;
+        // An optimized no-op has an execution phase without any table accesses.
+        // Deferred writes have no execution phases and retain an unknown count.
+        if (!phases.empty() && std::ranges::empty(tables)) {
+            affectedRows = 0;
+        }
         for (const auto& table : tables) {
             // An accessed table below another accessed table is an internal index table.
             if (std::ranges::any_of(tables, [&](const auto& parent) {

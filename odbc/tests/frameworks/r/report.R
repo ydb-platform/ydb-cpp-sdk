@@ -3,6 +3,7 @@ library(odbc)
 library(DBItest)
 library(testthat)
 native <- Sys.getenv("ODBC_NATIVE_RESULTS_DIR")
+Sys.setenv(ODBC_CS_YDB=Sys.getenv("YDB_R_CONNECTION"))
 # DBItest's standard ODBC contract. Arrow and stress are separate API suites.
 categories <- c("getting_started", "driver", "connection", "result", "sql", "meta", "transaction", "compliance")
 specs <- unlist(lapply(categories, function(name) get(paste0("spec_", name), asNamespace("DBItest"))), recursive=FALSE)
@@ -11,6 +12,29 @@ names(specs) <- vctrs::vec_names2(specs, repair="unique", quiet=TRUE)
 specs <- specs[!grepl("arrow|stream_bind",names(specs))]
 source_dir <- "/work/source/tests/testthat"
 files <- list.files(source_dir, pattern="^test-(odbc-|utils|dbi-connection).*\\.R$", full.names=TRUE)
+# These regression cases exercise the common ODBC path despite living beside
+# backend-specific tests. Keep the backend DBItest wrappers out of this run.
+backend_cases <- list(
+    "test-driver-mysql.R" = c("can roundtrip columns", "odbcPreviewObject"),
+    "test-driver-oracle.R" = c("can round columns", "can detect existence of table"),
+    "test-driver-postgres.R" = c("can roundtrip columns", "64 bit integers work with alternate mappings",
+        "Writing data.frame with column ordering different than target table", "odbcPreviewObject"),
+    "test-driver-sql-server.R" = c("works with dbAppendTable (#215)",
+        "Subseconds are retained upon insertion (#208)", "blobs can be retrieved out of order",
+        "can bind NA values", "odbcPreviewObject doesn't warn about pending rows",
+        "dates should always be interpreted in the system time zone (#398)",
+        "UTF in VARCHAR is not truncated", "Zero-row-fetch does not move cursor",
+        "captures multiline errors message"),
+    "test-driver-sqlite.R" = c("unsupported types gives informative error", "odbcPreviewObject works"))
+backend_expressions <- lapply(names(backend_cases), function(file) {
+    expressions <- parse(file.path(source_dir, file), keep.source=TRUE, encoding="UTF-8")
+    selected <- Filter(function(expr) is.call(expr) && identical(expr[[1]], as.name("test_that")) &&
+        is.character(expr[[2]]) && expr[[2]] %in% backend_cases[[file]], as.list(expressions))
+    actual <- vapply(selected, function(expr) expr[[2]], "")
+    stopifnot(identical(actual, backend_cases[[file]]))
+    selected
+})
+names(backend_expressions) <- names(backend_cases)
 collect_names <- function(expr) {
     if (!is.call(expr) && !is.expression(expr)) return(character())
     if (is.call(expr) && identical(expr[[1]],as.name("test_that"))) {
@@ -20,6 +44,8 @@ collect_names <- function(expr) {
     unlist(lapply(as.list(expr), collect_names), use.names=FALSE)
 }
 unit_names <- unlist(lapply(files,function(file) paste0(basename(file), ":", collect_names(parse(file)))))
+unit_names <- c(unit_names, unlist(lapply(names(backend_cases), function(file)
+    paste0(file, ":", backend_cases[[file]])), use.names=FALSE))
 jsonlite::write_json(c(names(specs),unit_names), file.path(native,"r-inventory.json"), auto_unbox=FALSE)
 if ("--list" %in% commandArgs(TRUE)) quit(status=0)
 context <- DBItest::make_context(odbc::odbc(),
@@ -61,12 +87,23 @@ for (name in names(specs)) {
 
 # Run the binding's generic upstream tests as well as the DBI contract.
 source(file.path(source_dir,"helper.R"),local=TRUE)
-for (file in files) {
-    collector <- testthat::ListReporter$new()
+for (file in c(files, file.path(source_dir, names(backend_cases)))) {
     env <- new.env(parent=globalenv())
     for (symbol in ls(asNamespace("odbc"),all.names=TRUE)) assign(symbol,get(symbol,asNamespace("odbc")),env)
-    testthat::test_file(file, reporter=collector, env=env)
-    for (case in collector$get_results()) {
+    if (basename(file) %in% names(backend_expressions)) {
+        cases <- lapply(backend_expressions[[basename(file)]], function(expr) {
+            collector <- testthat::ListReporter$new()
+            testthat::with_reporter(collector, eval(expr, env))
+            # test_roundtrip() has its own nested test_that(). Preserve every
+            # expectation under the discovered outer regression case.
+            list(test=expr[[2]], results=unlist(lapply(collector$get_results(), `[[`, "results"), recursive=FALSE))
+        })
+    } else {
+        collector <- testthat::ListReporter$new()
+        testthat::test_file(file, reporter=collector, env=env)
+        cases <- collector$get_results()
+    }
+    for (case in cases) {
         problems <- lapply(Filter(function(result) !inherits(result,"expectation_success"),case$results),
                            function(result) list(message=conditionMessage(result)))
         failed <- any(vapply(case$results,function(result)

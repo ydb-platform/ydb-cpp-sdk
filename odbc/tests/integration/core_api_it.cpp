@@ -12,14 +12,21 @@ TEST(CoreApi, SQLGetTypeInfoAll) {
         SQLSMALLINT DataType;
         const char* TypeName;
     };
-    constexpr std::array<TExpectedType, 7> expected{{
+    constexpr std::array<TExpectedType, 14> expected{{
+        {SQL_BIT, "Bool"},
+        {SQL_TINYINT, "Int8"},
         {SQL_BIGINT, "Int64"},
+        {SQL_VARBINARY, "String"},
+        {SQL_CHAR, "Utf8"},
+        {SQL_DECIMAL, "Decimal"},
         {SQL_INTEGER, "Int32"},
         {SQL_SMALLINT, "Int16"},
-        {SQL_DOUBLE, "Double"},
         {SQL_REAL, "Float"},
+        {SQL_DOUBLE, "Double"},
         {SQL_VARCHAR, "Utf8"},
-        {SQL_CHAR, "Utf8"},
+        {SQL_TYPE_DATE, "Date"},
+        {SQL_TYPE_TIME, "Datetime"},
+        {SQL_TYPE_TIMESTAMP, "Timestamp"},
     }};
 
     SQLHENV env;
@@ -41,9 +48,12 @@ TEST(CoreApi, SQLGetTypeInfoAll) {
 
     std::array<bool, expected.size()> seen{};
     size_t rowCount = 0;
+    SQLSMALLINT previousDataType = expected.front().DataType;
     SQLRETURN fetchResult;
     while ((fetchResult = SQLFetch(stmt)) == SQL_SUCCESS) {
         ++rowCount;
+        EXPECT_GE(dataType, previousDataType);
+        previousDataType = dataType;
         bool matched = false;
         for (size_t index = 0; index < expected.size(); ++index) {
             if (dataType == expected[index].DataType
@@ -274,11 +284,14 @@ TEST(CoreApi, SQLNativeSqlTranslatesOdbcSyntax) {
     AllocEnvAndConnect(&env, &dbc);
     std::string input =
         "SELECT {fn CONVERT(?, SQL_SMALLINT)} AS \"value{fn ABS(1)}\", "
-        "'{fn ABS(2)}' /* {fn ABS(3)} */";
+        "'{fn ABS(2)}' /* {fn ABS(3)} */, {d '2024-01-02'}, {t '10:11:12'}, "
+        "{ts '2024-01-02 13:14:15.123456'}";
     const std::string expected =
         "SELECT CAST(? AS Int16) AS \"value{fn ABS(1)}\", "
-        "'{fn ABS(2)}' /* {fn ABS(3)} */";
-    char out[256] = {};
+        "'{fn ABS(2)}' /* {fn ABS(3)} */, CAST('2024-01-02's AS Date), "
+        "CAST('1970-01-01T10:11:12Z's AS Datetime), "
+        "CAST('2024-01-02T13:14:15.123456Z's AS Timestamp)";
+    char out[512] = {};
     SQLINTEGER outLen = 0;
     CHECK_ODBC_OK(SQLNativeSql(
         dbc, reinterpret_cast<SQLCHAR*>(input.data()), SQL_NTS,
@@ -370,7 +383,7 @@ TEST(CoreApi, SQLSpecialColumnsPrimaryKey) {
     SQLFreeStmt(stmt, SQL_CLOSE);
     const char* table = "/local/test_special_columns_pk";
     CHECK_ODBC_OK(SQLSpecialColumns(stmt, SQL_BEST_ROWID, nullptr, 0, nullptr, 0,
-                                    (SQLCHAR*)table, SQL_NTS, SQL_SCOPE_SESSION, 0),
+                                    (SQLCHAR*)table, SQL_NTS, SQL_SCOPE_SESSION, SQL_NULLABLE),
                   stmt, SQL_HANDLE_STMT);
     char columnName[64] = {};
     SQLLEN indicator = 0;

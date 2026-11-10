@@ -1,3 +1,27 @@
+--- a/tests/testthat/helper.R
++++ b/tests/testthat/helper.R
+@@ -17,8 +17,9 @@
+   )
+ }
+ 
+-local_table <- function(con, name, df, ..., envir = parent.frame()) {
+-  dbWriteTable(con, name, df, ...)
++local_table <- function(con, name, df, ..., field.types = NULL, envir = parent.frame()) {
++  if (is.null(field.types)) field.types <- DBItest:::ydb_field_types(con, df)
++  dbWriteTable(con, name, df, ..., field.types = field.types)
+   withr::defer(dbRemoveTable(con, name), envir = envir)
+ 
+   name
+@@ -97,7 +98,8 @@
+     }
+     if (force_sorted) sent$id <- seq_len(NROW(iris))
+ 
+-    DBI::dbWriteTable(con, "test_table", sent, overwrite = TRUE)
++    DBI::dbWriteTable(con, "test_table", sent, overwrite = TRUE,
++                      field.types = DBItest:::ydb_field_types(con, sent))
+     received <- DBI::dbReadTable(con, "test_table")
+     if (force_sorted) received <- received[order(received$id), ]
+     row.names(received) <- NULL
 --- a/tests/testthat/test-dbi-connection.R
 +++ b/tests/testthat/test-dbi-connection.R
 @@ -1,6 +1,6 @@
@@ -26,6 +50,222 @@
      dbGetInfo = function(x) c(servername = "", username = "", dbname = "", dbms.name = "", db.version = ""),
      dbIsValid = function(x) TRUE
    )
+--- a/tests/testthat/test-driver-mysql.R
++++ b/tests/testthat/test-driver-mysql.R
+@@ -84,11 +84,11 @@
+ })
+ 
+ test_that("can roundtrip columns", {
+-  test_roundtrip(test_con("MYSQL"), columns = c("logical", "binary"))
++  test_roundtrip(test_con("YDB"), columns = c("logical", "binary"), force_sorted = TRUE)
+ })
+ 
+ test_that("odbcPreviewObject", {
+-  con <- test_con("MYSQL")
++  con <- test_con("YDB")
+   tbl <- local_table(con, "test_preview", data.frame(a = 1:10L))
+ 
+   # There should be no "Pending rows" warning
+--- a/tests/testthat/test-driver-oracle.R
++++ b/tests/testthat/test-driver-oracle.R
+@@ -1,20 +1,20 @@
+ test_that("can round columns", {
+-  con <- test_con("ORACLE")
++  con <- test_con("YDB")
+   # - Long/outstanding issue with batch inserting
+   # date/datetime for Oracle.  See for example
+   # #349, #350, #391
+   # - There also looks like there are issues related
+   # to binary elements of size zero.
+   # - Finally, no boolean in Oracle prior to 23
+-  test_roundtrip(con, columns = c("time", "date", "datetime", "binary", "logical"))
++  test_roundtrip(con, columns = c("time", "date", "datetime", "binary", "logical"), force_sorted = TRUE)
+ })
+ 
+ test_that("can detect existence of table", {
+-  con <- test_con("ORACLE")
++  con <- test_con("YDB")
+ 
+-  tbl1 <- local_table(con, "mtcarstest", mtcars)
++  tbl1 <- local_table(con, "mtcarstest", DBItest:::ydb_keyed_fixture(mtcars))
+   expect_true(dbExistsTable(con, tbl1))
+ 
+-  tbl2 <- local_table(con, "mtcars_test", mtcars)
++  tbl2 <- local_table(con, "mtcars_test", DBItest:::ydb_keyed_fixture(mtcars))
+   expect_true(dbExistsTable(con, tbl2))
+ })
+--- a/tests/testthat/test-driver-postgres.R
++++ b/tests/testthat/test-driver-postgres.R
+@@ -95,8 +95,8 @@
+ })
+ 
+ test_that("can roundtrip columns", {
+-  con <- test_con("POSTGRES")
+-  test_roundtrip(con)
++  con <- test_con("YDB")
++  test_roundtrip(con, force_sorted = TRUE)
+ })
+ 
+ test_that("show method works as expected with real connection", {
+@@ -109,16 +109,16 @@
+ })
+ 
+ test_that("64 bit integers work with alternate mappings", {
+-  con_integer64 <- test_con("POSTGRES", bigint = "integer64")
+-  con_integer <- test_con("POSTGRES", bigint = "integer")
+-  con_numeric <- test_con("POSTGRES", bigint = "numeric")
+-  con_character <- test_con("POSTGRES", bigint = "character")
++  con_integer64 <- test_con("YDB", bigint = "integer64")
++  con_integer <- test_con("YDB", bigint = "integer")
++  con_numeric <- test_con("YDB", bigint = "numeric")
++  con_character <- test_con("YDB", bigint = "character")
+ 
+   tbl <- local_table(
+     con_integer64,
+     "test",
+     data.frame(a = 1:10L),
+-    field.types = c(a = "BIGINT")
++    field.types = c(a = "BIGINT, PRIMARY KEY (`a`)")
+   )
+ 
+   expect_s3_class(dbReadTable(con_integer64, tbl)$a, "integer64")
+@@ -133,7 +133,7 @@
+ # case when the data being written has columns ordered
+ # differently than the table we are targetting.
+ test_that("Writing data.frame with column ordering different than target table", {
+-  con <- test_con("POSTGRES")
++  con <- test_con("YDB")
+   values <- data.frame(
+     datetime = as.POSIXct(c(14, 15), origin = "2016-01-01", tz = "UTC"),
+     name = c("one", "two"),
+@@ -141,7 +141,7 @@
+     stringsAsFactors = FALSE
+   )
+   tbl <- "test_order_write"
+-  dbCreateTable(con, tbl, values)
++  dbCreateTable(con, tbl, values, field.types = DBItest:::ydb_field_types(con, values))
+   dbAppendTable(con, tbl, values[c(2, 3, 1)])
+   on.exit(dbRemoveTable(con, tbl))
+ 
+@@ -152,7 +152,7 @@
+ })
+ 
+ test_that("odbcPreviewObject", {
+-  con <- test_con("POSTGRES")
++  con <- test_con("YDB")
+   tbl <- local_table(con, "test_preview", data.frame(a = 1:10L))
+ 
+   # There should be no "Pending rows" warning
+--- a/tests/testthat/test-driver-sql-server.R
++++ b/tests/testthat/test-driver-sql-server.R
+@@ -118,10 +118,12 @@
+ })
+ 
+ test_that("works with dbAppendTable (#215)", {
+-  con <- test_con("SQLSERVER")
++  con <- test_con("YDB")
+ 
+   ir <- iris
+   ir$Species <- as.character(ir$Species)
++  names(ir) <- gsub(".", "_", names(ir), fixed = TRUE)
++  ir <- DBItest:::ydb_keyed_fixture(ir)
+ 
+   tbl <- local_table(con, "iris", ir)
+   dbAppendTable(con, tbl, ir)
+@@ -131,9 +133,10 @@
+ })
+ 
+ test_that("Subseconds are retained upon insertion (#208)", {
+-  con <- test_con("SQLSERVER")
++  con <- test_con("YDB")
+   data <- data.frame(time = Sys.time())
+-  tbl <- local_table(con, "time", data)
++  tbl <- local_table(con, "time", data,
++    field.types = c(time = "Timestamp64, PRIMARY KEY (`time`)"))
+ 
+   res <- dbReadTable(con, tbl)
+   expect_equal(as.double(res$time), as.double(data$time))
+@@ -148,7 +151,7 @@
+ })
+ 
+ test_that("blobs can be retrieved out of order", {
+-  con <- test_con("SQLSERVER")
++  con <- test_con("YDB")
+   values <- data.frame(
+     c1 = 1,
+     c2 = "this is varchar max",
+@@ -170,7 +173,7 @@
+ })
+ 
+ test_that("can bind NA values", {
+-  con <- test_con("SQLSERVER")
++  con <- test_con("YDB")
+   # With SELECT ing with the OEM SQL Server driver, everything
+   # after the first column should be unbound. Test null detection for
+   # unbound columns (NULL is registered after a call to nanodbc::result::get)
+@@ -183,6 +186,7 @@
+     c6 = c(Sys.time(), NA),
+     stringsAsFactors = FALSE
+   )
++  values <- DBItest:::ydb_keyed_fixture(values)
+   tbl <- local_table(con, "test_na", values)
+ 
+   received <- DBI::dbReadTable(con, tbl)
+@@ -218,7 +222,7 @@
+ })
+ 
+ test_that("odbcPreviewObject doesn't warn about pending rows", {
+-  con <- test_con("SQLSERVER")
++  con <- test_con("YDB")
+   tbl <- local_table(con, "test_preview", data.frame(a = 1:10L))
+ 
+   # There should be no "Pending rows" warning
+@@ -229,13 +233,13 @@
+ })
+ 
+ test_that("dates should always be interpreted in the system time zone (#398)", {
+-  con <- test_con("SQLSERVER")
++  con <- test_con("YDB")
+   res <- dbGetQuery(con, "SELECT CAST(? AS date)", params = as.Date("2019-01-01"))
+   expect_equal(res[[1]], as.Date("2019-01-01"))
+ })
+ 
+ test_that("UTF in VARCHAR is not truncated", {
+-  con <- test_con("SQLSERVER")
++  con <- test_con("YDB")
+   value <- "grün"
+   res <- dbGetQuery(
+     con,
+@@ -245,8 +249,8 @@
+ })
+ 
+ test_that("Zero-row-fetch does not move cursor", {
+-  con <- test_con("SQLSERVER")
+-  tbl <- local_table(con, "test_zero_row_fetch", mtcars[1:2, ])
++  con <- test_con("YDB")
++  tbl <- local_table(con, "test_zero_row_fetch", DBItest:::ydb_keyed_fixture(mtcars[1:2, ]))
+ 
+   rs <- dbSendStatement(con, paste0("SELECT * FROM ", tbl))
+   expect_equal(nrow(dbFetch(rs, n = 0)), 0)
+--- a/tests/testthat/test-driver-sqlite.R
++++ b/tests/testthat/test-driver-sqlite.R
+@@ -131,14 +131,14 @@
+ })
+ 
+ test_that("unsupported types gives informative error", {
+-  con <- test_con("SQLITE")
++  con <- test_con("YDB")
+ 
+   df <- data.frame(foo = complex(1))
+   expect_error(dbWriteTable(con, "df", df), "Column 'foo' is of unsupported type: 'complex'")
+ })
+ 
+ test_that("odbcPreviewObject works", {
+-  con <- test_con("SQLITE")
++  con <- test_con("YDB")
+   tbl <- local_table(con, "test_preview", data.frame(a = 1:10L))
+ 
+   # There should be no "Pending rows" warning
 --- a/tests/testthat/test-odbc-config.R
 +++ b/tests/testthat/test-odbc-config.R
 @@ -11,7 +11,7 @@
@@ -63,7 +303,13 @@
  })
 --- a/tests/testthat/test-odbc-connection.R
 +++ b/tests/testthat/test-odbc-connection.R
-@@ -72,6 +72,7 @@
+@@ -67,11 +67,12 @@
+ # odbcConnectionColumns deprecation --------------------------------------
+ 
+ test_that("odbcConnectionColumns warns on usage (#699)", {
+-  con <- test_con("SQLITE")
++  con <- test_con("YDB")
+   lifecycle::expect_deprecated(odbcConnectionColumns(con, "test"))
  })
  
  test_that("odbcConnectionColumns_ is eventually removed (#699)", {

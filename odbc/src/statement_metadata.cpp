@@ -225,6 +225,10 @@ TOdbcScalar GetColumnSize(const TYdbTypeInfo& type) {
     return I(static_cast<SQLINTEGER>(type.ColumnSize));
 }
 
+bool ColumnIsNotNull(const NTable::TTableColumn& column, const TYdbTypeInfo& type) {
+    return type.Nullable == SQL_NO_NULLS || column.NotNull.value_or(false);
+}
+
 TOdbcScalar GetBufferLength(const TYdbTypeInfo& type) {
     switch (type.SqlType) {
         case SQL_BIT: case SQL_TINYINT: return I(sizeof(SQLCHAR));
@@ -321,20 +325,29 @@ TTable BuildTypeInfoRows(SQLSMALLINT dataType) {
             || (dataType != SQL_ALL_TYPES && spec.Type != dataType)) {
             continue;
         }
-        const std::string typeName(spec.YqlType);
         const bool text = spec.ParamType == EParamType::Utf8;
         const bool decimal = spec.ParamType == EParamType::Decimal;
+        const std::string typeName(decimal ? "Decimal" : spec.YqlType);
         const bool numeric = decimal
             || (spec.ParamType >= EParamType::Int8 && spec.ParamType <= EParamType::Double);
-        const TOdbcScalar quote = text || IsDateTimeType(spec.Type) ? TOdbcScalar("'") : Null();
+        const TOdbcScalar literalPrefix = spec.Type == SQL_TYPE_DATE ? TOdbcScalar("{d '")
+            : spec.Type == SQL_TYPE_TIME ? TOdbcScalar("{t '")
+            : spec.Type == SQL_TYPE_TIMESTAMP ? TOdbcScalar("{ts '")
+            : text ? TOdbcScalar("'") : Null();
+        const TOdbcScalar literalSuffix = IsDateTimeType(spec.Type) ? TOdbcScalar("'}")
+            : text ? TOdbcScalar("'") : Null();
         table.push_back({
-            typeName, I(spec.Type), I(decimal ? 35 : static_cast<SQLINTEGER>(spec.ColumnSize)), quote, quote,
+            typeName, I(spec.Type), I(decimal ? 35 : static_cast<SQLINTEGER>(spec.ColumnSize)),
+            literalPrefix, literalSuffix,
             decimal ? TOdbcScalar("precision,scale") : Null(), I(SQL_NULLABLE),
             I(text), I(SQL_PRED_SEARCHABLE), numeric ? I(SQL_FALSE) : Null(), I(SQL_FALSE), I(SQL_FALSE), typeName,
             numeric ? I(0) : Null(), numeric ? I(decimal ? 35 : 0) : Null(),
             GetSqlDataType(spec.Type), GetDateTimeSub(spec.Type), numeric ? I(10) : Null(), Null(),
         });
     }
+    std::ranges::sort(table, {}, [](const auto& row) {
+        return std::tie(std::get<int64_t>(row[1]), std::get<std::string>(row[0]));
+    });
     return table;
 }
 
@@ -363,7 +376,6 @@ SQLRETURN TStatement::Columns(const TMetadataArgument& catalogName,
         }
         DescribeTable(GetConnection(), entry.Name, [&](const auto& description) {
             const auto& columns = description.GetTableColumns();
-            const auto& primaryKeyColumns = description.GetPrimaryKeyColumns();
             for (size_t index = 0; index < columns.size(); ++index) {
                 const auto& column = columns[index];
                 const bool matches = !columnName
@@ -374,9 +386,7 @@ SQLRETURN TStatement::Columns(const TMetadataArgument& catalogName,
                 }
                 const TYdbTypeInfo type = DescribeYdbType(column.Type);
                 const TOdbcScalar size = GetColumnSize(type);
-                const bool notNull = type.Nullable == SQL_NO_NULLS
-                    || (column.NotNull && *column.NotNull)
-                    || std::ranges::find(primaryKeyColumns, column.Name) != primaryKeyColumns.end();
+                const bool notNull = ColumnIsNotNull(column, type);
                 table.push_back({
                     catalog, Null(), GetMetadataTableName(entry.Name), column.Name, I(type.SqlType),
                     type.TypeName, size, GetBufferLength(type), Maybe(type.DecimalDigits),
@@ -533,9 +543,12 @@ SQLRETURN TStatement::Statistics(const TMetadataArgument& catalogName,
 SQLRETURN TStatement::SpecialColumns(const TMetadataArgument& catalogName,
                                      const TMetadataArgument& schemaName,
                                      const TMetadataArgument& tableName, SQLUSMALLINT identifierType,
-                                     SQLUSMALLINT) {
+                                     SQLUSMALLINT, SQLUSMALLINT nullable) {
     if (identifierType != SQL_BEST_ROWID) {
         return AddError("HYC00", 0, "Optional feature not implemented");
+    }
+    if (nullable != SQL_NO_NULLS && nullable != SQL_NULLABLE) {
+        return AddError("HY099", 0, "Nullable type out of range");
     }
     if (!tableName) {
         return AddError("HY009", 0, "TableName must not be null");
@@ -557,17 +570,22 @@ SQLRETURN TStatement::SpecialColumns(const TMetadataArgument& catalogName,
     if (!entries.empty()) {
         DescribeTable(GetConnection(), entries.front().Name, [&](const auto& description) {
             const auto& columns = description.GetTableColumns();
+            TTable identifierColumns;
             for (const auto& pkName : description.GetPrimaryKeyColumns()) {
                 const auto column = std::ranges::find_if(
                     columns, [&](const auto& item) { return item.Name == pkName; });
                 if (column == columns.end()) {
-                    continue;
+                    return;
                 }
                 const TYdbTypeInfo type = DescribeYdbType(column->Type);
+                if (nullable == SQL_NO_NULLS && !ColumnIsNotNull(*column, type)) {
+                    return;
+                }
                 const TOdbcScalar size = GetColumnSize(type);
-                table.push_back({I(SQL_SCOPE_SESSION), pkName, I(type.SqlType), type.TypeName,
-                                 size, size, Maybe(type.DecimalDigits), I(SQL_PC_NOT_PSEUDO)});
+                identifierColumns.push_back({I(SQL_SCOPE_SESSION), pkName, I(type.SqlType), type.TypeName,
+                                            size, size, Maybe(type.DecimalDigits), I(SQL_PC_NOT_PSEUDO)});
             }
+            table = std::move(identifierColumns);
         });
     }
     SetCursor(CreateVirtualCursor(kSpecialColumnsSchema, std::move(table)));

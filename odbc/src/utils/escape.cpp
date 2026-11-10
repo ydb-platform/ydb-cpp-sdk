@@ -285,9 +285,12 @@ struct TSqlScanner {
             Append('\'');
         } else {
             Append("CAST('");
-            AppendDecoded(valueBegin, valueEnd, EqualNoCase(keyword, "ts"));
-            Append(EqualNoCase(keyword, "d") ? "' AS Date)"
-                : EqualNoCase(keyword, "t") ? "' AS Time)" : "' AS Datetime)");
+            if (EqualNoCase(keyword, "t")) {
+                Append("1970-01-01T");
+            }
+            AppendDecoded(valueBegin, valueEnd, !EqualNoCase(keyword, "d"));
+            Append(EqualNoCase(keyword, "d") ? "'s AS Date)"
+                : EqualNoCase(keyword, "t") ? "'s AS Datetime)" : "'s AS Timestamp)");
         }
         pos = close + 1;
         return true;

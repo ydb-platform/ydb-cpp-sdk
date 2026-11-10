@@ -421,9 +421,9 @@ ODBC_FORWARD(SQLStatistics, TStatement, TStatement::Statistics,
 ODBC_FORWARD(SQLSpecialColumns, TStatement, TStatement::SpecialColumns,
     (SQLHSTMT statementHandle, SQLUSMALLINT identifierType, SQLCHAR* catalogName,
      SQLSMALLINT nameLength1, SQLCHAR* schemaName, SQLSMALLINT nameLength2,
-     SQLCHAR* tableName, SQLSMALLINT nameLength3, SQLUSMALLINT scope, SQLUSMALLINT),
+     SQLCHAR* tableName, SQLSMALLINT nameLength3, SQLUSMALLINT scope, SQLUSMALLINT nullable),
     (statementHandle, OptionalText(catalogName, nameLength1), OptionalText(schemaName, nameLength2),
-     OptionalText(tableName, nameLength3), identifierType, scope))
+     OptionalText(tableName, nameLength3), identifierType, scope, nullable))
 
 ODBC_FORWARD(SQLColAttribute, TStatement, Odbc::NMetadata::ColAttribute,
     (SQLHSTMT statementHandle, SQLUSMALLINT columnNumber, SQLUSMALLINT fieldIdentifier,
