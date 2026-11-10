@@ -656,22 +656,19 @@
    ["NULLABLE"]=>
    string(1) "1"
    ["CASE_SENSITIVE"]=>
-@@ -46,45 +46,43 @@
-   ["SEARCHABLE"]=>
-   string(1) "3"
-   ["UNSIGNED_ATTRIBUTE"]=>
-   NULL
+@@ -50,41 +50,39 @@
    ["FIXED_PREC_SCALE"]=>
    string(1) "0"
    ["AUTO_UNIQUE_VALUE"]=>
--  NULL
 +  string(1) "0"
-   ["LOCAL_TYPE_NAME"]=>
--  string(14) "datetimeoffset"
++  ["LOCAL_TYPE_NAME"]=>
 +  string(4) "Bool"
-   ["MINIMUM_SCALE"]=>
++  ["MINIMUM_SCALE"]=>
+   NULL
+-  ["LOCAL_TYPE_NAME"]=>
+-  string(14) "datetimeoffset"
+-  ["MINIMUM_SCALE"]=>
 -  string(1) "0"
-+  NULL
    ["MAXIMUM_SCALE"]=>
 -  string(1) "7"
 +  NULL
