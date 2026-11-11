@@ -26,5 +26,6 @@ runs:
           ccache --set-config=cache_dir="$HOME/.ccache"
           ccache --zero-stats
         else
-          sudo apt-get -y install libidn12 libodbc2 libodbcinst2 libssl3 libstdc++6
+          # unixODBC loads libodbccr.so through the development package's symlink.
+          sudo apt-get -y install libidn12 libodbc2 libodbcinst2 libssl3 libstdc++6 unixodbc-dev
         fi
