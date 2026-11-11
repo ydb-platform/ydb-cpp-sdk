@@ -188,6 +188,13 @@ SQLRETURN SQL_API SQLAllocHandle(SQLSMALLINT handleType,
     }
 }
 
+SQLRETURN SQL_API SQLAllocStmt(SQLHDBC connectionHandle, SQLHSTMT* statementHandle) {
+    if (statementHandle) {
+        *statementHandle = SQL_NULL_HSTMT;
+    }
+    return Allocate<TStatement>(connectionHandle, statementHandle);
+}
+
 SQLRETURN SQL_API SQLFreeHandle(SQLSMALLINT handleType, SQLHANDLE handle) {
     switch (handleType) {
         case SQL_HANDLE_ENV: return Free<TEnvironment>(handle);

@@ -7,6 +7,50 @@
 #define SQL_ODBC_INTERFACE_CONFORMANCE 169
 #endif
 
+#ifndef ODBC_TEST_IODBC
+// unixODBC's cursor library allocates its SQLGetData requery through SQLAllocStmt.
+TEST(CoreApi, CursorLibraryFetchesUnboundColumn) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnv(&env);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_DBC, env, &dbc), SQL_SUCCESS);
+    ASSERT_EQ(SQLSetConnectAttr(dbc, SQL_ATTR_ODBC_CURSORS,
+                               (SQLPOINTER)SQL_CUR_USE_ODBC, 0), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLDriverConnect(dbc, nullptr, (SQLCHAR*)kConnStr, SQL_NTS,
+                                  nullptr, 0, nullptr, SQL_DRIVER_NOPROMPT), dbc, SQL_HANDLE_DBC);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    ASSERT_EQ(SQLSetStmtAttr(stmt, SQL_ATTR_CURSOR_TYPE,
+                            (SQLPOINTER)SQL_CURSOR_STATIC, 0), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE IF EXISTS odbc_cursor_library", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"CREATE TABLE odbc_cursor_library "
+                               "(id Int32, payload Utf8, PRIMARY KEY (id))", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"INSERT INTO odbc_cursor_library "
+                               "(id, payload) VALUES (1, 'unbound value')", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT id, payload FROM odbc_cursor_library", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    SQLINTEGER id = 0;
+    SQLLEN length = 0;
+    SQLULEN rows = 0;
+    SQLUSMALLINT status = SQL_ROW_NOROW;
+    ASSERT_EQ(SQLBindCol(stmt, 1, SQL_C_LONG, &id, sizeof(id), &length), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLExtendedFetch(stmt, SQL_FETCH_NEXT, 0, &rows, &status), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(rows, 1u);
+    EXPECT_EQ(id, 1);
+    char payload[32] = {};
+    CHECK_ODBC_OK(SQLGetData(stmt, 2, SQL_C_CHAR, payload, sizeof(payload), &length), stmt, SQL_HANDLE_STMT);
+    EXPECT_STREQ(payload, "unbound value");
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    SQLFreeStmt(stmt, SQL_UNBIND);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE odbc_cursor_library", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+#endif
+
 TEST(CoreApi, SQLGetTypeInfoAll) {
     struct TExpectedType {
         SQLSMALLINT DataType;
