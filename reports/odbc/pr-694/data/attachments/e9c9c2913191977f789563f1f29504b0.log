@@ -1,0 +1,113 @@
+warning: Error disabling address space randomization: Operation not permitted
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+Loading driver-specific test file (tests/odbc.lua).
+LuaSQL 2.8.0 (for Lua 5.4) odbc driver test.  Copyright (C) 2003-2026 Lunar Modules Project
+@YDB_INVENTORY	basic checking
+@YDB_INVENTORY	create table
+@YDB_INVENTORY	fetch two values
+@YDB_INVENTORY	fetch new table
+@YDB_INVENTORY	fetch many
+@YDB_INVENTORY	unicode values
+@YDB_INVENTORY	rollback
+@YDB_INVENTORY	get column information
+@YDB_INVENTORY	extensions
+@YDB_INVENTORY	close objects
+@YDB_INVENTORY	to-be-closed support
+@YDB_INVENTORY	drop table
+@YDB_INVENTORY	close connection
+@YDB_INVENTORY	finalization
+[New Thread 0x7f925b8406c0 (LWP 573)]
+[New Thread 0x7f925a83f6c0 (LWP 574)]
+[New Thread 0x7f925983e6c0 (LWP 575)]
+[New Thread 0x7f924bfff6c0 (LWP 576)]
+[New Thread 0x7f9242dff6c0 (LWP 577)]
+[New Thread 0x7f924affe6c0 (LWP 578)]
+[New Thread 0x7f9249ffd6c0 (LWP 579)]
+[New Thread 0x7f9243fff6c0 (LWP 580)]
+[New Thread 0x7f9241dfe6c0 (LWP 581)]
+[New Thread 0x7f9233fff6c0 (LWP 582)]
+[New Thread 0x7f9232ffe6c0 (LWP 583)]
+[Thread 0x7f9242dff6c0 (LWP 577) exited]
+[Thread 0x7f9232ffe6c0 (LWP 583) exited]
+[Thread 0x7f924bfff6c0 (LWP 576) exited]
+[Thread 0x7f9233fff6c0 (LWP 582) exited]
+[Thread 0x7f9249ffd6c0 (LWP 579) exited]
+[Thread 0x7f9241dfe6c0 (LWP 581) exited]
+[Thread 0x7f9243fff6c0 (LWP 580) exited]
+[Thread 0x7f924affe6c0 (LWP 578) exited]
+[Thread 0x7f925983e6c0 (LWP 575) exited]
+[Thread 0x7f925b8406c0 (LWP 573) exited]
+[Thread 0x7f925a83f6c0 (LWP 574) exited]
+[New Thread 0x7f925a83f6c0 (LWP 584)]
+[New Thread 0x7f925b8406c0 (LWP 585)]
+[New Thread 0x7f925983e6c0 (LWP 586)]
+[New Thread 0x7f924bfff6c0 (LWP 587)]
+[New Thread 0x7f924affe6c0 (LWP 588)]
+[New Thread 0x7f9249ffd6c0 (LWP 589)]
+[New Thread 0x7f9243fff6c0 (LWP 590)]
+[New Thread 0x7f9242ffe6c0 (LWP 591)]
+[New Thread 0x7f9241ffd6c0 (LWP 592)]
+[New Thread 0x7f9233fff6c0 (LWP 593)]
+[New Thread 0x7f9232ffe6c0 (LWP 594)]
+[Thread 0x7f924affe6c0 (LWP 588) exited]
+[Thread 0x7f924bfff6c0 (LWP 587) exited]
+[Thread 0x7f9232ffe6c0 (LWP 594) exited]
+[Thread 0x7f9233fff6c0 (LWP 593) exited]
+[Thread 0x7f9242ffe6c0 (LWP 591) exited]
+[Thread 0x7f9241ffd6c0 (LWP 592) exited]
+[Thread 0x7f9243fff6c0 (LWP 590) exited]
+[Thread 0x7f9249ffd6c0 (LWP 589) exited]
+[Thread 0x7f925983e6c0 (LWP 586) exited]
+[Thread 0x7f925a83f6c0 (LWP 584) exited]
+[Thread 0x7f925b8406c0 (LWP 585) exited]
+[New Thread 0x7f925b8406c0 (LWP 595)]
+[New Thread 0x7f925a83f6c0 (LWP 596)]
+[New Thread 0x7f925983e6c0 (LWP 597)]
+[New Thread 0x7f924bfff6c0 (LWP 598)]
+[New Thread 0x7f924affe6c0 (LWP 599)]
+[New Thread 0x7f9249ffd6c0 (LWP 600)]
+[New Thread 0x7f9243fff6c0 (LWP 601)]
+[New Thread 0x7f9242ffe6c0 (LWP 602)]
+[New Thread 0x7f9241ffd6c0 (LWP 603)]
+[New Thread 0x7f9233fff6c0 (LWP 604)]
+[New Thread 0x7f9232ffe6c0 (LWP 605)]
+[Thread 0x7f924affe6c0 (LWP 599) exited]
+[Thread 0x7f924bfff6c0 (LWP 598) exited]
+[Thread 0x7f9232ffe6c0 (LWP 605) exited]
+[Thread 0x7f9233fff6c0 (LWP 604) exited]
+[Thread 0x7f9241ffd6c0 (LWP 603) exited]
+[Thread 0x7f9242ffe6c0 (LWP 602) exited]
+[Thread 0x7f9243fff6c0 (LWP 601) exited]
+[Thread 0x7f9249ffd6c0 (LWP 600) exited]
+[Thread 0x7f925983e6c0 (LWP 597) exited]
+[Thread 0x7f925b8406c0 (LWP 595) exited]
+[Thread 0x7f925a83f6c0 (LWP 596) exited]
+[New Thread 0x7f925a83f6c0 (LWP 606)]
+[New Thread 0x7f925b8406c0 (LWP 607)]
+[New Thread 0x7f925983e6c0 (LWP 608)]
+[New Thread 0x7f924bfff6c0 (LWP 609)]
+[New Thread 0x7f924affe6c0 (LWP 610)]
+[New Thread 0x7f9249ffd6c0 (LWP 611)]
+[New Thread 0x7f9243fff6c0 (LWP 612)]
+[New Thread 0x7f9242ffe6c0 (LWP 613)]
+[New Thread 0x7f9241ffd6c0 (LWP 614)]
+[New Thread 0x7f9233fff6c0 (LWP 615)]
+[New Thread 0x7f9232ffe6c0 (LWP 616)]
+get column information ...
+@YDB_CASE	get column information	passed	
+[Thread 0x7f924affe6c0 (LWP 610) exited]
+[Thread 0x7f924bfff6c0 (LWP 609) exited]
+[Thread 0x7f9232ffe6c0 (LWP 616) exited]
+[Thread 0x7f9233fff6c0 (LWP 615) exited]
+[Thread 0x7f9241ffd6c0 (LWP 614) exited]
+[Thread 0x7f9243fff6c0 (LWP 612) exited]
+[Thread 0x7f9242ffe6c0 (LWP 613) exited]
+[Thread 0x7f9249ffd6c0 (LWP 611) exited]
+[Thread 0x7f925983e6c0 (LWP 608) exited]
+[Thread 0x7f925a83f6c0 (LWP 606) exited]
+[Thread 0x7f925b8406c0 (LWP 607) exited]
+ OK !
+The test passed!
+[Inferior 1 (process 570) exited normally]
+No stack.

@@ -1,0 +1,91 @@
+warning: Error disabling address space randomization: Operation not permitted
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+Loading driver-specific test file (tests/odbc.lua).
+LuaSQL 2.8.0 (for Lua 5.4) odbc driver test.  Copyright (C) 2003-2026 Lunar Modules Project
+@YDB_INVENTORY	basic checking
+@YDB_INVENTORY	create table
+@YDB_INVENTORY	fetch two values
+@YDB_INVENTORY	fetch new table
+@YDB_INVENTORY	fetch many
+@YDB_INVENTORY	unicode values
+@YDB_INVENTORY	rollback
+@YDB_INVENTORY	get column information
+@YDB_INVENTORY	extensions
+@YDB_INVENTORY	close objects
+@YDB_INVENTORY	to-be-closed support
+@YDB_INVENTORY	drop table
+@YDB_INVENTORY	close connection
+@YDB_INVENTORY	finalization
+[New Thread 0x7fade10dd6c0 (LWP 797)]
+[New Thread 0x7fade00dc6c0 (LWP 798)]
+[New Thread 0x7faddf0db6c0 (LWP 799)]
+[New Thread 0x7fadde0da6c0 (LWP 800)]
+[New Thread 0x7faddd0d96c0 (LWP 801)]
+[New Thread 0x7fadcbfff6c0 (LWP 802)]
+[New Thread 0x7fadcaffe6c0 (LWP 803)]
+[New Thread 0x7fadc9ffd6c0 (LWP 804)]
+[New Thread 0x7fadb7fff6c0 (LWP 805)]
+[New Thread 0x7fadb6ffe6c0 (LWP 806)]
+[New Thread 0x7fadb5ffd6c0 (LWP 807)]
+[Thread 0x7faddd0d96c0 (LWP 801) exited]
+[Thread 0x7fadde0da6c0 (LWP 800) exited]
+[Thread 0x7fadb5ffd6c0 (LWP 807) exited]
+[Thread 0x7fadb6ffe6c0 (LWP 806) exited]
+[Thread 0x7fadcaffe6c0 (LWP 803) exited]
+[Thread 0x7fadc9ffd6c0 (LWP 804) exited]
+[Thread 0x7fadcbfff6c0 (LWP 802) exited]
+[Thread 0x7fadb7fff6c0 (LWP 805) exited]
+[Thread 0x7faddf0db6c0 (LWP 799) exited]
+[Thread 0x7fade10dd6c0 (LWP 797) exited]
+[Thread 0x7fade00dc6c0 (LWP 798) exited]
+[New Thread 0x7fade00dc6c0 (LWP 808)]
+[New Thread 0x7fade10dd6c0 (LWP 809)]
+[New Thread 0x7faddf0db6c0 (LWP 810)]
+[New Thread 0x7fadde0da6c0 (LWP 811)]
+[New Thread 0x7faddd0d96c0 (LWP 812)]
+[New Thread 0x7fadcbfff6c0 (LWP 813)]
+[New Thread 0x7fadcaffe6c0 (LWP 814)]
+[New Thread 0x7fadc9ffd6c0 (LWP 815)]
+[New Thread 0x7fadb7fff6c0 (LWP 816)]
+[New Thread 0x7fadb6ffe6c0 (LWP 817)]
+[New Thread 0x7fadb5ffd6c0 (LWP 818)]
+[Thread 0x7fadde0da6c0 (LWP 811) exited]
+[Thread 0x7fadb5ffd6c0 (LWP 818) exited]
+[Thread 0x7faddd0d96c0 (LWP 812) exited]
+[Thread 0x7fadcbfff6c0 (LWP 813) exited]
+[Thread 0x7fadb6ffe6c0 (LWP 817) exited]
+[Thread 0x7fadcaffe6c0 (LWP 814) exited]
+[Thread 0x7fadb7fff6c0 (LWP 816) exited]
+[Thread 0x7faddf0db6c0 (LWP 810) exited]
+[Thread 0x7fadc9ffd6c0 (LWP 815) exited]
+[Thread 0x7fade00dc6c0 (LWP 808) exited]
+[Thread 0x7fade10dd6c0 (LWP 809) exited]
+[New Thread 0x7fade10dd6c0 (LWP 819)]
+[New Thread 0x7fade00dc6c0 (LWP 820)]
+[New Thread 0x7faddf0db6c0 (LWP 821)]
+[New Thread 0x7fadde0da6c0 (LWP 822)]
+[New Thread 0x7faddd0d96c0 (LWP 823)]
+[New Thread 0x7fadcbfff6c0 (LWP 824)]
+[New Thread 0x7fadcaffe6c0 (LWP 825)]
+[New Thread 0x7fadc9ffd6c0 (LWP 826)]
+[New Thread 0x7fadb7fff6c0 (LWP 827)]
+[New Thread 0x7fadb6ffe6c0 (LWP 828)]
+[New Thread 0x7fadb5ffd6c0 (LWP 829)]
+[Thread 0x7fadb5ffd6c0 (LWP 829) exited]
+[Thread 0x7faddd0d96c0 (LWP 823) exited]
+[Thread 0x7fadde0da6c0 (LWP 822) exited]
+[Thread 0x7fadb6ffe6c0 (LWP 828) exited]
+[Thread 0x7fadb7fff6c0 (LWP 827) exited]
+[Thread 0x7fadc9ffd6c0 (LWP 826) exited]
+[Thread 0x7fadcaffe6c0 (LWP 825) exited]
+[Thread 0x7fadcbfff6c0 (LWP 824) exited]
+[Thread 0x7faddf0db6c0 (LWP 821) exited]
+close connection ...
+@YDB_CASE	close connection	passed	
+[Thread 0x7fade10dd6c0 (LWP 819) exited]
+[Thread 0x7fade00dc6c0 (LWP 820) exited]
+ OK !
+The test passed!
+[Inferior 1 (process 794) exited normally]
+No stack.

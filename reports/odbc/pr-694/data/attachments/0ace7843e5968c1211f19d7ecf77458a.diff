@@ -1,0 +1,83 @@
+--
+     Offset: 'name'
+     Dimension:
+     Isset:
+094- bool(true)
+095- bool(true)
+094+ bool(false)
+095+ bool(false)
+     Empty:
+     bool(true)
+     bool(true)
+     Null coalesce:
+100- string(1) "0"
+101- string(1) "0"
+100+ string(7) "default"
+101+ string(7) "default"
+     Read:
+103- string(1) "0"
+104- string(1) "0"
+103+ NULL
+104+ NULL
+     Property:
+     Isset:
+107- bool(true)
+108- bool(true)
+107+ bool(false)
+108+ bool(false)
+     Empty:
+     bool(true)
+     bool(true)
+     Null coalesce:
+113- string(1) "0"
+114- string(1) "0"
+113+ string(7) "default"
+114+ string(7) "default"
+     Read:
+116- string(1) "0"
+117- string(1) "0"
+116+ NULL
+117+ NULL
+     Offset: 1
+     Dimension:
+     Isset:
+121- bool(true)
+122- bool(true)
+121+ bool(false)
+122+ bool(false)
+     Empty:
+     bool(true)
+     bool(true)
+     Null coalesce:
+127- string(1) "0"
+128- string(1) "0"
+127+ string(7) "default"
+128+ string(7) "default"
+     Read:
+130- string(1) "0"
+131- string(1) "0"
+130+ NULL
+131+ NULL
+     Property:
+     Isset:
+134- bool(true)
+135- bool(true)
+134+ bool(false)
+135+ bool(false)
+     Empty:
+     bool(true)
+     bool(true)
+     Null coalesce:
+140- string(1) "0"
+141- string(1) "0"
+140+ string(7) "default"
+141+ string(7) "default"
+     Read:
+143- string(1) "0"
+144- string(1) "0"
+143+ NULL
+144+ NULL
+     Errors:
+     Cannot write to PDORow offset
+     Cannot append to PDORow offset
+--

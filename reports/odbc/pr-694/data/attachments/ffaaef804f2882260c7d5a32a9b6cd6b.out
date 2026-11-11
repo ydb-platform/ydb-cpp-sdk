@@ -1,0 +1,153 @@
+object(PDORow)#3 (3) {
+  ["queryString"]=>
+  string(40) "SELECT id, name FROM test_pdo_35_pdo_row"
+  ["id"]=>
+  string(2) "23"
+  ["name"]=>
+  string(1) "0"
+}
+bool(false)
+Offset: 0
+Dimension:
+Isset:
+bool(true)
+bool(true)
+Empty:
+bool(false)
+bool(false)
+Null coalesce:
+string(2) "23"
+string(2) "23"
+Read:
+string(2) "23"
+string(2) "23"
+Property:
+Isset:
+bool(true)
+bool(true)
+Empty:
+bool(false)
+bool(false)
+Null coalesce:
+string(2) "23"
+string(2) "23"
+Read:
+string(2) "23"
+string(2) "23"
+Offset: '0'
+Dimension:
+Isset:
+bool(true)
+bool(true)
+Empty:
+bool(false)
+bool(false)
+Null coalesce:
+string(2) "23"
+string(2) "23"
+Read:
+string(2) "23"
+string(2) "23"
+Property:
+Isset:
+bool(true)
+bool(true)
+Empty:
+bool(false)
+bool(false)
+Null coalesce:
+string(2) "23"
+string(2) "23"
+Read:
+string(2) "23"
+string(2) "23"
+Offset: 'id'
+Dimension:
+Isset:
+bool(true)
+bool(true)
+Empty:
+bool(false)
+bool(false)
+Null coalesce:
+string(2) "23"
+string(2) "23"
+Read:
+string(2) "23"
+string(2) "23"
+Property:
+Isset:
+bool(true)
+bool(true)
+Empty:
+bool(false)
+bool(false)
+Null coalesce:
+string(2) "23"
+string(2) "23"
+Read:
+string(2) "23"
+string(2) "23"
+Offset: 'name'
+Dimension:
+Isset:
+bool(false)
+bool(false)
+Empty:
+bool(true)
+bool(true)
+Null coalesce:
+string(7) "default"
+string(7) "default"
+Read:
+NULL
+NULL
+Property:
+Isset:
+bool(false)
+bool(false)
+Empty:
+bool(true)
+bool(true)
+Null coalesce:
+string(7) "default"
+string(7) "default"
+Read:
+NULL
+NULL
+Offset: 1
+Dimension:
+Isset:
+bool(false)
+bool(false)
+Empty:
+bool(true)
+bool(true)
+Null coalesce:
+string(7) "default"
+string(7) "default"
+Read:
+NULL
+NULL
+Property:
+Isset:
+bool(false)
+bool(false)
+Empty:
+bool(true)
+bool(true)
+Null coalesce:
+string(7) "default"
+string(7) "default"
+Read:
+NULL
+NULL
+Errors:
+Cannot write to PDORow offset
+Cannot append to PDORow offset
+
+Notice: Indirect modification of overloaded element of PDORow has no effect in /work/source/ext/pdo/tests/pdo_035.php on line 61
+Cannot append to PDORow offset
+Cannot unset PDORow offset
+Cannot write to PDORow property
+Cannot unset PDORow property

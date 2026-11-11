@@ -1,0 +1,102 @@
+warning: Error disabling address space randomization: Operation not permitted
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
+Loading driver-specific test file (tests/odbc.lua).
+LuaSQL 2.8.0 (for Lua 5.4) odbc driver test.  Copyright (C) 2003-2026 Lunar Modules Project
+@YDB_INVENTORY	basic checking
+@YDB_INVENTORY	create table
+@YDB_INVENTORY	fetch two values
+@YDB_INVENTORY	fetch new table
+@YDB_INVENTORY	fetch many
+@YDB_INVENTORY	unicode values
+@YDB_INVENTORY	rollback
+@YDB_INVENTORY	get column information
+@YDB_INVENTORY	extensions
+@YDB_INVENTORY	close objects
+@YDB_INVENTORY	to-be-closed support
+@YDB_INVENTORY	drop table
+@YDB_INVENTORY	close connection
+@YDB_INVENTORY	finalization
+[New Thread 0x7f25814536c0 (LWP 363)]
+[New Thread 0x7f257bfff6c0 (LWP 364)]
+[New Thread 0x7f257affe6c0 (LWP 365)]
+[New Thread 0x7f2579ffd6c0 (LWP 366)]
+[New Thread 0x7f256bfff6c0 (LWP 367)]
+[New Thread 0x7f256affe6c0 (LWP 368)]
+[New Thread 0x7f2569ffd6c0 (LWP 369)]
+[New Thread 0x7f255bfff6c0 (LWP 370)]
+[New Thread 0x7f2553fff6c0 (LWP 371)]
+[New Thread 0x7f255affe6c0 (LWP 372)]
+[New Thread 0x7f2559ffd6c0 (LWP 373)]
+[Thread 0x7f256bfff6c0 (LWP 367) exited]
+[Thread 0x7f2579ffd6c0 (LWP 366) exited]
+[Thread 0x7f2559ffd6c0 (LWP 373) exited]
+[Thread 0x7f255affe6c0 (LWP 372) exited]
+[Thread 0x7f255bfff6c0 (LWP 370) exited]
+[Thread 0x7f2553fff6c0 (LWP 371) exited]
+[Thread 0x7f2569ffd6c0 (LWP 369) exited]
+[Thread 0x7f256affe6c0 (LWP 368) exited]
+[Thread 0x7f257affe6c0 (LWP 365) exited]
+[Thread 0x7f25814536c0 (LWP 363) exited]
+[Thread 0x7f257bfff6c0 (LWP 364) exited]
+[New Thread 0x7f257bfff6c0 (LWP 374)]
+[New Thread 0x7f25814536c0 (LWP 375)]
+[New Thread 0x7f257affe6c0 (LWP 376)]
+[New Thread 0x7f2579ffd6c0 (LWP 377)]
+[New Thread 0x7f256bfff6c0 (LWP 378)]
+[New Thread 0x7f256affe6c0 (LWP 379)]
+[New Thread 0x7f2569ffd6c0 (LWP 380)]
+[New Thread 0x7f255bfff6c0 (LWP 381)]
+[New Thread 0x7f255affe6c0 (LWP 382)]
+[New Thread 0x7f2559ffd6c0 (LWP 383)]
+[New Thread 0x7f2553fff6c0 (LWP 384)]
+[Thread 0x7f256bfff6c0 (LWP 378) exited]
+[Thread 0x7f2579ffd6c0 (LWP 377) exited]
+[Thread 0x7f2553fff6c0 (LWP 384) exited]
+[Thread 0x7f2559ffd6c0 (LWP 383) exited]
+[Thread 0x7f256affe6c0 (LWP 379) exited]
+[Thread 0x7f255affe6c0 (LWP 382) exited]
+[Thread 0x7f255bfff6c0 (LWP 381) exited]
+[Thread 0x7f2569ffd6c0 (LWP 380) exited]
+[Thread 0x7f257affe6c0 (LWP 376) exited]
+[Thread 0x7f257bfff6c0 (LWP 374) exited]
+[Thread 0x7f25814536c0 (LWP 375) exited]
+[New Thread 0x7f25814536c0 (LWP 385)]
+[New Thread 0x7f257bfff6c0 (LWP 386)]
+[New Thread 0x7f257affe6c0 (LWP 387)]
+[New Thread 0x7f2579ffd6c0 (LWP 388)]
+[New Thread 0x7f256bfff6c0 (LWP 389)]
+[New Thread 0x7f256affe6c0 (LWP 390)]
+[New Thread 0x7f2569ffd6c0 (LWP 391)]
+[New Thread 0x7f255bfff6c0 (LWP 392)]
+[New Thread 0x7f255affe6c0 (LWP 393)]
+[New Thread 0x7f2559ffd6c0 (LWP 394)]
+[New Thread 0x7f2553fff6c0 (LWP 395)]
+fetch two values ...
+@YDB_CASE	fetch two values	failed	74657374732f746573742e6c75613a35393a2077726f6e672076616c756520283236303834303938343031373035363536333220696e7374656164206f662030290a737461636b2074726163656261636b3a0a095b435d3a20696e2066756e6374696f6e2027617373657274270a0974657374732f746573742e6c75613a35393a20696e2066756e6374696f6e202761737365727432270a0974657374732f746573742e6c75613a3139313a20696e2066756e6374696f6e2027666574636832270a095b435d3a20696e2066756e6374696f6e2027787063616c6c270a0974657374732f746573742e6c75613a3836303a20696e206d61696e206368756e6b0a095b435d3a20696e203f
+[Thread 0x7f256bfff6c0 (LWP 389) exited]
+[Thread 0x7f2553fff6c0 (LWP 395) exited]
+[Thread 0x7f2579ffd6c0 (LWP 388) exited]
+[Thread 0x7f2559ffd6c0 (LWP 394) exited]
+[Thread 0x7f256affe6c0 (LWP 390) exited]
+[Thread 0x7f255bfff6c0 (LWP 392) exited]
+[Thread 0x7f2569ffd6c0 (LWP 391) exited]
+[Thread 0x7f255affe6c0 (LWP 393) exited]
+[Thread 0x7f257affe6c0 (LWP 387) exited]
+[Thread 0x7f25814536c0 (LWP 385) exited]
+[Thread 0x7f257bfff6c0 (LWP 386) exited]
+
+tests/test.lua:59: wrong value (2608409840170565632 instead of 0)
+stack traceback:
+	[C]: in function 'assert'
+	tests/test.lua:59: in function 'assert2'
+	tests/test.lua:191: in function 'fetch2'
+	[C]: in function 'xpcall'
+	tests/test.lua:860: in main chunk
+	[C]: in ?
+... trying to drop test table ... OK !
+... and to close the connection ... failed: tests/test.lua:59: There are open cursors
+wrong value (false instead of true)
+The test failed!
+[Inferior 1 (process 360) exited normally]
+No stack.
