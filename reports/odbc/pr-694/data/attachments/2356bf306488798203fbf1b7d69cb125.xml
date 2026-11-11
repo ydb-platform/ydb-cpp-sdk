@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite name="tst_QSqlQuery" timestamp="2026&#x002D;11&#x002D;11T12:51:48" hostname="odbc&#x002D;test" tests="104" failures="6" errors="0" skipped="34" time="5.278">
+<testsuite name="tst_QSqlQuery" timestamp="2026&#x002D;11&#x002D;11T12:56:38" hostname="odbc&#x002D;test" tests="104" failures="6" errors="0" skipped="34" time="5.859">
   <properties>
     <property name="QTestVersion" value="6.4.2"/>
     <property name="QtVersion" value="6.4.2"/>
     <property name="QtBuild" value="Qt 6.4.2 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 13.2.0)"/>
   </properties>
-  <testcase name="initTestCase" classname="tst_QSqlQuery" time="0.211">
+  <testcase name="initTestCase" classname="tst_QSqlQuery" time="0.239">
     <system-out>
       <![CDATA[Opening: "0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1"]]>
     </system-out>
@@ -15,14 +15,14 @@
   </testcase>
   <testcase name="value(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.011"/>
   <testcase name="isValid(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.007"/>
-  <testcase name="isActive(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.063"/>
-  <testcase name="isSelect(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.017"/>
-  <testcase name="numRowsAffected(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.087"/>
-  <testcase name="size(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.021"/>
-  <testcase name="isNull(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.010"/>
-  <testcase name="writeNull(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.258"/>
+  <testcase name="isActive(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.062"/>
+  <testcase name="isSelect(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.015"/>
+  <testcase name="numRowsAffected(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.083"/>
+  <testcase name="size(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.027"/>
+  <testcase name="isNull(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.012"/>
+  <testcase name="writeNull(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.298"/>
   <testcase name="query_exec(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.001"/>
-  <testcase name="execErrorRecovery(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.022">
+  <testcase name="execErrorRecovery(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.025">
     <system-err>
       <![CDATA[QODBCResult::exec: Unable to execute statement: "Integrity constraint violation: <main>: Error: Constraint violated. Table: `/local/dbtstQODBC_qtest_exerr45b8415e610a4274`., code: 2012\n    <main>: Error: Conflict with existing key., code: 2012\n"]]>
     </system-err>
@@ -30,8 +30,8 @@
   <testcase name="first(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.001"/>
   <testcase name="next(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.001"/>
   <testcase name="prev(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.001"/>
-  <testcase name="last(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.001"/>
-  <testcase name="seek(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.009"/>
+  <testcase name="last(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.002"/>
+  <testcase name="seek(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.010"/>
   <testcase name="transaction(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.000">
     <skipped message="only tested manually by trained staff"/>
   </testcase>
@@ -41,16 +41,16 @@
    Expected (lowerQTest)                               : "dbtst_qtest45b8415e610a4274"]]>
     </failure>
   </testcase>
-  <testcase name="record_sqlite(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.022"/>
-  <testcase name="finish(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.018"/>
+  <testcase name="record_sqlite(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.026"/>
+  <testcase name="finish(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.020"/>
   <testcase name="sqlite_finish" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
   </testcase>
-  <testcase name="nextResult(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.087">
+  <testcase name="nextResult(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.098">
     <failure type="fail" message="&apos;!q.isSelect()&apos; returned FALSE. ()"/>
   </testcase>
-  <testcase name="forwardOnly(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.012"/>
-  <testcase name="forwardOnlyMultipleResultSet(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.058">
+  <testcase name="forwardOnly(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.013"/>
+  <testcase name="forwardOnlyMultipleResultSet(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.064">
     <failure type="fail" message="Compared values are not the same">
       <![CDATA[   Actual   (record.field(0).tableName()): ""
    Expected (qtest)                      : "dbtst_qtest45b8415e610a4274"]]>
@@ -59,28 +59,28 @@
   <testcase name="psql_forwardOnlyQueryResultsLost" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QPSQL are available in this Qt configuration"/>
   </testcase>
-  <testcase name="tds_bitField(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.035"/>
-  <testcase name="oci_nullBlob(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.042"/>
-  <testcase name="blob(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.028"/>
-  <testcase name="oci_rawField(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.035"/>
-  <testcase name="precision(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.027"/>
-  <testcase name="nullResult(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.008"/>
-  <testcase name="joins(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.078"/>
+  <testcase name="tds_bitField(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.043"/>
+  <testcase name="oci_nullBlob(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.044"/>
+  <testcase name="blob(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.031"/>
+  <testcase name="oci_rawField(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.036"/>
+  <testcase name="precision(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.028"/>
+  <testcase name="nullResult(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.010"/>
+  <testcase name="joins(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.090"/>
   <testcase name="outValues(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.000">
     <skipped message="Don&apos;t know how to create a stored procedure for this database server, please fix this test"/>
   </testcase>
   <testcase name="char1Select(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.028"/>
-  <testcase name="char1SelectUnicode(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.033"/>
-  <testcase name="synonyms(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.009"/>
+  <testcase name="char1SelectUnicode(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.026"/>
+  <testcase name="synonyms(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.010"/>
   <testcase name="oraOutValues" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QOCI are available in this Qt configuration"/>
   </testcase>
   <testcase name="mysql_outValues" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QMYSQL are available in this Qt configuration"/>
   </testcase>
-  <testcase name="oraClob(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.051"/>
-  <testcase name="oraClobBatch(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.030"/>
-  <testcase name="oraLong(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.034"/>
+  <testcase name="oraClob(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.056"/>
+  <testcase name="oraClobBatch(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.033"/>
+  <testcase name="oraLong(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.040"/>
   <testcase name="oraOCINumber" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QOCI are available in this Qt configuration"/>
   </testcase>
@@ -93,13 +93,13 @@
   <testcase name="oraRowId" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QOCI are available in this Qt configuration"/>
   </testcase>
-  <testcase name="prepare_bind_exec(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.234">
+  <testcase name="prepare_bind_exec(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.228">
     <system-err>
       <![CDATA[QODBCResult::exec: Unable to execute statement: "General error: <main>: Error: Type annotation, code: 1030\n    <main>:7:13: Error: At function: KiWriteTable!\n        <main>:7:61: Error: Failed to convert type: Struct<'id':Int32,'name':Int32> to Struct<'id':Int32?,'name':Utf8?>\n            <main>:7:61: Error: Failed to convert 'name': Int32 to Optional<Utf8>\n        <main>:7:61: Error: Failed to convert input columns types to scheme types, code: 2031\n"]]>
       <![CDATA[QODBCResult::exec: Unable to execute statement: "Integrity constraint violation: <main>: Error: Constraint violated. Table: `/local/dbtstQODBC_qtest_prepare45b8415e610a4274`., code: 2012\n    <main>: Error: Conflict with existing key., code: 2012\n"]]>
     </system-err>
   </testcase>
-  <testcase name="prepared_select(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.012"/>
+  <testcase name="prepared_select(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.015"/>
   <testcase name="sqlServerLongStrings(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.053"/>
   <testcase name="invalidQuery(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.002">
     <system-err>
@@ -107,32 +107,32 @@
       <![CDATA[QODBCResult::exec: Unable to execute statement: "[unixODBC][Driver Manager]Function sequence error"]]>
     </system-err>
   </testcase>
-  <testcase name="batchExec(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.064"/>
-  <testcase name="QTBUG_43874(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.029"/>
+  <testcase name="batchExec(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.068"/>
+  <testcase name="QTBUG_43874(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.031"/>
   <testcase name="oraArrayBind" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QOCI are available in this Qt configuration"/>
   </testcase>
-  <testcase name="lastInsertId(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.016">
+  <testcase name="lastInsertId(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.022">
     <skipped message="Database doesn&apos;t support lastInsertId"/>
   </testcase>
   <testcase name="lastQuery(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.001"/>
-  <testcase name="lastQueryTwoQueries(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.008"/>
-  <testcase name="bindBool(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.047"/>
+  <testcase name="lastQueryTwoQueries(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.009"/>
+  <testcase name="bindBool(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.053"/>
   <testcase name="psql_bindWithDoubleColonCastOperator" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QPSQL are available in this Qt configuration"/>
   </testcase>
-  <testcase name="psql_specialFloatValues(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.063"/>
+  <testcase name="psql_specialFloatValues(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.067"/>
   <testcase name="queryOnInvalidDatabase(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.000"/>
-  <testcase name="createQueryOnClosedDatabase(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.019">
+  <testcase name="createQueryOnClosedDatabase(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.025">
     <system-err>
       <![CDATA[QSqlQuery::exec: database not open]]>
     </system-err>
   </testcase>
   <testcase name="seekForwardOnlyQuery(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.002"/>
-  <testcase name="reExecutePreparedForwardOnlyQuery(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.010"/>
-  <testcase name="blobsPreparedQuery(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.038"/>
-  <testcase name="emptyTableNavigate(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.018"/>
-  <testcase name="timeStampParsing(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.027"/>
+  <testcase name="reExecutePreparedForwardOnlyQuery(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.011"/>
+  <testcase name="blobsPreparedQuery(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.044"/>
+  <testcase name="emptyTableNavigate(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.023"/>
+  <testcase name="timeStampParsing(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.029"/>
   <testcase name="sqliteVirtualTable" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
   </testcase>
@@ -142,14 +142,14 @@
   <testcase name="ibase_executeBlock" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QIBASE are available in this Qt configuration"/>
   </testcase>
-  <testcase name="task_217003(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.048"/>
-  <testcase name="task_250026(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.026"/>
+  <testcase name="task_217003(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.062"/>
+  <testcase name="task_250026(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.028"/>
   <testcase name="crashQueryOnCloseDatabase" classname="tst_QSqlQuery" time="0.002">
     <system-out>
       <![CDATA[Testing crash in sqlquery dtor for driver "QODBC"]]>
     </system-out>
   </testcase>
-  <testcase name="task_233829(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.018"/>
+  <testcase name="task_233829(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.020"/>
   <testcase name="QTBUG_12477" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QPSQL are available in this Qt configuration"/>
   </testcase>
@@ -165,11 +165,11 @@
   <testcase name="QTBUG_6421" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QOCI are available in this Qt configuration"/>
   </testcase>
-  <testcase name="QTBUG_6618(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.039"/>
+  <testcase name="QTBUG_6618(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.044"/>
   <testcase name="QTBUG_6852" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QMYSQL are available in this Qt configuration"/>
   </testcase>
-  <testcase name="QTBUG_5765(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.040"/>
+  <testcase name="QTBUG_5765(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.041"/>
   <testcase name="QTBUG_12186(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.000"/>
   <testcase name="QTBUG_14132" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QOCI are available in this Qt configuration"/>
@@ -180,30 +180,30 @@
   <testcase name="QTBUG_21884" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
   </testcase>
-  <testcase name="QTBUG_16967(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.044"/>
+  <testcase name="QTBUG_16967(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.046"/>
   <testcase name="QTBUG_23895" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
   </testcase>
-  <testcase name="QTBUG_14904(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.033">
+  <testcase name="QTBUG_14904(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.036">
     <failure type="fail" message="Compared values are not the same">
       <![CDATA[   Actual   (q.record().field(0).metaType().id()): 2
    Expected (QMetaType::Bool)                    : 1]]>
     </failure>
   </testcase>
-  <testcase name="QTBUG_2192(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.033"/>
+  <testcase name="QTBUG_2192(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.037"/>
   <testcase name="QTBUG_36211" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QPSQL are available in this Qt configuration"/>
   </testcase>
-  <testcase name="QTBUG_53969(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.040"/>
+  <testcase name="QTBUG_53969(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.046"/>
   <testcase name="gisPointDatatype" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QMYSQL are available in this Qt configuration"/>
   </testcase>
   <testcase name="sqlite_constraint" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
   </testcase>
-  <testcase name="sqlite_real(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.043"/>
-  <testcase name="aggregateFunctionTypes(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.419"/>
-  <testcase name="integralTypesMysql(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="2.068">
+  <testcase name="sqlite_real(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.048"/>
+  <testcase name="aggregateFunctionTypes(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.438"/>
+  <testcase name="integralTypesMysql(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="2.429">
     <failure type="fail" message="Compared lists differ at index 0.">
       <![CDATA[   Actual   (actualValues): 0
    Expected (values): -128]]>
@@ -217,13 +217,13 @@
       <![CDATA[QODBCResult::exec: Unable to execute statement: "General error: <main>: Error: Type annotation, code: 1030\n    <main>:6:13: Error: At function: KiWriteTable!\n        <main>:6:35: Error: Failed to convert type: Struct<'id':Int32> to Struct<'id':Uint16?>\n            <main>:6:35: Error: Failed to convert 'id': Int32 to Optional<Uint16>\n        <main>:6:35: Error: Failed to convert input columns types to scheme types, code: 2031\n"]]>
     </system-err>
   </testcase>
-  <testcase name="QTBUG_57138(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.052">
+  <testcase name="QTBUG_57138(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.049">
     <failure type="fail" message="Compared values are not the same">
       <![CDATA[   Actual   (q.value(2).toDateTime()): 2150/01/05 14:00:00.123[UTC]
    Expected (tzoffset)               : 2150/01/05 14:00:00.123[UTC+01:00]]]>
     </failure>
   </testcase>
-  <testcase name="QTBUG_73286(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.039"/>
+  <testcase name="QTBUG_73286(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.035"/>
   <testcase name="dateTime(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1 timestamp with time zone)" classname="tst_QSqlQuery" time="0.000">
     <skipped message="Implemented only for Oracle"/>
   </testcase>
@@ -240,5 +240,5 @@
     <skipped message="No database drivers of type QIBASE are available in this Qt configuration"/>
   </testcase>
   <testcase name="prematureExec(0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1)" classname="tst_QSqlQuery" time="0.000"/>
-  <testcase name="cleanupTestCase" classname="tst_QSqlQuery" time="0.331"/>
+  <testcase name="cleanupTestCase" classname="tst_QSqlQuery" time="0.316"/>
 </testsuite>
