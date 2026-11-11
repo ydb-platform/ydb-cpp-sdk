@@ -8,6 +8,7 @@
 #include <tests/unit/client/oauth2_token_exchange/helpers/test_token_exchange_server.h>
 
 #include <util/folder/tempdir.h>
+#include <util/generic/scope.h>
 #include <util/stream/file.h>
 
 #include <cstdlib>
@@ -142,6 +143,49 @@ TEST_F(OdbcAuthentication, StaticUserAndPasswordAliases) {
     ASSERT_NO_FATAL_FAILURE(Connect(
         "AuthMode=Static;UID=" + std::string(user) + ";PWD=" + std::string(password) + ";"));
     ASSERT_NO_FATAL_FAILURE(SelectOne());
+}
+
+TEST_F(OdbcAuthentication, TemporalBindingsWithWriteOnlyPermissions) {
+    ASSERT_NO_FATAL_FAILURE(Connect("AuthMode=Token;Token=root@builtin;"));
+    ASSERT_NO_FATAL_FAILURE(Execute("DROP TABLE IF EXISTS odbc_temporal_write_only"));
+    ASSERT_NO_FATAL_FAILURE(Execute(
+        "CREATE TABLE odbc_temporal_write_only (id Int32 NOT NULL, d Date, ts Timestamp, PRIMARY KEY (id))"));
+    Y_DEFER {
+        ASSERT_NO_FATAL_FAILURE(Connect("AuthMode=Token;Token=root@builtin;"));
+        ASSERT_NO_FATAL_FAILURE(Execute("DROP TABLE odbc_temporal_write_only"));
+        ASSERT_NO_FATAL_FAILURE(Execute(
+            "REVOKE CONNECT ON `" + Database_ + "` FROM `odbc_temporal_writer@builtin`"));
+    };
+    ASSERT_NO_FATAL_FAILURE(Execute(
+        "GRANT CONNECT ON `" + Database_ + "` TO `odbc_temporal_writer@builtin`"));
+    ASSERT_NO_FATAL_FAILURE(Execute(
+        "GRANT DESCRIBE SCHEMA, UPDATE ROW ON `" + Database_ +
+        "/odbc_temporal_write_only` TO `odbc_temporal_writer@builtin`"));
+    ASSERT_NO_FATAL_FAILURE(Connect("AuthMode=Token;Token=odbc_temporal_writer@builtin;"));
+    ASSERT_NO_FATAL_FAILURE(Execute(
+        "INSERT INTO odbc_temporal_write_only (id, d, ts) VALUES "
+        "(1, Date(\"2024-06-15\"), Timestamp(\"2024-06-15T14:30:20.123456Z\"))"));
+
+    SQLHSTMT statement = SQL_NULL_HSTMT;
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, Dbc_, &statement), SQL_SUCCESS);
+    Y_DEFER {
+        EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_STMT, statement), SQL_SUCCESS);
+    };
+    SQLCHAR select[] = "SELECT d, ts FROM odbc_temporal_write_only";
+    ASSERT_EQ(SQLExecDirect(statement, select, SQL_NTS), SQL_ERROR);
+    const std::string error = GetOdbcError(statement, SQL_HANDLE_STMT);
+    EXPECT_TRUE(SqlStatePrefix(error, "28000") || error.find("AccessDenied") != std::string::npos) << error;
+
+    SQLCHAR insert[] = "INSERT INTO odbc_temporal_write_only (id, d, ts) VALUES (2, ?, ?)";
+    CHECK_ODBC_OK(SQLPrepare(statement, insert, SQL_NTS), statement, SQL_HANDLE_STMT);
+    SQL_DATE_STRUCT date{2024, 6, 15};
+    SQL_TIMESTAMP_STRUCT timestamp{2024, 6, 15, 14, 30, 20, 123456000};
+    SQLLEN dateLength = sizeof(date), timestampLength = sizeof(timestamp);
+    CHECK_ODBC_OK(SQLBindParameter(statement, 1, SQL_PARAM_INPUT, SQL_C_TYPE_DATE, SQL_TYPE_DATE,
+        10, 0, &date, sizeof(date), &dateLength), statement, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLBindParameter(statement, 2, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP,
+        26, 6, &timestamp, sizeof(timestamp), &timestampLength), statement, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecute(statement), statement, SQL_HANDLE_STMT);
 }
 
 TEST_F(OdbcAuthentication, MetadataService) {

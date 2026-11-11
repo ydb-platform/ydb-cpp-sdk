@@ -430,7 +430,7 @@ classifications:
     reason: LuaSQL reads SQL_C_SLONG into SQLLEN with uninitialized upper bytes and leaves luaL_Buffer stack slots
       on NULL reads; outcomes are intermittent.
     match: (?s)wrong value \(-?\d{10,} instead of (?:0|1|10)\).*in function \'(?:fetch2|fetch_new_table|fetch_many|unicode_values|rollback|extensions_test|check_close)\'|wrong
-      value \(c instead of b\).*in function \'fetch2\'|Program received signal SIG(?:SEGV|ABRT).*\b(?:cur_fetch|lua|free)\b
+      value \(c instead of b\).*in function \'fetch2\'|received signal SIG(?:SEGV|ABRT)(?!.*(?:libydb-odbc|NYdb::NOdbc|/odbc/src/))(?:.*\b(?:cur_fetch|lua|free)\b|.*(?:\n\#[0-4]\s+0x[0-9a-f]+ in \?\? \(\)){5}\n\#5\s+0x[0-9a-f]+ in lua_pcallk \(\))
     reference: https://github.com/lunarmodules/luasql/pull/219
     reproducer: repros/lua-fetch.lua
     tests:
