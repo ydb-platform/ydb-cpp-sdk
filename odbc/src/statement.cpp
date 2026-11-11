@@ -134,22 +134,25 @@ void TStatement::RefreshParamBindings() {
 }
 
 SQLRETURN TStatement::Prepare(const std::string& statementText) {
+    IsPrepared_ = false;
+    ParamCount_ = 0;
+    PreparedQuery_.clear();
     RowCount_ = -1;
     PreparedColumnMeta_.reset();
     ClearResults();
     PreparedQuery_ = GetConnection().PrepareSql(statementText);
-    IsPrepared_ = true;
     ParamCount_ = CountOdbcParams(PreparedQuery_);
     ImpParamDesc_.WithLock([&](TDescriptor& desc) {
         while (desc.GetRecordCount() > ParamCount_) {
             desc.RemoveRecord(desc.GetRecordCount());
         }
-        for (SQLSMALLINT i = 1; i <= ParamCount_; ++i) {
+        for (SQLUSMALLINT i = 1; i <= ParamCount_; ++i) {
             desc.RemoveInferredRecord(i);
             desc.Record(i).Nullable = SQL_NULLABLE_UNKNOWN;
             desc.Record(i).WideTemporalType.reset();
         }
     });
+    IsPrepared_ = true;
     return SQL_SUCCESS;
 }
 
@@ -158,7 +161,7 @@ SQLRETURN TStatement::Execute() {
         throw TOdbcException("HY007", 0, "No prepared statement");
     }
     RefreshParamBindings();
-    for (SQLSMALLINT number = 1; number <= ParamCount_; ++number) {
+    for (SQLUSMALLINT number = 1; number <= ParamCount_; ++number) {
         const auto* record = ImpParamBindings_.FindRecord(number);
         if (record && !record->WideTemporalType
             && (record->Type == SQL_TYPE_DATE || record->Type == SQL_TYPE_TIMESTAMP)) {
@@ -684,7 +687,7 @@ SQLRETURN TStatement::BindParameter(SQLUSMALLINT paramNumber,
 
 std::vector<TBoundParam> TStatement::GetBoundParams(SQLULEN paramSet) const {
     std::vector<TBoundParam> params;
-    for (SQLSMALLINT number = 1; number <= ParamCount_; ++number) {
+    for (SQLUSMALLINT number = 1; number <= ParamCount_; ++number) {
         const TDescRecord* app = ParamBindings_.FindRecord(number);
         const TDescRecord* imp = ImpParamBindings_.FindRecord(number);
         if (!app || !imp) {
@@ -1082,7 +1085,7 @@ void TStatement::EnsurePreparedColumnMeta() {
     // Use descriptor types and typed NULLs, never application parameter values.
     std::vector<TBoundParam> activeParams;
     NYdb::TParamsBuilder builder;
-    for (SQLSMALLINT number = 1; number <= ParamCount_; ++number) {
+    for (SQLUSMALLINT number = 1; number <= ParamCount_; ++number) {
         const auto* imp = ImpParamBindings_.FindRecord(number);
         const auto* app = ParamBindings_.FindRecord(number);
         if (!imp || imp->Type == SQL_UNKNOWN_TYPE

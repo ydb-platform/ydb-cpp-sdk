@@ -2,6 +2,7 @@
 #include "utils/param_rewrite.h"
 
 #include <gtest/gtest.h>
+#include <stdexcept>
 
 using NYdb::NOdbc::RewriteOdbcSql;
 using NYdb::NOdbc::CountOdbcParams;
@@ -184,6 +185,21 @@ TEST(OdbcParamRewrite, CountOdbcParams) {
     EXPECT_EQ(CountOdbcParams("SELECT $p1"), 1);
     EXPECT_EQ(CountOdbcParams("SELECT $p1 + $p2"), 2);
     EXPECT_EQ(CountOdbcParams("SELECT 1"), 0);
+}
+
+TEST(OdbcParamRewrite, ParameterCountLimits) {
+    std::string markers;
+    for (size_t i = 0; i < 32767; ++i) markers += "?,";
+    EXPECT_EQ(CountOdbcParams(markers), 32767);
+    EXPECT_EQ(CountOdbcParams("SELECT $p32767"), 32767);
+    EXPECT_TRUE(RewriteOdbcSql("SELECT $p32767", {IntParam(32767)}, false).Success);
+    markers += "?,";
+    for (const auto& sql : {markers, markers + markers, std::string("SELECT $p32768"),
+                           std::string("SELECT $p65536"), std::string("SELECT $p999999999999999999999")}) {
+        EXPECT_THROW(CountOdbcParams(sql), std::length_error);
+        EXPECT_THROW(RewriteOdbcSql(sql, {}, false), std::length_error);
+    }
+    EXPECT_EQ(CountOdbcParams("SELECT '$p999999999999999999999', '?' /* $p65536 ? */ -- ?"), 0);
 }
 
 TEST(OdbcParamRewrite, ClassifiesAfterTrivia) {

@@ -22,6 +22,34 @@ TEST(StatementApi, AllocFreeStmtHandle) {
     SQLFreeHandle(SQL_HANDLE_ENV, env);
 }
 
+TEST(StatementApi, ParameterCountLimits) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    std::string query = "SELECT ?";
+    for (int i = 1; i < std::numeric_limits<SQLSMALLINT>::max(); ++i) query += ",?";
+    ASSERT_EQ(SQLPrepare(stmt, (SQLCHAR*)query.c_str(), SQL_NTS), SQL_SUCCESS);
+    SQLSMALLINT count = 0;
+    ASSERT_EQ(SQLNumParams(stmt, &count), SQL_SUCCESS);
+    EXPECT_EQ(count, std::numeric_limits<SQLSMALLINT>::max());
+    for (const auto& invalid : {query + ",?", std::string("SELECT $p32768"),
+                               std::string("SELECT $p65536"), std::string("SELECT $p999999999999999999999")}) {
+        EXPECT_EQ(SQLPrepare(stmt, (SQLCHAR*)invalid.c_str(), SQL_NTS), SQL_ERROR);
+        EXPECT_TRUE(SqlStatePrefix(GetOdbcError(stmt, SQL_HANDLE_STMT), "HY000"));
+        EXPECT_EQ(SQLNumParams(stmt, &count), SQL_ERROR);
+        EXPECT_EQ(SQLExecute(stmt), SQL_ERROR);
+        ASSERT_EQ(SQLPrepare(stmt, (SQLCHAR*)"SELECT ?", SQL_NTS), SQL_SUCCESS);
+        ASSERT_EQ(SQLNumParams(stmt, &count), SQL_SUCCESS);
+        EXPECT_EQ(count, 1);
+    }
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
 TEST(StatementApi, ExecDirectSimple) {
     SQLHENV env;
     SQLHDBC dbc;

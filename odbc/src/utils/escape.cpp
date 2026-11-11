@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <bitset>
 #include <cctype>
+#include <limits>
+#include <stdexcept>
 
 namespace NYdb::NOdbc {
 namespace {
@@ -29,6 +31,7 @@ bool StartsWithKeyword(std::string_view sql, size_t pos, std::string_view keywor
 }
 
 struct TSqlScanner {
+    static constexpr auto MaxParameters = std::numeric_limits<SQLSMALLINT>::max();
     std::string_view Sql_;
     std::string* Output_;
     bool RewriteEscapes_;
@@ -37,7 +40,7 @@ struct TSqlScanner {
 
     size_t QuestionCount = 0;
     SQLSMALLINT MaxDollarIndex = 0;
-    std::bitset<1U << 16U> Indices;
+    std::bitset<MaxParameters + 1U> Indices;
 
     void Append(std::string_view text) {
         if (Output_) {
@@ -357,6 +360,9 @@ struct TSqlScanner {
         unsigned value = 0;
         for (size_t i = pos + 2; i < end && std::isdigit(static_cast<unsigned char>(Sql_[i])); ++i) {
             value = value * 10 + static_cast<unsigned>(Sql_[i] - '0');
+            if (value > MaxParameters) {
+                throw std::length_error("Too many parameters (maximum 32767)");
+            }
         }
         index = static_cast<SQLUSMALLINT>(value);
         return true;
@@ -390,7 +396,10 @@ struct TSqlScanner {
                 continue;
             }
             if (parameters && IsQuestionMark(pos)) {
-                const SQLUSMALLINT index = static_cast<SQLUSMALLINT>(++QuestionCount);
+                if (++QuestionCount > MaxParameters) {
+                    throw std::length_error("Too many parameters (maximum 32767)");
+                }
+                const auto index = static_cast<SQLUSMALLINT>(QuestionCount);
                 if (Output_) {
                     Indices.set(index);
                     Append("$p");
@@ -583,6 +592,10 @@ std::optional<std::string> BuildParamMetadataQuery(
     if (HasMultipleSqlStatements(sql)) {
         return std::nullopt;
     }
+    const auto count = CountOdbcParams(sql);
+    if (count != paramCount || paramNumber < 1 || paramNumber > count) {
+        return std::nullopt;
+    }
     const TSqlScanner scanner{sql, nullptr, false};
     struct TToken {
         std::string_view Text;
@@ -642,10 +655,6 @@ std::optional<std::string> BuildParamMetadataQuery(
         return std::string(tokens[begin].Text.data(),
             tokens[end - 1].Text.data() + tokens[end - 1].Text.size());
     };
-    const auto count = CountOdbcParams(sql);
-    if (count != paramCount || paramNumber < 1 || paramNumber > count) {
-        return std::nullopt;
-    }
     std::vector<std::string> sources(static_cast<size_t>(count));
     const auto assign = [&](SQLUSMALLINT parameter, std::string expression) {
         if (parameter > 0 && parameter <= sources.size() && !expression.empty()) {
