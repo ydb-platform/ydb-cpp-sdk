@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite name="tst_QSqlRelationalTableModel" timestamp="2026&#x002D;11&#x002D;11T18:05:14" hostname="odbc&#x002D;test" tests="24" failures="2" errors="0" skipped="2" time="5.793">
+<testsuite name="tst_QSqlRelationalTableModel" timestamp="2026&#x002D;11&#x002D;11T18:16:34" hostname="odbc&#x002D;test" tests="24" failures="2" errors="0" skipped="2" time="5.376">
   <properties>
     <property name="QTestVersion" value="6.4.2"/>
     <property name="QtVersion" value="6.4.2"/>
     <property name="QtBuild" value="Qt 6.4.2 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 13.2.0)"/>
   </properties>
-  <testcase name="initTestCase" classname="tst_QSqlRelationalTableModel" time="0.266">
+  <testcase name="initTestCase" classname="tst_QSqlRelationalTableModel" time="0.224">
     <system-out>
       <![CDATA[Opening: "0_QODBC@YDB_qt"]]>
     </system-out>
@@ -13,13 +13,13 @@
       <![CDATA[Driver "QSQLITE" is not installed]]>
     </system-err>
   </testcase>
-  <testcase name="data" classname="tst_QSqlRelationalTableModel" time="0.083">
+  <testcase name="data" classname="tst_QSqlRelationalTableModel" time="0.075">
     <failure type="fail" message="&apos;model.data(model.index(4, 2)).isValid() == true&apos; returned FALSE. (NULL relation reported with invalid QVariant)"/>
   </testcase>
-  <testcase name="setData" classname="tst_QSqlRelationalTableModel" time="0.503"/>
-  <testcase name="multipleRelation" classname="tst_QSqlRelationalTableModel" time="0.483"/>
-  <testcase name="insertRecord" classname="tst_QSqlRelationalTableModel" time="0.113"/>
-  <testcase name="setRecord" classname="tst_QSqlRelationalTableModel" time="0.338">
+  <testcase name="setData" classname="tst_QSqlRelationalTableModel" time="0.494"/>
+  <testcase name="multipleRelation" classname="tst_QSqlRelationalTableModel" time="0.383"/>
+  <testcase name="insertRecord" classname="tst_QSqlRelationalTableModel" time="0.106"/>
+  <testcase name="setRecord" classname="tst_QSqlRelationalTableModel" time="0.317">
     <failure type="fail" message="&apos;(model).setRecord(1, rec)&apos; returned FALSE. (QODBC@YDB_qt: (400080) &apos;QODBC: Unable to execute statement&apos; || &apos;General error: &lt;main&gt;: Error: Type annotation, code: 1030">
       <![CDATA[    <main>:10:154: Error: At function: KiUpdateTable!
         <main>:10:154: Error: Cannot update primary key column: id
@@ -29,26 +29,26 @@
       <![CDATA[QODBCResult::exec: Unable to execute statement: "General error: <main>: Error: Type annotation, code: 1030\n    <main>:10:154: Error: At function: KiUpdateTable!\n        <main>:10:154: Error: Cannot update primary key column: id\n"]]>
     </system-err>
   </testcase>
-  <testcase name="insertWithStrategies" classname="tst_QSqlRelationalTableModel" time="0.197"/>
-  <testcase name="removeColumn" classname="tst_QSqlRelationalTableModel" time="0.824"/>
-  <testcase name="filter" classname="tst_QSqlRelationalTableModel" time="0.406"/>
-  <testcase name="sort" classname="tst_QSqlRelationalTableModel" time="0.227"/>
-  <testcase name="revert" classname="tst_QSqlRelationalTableModel" time="0.124"/>
-  <testcase name="clearDisplayValuesCache" classname="tst_QSqlRelationalTableModel" time="0.086"/>
-  <testcase name="insertRecordDuplicateFieldNames" classname="tst_QSqlRelationalTableModel" time="0.072"/>
-  <testcase name="invalidData" classname="tst_QSqlRelationalTableModel" time="0.078"/>
-  <testcase name="relationModel" classname="tst_QSqlRelationalTableModel" time="0.134"/>
-  <testcase name="casing" classname="tst_QSqlRelationalTableModel" time="0.162"/>
-  <testcase name="escapedRelations" classname="tst_QSqlRelationalTableModel" time="0.517"/>
-  <testcase name="escapedTableName" classname="tst_QSqlRelationalTableModel" time="0.368"/>
+  <testcase name="insertWithStrategies" classname="tst_QSqlRelationalTableModel" time="0.180"/>
+  <testcase name="removeColumn" classname="tst_QSqlRelationalTableModel" time="0.720"/>
+  <testcase name="filter" classname="tst_QSqlRelationalTableModel" time="0.357"/>
+  <testcase name="sort" classname="tst_QSqlRelationalTableModel" time="0.249"/>
+  <testcase name="revert" classname="tst_QSqlRelationalTableModel" time="0.145"/>
+  <testcase name="clearDisplayValuesCache" classname="tst_QSqlRelationalTableModel" time="0.105"/>
+  <testcase name="insertRecordDuplicateFieldNames" classname="tst_QSqlRelationalTableModel" time="0.064"/>
+  <testcase name="invalidData" classname="tst_QSqlRelationalTableModel" time="0.065"/>
+  <testcase name="relationModel" classname="tst_QSqlRelationalTableModel" time="0.124"/>
+  <testcase name="casing" classname="tst_QSqlRelationalTableModel" time="0.152"/>
+  <testcase name="escapedRelations" classname="tst_QSqlRelationalTableModel" time="0.450"/>
+  <testcase name="escapedTableName" classname="tst_QSqlRelationalTableModel" time="0.375"/>
   <testcase name="whiteSpaceInIdentifiers" classname="tst_QSqlRelationalTableModel" time="0.000">
     <skipped message="White space test irrelevant for driver"/>
   </testcase>
   <testcase name="psqlSchemaTest" classname="tst_QSqlRelationalTableModel" time="0.000">
     <skipped message="Postgresql specific test"/>
   </testcase>
-  <testcase name="selectAfterUpdate" classname="tst_QSqlRelationalTableModel" time="0.065"/>
-  <testcase name="relationOnFirstColumn" classname="tst_QSqlRelationalTableModel" time="0.308"/>
-  <testcase name="setRelation" classname="tst_QSqlRelationalTableModel" time="0.363"/>
-  <testcase name="cleanupTestCase" classname="tst_QSqlRelationalTableModel" time="0.076"/>
+  <testcase name="selectAfterUpdate" classname="tst_QSqlRelationalTableModel" time="0.057"/>
+  <testcase name="relationOnFirstColumn" classname="tst_QSqlRelationalTableModel" time="0.270"/>
+  <testcase name="setRelation" classname="tst_QSqlRelationalTableModel" time="0.381"/>
+  <testcase name="cleanupTestCase" classname="tst_QSqlRelationalTableModel" time="0.081"/>
 </testsuite>
