@@ -17,94 +17,86 @@ LuaSQL 2.8.0 (for Lua 5.4) odbc driver test.  Copyright (C) 2003-2026 Lunar Modu
 @YDB_INVENTORY	drop table
 @YDB_INVENTORY	close connection
 @YDB_INVENTORY	finalization
-[New Thread 0x7f4ac367a6c0 (LWP 672)]
-[New Thread 0x7f4abbfff6c0 (LWP 673)]
-[New Thread 0x7f4ac26796c0 (LWP 674)]
-[New Thread 0x7f4ac16786c0 (LWP 675)]
-[New Thread 0x7f4abaffe6c0 (LWP 676)]
-[New Thread 0x7f4ab9ffd6c0 (LWP 677)]
-[New Thread 0x7f4aa3fff6c0 (LWP 678)]
-[New Thread 0x7f4a9bfff6c0 (LWP 679)]
-[New Thread 0x7f4aa2ffe6c0 (LWP 680)]
-[New Thread 0x7f4aa1ffd6c0 (LWP 681)]
-[New Thread 0x7f4a9affe6c0 (LWP 682)]
-[Thread 0x7f4abaffe6c0 (LWP 676) exited]
-[Thread 0x7f4a9affe6c0 (LWP 682) exited]
-[Thread 0x7f4ac16786c0 (LWP 675) exited]
-[Thread 0x7f4aa1ffd6c0 (LWP 681) exited]
-[Thread 0x7f4a9bfff6c0 (LWP 679) exited]
-[Thread 0x7f4aa3fff6c0 (LWP 678) exited]
-[Thread 0x7f4ab9ffd6c0 (LWP 677) exited]
-[Thread 0x7f4aa2ffe6c0 (LWP 680) exited]
-[Thread 0x7f4ac26796c0 (LWP 674) exited]
-[Thread 0x7f4ac367a6c0 (LWP 672) exited]
-[Thread 0x7f4abbfff6c0 (LWP 673) exited]
-[New Thread 0x7f4abbfff6c0 (LWP 683)]
-[New Thread 0x7f4ac367a6c0 (LWP 684)]
-[New Thread 0x7f4ac26796c0 (LWP 685)]
-[New Thread 0x7f4ac16786c0 (LWP 686)]
-[New Thread 0x7f4abaffe6c0 (LWP 687)]
-[New Thread 0x7f4ab9ffd6c0 (LWP 688)]
-[New Thread 0x7f4aa3fff6c0 (LWP 689)]
-[New Thread 0x7f4aa2ffe6c0 (LWP 690)]
-[New Thread 0x7f4aa1ffd6c0 (LWP 691)]
-[New Thread 0x7f4a9bfff6c0 (LWP 692)]
-[New Thread 0x7f4a9affe6c0 (LWP 693)]
-[Thread 0x7f4abaffe6c0 (LWP 687) exited]
-[Thread 0x7f4ac16786c0 (LWP 686) exited]
-[Thread 0x7f4a9affe6c0 (LWP 693) exited]
-[Thread 0x7f4a9bfff6c0 (LWP 692) exited]
-[Thread 0x7f4ab9ffd6c0 (LWP 688) exited]
-[Thread 0x7f4aa2ffe6c0 (LWP 690) exited]
-[Thread 0x7f4aa1ffd6c0 (LWP 691) exited]
-[Thread 0x7f4aa3fff6c0 (LWP 689) exited]
-[Thread 0x7f4ac26796c0 (LWP 685) exited]
-[Thread 0x7f4abbfff6c0 (LWP 683) exited]
-[Thread 0x7f4ac367a6c0 (LWP 684) exited]
-[New Thread 0x7f4ac367a6c0 (LWP 694)]
-[New Thread 0x7f4abbfff6c0 (LWP 695)]
-[New Thread 0x7f4ac26796c0 (LWP 696)]
-[New Thread 0x7f4ac16786c0 (LWP 697)]
-[New Thread 0x7f4abaffe6c0 (LWP 698)]
-[New Thread 0x7f4ab9ffd6c0 (LWP 699)]
-[New Thread 0x7f4aa3fff6c0 (LWP 700)]
-[New Thread 0x7f4aa2ffe6c0 (LWP 701)]
-[New Thread 0x7f4aa1ffd6c0 (LWP 702)]
-[New Thread 0x7f4a9bfff6c0 (LWP 703)]
-[New Thread 0x7f4a9affe6c0 (LWP 704)]
-[New Thread 0x7f4a99ffd6c0 (LWP 705)]
-[New Thread 0x7f4a83fff6c0 (LWP 706)]
-[New Thread 0x7f4a82ffe6c0 (LWP 707)]
-[Thread 0x7f4a99ffd6c0 (LWP 705) exited]
-[Thread 0x7f4a83fff6c0 (LWP 706) exited]
-[Thread 0x7f4a82ffe6c0 (LWP 707) exited]
-[New Thread 0x7f4a82ffe6c0 (LWP 708)]
-[New Thread 0x7f4a83fff6c0 (LWP 709)]
-[New Thread 0x7f4a99ffd6c0 (LWP 710)]
+[New Thread 0x7f809855c6c0 (LWP 668)]
+[New Thread 0x7f809755b6c0 (LWP 669)]
+[New Thread 0x7f809655a6c0 (LWP 670)]
+[New Thread 0x7f80955596c0 (LWP 671)]
+[New Thread 0x7f807ffff6c0 (LWP 672)]
+[New Thread 0x7f807effe6c0 (LWP 673)]
+[New Thread 0x7f807dffd6c0 (LWP 674)]
+[New Thread 0x7f8077fff6c0 (LWP 675)]
+[New Thread 0x7f8076ffe6c0 (LWP 676)]
+[New Thread 0x7f8075ffd6c0 (LWP 677)]
+[New Thread 0x7f8063fff6c0 (LWP 678)]
+[Thread 0x7f807ffff6c0 (LWP 672) exited]
+[Thread 0x7f80955596c0 (LWP 671) exited]
+[Thread 0x7f8063fff6c0 (LWP 678) exited]
+[Thread 0x7f8075ffd6c0 (LWP 677) exited]
+[Thread 0x7f807dffd6c0 (LWP 674) exited]
+[Thread 0x7f8077fff6c0 (LWP 675) exited]
+[Thread 0x7f8076ffe6c0 (LWP 676) exited]
+[Thread 0x7f807effe6c0 (LWP 673) exited]
+[Thread 0x7f809655a6c0 (LWP 670) exited]
+[Thread 0x7f809855c6c0 (LWP 668) exited]
+[Thread 0x7f809755b6c0 (LWP 669) exited]
+[New Thread 0x7f809755b6c0 (LWP 679)]
+[New Thread 0x7f809855c6c0 (LWP 680)]
+[New Thread 0x7f809655a6c0 (LWP 681)]
+[New Thread 0x7f80955596c0 (LWP 682)]
+[New Thread 0x7f807ffff6c0 (LWP 683)]
+[New Thread 0x7f807effe6c0 (LWP 684)]
+[New Thread 0x7f807dffd6c0 (LWP 685)]
+[New Thread 0x7f8077fff6c0 (LWP 686)]
+[New Thread 0x7f8076ffe6c0 (LWP 687)]
+[New Thread 0x7f8075ffd6c0 (LWP 688)]
+[New Thread 0x7f8063fff6c0 (LWP 689)]
+[Thread 0x7f807ffff6c0 (LWP 683) exited]
+[Thread 0x7f80955596c0 (LWP 682) exited]
+[Thread 0x7f8063fff6c0 (LWP 689) exited]
+[Thread 0x7f8075ffd6c0 (LWP 688) exited]
+[Thread 0x7f807dffd6c0 (LWP 685) exited]
+[Thread 0x7f807effe6c0 (LWP 684) exited]
+[Thread 0x7f8077fff6c0 (LWP 686) exited]
+[Thread 0x7f8076ffe6c0 (LWP 687) exited]
+[Thread 0x7f809655a6c0 (LWP 681) exited]
+[Thread 0x7f809855c6c0 (LWP 680) exited]
+[Thread 0x7f809755b6c0 (LWP 679) exited]
+[New Thread 0x7f809855c6c0 (LWP 690)]
+[New Thread 0x7f809755b6c0 (LWP 691)]
+[New Thread 0x7f809655a6c0 (LWP 692)]
+[New Thread 0x7f80955596c0 (LWP 693)]
+[New Thread 0x7f807ffff6c0 (LWP 694)]
+[New Thread 0x7f807effe6c0 (LWP 695)]
+[New Thread 0x7f807dffd6c0 (LWP 696)]
+[New Thread 0x7f8077fff6c0 (LWP 697)]
+[New Thread 0x7f8076ffe6c0 (LWP 698)]
+[New Thread 0x7f8075ffd6c0 (LWP 699)]
+[New Thread 0x7f8063fff6c0 (LWP 700)]
+close objects ...
+@YDB_CASE	close objects	failed	74657374732f746573742e6c75613a35393a2077726f6e672076616c756520283236303834303938343031373035363536333220696e7374656164206f662030290a737461636b2074726163656261636b3a0a095b435d3a20696e2066756e6374696f6e2027617373657274270a0974657374732f746573742e6c75613a35393a20696e2066756e6374696f6e202761737365727432270a0974657374732f746573742e6c75613a3539383a20696e2066756e6374696f6e2027636865636b5f636c6f7365270a095b435d3a20696e2066756e6374696f6e2027787063616c6c270a0974657374732f746573742e6c75613a3836303a20696e206d61696e206368756e6b0a095b435d3a20696e203f
+[Thread 0x7f80955596c0 (LWP 693) exited]
+[Thread 0x7f8063fff6c0 (LWP 700) exited]
+[Thread 0x7f807ffff6c0 (LWP 694) exited]
+[Thread 0x7f8075ffd6c0 (LWP 699) exited]
+[Thread 0x7f807effe6c0 (LWP 695) exited]
+[Thread 0x7f8077fff6c0 (LWP 697) exited]
+[Thread 0x7f807dffd6c0 (LWP 696) exited]
+[Thread 0x7f8076ffe6c0 (LWP 698) exited]
+[Thread 0x7f809655a6c0 (LWP 692) exited]
+[Thread 0x7f809855c6c0 (LWP 690) exited]
+[Thread 0x7f809755b6c0 (LWP 691) exited]
 
-Thread 1 "lua5.4" received signal SIGSEGV, Segmentation fault.
-0x0000555dd2fbe307 in ?? ()
-#0  0x0000555dd2fbe307 in ?? ()
-#1  0x0000555dd2fcb3c3 in ?? ()
-#2  0x0000555dd2fbf026 in ?? ()
-#3  0x0000555dd2fba8f5 in ?? ()
-#4  0x0000555dd2fe3d96 in ?? ()
-#5  0x0000555dd2fbec60 in lua_pcallk ()
-#6  0x0000555dd2fd7e21 in ?? ()
-#7  0x0000555dd2fbe32a in ?? ()
-#8  0x0000555dd2fcb3c3 in ?? ()
-#9  0x0000555dd2fbf026 in ?? ()
-#10 0x0000555dd2fba8f5 in ?? ()
-#11 0x0000555dd2fe3d96 in ?? ()
-#12 0x0000555dd2fbec60 in lua_pcallk ()
-#13 0x0000555dd2fc0156 in ?? ()
-#14 0x0000555dd2fc2194 in ?? ()
-#15 0x0000555dd2fbe32a in ?? ()
-#16 0x0000555dd2fbf00d in ?? ()
-#17 0x0000555dd2fba8f5 in ?? ()
-#18 0x0000555dd2fe3d96 in ?? ()
-#19 0x0000555dd2fbec60 in lua_pcallk ()
-#20 0x0000555dd2fb5dbe in ?? ()
-#21 0x00007f4ac608b1ca in ?? () from /lib/x86_64-linux-gnu/libc.so.6
-#22 0x00007f4ac608b28b in __libc_start_main () from /lib/x86_64-linux-gnu/libc.so.6
-#23 0x0000555dd2fb5e45 in ?? ()
+tests/test.lua:59: wrong value (2608409840170565632 instead of 0)
+stack traceback:
+	[C]: in function 'assert'
+	tests/test.lua:59: in function 'assert2'
+	tests/test.lua:598: in function 'check_close'
+	[C]: in function 'xpcall'
+	tests/test.lua:860: in main chunk
+	[C]: in ?
+... trying to drop test table ... OK !
+... and to close the connection ... failed: tests/test.lua:59: There are open cursors
+wrong value (false instead of true)
+The test failed!
+[Inferior 1 (process 665) exited normally]
+No stack.
