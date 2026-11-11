@@ -96,9 +96,9 @@ The cursor also owns:
 - typed YDB rows and column metadata;
 - row-wise and column-wise bindings;
 - row-array status and processed-row counters;
-- a separate chunk offset for each `SQLGetData` column;
-- a statement-local spill file that bounds the retained static-cursor snapshot
-  after the SDK result has been materialized.
+- an offset for the active `SQLGetData` stream;
+- static-cursor rows cached in memory until the cursor is closed or replaced,
+  in addition to the SDK's materialized result.
 
 Re-execution replaces the cursor. Close, cancel, commit, rollback, and disconnect release it according to the advertised cursor behavior.
 
