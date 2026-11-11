@@ -17,6 +17,9 @@ runs:
     - name: Install platform prerequisites
       shell: bash
       run: |
+        if [[ -f /etc/apt/apt-mirrors.txt ]]; then
+          sudo sed -i '\|^http://azure\.archive\.ubuntu\.com/ubuntu/|d' /etc/apt/apt-mirrors.txt
+        fi
         sudo apt-get -y update
         if [[ '${{ inputs.mode }}' == 'build' ]]; then
           sudo apt-get -y install \
