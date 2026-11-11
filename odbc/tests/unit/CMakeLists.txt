@@ -8,6 +8,7 @@ add_ydb_test(NAME odbc-convert_ut GTEST
     convert_ut.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/utils/convert.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/utils/sql_type_map.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../src/utils/types.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../src/utils/util.cpp
   INCLUDE_DIRS
     ${YDB_ODBC_UNIT_INCLUDE_DIRS}

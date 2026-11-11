@@ -6,6 +6,17 @@ FRAMEWORKS = Path(__file__).resolve().parent / "frameworks"
 sys.path.insert(0, str(FRAMEWORKS))
 import harness  # noqa: E402
 class HarnessTests(unittest.TestCase):
+    def test_lua_crash_classification_preserves_driver_failures(self):
+        consumer = next(c for c in harness.load_registry()["consumers"] if c["id"] == "lua")
+        stack = "\n".join(f"#{i}  0x1234 in ?? ()" for i in range(5))
+        stack += "\n#5  0x5678 in lua_pcallk ()"
+        for prefix in ("Program", 'Thread 1 "lua5.4"'):
+            crash = prefix + " received signal SIGSEGV, Segmentation fault.\n" + stack
+            test = {"id": "lua.connection_string.close%20objects", "status": "failed", "message": crash}
+            self.assertEqual(harness.expected_result(test, consumer["expected"])[0], "upstream_failure")
+            test["message"] += "\n#6 in SQLGetData from libydb-odbc.so"
+            self.assertIsNone(harness.expected_result(test, consumer["expected"]))
+
     def registry(self, change=lambda data, root: None):
         context = tempfile.TemporaryDirectory(); self.addCleanup(context.cleanup)
         root = Path(context.name) / "frameworks"; shutil.copytree(FRAMEWORKS, root)

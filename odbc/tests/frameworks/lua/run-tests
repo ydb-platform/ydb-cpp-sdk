@@ -16,7 +16,7 @@ def main(s):
     for index,name in enumerate(names):
         result=s.command(['gdb','--batch','-ex','run','-ex','bt','--args',*cmd],
                          f'upstream-{index}',env=env|{'ODBC_TEST_CASE':name},check=False)
-        if 'Program received signal' in result.stdout:
+        if re.search(r'\breceived signal SIG[A-Z0-9]+\b', result.stdout):
             s.add(name,'failed',result.stdout,attachments=[s.native/f'upstream-{index}.log'])
             continue
         for line in result.stdout.splitlines():
