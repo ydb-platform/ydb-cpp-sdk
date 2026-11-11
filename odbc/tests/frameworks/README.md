@@ -15,8 +15,8 @@ The native SDK/compiler/YDB-version matrix remains separate.
 | Lua | LuaSQL ODBC tests |
 | R | odbc generic tests and DBItest's standard ODBC contract |
 
-All bindings run in DSN and connection-string modes. R's Arrow and stress suites are
-separate APIs and are outside this ODBC contract. Julia and Tcl are outside this matrix.
+All bindings run in DSN and connection-string modes. R includes connection stress tests;
+Arrow requires a separate binding API. Julia and Tcl are outside this matrix.
 
 ## Sources and fixtures
 

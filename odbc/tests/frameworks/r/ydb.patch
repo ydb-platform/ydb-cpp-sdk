@@ -1,3 +1,26 @@
+--- a/tests/testthat/_snaps/driver-sql-server.md
++++ b/tests/testthat/_snaps/driver-sql-server.md
+@@ -7,13 +7,13 @@
+       Some columns in `field.types` not in the input, missing columns:
+         - 'bar'
+     Output
+-      <SQL> CREATE TABLE "foo" (
+-        "Sepal.Length" FLOAT,
+-        "Sepal.Width" FLOAT,
+-        "Petal.Length" FLOAT,
+-        "Petal.Width" FLOAT,
+-        "Species" varchar(255),
+-        "bar" [int]
++      <SQL> CREATE TABLE `foo` (
++        `Sepal.Length` DOUBLE PRECISION,
++        `Sepal.Width` DOUBLE PRECISION,
++        `Petal.Length` DOUBLE PRECISION,
++        `Petal.Width` DOUBLE PRECISION,
++        `Species` VARCHAR(255),
++        `bar` [int]
+       )
+       
+ 
 --- a/tests/testthat/helper.R
 +++ b/tests/testthat/helper.R
 @@ -17,8 +17,9 @@
@@ -158,7 +181,7 @@
    # There should be no "Pending rows" warning
 --- a/tests/testthat/test-driver-sql-server.R
 +++ b/tests/testthat/test-driver-sql-server.R
-@@ -118,10 +118,12 @@
+@@ -118,29 +118,36 @@
  })
  
  test_that("works with dbAppendTable (#215)", {
@@ -171,8 +194,16 @@
 +  ir <- DBItest:::ydb_keyed_fixture(ir)
  
    tbl <- local_table(con, "iris", ir)
-   dbAppendTable(con, tbl, ir)
-@@ -131,9 +133,10 @@
+-  dbAppendTable(con, tbl, ir)
++  appended <- ir
++  appended$ydb_fixture_id <- appended$ydb_fixture_id + nrow(ir)
++  dbAppendTable(con, tbl, appended)
+ 
+   res <- dbReadTable(con, tbl)
+-  expect_equal(res, rbind(ir, ir))
++  res <- res[order(res$ydb_fixture_id), , drop = FALSE]
++  rownames(res) <- NULL
++  expect_equal(res, rbind(ir, appended))
  })
  
  test_that("Subseconds are retained upon insertion (#208)", {
@@ -185,7 +216,15 @@
  
    res <- dbReadTable(con, tbl)
    expect_equal(as.double(res$time), as.double(data$time))
-@@ -148,7 +151,7 @@
+ })
+ 
+ test_that("dbWriteTable errors if field.types don't exist (#271)", {
+-  con <- test_con("SQLSERVER")
++  con <- test_con("YDB")
+ 
+   expect_snapshot(
+     sqlCreateTable(con, "foo", iris, field.types = list(bar = "[int]"))
+@@ -148,7 +155,7 @@
  })
  
  test_that("blobs can be retrieved out of order", {
@@ -194,7 +233,7 @@
    values <- data.frame(
      c1 = 1,
      c2 = "this is varchar max",
-@@ -170,7 +173,7 @@
+@@ -170,7 +177,7 @@
  })
  
  test_that("can bind NA values", {
@@ -203,7 +242,7 @@
    # With SELECT ing with the OEM SQL Server driver, everything
    # after the first column should be unbound. Test null detection for
    # unbound columns (NULL is registered after a call to nanodbc::result::get)
-@@ -183,6 +186,7 @@
+@@ -183,6 +190,7 @@
      c6 = c(Sys.time(), NA),
      stringsAsFactors = FALSE
    )
@@ -211,7 +250,7 @@
    tbl <- local_table(con, "test_na", values)
  
    received <- DBI::dbReadTable(con, tbl)
-@@ -218,7 +222,7 @@
+@@ -218,7 +226,7 @@
  })
  
  test_that("odbcPreviewObject doesn't warn about pending rows", {
@@ -220,7 +259,7 @@
    tbl <- local_table(con, "test_preview", data.frame(a = 1:10L))
  
    # There should be no "Pending rows" warning
-@@ -229,13 +233,13 @@
+@@ -229,13 +237,13 @@
  })
  
  test_that("dates should always be interpreted in the system time zone (#398)", {
@@ -236,7 +275,7 @@
    value <- "grün"
    res <- dbGetQuery(
      con,
-@@ -245,8 +249,8 @@
+@@ -245,8 +253,8 @@
  })
  
  test_that("Zero-row-fetch does not move cursor", {

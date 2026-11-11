@@ -4,6 +4,26 @@ ydb:
   endpoint: localhost:2136
   database: /local
 classifications:
+  - outcome: upstream_failure
+    reason: QODBC drops QDateTime offsets before binding SQL_TIMESTAMP_STRUCT, shifting the represented instant.
+    match: '(?s)Actual\s+\(q\.value\(2\)\.toDateTime\(\)\): 2150/01/05 14:00:00\.123\[UTC\]\s+Expected \(tzoffset\)\s+: 2150/01/05 14:00:00\.123\[UTC\+01:00\]'
+    reference: https://github.com/qt/qtbase/blob/e3e40c44d3f998a433a6a1080297c5f28e9a768f/src/plugins/sqldrivers/odbc/qsql_odbc.cpp
+    reproducer: repros/qt-timestamp.cpp
+    tests:
+      qt: [qt.*.qsqlquery.QTBUG_57138]
+  - outcome: unsupported
+    reason: This SQLite regression requires Bool metadata; QODBC deliberately exposes SQL_BIT as Int or UInt.
+    match: '(?s)Actual\s+\(q\.record\(\)\.field\(0\)\.metaType\(\)\.id\(\)\): 2\s+Expected \(QMetaType::Bool\)\s+: 1'
+    reference: https://github.com/qt/qtbase/blob/e3e40c44d3f998a433a6a1080297c5f28e9a768f/src/plugins/sqldrivers/odbc/qsql_odbc.cpp
+    tests:
+      qt: [qt.*.qsqlquery.QTBUG_14904]
+  - outcome: upstream_failure
+    reason: QODBC ignores signedness for SQL_TINYINT and requests unsigned data for negative Int8 values.
+    match: '(?s)Actual\s+\(actualValues\): 0\s+Expected \(values\): -128'
+    reference: https://github.com/qt/qtbase/blob/e3e40c44d3f998a433a6a1080297c5f28e9a768f/src/plugins/sqldrivers/odbc/qsql_odbc.cpp
+    reproducer: repros/qt-tinyint.cpp
+    tests:
+      qt: [qt.*.qsqlquery.integralTypesMysql]
   - outcome: unsupported
     reason: YDB result metadata has no table origins; ODBC permits an empty table name when its origin is unavailable.
     match: 'Actual[^\n]*tableName\(\)[^\n]*:\s*""\s+Expected'
@@ -13,7 +33,7 @@ classifications:
     reason: This case updates the table's primary key, which YDB makes immutable.
     match: 'Cannot update primary key column: id'
     tests:
-      qt: [qt.*.qsqltablemodel.setData, qt.*.qsqlrelationaltablemodel.setRecord]
+      qt: [qt.*.qsqltablemodel.setData, qt.*.qsqltablemodel.primaryKeyOrder, qt.*.qsqlrelationaltablemodel.setRecord]
   - outcome: unsupported
     reason: YDB returns SELECT results without interleaved DML counts, as advertised by SQL_BATCH_ROW_COUNT=0.
     match: "'!q.isSelect\\(\\)' returned FALSE"
@@ -67,8 +87,8 @@ classifications:
     match: No\ database\ drivers\ of\ type\ QOCI\ are\ available\ in\ this\ Qt\ configuration
     tests:
       qt:
-        - qt.*.qsqldatabase.{oci_tables,recordOCI,oci_serverDetach,oci_xmltypeSupport,oci_fieldLength,oci_synonymstest}
-        - qt.*.qsqlquery.{oci_nullBlob,oci_rawField,oraOutValues,oraClob,oraClobBatch,oraLong,oraOCINumber,oraRowId,oraArrayBind,QTBUG_551,QTBUG_6421,QTBUG_14132}
+        - qt.*.qsqldatabase.{oci_tables,oci_xmltypeSupport,oci_fieldLength,oci_synonymstest}
+        - qt.*.qsqlquery.{oraOutValues,oraOCINumber,oraRowId,oraArrayBind,QTBUG_551,QTBUG_6421,QTBUG_14132}
   - outcome: skipped
     reason: Requires Qt's Oracle plugin and Oracle-specific SQL rather than QODBC.
     match: Implemented\ only\ for\ Oracle
@@ -80,34 +100,21 @@ classifications:
     match: No\ database\ drivers\ of\ type\ QMYSQL\ are\ available\ in\ this\ Qt\ configuration
     tests:
       qt:
-        - qt.*.qsqldatabase.{recordMySQL,mysql_multiselect,mysql_savepointtest}
-        - qt.*.qsqlquery.{mysql_outValues,mysql_timeType,QTBUG_6852,QTBUG_5765,QTBUG_53969,gisPointDatatype,integralTypesMysql}
+        - qt.*.qsqldatabase.{recordMySQL,mysql_savepointtest}
+        - qt.*.qsqlquery.{mysql_outValues,mysql_timeType,QTBUG_6852,gisPointDatatype}
   - outcome: skipped
     reason: Requires Qt's PostgreSQL plugin and PostgreSQL-specific SQL rather than QODBC.
     match: No\ database\ drivers\ of\ type\ QPSQL\ are\ available\ in\ this\ Qt\ configuration
     tests:
       qt:
-        - qt.*.qsqldatabase.{recordPSQL,psql_schemas,psql_escapedIdentifiers,psql_escapeBytea,psql_bug249059}
-        - qt.*.qsqlquery.{psql_forwardOnlyQueryResultsLost,psql_bindWithDoubleColonCastOperator,psql_specialFloatValues,task_233829,QTBUG_12477,QTBUG_5251,QTBUG_36211}
+        - qt.*.qsqldatabase.{psql_schemas,psql_escapedIdentifiers,psql_bug249059}
+        - qt.*.qsqlquery.{psql_forwardOnlyQueryResultsLost,psql_bindWithDoubleColonCastOperator,QTBUG_12477,QTBUG_5251,QTBUG_36211}
   - outcome: skipped
     reason: Exercises SQL Server or TDS-specific behavior outside the YDB binding contract.
     match: Database\ driver\ QTDS7?\ not\ available
     tests:
       qt:
         - qt.*.qsqldatabase.errorReporting@QTDS*
-  - outcome: skipped
-    reason: Exercises SQL Server or TDS-specific behavior outside the YDB binding contract.
-    match: No\ database\ drivers\ of\ type\ QTDS\ are\ available\ in\ this\ Qt\ configuration
-    tests:
-      qt:
-        - qt.*.qsqldatabase.recordTDS
-        - qt.*.qsqlquery.tds_bitField
-  - outcome: skipped
-    reason: Exercises SQL Server or TDS-specific behavior outside the YDB binding contract.
-    match: SQL\ server\ specific\ test
-    tests:
-      qt:
-        - qt.*.qsqldatabase.recordSQLServer
   - outcome: skipped
     reason: Exercises SQL Server or TDS-specific behavior outside the YDB binding contract.
     match: SQL\ Server\ \(ODBC\)\ specific\ test
@@ -119,13 +126,7 @@ classifications:
     match: Test\ is\ specific\ to\ SQL\ Server
     tests:
       qt:
-        - qt.*.qsqlquery.{sqlServerReturn0,QTBUG_6618,QTBUG_18435}
-  - outcome: skipped
-    reason: Requires Qt's DB2 plugin and DB2-specific behavior rather than QODBC.
-    match: No\ database\ drivers\ of\ type\ QDB2\ are\ available\ in\ this\ Qt\ configuration
-    tests:
-      qt:
-        - qt.*.qsqldatabase.{recordDB2,db2_valueCacheUpdate}
+        - qt.*.qsqlquery.{sqlServerReturn0,QTBUG_18435}
   - outcome: skipped
     reason: Requires Qt's DB2 plugin and DB2-specific SQL rather than QODBC.
     match: No\ database\ drivers\ of\ type\ QDB2\ are\ available\ in\ this\ Qt\ configuration
@@ -137,8 +138,8 @@ classifications:
     match: No\ database\ drivers\ of\ type\ QSQLITE\ are\ available\ in\ this\ Qt\ configuration
     tests:
       qt:
-        - qt.*.qsqldatabase.{recordSQLite,sqlite_bindAndFetchUInt,sqlite_enable_cache_mode,sqlite_enableRegexp,sqlite_check_json1}
-        - qt.*.qsqltablemodel.{insertWithAutoColumn,revert,primaryKeyOrder,sqlite_bigTable,sqlite_attachedDatabase,sqlite_selectFromIdentifierWithDot}
+        - qt.*.qsqldatabase.{sqlite_bindAndFetchUInt,sqlite_enable_cache_mode,sqlite_enableRegexp,sqlite_check_json1}
+        - qt.*.qsqltablemodel.{insertWithAutoColumn,revert,sqlite_attachedDatabase,sqlite_selectFromIdentifierWithDot}
   - outcome: skipped
     reason: Requires Qt's SQLite plugin and SQLite-specific behavior rather than QODBC.
     match: Database\ driver\ QSQLITE\ not\ available
@@ -146,17 +147,11 @@ classifications:
       qt:
         - qt.*.qsqldatabase.sqlite_openError
   - outcome: skipped
-    reason: Exercises Microsoft Access-specific behavior rather than YDB ODBC.
-    match: MS\ Access\ specific\ test
-    tests:
-      qt:
-        - qt.*.qsqldatabase.recordAccess
-  - outcome: skipped
     reason: Requires Qt's InterBase plugin and InterBase-specific SQL rather than QODBC.
     match: No\ database\ drivers\ of\ type\ QIBASE\ are\ available\ in\ this\ Qt\ configuration
     tests:
       qt:
-        - qt.*.qsqldatabase.{recordIBase,ibase_numericFields,ibase_fetchBlobs,ibase_useCustomCharset,ibase_procWithoutReturnValues,ibase_procWithReturnValues}
+        - qt.*.qsqldatabase.{recordIBase,ibase_useCustomCharset,ibase_procWithoutReturnValues,ibase_procWithReturnValues}
         - qt.*.qsqlquery.{storedProceduresIBase,ibase_executeBlock,ibaseArray}
   - outcome: skipped
     reason: Exercises the MySQL ODBC driver rather than the YDB ODBC driver.
@@ -211,7 +206,7 @@ classifications:
     match: No\ database\ drivers\ of\ type\ QSQLITE\ are\ available\ in\ this\ Qt\ configuration
     tests:
       qt:
-        - qt.*.qsqlquery.{record_sqlite,sqlite_finish,sqliteVirtualTable,QTBUG_12186,QTBUG_21884,QTBUG_16967,QTBUG_23895,QTBUG_14904,sqlite_constraint,sqlite_real,QTBUG_57138}
+        - qt.*.qsqlquery.{sqlite_finish,sqliteVirtualTable,QTBUG_21884,QTBUG_23895,sqlite_constraint}
   - outcome: skipped
     reason: Stored procedures and output parameters are optional ODBC features outside the binding contract.
     match: Don't\ know\ how\ to\ create\ a\ stored\ procedure\ for\ this\ database\ server,\ please\ fix\ this\ test
@@ -243,18 +238,17 @@ classifications:
       qt:
         - qt.*.qsqltablemodel.tablesAndSchemas
   - outcome: skipped
-    reason: Upstream disables these cases for the unixODBC driver manager.
+    reason: This case expects cursor-library TEXT reads to return SQL_NO_DATA and false; unixODBC returns the text instead.
     match: Fails with unixODBC
     tests:
       php-odbc: ['php-odbc.*.ext%2Fodbc%2Ftests%2Fbug44618.phpt']
-      php-pdo: ['php-pdo.*.ext%2Fpdo_odbc%2Ftests%2Fbug80783a.phpt']
   - outcome: skipped
     reason: This upstream model test explicitly uses SQLite, outside the QODBC contract.
     match: "Exercises Qt's hardcoded SQLite in-memory model"
     tests:
       qt: [qt.*.qsqltablemodel.modelInAnotherThread]
   - outcome: skipped
-    reason: These upstream PDO scenarios explicitly exclude PDO_ODBC.
+    reason: These cases require Latin1 literals or emulated-prepare parameter errors; PDO_ODBC uses native prepares against UTF-8 YDB.
     match: '(?m)^(?:not for pdo_odbc|not relevant for odbc driver)$'
     tests:
       php-pdo: ['php-pdo.*.ext%2Fpdo%2Ftests%2F{bug_36798,bug_43130}.phpt']
@@ -451,11 +445,6 @@ classifications:
     tests:
       r:
       - r.*.{data_type_create_table,append_table_new,roundtrip_field_types}
-  - outcome: unsupported
-    reason: YDB requires unique primary keys; appending the same complete fixture records repeats those keys.
-    match: 'Conflict with existing key'
-    tests:
-      r: ['r.*.test-driver-sql-server.R%3Aworks%20with%20dbAppendTable%20%28%23215%29']
 consumers:
   - id: package-contract
     display_name: Debian package contract

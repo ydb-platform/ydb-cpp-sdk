@@ -4,8 +4,8 @@ library(DBItest)
 library(testthat)
 native <- commandArgs(TRUE)[[2]]
 dir.create(native, recursive=TRUE, showWarnings=FALSE)
-# DBItest's standard ODBC contract. Arrow and stress are separate API suites.
-categories <- c("getting_started", "driver", "connection", "result", "sql", "meta", "transaction", "compliance")
+# Arrow requires a separate binding API; stress uses ordinary DBI connections.
+categories <- c("getting_started", "driver", "connection", "result", "sql", "meta", "transaction", "compliance", "stress")
 specs <- unlist(lapply(categories, function(name) get(paste0("spec_", name), asNamespace("DBItest"))), recursive=FALSE)
 specs <- specs[!vapply(specs,is.null,logical(1))]
 names(specs) <- vctrs::vec_names2(specs, repair="unique", quiet=TRUE)

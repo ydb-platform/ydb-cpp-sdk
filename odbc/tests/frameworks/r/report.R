@@ -4,8 +4,8 @@ library(DBItest)
 library(testthat)
 native <- Sys.getenv("ODBC_NATIVE_RESULTS_DIR")
 Sys.setenv(ODBC_CS_YDB=Sys.getenv("YDB_R_CONNECTION"))
-# DBItest's standard ODBC contract. Arrow and stress are separate API suites.
-categories <- c("getting_started", "driver", "connection", "result", "sql", "meta", "transaction", "compliance")
+# Arrow requires a separate binding API; stress uses ordinary DBI connections.
+categories <- c("getting_started", "driver", "connection", "result", "sql", "meta", "transaction", "compliance", "stress")
 specs <- unlist(lapply(categories, function(name) get(paste0("spec_", name), asNamespace("DBItest"))), recursive=FALSE)
 specs <- specs[!vapply(specs,is.null,logical(1))]
 names(specs) <- vctrs::vec_names2(specs, repair="unique", quiet=TRUE)
@@ -20,21 +20,13 @@ backend_cases <- list(
     "test-driver-postgres.R" = c("can roundtrip columns", "64 bit integers work with alternate mappings",
         "Writing data.frame with column ordering different than target table", "odbcPreviewObject"),
     "test-driver-sql-server.R" = c("works with dbAppendTable (#215)",
-        "Subseconds are retained upon insertion (#208)", "blobs can be retrieved out of order",
+        "Subseconds are retained upon insertion (#208)", "dbWriteTable errors if field.types don't exist (#271)",
+        "blobs can be retrieved out of order",
         "can bind NA values", "odbcPreviewObject doesn't warn about pending rows",
         "dates should always be interpreted in the system time zone (#398)",
         "UTF in VARCHAR is not truncated", "Zero-row-fetch does not move cursor",
         "captures multiline errors message"),
     "test-driver-sqlite.R" = c("unsupported types gives informative error", "odbcPreviewObject works"))
-backend_expressions <- lapply(names(backend_cases), function(file) {
-    expressions <- parse(file.path(source_dir, file), keep.source=TRUE, encoding="UTF-8")
-    selected <- Filter(function(expr) is.call(expr) && identical(expr[[1]], as.name("test_that")) &&
-        is.character(expr[[2]]) && expr[[2]] %in% backend_cases[[file]], as.list(expressions))
-    actual <- vapply(selected, function(expr) expr[[2]], "")
-    stopifnot(identical(actual, backend_cases[[file]]))
-    selected
-})
-names(backend_expressions) <- names(backend_cases)
 collect_names <- function(expr) {
     if (!is.call(expr) && !is.expression(expr)) return(character())
     if (is.call(expr) && identical(expr[[1]],as.name("test_that"))) {
@@ -78,26 +70,34 @@ for (name in names(specs)) {
             list(message=conditionMessage(result)))),recursive=FALSE)
     failed <- any(vapply(unlist(lapply(cases,`[[`,"results"),recursive=FALSE),function(result)
         inherits(result,c("expectation_failure","expectation_error","expectation_warning")),logical(1)))
+    empty <- !length(cases) || !any(vapply(cases, function(case) length(case$results) > 0L, logical(1)))
     results[[length(results)+1L]] <- list(name=name,
-        status=if(!length(cases)) "broken" else if(failed) "failed" else if(length(problems)) "skipped" else "passed",
-        message=if(!length(cases)) "DBItest produced no result" else
+        status=if(empty) "broken" else if(failed) "failed" else if(length(problems)) "skipped" else "passed",
+        message=if(empty) "DBItest produced no expectations" else
             paste(vapply(problems,`[[`,"", "message"),collapse="\n"), problems=problems)
     jsonlite::write_json(results,file.path(native,"r-results.json"),auto_unbox=TRUE,pretty=TRUE)
 }
 
 # Run the binding's generic upstream tests as well as the DBI contract.
 source(file.path(source_dir,"helper.R"),local=TRUE)
+run_unit_tests <- function() {
+testthat::local_edition(3)
 for (file in c(files, file.path(source_dir, names(backend_cases)))) {
     env <- new.env(parent=globalenv())
     for (symbol in ls(asNamespace("odbc"),all.names=TRUE)) assign(symbol,get(symbol,asNamespace("odbc")),env)
-    if (basename(file) %in% names(backend_expressions)) {
-        cases <- lapply(backend_expressions[[basename(file)]], function(expr) {
+    if (basename(file) %in% names(backend_cases)) {
+        snapshot <- file.path(dirname(file), "_snaps", paste0(gsub("^test-|\\.R$", "", basename(file)), ".md"))
+        expected <- if (file.exists(snapshot)) readLines(snapshot) else NULL
+        cases <- lapply(backend_cases[[basename(file)]], function(name) {
             collector <- testthat::ListReporter$new()
-            testthat::with_reporter(collector, eval(expr, env))
+            # test_file() prunes snapshots belonging to the other selected cases.
+            if (!is.null(expected)) writeLines(expected, snapshot)
+            testthat::test_file(file, desc=name, reporter=collector, env=env, load_helpers=FALSE)
             # test_roundtrip() has its own nested test_that(). Preserve every
             # expectation under the discovered outer regression case.
-            list(test=expr[[2]], results=unlist(lapply(collector$get_results(), `[[`, "results"), recursive=FALSE))
+            list(test=name, results=unlist(lapply(collector$get_results(), `[[`, "results"), recursive=FALSE))
         })
+        if (!is.null(expected)) writeLines(expected, snapshot)
     } else {
         collector <- testthat::ListReporter$new()
         testthat::test_file(file, reporter=collector, env=env)
@@ -109,8 +109,11 @@ for (file in c(files, file.path(source_dir, names(backend_cases)))) {
         failed <- any(vapply(case$results,function(result)
                          inherits(result,c("expectation_failure","expectation_error","expectation_warning")),logical(1)))
         results[[length(results)+1L]] <- list(name=paste0(basename(file),":",case$test),
-            status=if(failed) "failed" else if(length(problems)) "skipped" else "passed",
-            message=paste(vapply(problems,`[[`,"","message"),collapse="\n"),problems=problems)
+            status=if(!length(case$results)) "broken" else if(failed) "failed" else if(length(problems)) "skipped" else "passed",
+            message=if(!length(case$results)) "Upstream case produced no expectations" else
+                paste(vapply(problems,`[[`,"","message"),collapse="\n"),problems=problems)
     }
     jsonlite::write_json(results,file.path(native,"r-results.json"),auto_unbox=TRUE,pretty=TRUE)
 }
+}
+run_unit_tests()

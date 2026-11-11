@@ -44,10 +44,10 @@ TEST(CoreApi, CursorLibraryFetchesUnboundColumn) {
     SQLFreeStmt(stmt, SQL_CLOSE);
     SQLFreeStmt(stmt, SQL_UNBIND);
     CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE odbc_cursor_library", SQL_NTS), stmt, SQL_HANDLE_STMT);
-    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
-    SQLDisconnect(dbc);
-    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
-    SQLFreeHandle(SQL_HANDLE_ENV, env);
+    EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_STMT, stmt), SQL_SUCCESS);
+    EXPECT_EQ(SQLDisconnect(dbc), SQL_SUCCESS);
+    EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_DBC, dbc), SQL_SUCCESS);
+    EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_ENV, env), SQL_SUCCESS);
 }
 #endif
 

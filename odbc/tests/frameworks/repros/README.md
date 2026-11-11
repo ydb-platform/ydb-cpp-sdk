@@ -19,6 +19,28 @@ Observed: `value valid=0 null=1 type=invalid queryNull=1`.
 The NULL should retain the QString type. QODBC's `qGetStringData()` returns
 an invalid QVariant after receiving SQL_NULL_DATA.
 
+```sh
+c++ qt-tinyint.cpp -o qt-tinyint $(pkg-config --cflags --libs Qt6Core Qt6Sql) -lodbc
+./qt-tinyint
+./qt-tinyint 'Driver=YDB;Server=localhost:2136;Database=/local;AuthMode=Anonymous'
+```
+
+Both drivers advertise signed SQL_TINYINT and return `-128` through SQL_C_SLONG.
+QODBC nevertheless exposes UInt. SQLite wraps its unsigned read to `4294967168`;
+YDB correctly rejects it with `22003`, leaving Qt with an invalid value.
+The separate SQLite Boolean-metadata case expects Bool; QODBC deliberately maps
+SQL_BIT to Int/UInt. That convention is a binding limitation, not a driver defect.
+
+```sh
+c++ qt-timestamp.cpp -o qt-timestamp $(pkg-config --cflags --libs Qt6Core Qt6Sql) -lodbc
+./qt-timestamp
+./qt-timestamp 'Driver=YDB;Server=localhost:2136;Database=/local;AuthMode=Anonymous'
+```
+
+Both SQLite ODBC and YDB reproduce a one-hour shift for the `UTC+01:00` input.
+The raw timestamp is `2150-01-05 14:00:00.123`: QODBC copied wall-clock fields
+without normalizing the offset before sending the timezone-free ODBC structure.
+
 ## PHP PDO_ODBC 8.3.6
 
 ```sh
