@@ -984,7 +984,15 @@
  $stmt->bindColumn(1, $data, PDO::PARAM_LOB);
 --- a/ext/pdo_odbc/tests/bug80783a.phpt
 +++ b/ext/pdo_odbc/tests/bug80783a.phpt
-@@ -16,10 +16,10 @@
+@@ -8,18 +8,15 @@
+ require 'ext/pdo/tests/pdo_test.inc';
+ PDOTest::skip();
+ 
+-if (PDO_ODBC_TYPE === "unixODBC") {
+-    die("skip Fails with unixODBC");
+-}
+ ?>
+ --FILE--
  <?php
  require 'ext/pdo/tests/pdo_test.inc';
  $db = PDOTest::test_factory(dirname(__FILE__) . '/common.phpt');
