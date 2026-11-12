@@ -22,7 +22,7 @@ struct TColumnMeta {
     SQLSMALLINT Nullable;
     SQLSMALLINT DecimalDigits = 0;
     bool Unsigned = false;
-    bool WideTemporal = false;
+    EWideTemporal WideTemporal = EWideTemporal::None;
 };
 
 using TColumnSchema = std::span<const TColumnMeta>;

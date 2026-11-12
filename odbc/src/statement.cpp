@@ -16,6 +16,8 @@
 
 #include <optional>
 #include <algorithm>
+#include <atomic>
+#include <charconv>
 #include <cstring>
 #include <limits>
 #include <ranges>
@@ -42,7 +44,7 @@ namespace {
             affectedRows = 0;
         }
         for (const auto& table : tables) {
-            // An accessed table below another accessed table is an internal index table.
+            // User tables are schema leaves; descendants are internal index tables.
             if (std::ranges::any_of(tables, [&](const auto& parent) {
                 const std::string_view name = table.GetName(), prefix = parent.GetName();
                 return !prefix.empty() && name.size() > prefix.size()
@@ -704,7 +706,8 @@ std::vector<TBoundParam> TStatement::GetBoundParams(SQLULEN paramSet) const {
         TBoundParam param{
             static_cast<SQLUSMALLINT>(number), app->Type, imp->Type,
             static_cast<SQLULEN>(imp->Length), imp->Scale, binding.Data, app->OctetLength,
-            binding.OctetLength, atExec, isNullData || atExecNullData, imp->WideTemporalType == imp->Type};
+            binding.OctetLength, atExec, isNullData || atExecNullData,
+            imp->WideTemporalType.value_or(EWideTemporal::None)};
         if (binding.Indicator && *binding.Indicator == SQL_NULL_DATA) {
             param.StrLenOrIndPtr = binding.Indicator;
         }
@@ -810,7 +813,7 @@ SQLRETURN TStatement::DescribeParam(SQLUSMALLINT paramNumber, SQLSMALLINT* dataT
                     const auto i = static_cast<SQLSMALLINT>(index + 1);
                     const auto& column = columns[index];
                     auto& parameter = desc.Record(i);
-                    parameter.WideTemporalType = column.WideTemporal ? column.SqlType : SQL_UNKNOWN_TYPE;
+                    parameter.WideTemporalType = column.WideTemporal;
                     if (parameter.Type != SQL_UNKNOWN_TYPE) {
                         continue;
                     }
@@ -825,7 +828,7 @@ SQLRETURN TStatement::DescribeParam(SQLUSMALLINT paramNumber, SQLSMALLINT* dataT
             });
         } else if (temporal) {
             ImpParamDesc_.WithLock([&](TDescriptor& desc) {
-                desc.Record(paramNumber).WideTemporalType = SQL_UNKNOWN_TYPE;
+                desc.Record(paramNumber).WideTemporalType = EWideTemporal::None;
                 desc.SnapshotUnlocked(ImpParamBindings_, ImpParamGeneration_);
             });
         }
@@ -996,7 +999,14 @@ SQLRETURN TStatement::SetCursorName(const std::string& name) {
 
 SQLRETURN TStatement::GetCursorName(SQLCHAR* name, SQLSMALLINT bufferLength, SQLSMALLINT* nameLengthPtr) {
     if (CursorName_.empty()) {
-        CursorName_ = "SQL_CUR" + std::to_string(reinterpret_cast<uintptr_t>(this));
+        static std::atomic<uint64_t> nextCursorId{0};
+        char generated[18] = "SQL_CUR";
+        const auto result = std::to_chars(generated + 7, generated + sizeof(generated),
+            nextCursorId.fetch_add(1, std::memory_order_relaxed), 36);
+        if (result.ec != std::errc{}) {
+            throw TOdbcException("HY000", 0, "Cursor name sequence exhausted");
+        }
+        CursorName_.assign(generated, result.ptr);
     }
     return Diag::WriteOdbcString(*this, CursorName_, name, bufferLength, nameLengthPtr);
 }
@@ -1094,7 +1104,8 @@ void TStatement::EnsurePreparedColumnMeta() {
         }
         activeParams.push_back({static_cast<SQLUSMALLINT>(number),
             static_cast<SQLSMALLINT>(app ? app->Type : SQL_C_DEFAULT), imp->Type, static_cast<SQLULEN>(imp->Length),
-            imp->Scale, nullptr, 0, nullptr, false, true, imp->WideTemporalType == imp->Type});
+            imp->Scale, nullptr, 0, nullptr, false, true,
+            imp->WideTemporalType.value_or(EWideTemporal::None)});
         if (ConvertParam(activeParams.back(), builder.AddParam("$p" + std::to_string(number))) != SQL_SUCCESS) {
             throw TOdbcException("HYC00", 0, "Result metadata requires supported parameter types");
         }
@@ -1202,6 +1213,7 @@ void TStatement::SetImpRowDesc(const std::vector<TColumnMeta>& columns) {
             record.Precision = static_cast<SQLSMALLINT>(column.Size);
             record.Scale = column.DecimalDigits;
             record.Nullable = column.Nullable;
+            record.Unsigned = column.Unsigned;
         }
     });
 }

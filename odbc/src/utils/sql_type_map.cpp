@@ -129,8 +129,12 @@ std::optional<TParamTypeSpec> ResolveParamType(const TBoundParam& param) {
     if (!spec) {
         return std::nullopt;
     }
-    if (param.WideTemporal && sqlType == SQL_TYPE_DATE) return TParamTypeSpec{EParamType::Date32, "Date32"};
-    if (param.WideTemporal && sqlType == SQL_TYPE_TIMESTAMP) return TParamTypeSpec{EParamType::Timestamp64, "Timestamp64"};
+    if (param.WideTemporal == EWideTemporal::Date32 && sqlType == SQL_TYPE_DATE)
+        return TParamTypeSpec{EParamType::Date32, "Date32"};
+    if (param.WideTemporal == EWideTemporal::Datetime64 && sqlType == SQL_TYPE_TIMESTAMP)
+        return TParamTypeSpec{EParamType::Datetime64, "Datetime64"};
+    if (param.WideTemporal == EWideTemporal::Timestamp64 && sqlType == SQL_TYPE_TIMESTAMP)
+        return TParamTypeSpec{EParamType::Timestamp64, "Timestamp64"};
     const bool decimal = sqlType == SQL_DECIMAL || sqlType == SQL_NUMERIC;
     if ((IsIntegerType(sqlType) || (decimal && param.DecimalDigits == 0))) {
         if (auto type = UnsignedType(param.ValueType)) {

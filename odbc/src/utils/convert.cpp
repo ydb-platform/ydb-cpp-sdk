@@ -318,8 +318,11 @@ std::optional<TSqlTime> ReadTemporal(const TBoundParam& param, EParamType type) 
     } else { Error("22007"); return std::nullopt; }
     const std::chrono::year_month_day civil{std::chrono::year(year), std::chrono::month(month), std::chrono::day(day)};
     if (year < 1 || year > 32767 || !civil.ok() || hour > 23 || minute > 59 || second > 59
-        || fraction >= 1000000000 || fraction % 1000) {
+        || fraction >= 1000000000) {
         Error("22007"); return std::nullopt;
+    }
+    if (fraction % 1000 || (type == EParamType::Datetime64 && fraction)) {
+        Error("22008"); return std::nullopt;
     }
     const auto value = std::chrono::sys_days(civil) + std::chrono::hours(hour) + std::chrono::minutes(minute)
         + std::chrono::seconds(second) + std::chrono::microseconds(fraction / 1000);
@@ -751,6 +754,7 @@ std::optional<EPrimitiveType> ParamPrimitive(EParamType type) {
         case EParamType::Timestamp:
             return EPrimitiveType::Timestamp;
         case EParamType::Date32: return EPrimitiveType::Date32;
+        case EParamType::Datetime64: return EPrimitiveType::Datetime64;
         case EParamType::Timestamp64: return EPrimitiveType::Timestamp64;
         case EParamType::Decimal:
             return std::nullopt;
@@ -888,6 +892,7 @@ bool ConvertParamValue(
         case EParamType::Datetime:
         case EParamType::Timestamp:
         case EParamType::Date32:
+        case EParamType::Datetime64:
         case EParamType::Timestamp64: {
             const auto value = ReadTemporal(param, type);
             if (!value) {
@@ -900,6 +905,8 @@ bool ConvertParamValue(
                     item.Datetime(TInstant::MicroSeconds(value->time_since_epoch().count()));
                 } else if (type == EParamType::Date32) {
                     item.Date32(std::chrono::floor<std::chrono::days>(*value));
+                } else if (type == EParamType::Datetime64) {
+                    item.Datetime64(std::chrono::floor<std::chrono::seconds>(*value));
                 } else if (type == EParamType::Timestamp64) {
                     item.Timestamp64(*value);
                 } else {

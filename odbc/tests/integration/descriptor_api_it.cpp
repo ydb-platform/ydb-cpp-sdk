@@ -1,16 +1,39 @@
 #include "test_utils.h"
 
+#include <array>
+
 TEST(DescriptorApi, ImplicitImpRowDesc) {
     SQLHENV env;
     SQLHDBC dbc;
     SQLHSTMT stmt;
     AllocEnvAndConnect(&env, &dbc);
     ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
-    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT 1 AS col", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)
+        "SELECT CAST(1 AS Int8), CAST(1 AS Uint8), CAST(1 AS Int16), CAST(1 AS Uint16), "
+        "CAST(1 AS Int32), CAST(1 AS Uint32), CAST(1 AS Int64), CAST(1 AS Uint64)", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
     SQLHDESC ird = SQL_NULL_HDESC;
     CHECK_ODBC_OK(SQLGetStmtAttr(stmt, SQL_ATTR_IMP_ROW_DESC, &ird, sizeof(ird), nullptr),
                   stmt, SQL_HANDLE_STMT);
     ASSERT_NE(ird, nullptr);
+    const std::array<SQLLEN, 8> displaySizes = {4, 3, 6, 5, 11, 10, 20, 20};
+    for (SQLUSMALLINT column = 1; column <= displaySizes.size(); ++column) {
+        SQLLEN displaySize = 0, columnDisplaySize = 0;
+        CHECK_ODBC_OK(SQLGetDescField(ird, column, SQL_DESC_DISPLAY_SIZE,
+                                     &displaySize, 0, nullptr), ird, SQL_HANDLE_DESC);
+        CHECK_ODBC_OK(SQLColAttribute(stmt, column, SQL_DESC_DISPLAY_SIZE, nullptr, 0,
+                                     nullptr, &columnDisplaySize), stmt, SQL_HANDLE_STMT);
+        EXPECT_EQ(displaySize, displaySizes[column - 1]);
+        EXPECT_EQ(displaySize, columnDisplaySize);
+        SQLSMALLINT isUnsigned = SQL_FALSE;
+        SQLLEN columnIsUnsigned = SQL_FALSE;
+        CHECK_ODBC_OK(SQLGetDescField(ird, column, SQL_DESC_UNSIGNED,
+                                     &isUnsigned, 0, nullptr), ird, SQL_HANDLE_DESC);
+        CHECK_ODBC_OK(SQLColAttribute(stmt, column, SQL_DESC_UNSIGNED, nullptr, 0,
+                                     nullptr, &columnIsUnsigned), stmt, SQL_HANDLE_STMT);
+        EXPECT_EQ(isUnsigned, column % 2 == 0 ? SQL_TRUE : SQL_FALSE);
+        EXPECT_EQ(isUnsigned, columnIsUnsigned);
+    }
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);

@@ -17,12 +17,14 @@ std::vector<TColumnMeta> MakeColumnMeta(const TResultSet& resultSet, bool parame
     for (const auto& column : resultSet.GetColumnsMeta()) {
         const TYdbTypeInfo type = DescribeYdbType(column.Type);
         SQLSMALLINT sqlType = type.SqlType;
-        const bool wide = type.TypeName == "Date32" || type.TypeName == "Timestamp64";
+        const EWideTemporal wide = type.TypeName == "Date32" ? EWideTemporal::Date32
+            : type.TypeName == "Datetime64" ? EWideTemporal::Datetime64
+            : type.TypeName == "Timestamp64" ? EWideTemporal::Timestamp64 : EWideTemporal::None;
         if (parameters) {
             const auto* spec = FindSqlTypeSpec(sqlType);
             // YDB Datetime contains a date, unlike SQL_TYPE_TIME.
             if (!spec || sqlType == SQL_TYPE_TIME
-                || (sqlType != SQL_DECIMAL && spec->YqlType != type.TypeName && !wide)) {
+                || (sqlType != SQL_DECIMAL && spec->YqlType != type.TypeName && wide == EWideTemporal::None)) {
                 sqlType = SQL_UNKNOWN_TYPE;
             }
         }
@@ -30,7 +32,8 @@ std::vector<TColumnMeta> MakeColumnMeta(const TResultSet& resultSet, bool parame
         const size_t dot = column.Name.rfind('.');
         columns.push_back({dot == std::string::npos ? column.Name : column.Name.substr(dot + 1),
                            sqlType, type.ColumnSize, type.Nullable,
-                           type.DecimalDigits.value_or(parameters && sqlType == SQL_TYPE_TIMESTAMP ? 6 : 0),
+                           type.DecimalDigits.value_or(parameters && sqlType == SQL_TYPE_TIMESTAMP
+                               && wide != EWideTemporal::Datetime64 ? 6 : 0),
                            type.Unsigned, wide});
     }
     return columns;

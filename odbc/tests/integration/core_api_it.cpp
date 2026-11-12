@@ -370,14 +370,25 @@ TEST(CoreApi, SQLNativeSqlPreservesLargeExplicitLength) {
 TEST(CoreApi, SQLSetGetCursorName) {
     SQLHENV env;
     SQLHDBC dbc;
-    SQLHSTMT stmt;
+    SQLHSTMT stmt, other;
     AllocEnvAndConnect(&env, &dbc);
     ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
-    CHECK_ODBC_OK(SQLSetCursorName(stmt, (SQLCHAR*)"mycursor", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &other), SQL_SUCCESS);
+    SQLCHAR generated[19] = {}, otherName[19] = {};
+    SQLSMALLINT generatedLength = 0;
+    CHECK_ODBC_OK(SQLGetCursorName(stmt, generated, sizeof(generated), &generatedLength), stmt, SQL_HANDLE_STMT);
+    EXPECT_LE(generatedLength, 18);
+    EXPECT_EQ(std::strncmp(reinterpret_cast<const char*>(generated), "SQL_CUR", 7), 0);
+    CHECK_ODBC_OK(SQLGetCursorName(other, otherName, sizeof(otherName), nullptr), other, SQL_HANDLE_STMT);
+    EXPECT_STRNE(reinterpret_cast<const char*>(generated), reinterpret_cast<const char*>(otherName));
     SQLCHAR name[64] = {};
     SQLSMALLINT nameLen = 0;
     CHECK_ODBC_OK(SQLGetCursorName(stmt, name, sizeof(name), &nameLen), stmt, SQL_HANDLE_STMT);
+    EXPECT_STREQ(reinterpret_cast<const char*>(name), reinterpret_cast<const char*>(generated));
+    CHECK_ODBC_OK(SQLSetCursorName(stmt, (SQLCHAR*)"mycursor", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLGetCursorName(stmt, name, sizeof(name), &nameLen), stmt, SQL_HANDLE_STMT);
     EXPECT_STREQ(reinterpret_cast<const char*>(name), "mycursor");
+    SQLFreeHandle(SQL_HANDLE_STMT, other);
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);

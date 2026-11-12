@@ -84,10 +84,20 @@ TEST(OdbcConvert, TimestampStructToYdbTimestamp) {
     const auto value = paramsBuilder.Build().GetValue("$p1");
     ASSERT_TRUE(value);
     CheckProto(value->GetType().GetProto(), "type_id: TIMESTAMP\n");
+    TValueParser timestampParser(*value);
+    EXPECT_EQ(timestampParser.GetTimestamp(), TInstant::MicroSeconds(1718461820123456));
+    for (const auto& [fraction, state] : {
+            std::pair<SQLUINTEGER, const char*>{123456001, "22008"},
+            {999999999, "22008"}, {1000000000, "22007"}}) {
+        timestamp.fraction = fraction;
+        TParamsBuilder invalid;
+        EXPECT_EQ(ConvertParam(param, invalid.AddParam("$p1")), SQL_ERROR);
+        EXPECT_STREQ(ConsumeLastConvertSqlState(), state);
+    }
 
     SQL_DATE_STRUCT date{1960, 2, 29}, fetched{};
     TBoundParam wideDate{1, SQL_C_TYPE_DATE, SQL_TYPE_DATE, 0, 0, &date, sizeof(date), nullptr};
-    wideDate.WideTemporal = true;
+    wideDate.WideTemporal = EWideTemporal::Date32;
     TParamsBuilder wideBuilder;
     ASSERT_EQ(ConvertParam(wideDate, wideBuilder.AddParam("$date")), SQL_SUCCESS);
     const auto dateValue = wideBuilder.Build().GetValue("$date");
@@ -98,6 +108,32 @@ TEST(OdbcConvert, TimestampStructToYdbTimestamp) {
     EXPECT_EQ(fetched.year, 1960);
     EXPECT_EQ(fetched.month, 2);
     EXPECT_EQ(fetched.day, 29);
+
+    timestamp = {1960, 2, 29, 12, 0, 0, 0};
+    param.WideTemporal = EWideTemporal::Datetime64;
+    TParamsBuilder datetimeBuilder;
+    ASSERT_EQ(ConvertParam(param, datetimeBuilder.AddParam("$datetime")), SQL_SUCCESS);
+    const auto datetimeValue = datetimeBuilder.Build().GetValue("$datetime");
+    ASSERT_TRUE(datetimeValue);
+    CheckProto(datetimeValue->GetType().GetProto(), "type_id: DATETIME64\n");
+    TValueParser datetimeParser(*datetimeValue);
+    EXPECT_EQ(datetimeParser.GetDatetime64(),
+        std::chrono::sys_days(std::chrono::year{1960} / 2 / 29) + std::chrono::hours(12));
+    for (const SQLUINTEGER fraction : {1U, 1000U, 123456000U}) {
+        timestamp.fraction = fraction;
+        TParamsBuilder invalid;
+        EXPECT_EQ(ConvertParam(param, invalid.AddParam("$datetime")), SQL_ERROR);
+        EXPECT_STREQ(ConsumeLastConvertSqlState(), "22008");
+    }
+    param.IsNullData = true;
+    TParamsBuilder nullDatetimeBuilder;
+    ASSERT_EQ(ConvertParam(param, nullDatetimeBuilder.AddParam("$datetime")), SQL_SUCCESS);
+    const auto nullDatetimeValue = nullDatetimeBuilder.Build().GetValue("$datetime");
+    ASSERT_TRUE(nullDatetimeValue);
+    CheckProto(nullDatetimeValue->GetType().GetProto(),
+        "optional_type {\n  item {\n    type_id: DATETIME64\n  }\n}\n");
+    TValueParser nullDatetimeParser(*nullDatetimeValue);
+    EXPECT_FALSE(nullDatetimeParser.GetOptionalDatetime64());
 
     const std::tuple<const char*, SQLSMALLINT, const char*> temporal[] = {
         {"2024-06-15", SQL_TYPE_DATE, ""}, {"14:30:20", SQL_TYPE_TIME, ""},
