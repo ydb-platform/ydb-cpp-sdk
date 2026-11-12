@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite name="tst_QSql" timestamp="2026&#x002D;11&#x002D;11T19:01:39" hostname="odbc&#x002D;test" tests="8" failures="0" errors="0" skipped="0" time="0.090">
+<testsuite name="tst_QSql" timestamp="2026&#x002D;11&#x002D;12T12:14:24" hostname="odbc&#x002D;test" tests="8" failures="0" errors="0" skipped="0" time="0.090">
   <properties>
     <property name="QTestVersion" value="6.4.2"/>
     <property name="QtVersion" value="6.4.2"/>
@@ -40,7 +40,7 @@
     </system-err>
   </testcase>
   <testcase name="registerSqlDriver" classname="tst_QSql" time="0.000"/>
-  <testcase name="openErrorRecovery" classname="tst_QSql" time="0.005">
+  <testcase name="openErrorRecovery" classname="tst_QSql" time="0.004">
     <system-out>
       <![CDATA[Promiscuous database server without access control - test skipped for QODBC@YDB_qt]]>
     </system-out>
@@ -56,7 +56,7 @@
       <![CDATA[Driver "QSQLITE" is not installed]]>
     </system-err>
   </testcase>
-  <testcase name="basicDriverTest" classname="tst_QSql" time="0.007">
+  <testcase name="basicDriverTest" classname="tst_QSql" time="0.008">
     <system-out>
       <![CDATA[Opening: "0_QODBC@YDB_qt"]]>
     </system-out>
