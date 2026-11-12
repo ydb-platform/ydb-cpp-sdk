@@ -12,6 +12,7 @@ target_sources(resource
   PRIVATE
     registry.cpp
     resource.cpp
+    static_blob_default.cpp
 )
 
 _ydb_sdk_install_targets(TARGETS resource)
