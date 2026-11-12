@@ -15,10 +15,8 @@ cleanup_iam() {
 
 wait_for_iam_ydb() {
   for _ in $(seq 1 "${IAM_READY_ATTEMPTS}"); do
-    if docker exec -e "YDB_TOKEN=${IAM_TOKEN}" "${IAM_CONTAINER_NAME}" /ydb \
-        --endpoint grpc://localhost:2236 \
-        --database /local \
-        sql -s 'select 1' >/dev/null 2>&1; then
+    if docker exec -e "YDB_TOKEN=${IAM_TOKEN}" "${IAM_CONTAINER_NAME}" \
+        bash /health_check --readiness >/dev/null 2>&1; then
       return 0
     fi
     sleep "${IAM_READY_SLEEP_SECONDS}"
