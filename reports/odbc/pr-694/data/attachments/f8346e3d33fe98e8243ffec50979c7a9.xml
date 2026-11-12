@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite name="tst_QSqlRelationalDelegate" timestamp="2026&#x002D;11&#x002D;12T12:14:35" hostname="odbc&#x002D;test" tests="3" failures="0" errors="0" skipped="0" time="0.297">
+<testsuite name="tst_QSqlRelationalDelegate" timestamp="2026&#x002D;11&#x002D;12T12:31:58" hostname="odbc&#x002D;test" tests="3" failures="0" errors="0" skipped="0" time="0.300">
   <properties>
     <property name="QTestVersion" value="6.4.2"/>
     <property name="QtVersion" value="6.4.2"/>
@@ -13,6 +13,6 @@
       <![CDATA[Driver "QSQLITE" is not installed]]>
     </system-err>
   </testcase>
-  <testcase name="comboBoxEditor" classname="tst_QSqlRelationalDelegate" time="0.135"/>
-  <testcase name="cleanupTestCase" classname="tst_QSqlRelationalDelegate" time="0.023"/>
+  <testcase name="comboBoxEditor" classname="tst_QSqlRelationalDelegate" time="0.129"/>
+  <testcase name="cleanupTestCase" classname="tst_QSqlRelationalDelegate" time="0.033"/>
 </testsuite>

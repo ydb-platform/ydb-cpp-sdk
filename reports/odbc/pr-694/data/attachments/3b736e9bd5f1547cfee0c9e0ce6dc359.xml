@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite name="tst_QSqlQuery" timestamp="2026&#x002D;11&#x002D;12T12:14:26" hostname="odbc&#x002D;test" tests="104" failures="6" errors="0" skipped="34" time="7.089">
+<testsuite name="tst_QSqlQuery" timestamp="2026&#x002D;11&#x002D;12T12:31:49" hostname="odbc&#x002D;test" tests="104" failures="6" errors="0" skipped="34" time="6.794">
   <properties>
     <property name="QTestVersion" value="6.4.2"/>
     <property name="QtVersion" value="6.4.2"/>
     <property name="QtBuild" value="Qt 6.4.2 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 13.2.0)"/>
   </properties>
-  <testcase name="initTestCase" classname="tst_QSqlQuery" time="0.271">
+  <testcase name="initTestCase" classname="tst_QSqlQuery" time="0.266">
     <system-out>
       <![CDATA[Opening: "0_QODBC@YDB_qt"]]>
     </system-out>
@@ -13,16 +13,16 @@
       <![CDATA[Driver "QSQLITE" is not installed]]>
     </system-err>
   </testcase>
-  <testcase name="value(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.014"/>
-  <testcase name="isValid(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.010"/>
-  <testcase name="isActive(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.074"/>
-  <testcase name="isSelect(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.023"/>
-  <testcase name="numRowsAffected(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.104"/>
-  <testcase name="size(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.027"/>
-  <testcase name="isNull(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.014"/>
-  <testcase name="writeNull(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.348"/>
-  <testcase name="query_exec(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.002"/>
-  <testcase name="execErrorRecovery(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.037">
+  <testcase name="value(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.012"/>
+  <testcase name="isValid(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.009"/>
+  <testcase name="isActive(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.071"/>
+  <testcase name="isSelect(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.020"/>
+  <testcase name="numRowsAffected(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.097"/>
+  <testcase name="size(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.028"/>
+  <testcase name="isNull(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.013"/>
+  <testcase name="writeNull(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.354"/>
+  <testcase name="query_exec(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.001"/>
+  <testcase name="execErrorRecovery(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.033">
     <system-err>
       <![CDATA[QODBCResult::exec: Unable to execute statement: "Integrity constraint violation: <main>: Error: Constraint violated. Table: `/local/dbtstQODBC_qtest_exerr45b8415e610a4274`., code: 2012\n    <main>: Error: Conflict with existing key., code: 2012\n"]]>
     </system-err>
@@ -31,26 +31,26 @@
   <testcase name="next(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.001"/>
   <testcase name="prev(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.001"/>
   <testcase name="last(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.002"/>
-  <testcase name="seek(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.016"/>
+  <testcase name="seek(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.012"/>
   <testcase name="transaction(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.000">
     <skipped message="only tested manually by trained staff"/>
   </testcase>
-  <testcase name="record(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.011">
+  <testcase name="record(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.009">
     <failure type="fail" message="Compared values are not the same">
       <![CDATA[   Actual   (q.record().field(i).tableName().toLower()): ""
    Expected (lowerQTest)                               : "dbtst_qtest45b8415e610a4274"]]>
     </failure>
   </testcase>
-  <testcase name="record_sqlite(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.040"/>
-  <testcase name="finish(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.032"/>
+  <testcase name="record_sqlite(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.029"/>
+  <testcase name="finish(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.024"/>
   <testcase name="sqlite_finish" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
   </testcase>
-  <testcase name="nextResult(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.120">
+  <testcase name="nextResult(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.111">
     <failure type="fail" message="&apos;!q.isSelect()&apos; returned FALSE. ()"/>
   </testcase>
   <testcase name="forwardOnly(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.016"/>
-  <testcase name="forwardOnlyMultipleResultSet(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.083">
+  <testcase name="forwardOnlyMultipleResultSet(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.072">
     <failure type="fail" message="Compared values are not the same">
       <![CDATA[   Actual   (record.field(0).tableName()): ""
    Expected (qtest)                      : "dbtst_qtest45b8415e610a4274"]]>
@@ -59,28 +59,28 @@
   <testcase name="psql_forwardOnlyQueryResultsLost" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QPSQL are available in this Qt configuration"/>
   </testcase>
-  <testcase name="tds_bitField(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.049"/>
-  <testcase name="oci_nullBlob(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.057"/>
-  <testcase name="blob(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.036"/>
-  <testcase name="oci_rawField(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.049"/>
-  <testcase name="precision(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.037"/>
+  <testcase name="tds_bitField(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.044"/>
+  <testcase name="oci_nullBlob(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.061"/>
+  <testcase name="blob(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.039"/>
+  <testcase name="oci_rawField(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.044"/>
+  <testcase name="precision(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.036"/>
   <testcase name="nullResult(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.012"/>
-  <testcase name="joins(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.102"/>
+  <testcase name="joins(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.152"/>
   <testcase name="outValues(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.000">
     <skipped message="Don&apos;t know how to create a stored procedure for this database server, please fix this test"/>
   </testcase>
-  <testcase name="char1Select(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.037"/>
-  <testcase name="char1SelectUnicode(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.034"/>
-  <testcase name="synonyms(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.014"/>
+  <testcase name="char1Select(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.034"/>
+  <testcase name="char1SelectUnicode(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.031"/>
+  <testcase name="synonyms(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.012"/>
   <testcase name="oraOutValues" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QOCI are available in this Qt configuration"/>
   </testcase>
   <testcase name="mysql_outValues" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QMYSQL are available in this Qt configuration"/>
   </testcase>
-  <testcase name="oraClob(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.072"/>
-  <testcase name="oraClobBatch(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.040"/>
-  <testcase name="oraLong(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.045"/>
+  <testcase name="oraClob(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.069"/>
+  <testcase name="oraClobBatch(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.041"/>
+  <testcase name="oraLong(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.048"/>
   <testcase name="oraOCINumber" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QOCI are available in this Qt configuration"/>
   </testcase>
@@ -93,22 +93,22 @@
   <testcase name="oraRowId" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QOCI are available in this Qt configuration"/>
   </testcase>
-  <testcase name="prepare_bind_exec(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.302">
+  <testcase name="prepare_bind_exec(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.264">
     <system-err>
       <![CDATA[QODBCResult::exec: Unable to execute statement: "General error: <main>: Error: Type annotation, code: 1030\n    <main>:7:13: Error: At function: KiWriteTable!\n        <main>:7:61: Error: Failed to convert type: Struct<'id':Int32,'name':Int32> to Struct<'id':Int32?,'name':Utf8?>\n            <main>:7:61: Error: Failed to convert 'name': Int32 to Optional<Utf8>\n        <main>:7:61: Error: Failed to convert input columns types to scheme types, code: 2031\n"]]>
       <![CDATA[QODBCResult::exec: Unable to execute statement: "Integrity constraint violation: <main>: Error: Constraint violated. Table: `/local/dbtstQODBC_qtest_prepare45b8415e610a4274`., code: 2012\n    <main>: Error: Conflict with existing key., code: 2012\n"]]>
     </system-err>
   </testcase>
-  <testcase name="prepared_select(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.021"/>
-  <testcase name="sqlServerLongStrings(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.055"/>
+  <testcase name="prepared_select(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.013"/>
+  <testcase name="sqlServerLongStrings(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.056"/>
   <testcase name="invalidQuery(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.002">
     <system-err>
       <![CDATA["QODBCResult::exec: No statement handle available" 	Error: ""]]>
       <![CDATA[QODBCResult::exec: Unable to execute statement: "[unixODBC][Driver Manager]Function sequence error"]]>
     </system-err>
   </testcase>
-  <testcase name="batchExec(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.088"/>
-  <testcase name="QTBUG_43874(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.036"/>
+  <testcase name="batchExec(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.081"/>
+  <testcase name="QTBUG_43874(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.035"/>
   <testcase name="oraArrayBind" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QOCI are available in this Qt configuration"/>
   </testcase>
@@ -116,23 +116,23 @@
     <skipped message="Database doesn&apos;t support lastInsertId"/>
   </testcase>
   <testcase name="lastQuery(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.001"/>
-  <testcase name="lastQueryTwoQueries(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.010"/>
-  <testcase name="bindBool(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.065"/>
+  <testcase name="lastQueryTwoQueries(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.011"/>
+  <testcase name="bindBool(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.063"/>
   <testcase name="psql_bindWithDoubleColonCastOperator" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QPSQL are available in this Qt configuration"/>
   </testcase>
-  <testcase name="psql_specialFloatValues(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.082"/>
+  <testcase name="psql_specialFloatValues(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.085"/>
   <testcase name="queryOnInvalidDatabase(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.000"/>
-  <testcase name="createQueryOnClosedDatabase(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.023">
+  <testcase name="createQueryOnClosedDatabase(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.027">
     <system-err>
       <![CDATA[QSqlQuery::exec: database not open]]>
     </system-err>
   </testcase>
-  <testcase name="seekForwardOnlyQuery(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.002"/>
+  <testcase name="seekForwardOnlyQuery(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.003"/>
   <testcase name="reExecutePreparedForwardOnlyQuery(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.013"/>
-  <testcase name="blobsPreparedQuery(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.052"/>
-  <testcase name="emptyTableNavigate(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.026"/>
-  <testcase name="timeStampParsing(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.036"/>
+  <testcase name="blobsPreparedQuery(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.049"/>
+  <testcase name="emptyTableNavigate(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.025"/>
+  <testcase name="timeStampParsing(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.035"/>
   <testcase name="sqliteVirtualTable" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
   </testcase>
@@ -142,14 +142,14 @@
   <testcase name="ibase_executeBlock" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QIBASE are available in this Qt configuration"/>
   </testcase>
-  <testcase name="task_217003(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.070"/>
-  <testcase name="task_250026(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.035"/>
+  <testcase name="task_217003(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.063"/>
+  <testcase name="task_250026(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.033"/>
   <testcase name="crashQueryOnCloseDatabase" classname="tst_QSqlQuery" time="0.002">
     <system-out>
       <![CDATA[Testing crash in sqlquery dtor for driver "QODBC"]]>
     </system-out>
   </testcase>
-  <testcase name="task_233829(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.025"/>
+  <testcase name="task_233829(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.024"/>
   <testcase name="QTBUG_12477" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QPSQL are available in this Qt configuration"/>
   </testcase>
@@ -165,11 +165,11 @@
   <testcase name="QTBUG_6421" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QOCI are available in this Qt configuration"/>
   </testcase>
-  <testcase name="QTBUG_6618(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.057"/>
+  <testcase name="QTBUG_6618(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.054"/>
   <testcase name="QTBUG_6852" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QMYSQL are available in this Qt configuration"/>
   </testcase>
-  <testcase name="QTBUG_5765(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.046"/>
+  <testcase name="QTBUG_5765(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.039"/>
   <testcase name="QTBUG_12186(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.000"/>
   <testcase name="QTBUG_14132" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QOCI are available in this Qt configuration"/>
@@ -180,30 +180,30 @@
   <testcase name="QTBUG_21884" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
   </testcase>
-  <testcase name="QTBUG_16967(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.059"/>
+  <testcase name="QTBUG_16967(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.054"/>
   <testcase name="QTBUG_23895" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
   </testcase>
-  <testcase name="QTBUG_14904(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.042">
+  <testcase name="QTBUG_14904(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.043">
     <failure type="fail" message="Compared values are not the same">
       <![CDATA[   Actual   (q.record().field(0).metaType().id()): 2
    Expected (QMetaType::Bool)                    : 1]]>
     </failure>
   </testcase>
-  <testcase name="QTBUG_2192(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.046"/>
+  <testcase name="QTBUG_2192(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.056"/>
   <testcase name="QTBUG_36211" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QPSQL are available in this Qt configuration"/>
   </testcase>
-  <testcase name="QTBUG_53969(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.054"/>
+  <testcase name="QTBUG_53969(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.066"/>
   <testcase name="gisPointDatatype" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QMYSQL are available in this Qt configuration"/>
   </testcase>
   <testcase name="sqlite_constraint" classname="tst_QSqlQuery" time="0.000">
     <skipped message="No database drivers of type QSQLITE are available in this Qt configuration"/>
   </testcase>
-  <testcase name="sqlite_real(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.072"/>
-  <testcase name="aggregateFunctionTypes(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.532"/>
-  <testcase name="integralTypesMysql(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="2.944">
+  <testcase name="sqlite_real(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.057"/>
+  <testcase name="aggregateFunctionTypes(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.469"/>
+  <testcase name="integralTypesMysql(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="2.793">
     <failure type="fail" message="Compared lists differ at index 0.">
       <![CDATA[   Actual   (actualValues): 0
    Expected (values): -128]]>
@@ -217,13 +217,13 @@
       <![CDATA[QODBCResult::exec: Unable to execute statement: "General error: <main>: Error: Type annotation, code: 1030\n    <main>:6:13: Error: At function: KiWriteTable!\n        <main>:6:35: Error: Failed to convert type: Struct<'id':Int32> to Struct<'id':Uint16?>\n            <main>:6:35: Error: Failed to convert 'id': Int32 to Optional<Uint16>\n        <main>:6:35: Error: Failed to convert input columns types to scheme types, code: 2031\n"]]>
     </system-err>
   </testcase>
-  <testcase name="QTBUG_57138(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.056">
+  <testcase name="QTBUG_57138(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.057">
     <failure type="fail" message="Compared values are not the same">
       <![CDATA[   Actual   (q.value(2).toDateTime()): 2150/01/05 14:00:00.123[UTC]
    Expected (tzoffset)               : 2150/01/05 14:00:00.123[UTC+01:00]]]>
     </failure>
   </testcase>
-  <testcase name="QTBUG_73286(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.043"/>
+  <testcase name="QTBUG_73286(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.042"/>
   <testcase name="dateTime(0_QODBC@YDB_qt timestamp with time zone)" classname="tst_QSqlQuery" time="0.000">
     <skipped message="Implemented only for Oracle"/>
   </testcase>
@@ -240,5 +240,5 @@
     <skipped message="No database drivers of type QIBASE are available in this Qt configuration"/>
   </testcase>
   <testcase name="prematureExec(0_QODBC@YDB_qt)" classname="tst_QSqlQuery" time="0.000"/>
-  <testcase name="cleanupTestCase" classname="tst_QSqlQuery" time="0.336"/>
+  <testcase name="cleanupTestCase" classname="tst_QSqlQuery" time="0.347"/>
 </testsuite>

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite name="tst_QSqlRelationalDelegate" timestamp="2026&#x002D;11&#x002D;12T12:14:16" hostname="odbc&#x002D;test" tests="3" failures="0" errors="0" skipped="0" time="0.279">
+<testsuite name="tst_QSqlRelationalDelegate" timestamp="2026&#x002D;11&#x002D;12T12:31:46" hostname="odbc&#x002D;test" tests="3" failures="0" errors="0" skipped="0" time="0.268">
   <properties>
     <property name="QTestVersion" value="6.4.2"/>
     <property name="QtVersion" value="6.4.2"/>
     <property name="QtBuild" value="Qt 6.4.2 (x86_64&#x002D;little_endian&#x002D;lp64 shared (dynamic) release build; by GCC 13.2.0)"/>
   </properties>
-  <testcase name="initTestCase" classname="tst_QSqlRelationalDelegate" time="0.125">
+  <testcase name="initTestCase" classname="tst_QSqlRelationalDelegate" time="0.126">
     <system-out>
       <![CDATA[Opening: "0_QODBC@Driver={YDB};Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1"]]>
     </system-out>
@@ -13,6 +13,6 @@
       <![CDATA[Driver "QSQLITE" is not installed]]>
     </system-err>
   </testcase>
-  <testcase name="comboBoxEditor" classname="tst_QSqlRelationalDelegate" time="0.119"/>
-  <testcase name="cleanupTestCase" classname="tst_QSqlRelationalDelegate" time="0.035"/>
+  <testcase name="comboBoxEditor" classname="tst_QSqlRelationalDelegate" time="0.121"/>
+  <testcase name="cleanupTestCase" classname="tst_QSqlRelationalDelegate" time="0.021"/>
 </testsuite>
