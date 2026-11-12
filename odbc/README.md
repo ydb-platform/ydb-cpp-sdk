@@ -183,7 +183,7 @@ in the DSN.
 | `Database` | YDB database path. |
 | `DSN` | DSN section to load before applying the remaining connection-string attributes. |
 | `AuthMode` | `Anonymous`, `Token`, `Static`, `Metadata`, `ServiceAccount`, `OAuth2`, or `Environment`. Values are case-insensitive. |
-| `AnsiSQL` | `1` enables YDB's ANSI lexer and Unicode string literals for SQL-generating clients. Defaults to `0` (native YQL). |
+| `AnsiSQL` | `1` enables YDB's ANSI lexer and Unicode string literals for SQL-generating clients. `SQLNativeSql` includes the `--!ansi_lexer` / `PRAGMA UnicodeLiterals;` prologue. Defaults to `0` (native YQL). |
 | `Token` | Access token for `Token` mode. `AccessToken` is an alias. |
 | `User`, `Password` | Credentials for `Static` mode. `UID` and `PWD` are aliases. |
 | `MetadataHost`, `MetadataPort` | Optional metadata service address for `Metadata` mode. |
@@ -266,6 +266,8 @@ For statements without an applicable count, it returns `-1`.
 `?` placeholders are rewritten to `$p1`, `$p2`, ... with auto-generated
 `DECLARE` statements derived from `SQLBindParameter` types. Null values use an
 optional YDB type. YDB-native `$pN` syntax also works.
+Statements support at most 32767 parameters; larger counts or `$pN` indices
+return `HY000`.
 
 ## License
 

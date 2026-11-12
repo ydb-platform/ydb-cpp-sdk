@@ -570,6 +570,7 @@ SQLRETURN TStatement::SpecialColumns(const TMetadataArgument& catalogName,
     if (!entries.empty()) {
         DescribeTable(GetConnection(), entries.front().Name, [&](const auto& description) {
             const auto& columns = description.GetTableColumns();
+            // A partial primary key cannot uniquely identify a row.
             TTable identifierColumns;
             for (const auto& pkName : description.GetPrimaryKeyColumns()) {
                 const auto column = std::ranges::find_if(

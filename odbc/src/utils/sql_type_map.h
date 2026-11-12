@@ -52,6 +52,7 @@ enum class EParamType {
     Datetime,
     Timestamp,
     Date32,
+    Datetime64,
     Timestamp64,
 };
 

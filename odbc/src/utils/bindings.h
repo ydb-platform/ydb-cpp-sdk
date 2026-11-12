@@ -4,6 +4,13 @@
 
 namespace NYdb::NOdbc {
 
+enum class EWideTemporal {
+    None,
+    Date32,
+    Datetime64,
+    Timestamp64,
+};
+
 struct TBoundParam {
     SQLUSMALLINT ParamNumber;
     SQLSMALLINT ValueType;
@@ -15,7 +22,7 @@ struct TBoundParam {
     SQLLEN* StrLenOrIndPtr;
     bool AtExec = false;
     bool IsNullData = false;
-    bool WideTemporal = false;
+    EWideTemporal WideTemporal = EWideTemporal::None;
 };
 
 inline bool BoundParamIsNull(const TBoundParam& param) noexcept {

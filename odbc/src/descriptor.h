@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils/attr.h"
+#include "utils/bindings.h"
 #include "connection.h"
 
 #include "odbc_compat.h"
@@ -30,13 +31,14 @@ struct TDescRecord {
     SQLSMALLINT Precision = 0;
     SQLSMALLINT Scale = 0;
     SQLSMALLINT Nullable = SQL_NULLABLE;
+    bool Unsigned = false;
     SQLPOINTER DataPtr = nullptr;
     SQLLEN* IndicatorPtr = nullptr;
     SQLLEN* OctetLengthPtr = nullptr;
     SQLSMALLINT ParameterType = SQL_PARAM_INPUT;
     bool Active = false;
     bool Inferred = false;
-    std::optional<SQLSMALLINT> WideTemporalType;
+    std::optional<EWideTemporal> WideTemporalType;
 };
 
 struct TResolvedBinding {

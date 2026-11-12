@@ -174,7 +174,7 @@ SQLRETURN TDescriptor::GetDescField(SQLSMALLINT recNumber, SQLSMALLINT field, SQ
     }
     switch (field) {
         case SQL_DESC_DISPLAY_SIZE:
-            return WriteScalar(value, GetDisplaySize(record->Type, record->Length));
+            return WriteScalar(value, GetDisplaySize(record->Type, record->Length, record->Unsigned));
         case SQL_DESC_BASE_COLUMN_NAME:
         case SQL_DESC_NAME:
             return Diag::WriteString<Diag::EStringWriteMode::Descriptor>(
@@ -203,7 +203,8 @@ SQLRETURN TDescriptor::GetDescField(SQLSMALLINT recNumber, SQLSMALLINT field, SQ
         case SQL_DESC_UNNAMED:
             return WriteScalar(value, static_cast<SQLSMALLINT>(
                 record->Name.empty() ? SQL_UNNAMED : SQL_NAMED));
-        case SQL_DESC_UNSIGNED: return WriteScalar(value, static_cast<SQLSMALLINT>(SQL_FALSE));
+        case SQL_DESC_UNSIGNED:
+            return WriteScalar(value, static_cast<SQLSMALLINT>(record->Unsigned ? SQL_TRUE : SQL_FALSE));
         case SQL_DESC_UPDATABLE:
             return WriteScalar(value, static_cast<SQLSMALLINT>(SQL_ATTR_READONLY));
         default: return Diag::AddNotImplemented(*this);

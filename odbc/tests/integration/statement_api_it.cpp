@@ -558,18 +558,19 @@ TEST(StatementApi, TemporalBindingsWithoutDescribeParam) {
     SQL_DATE_STRUCT date{1960, 2, 29};
     SQL_TIMESTAMP_STRUCT timestamp{1960, 2, 29, 12, 0, 0, 123456000};
     SQLLEN dateLength = sizeof(date), timestampLength = sizeof(timestamp);
-    for (bool wide : {true, false}) {
+    for (const std::string timestampType : {"Timestamp64", "Datetime64", "Timestamp"}) {
+        const bool wide = timestampType != "Timestamp";
         // YDB 26.2.1.14 caches stale metadata when one table is recreated with different types.
-        const std::string table = wide ? "temporal_binding_wide_test" : "temporal_binding_narrow_test";
+        const std::string table = "temporal_binding_" + timestampType + "_test";
         CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)
             ("DROP TABLE IF EXISTS " + table).c_str(), SQL_NTS), stmt, SQL_HANDLE_STMT);
-        CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)("CREATE TABLE " + table + (wide
-            ? "(d Date32, ts Timestamp64, PRIMARY KEY(d))"
-            : "(d Date, ts Timestamp, PRIMARY KEY(d))")).c_str(), SQL_NTS),
+        CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)("CREATE TABLE " + table
+            + "(d " + (wide ? "Date32" : "Date") + ", ts " + timestampType + ", PRIMARY KEY(d))").c_str(), SQL_NTS),
             stmt, SQL_HANDLE_STMT);
-        if (!wide) date.year = timestamp.year = 2024;
-        CHECK_ODBC_OK(SQLPrepare(stmt, (SQLCHAR*)
-            ("INSERT INTO " + table + "(d,ts) VALUES(?,?)").c_str(), SQL_NTS), stmt, SQL_HANDLE_STMT);
+        date.year = timestamp.year = wide ? 1960 : 2024;
+        timestamp.fraction = timestampType == "Datetime64" ? 0 : 123456000;
+        const std::string insert = "INSERT INTO " + table + "(d,ts) VALUES(?,?)";
+        CHECK_ODBC_OK(SQLPrepare(stmt, (SQLCHAR*)insert.c_str(), SQL_NTS), stmt, SQL_HANDLE_STMT);
         CHECK_ODBC_OK(SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_TYPE_DATE, SQL_TYPE_DATE,
             10, 0, &date, sizeof(date), &dateLength), stmt, SQL_HANDLE_STMT);
         CHECK_ODBC_OK(SQLBindParameter(stmt, 2, SQL_PARAM_INPUT, SQL_C_TYPE_TIMESTAMP, SQL_TYPE_TIMESTAMP,
@@ -590,6 +591,12 @@ TEST(StatementApi, TemporalBindingsWithoutDescribeParam) {
         EXPECT_EQ(actualTimestamp.year, timestamp.year);
         EXPECT_EQ(actualTimestamp.fraction, timestamp.fraction);
         SQLFreeStmt(stmt, SQL_CLOSE);
+        CHECK_ODBC_OK(SQLFreeStmt(stmt, SQL_RESET_PARAMS), stmt, SQL_HANDLE_STMT);
+        CHECK_ODBC_OK(SQLPrepare(stmt, (SQLCHAR*)insert.c_str(), SQL_NTS), stmt, SQL_HANDLE_STMT);
+        SQLSMALLINT type = SQL_UNKNOWN_TYPE, scale = -1;
+        CHECK_ODBC_OK(SQLDescribeParam(stmt, 2, &type, nullptr, &scale, nullptr), stmt, SQL_HANDLE_STMT);
+        EXPECT_EQ(type, SQL_TYPE_TIMESTAMP);
+        EXPECT_EQ(scale, timestampType == "Datetime64" ? 0 : 6);
         CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)
             ("DROP TABLE " + table).c_str(), SQL_NTS), stmt, SQL_HANDLE_STMT);
     }
