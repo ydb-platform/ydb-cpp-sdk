@@ -326,6 +326,22 @@ ODBC_EXCLUSIVE(SQLSetConnectAttr, TConnection, TConnection::SetConnectAttr,
      SQLINTEGER stringLength),
     (connectionHandle, attribute, value, stringLength))
 
+SQLRETURN SQL_API SQLSetConnectAttrW(SQLHDBC connectionHandle, SQLINTEGER attribute,
+                                    SQLPOINTER value, SQLINTEGER stringLength) {
+    return Call<Odbc::ECallMode::Ordinary, TConnection, true>(connectionHandle, [&](auto* connection) {
+        if (attribute != SQL_ATTR_CURRENT_CATALOG || !value) {
+            return connection->SetConnectAttr(attribute, value, stringLength);
+        }
+        constexpr SQLINTEGER unit = sizeof(SQLWCHAR);
+        if (stringLength != SQL_NTS && (stringLength < 0 || stringLength % unit != 0)) {
+            return Odbc::Diag::AddInvalidBufferLength(*connection);
+        }
+        std::string catalog = Odbc::GetString(static_cast<SQLWCHAR*>(value),
+            stringLength == SQL_NTS ? SQL_NTS : stringLength / unit);
+        return connection->SetConnectAttr(attribute, catalog.data(), static_cast<SQLINTEGER>(catalog.size()));
+    });
+}
+
 ODBC_FORWARD(SQLGetConnectAttr, TConnection, TConnection::GetConnectAttr,
     (SQLHDBC connectionHandle, SQLINTEGER attribute, SQLPOINTER value,
      SQLINTEGER bufferLength, SQLINTEGER* stringLengthPtr),

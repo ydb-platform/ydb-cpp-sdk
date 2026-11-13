@@ -1112,6 +1112,46 @@ TEST(StatementApi, RowCount) {
     SQLFreeStmt(stmt, SQL_RESET_PARAMS);
     SQLFreeStmt(stmt, SQL_CLOSE);
 
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)
+        "SELECT 11 AS first; "
+        "UPDATE row_count_test SET value = value + 1 WHERE id = 1; "
+        "SELECT 22 AS second, 23 AS third", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLNumResultCols(stmt, &resultColumns), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(resultColumns, 1);
+    CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(rowCount, -1); // Query-wide DML statistics do not describe this SELECT.
+    CHECK_ODBC_OK(SQLMoreResults(stmt), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLNumResultCols(stmt, &resultColumns), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(resultColumns, 2); // The SDK supplies only SELECT results.
+    CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(rowCount, -1);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    SQLINTEGER value = 0;
+    CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_LONG, &value, sizeof(value), nullptr),
+                  stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(value, 22);
+    EXPECT_EQ(SQLMoreResults(stmt), SQL_NO_DATA);
+    EXPECT_EQ(SQLMoreResults(stmt), SQL_NO_DATA);
+
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)
+        "UPDATE row_count_test SET value = value + 1 WHERE id = 1; "
+        "UPDATE row_count_test SET value = value + 1 WHERE id = 1", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLNumResultCols(stmt, &resultColumns), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(resultColumns, 0);
+    CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(rowCount, -1); // No per-statement counts are available for this batch.
+    EXPECT_EQ(SQLMoreResults(stmt), SQL_NO_DATA);
+
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)
+        "SELECT value FROM row_count_test WHERE id = 1", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_LONG, &value, sizeof(value), nullptr),
+                  stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(value, 15); // All three batched updates executed exactly once.
+    SQLFreeStmt(stmt, SQL_CLOSE);
+
     CHECK_ODBC_OK(SQLExecDirect(stmt,
         (SQLCHAR*)"SELECT * FROM row_count_test",
         SQL_NTS), stmt, SQL_HANDLE_STMT);

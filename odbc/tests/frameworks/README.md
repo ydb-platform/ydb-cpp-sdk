@@ -6,7 +6,7 @@ The native SDK/compiler/YDB-version matrix remains separate.
 
 | Consumer | Upstream suite |
 | --- | --- |
-| package-contract | Debian installation, upgrade, removal and replacement |
+| package-contract | Debian installation, reinstallation, removal, replacement and optional prior-version upgrade |
 | isql | unixODBC scalar-query smoke test (DSN) |
 | Qt | QtSql database, query, model and threading tests |
 | PHP | ext/odbc PHPT tests |
@@ -18,6 +18,11 @@ The native SDK/compiler/YDB-version matrix remains separate.
 All bindings run in DSN and connection-string modes. R includes connection stress tests;
 Arrow requires a separate binding API. Julia and Tcl are outside this matrix.
 
+Every binding also runs the [shared boundary contract](contracts/README.md) through
+its public API. These cases supplement the upstream inventory; they cannot replace
+or reclassify upstream failures. A missing, duplicate or crashed contract case fails
+the job. Both Ruby extensions are included.
+
 ## Sources and fixtures
 
 YDB follows `ydbplatform/local-ydb:trunk` for logical affected-row statistics.
@@ -28,6 +33,10 @@ have checksum-locked source archives and `upstream.lock`. `package-contract` and
 release. Ruby, Lua and R bindings build from their locked source.
 R additionally locks DBItest in `test-sources.lock` and includes generic regressions
 from backend-named test files; their database-specific suites remain excluded.
+An actual older package can be supplied to `package-contract` with
+`--previous-package`; its version, architecture and checksum are checked and recorded.
+See the [package contract](package-contract/README.md). Reinstallation never counts
+as a prior-version upgrade.
 
 Sources are downloaded only into the test container, checked before extraction, and
 kept out of SDK packages. Fixture patches apply to writable copies. They may change

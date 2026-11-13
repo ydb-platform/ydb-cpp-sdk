@@ -316,6 +316,33 @@ TEST(ConnectionApi, LegacyLoginTimeoutBeforeConnect) {
     SQLFreeHandle(SQL_HANDLE_ENV, env);
 }
 
+TEST(ConnectionApi, WideConnectionAttributes) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    AllocEnvAndConnect(&env, &dbc);
+    for (const SQLULEN mode : {SQL_AUTOCOMMIT_OFF, SQL_AUTOCOMMIT_ON}) {
+        CHECK_ODBC_OK(SQLSetConnectOptionW(dbc, SQL_AUTOCOMMIT, mode), dbc, SQL_HANDLE_DBC);
+        SQLUINTEGER actual = ~SQLUINTEGER{0};
+        CHECK_ODBC_OK(SQLGetConnectAttr(dbc, SQL_ATTR_AUTOCOMMIT, &actual, 0, nullptr), dbc, SQL_HANDLE_DBC);
+        EXPECT_EQ(actual, mode);
+    }
+    SQLWCHAR catalog[] = {'/', 'l', 'o', 'c', 'a', 'l', '/', 0x4E2D, '/', 0};
+    for (const SQLINTEGER length : {SQL_NTS, static_cast<SQLINTEGER>(sizeof(catalog) - sizeof(SQLWCHAR))}) {
+        CHECK_ODBC_OK(SQLSetConnectAttrW(dbc, SQL_ATTR_CURRENT_CATALOG, catalog, length), dbc, SQL_HANDLE_DBC);
+        char actual[16] = {};
+        SQLINTEGER actualLength = 0;
+        CHECK_ODBC_OK(SQLGetConnectAttr(dbc, SQL_ATTR_CURRENT_CATALOG,
+            actual, sizeof(actual), &actualLength), dbc, SQL_HANDLE_DBC);
+        EXPECT_STREQ(actual, "/local/\xE4\xB8\xAD");
+        EXPECT_EQ(actualLength, 10);
+    }
+    EXPECT_EQ(SQLSetConnectAttrW(dbc, SQL_ATTR_CURRENT_CATALOG, catalog, 1), SQL_ERROR);
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(dbc, SQL_HANDLE_DBC), "HY090"));
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
 TEST(ConnectionApi, ConnAttrCurrentCatalogAffectsQueries) {
     SQLHENV env;
     SQLHDBC dbc;

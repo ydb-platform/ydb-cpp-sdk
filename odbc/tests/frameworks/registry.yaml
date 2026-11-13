@@ -427,6 +427,20 @@ classifications:
       php-pdo:
       - php-pdo.*.ext%2Fpdo%2Ftests%2Fpdo_035.phpt
   - outcome: upstream_failure
+    reason: PDO_ODBC keeps its internal columns after result exhaustion but resets the public column count, so reexecution skips metadata refresh.
+    match: '\ARuntimeException: Batch reexecution differs: \[\[\],\[\]\]\s*\Z'
+    reference: https://github.com/php/php-src/blob/php-8.3.6/ext/pdo_odbc/odbc_stmt.c#L824
+    reproducer: repros/pdo-rowset-reexecute.php
+    tests:
+      php-pdo: [php-pdo.*.contract.multiple_results]
+  - outcome: upstream_failure
+    reason: Ruby ODBC's UTF-8 extension misdecodes four-byte UTF-8 and reverses UTF-16 surrogate bits for supplementary characters.
+    match: '\ARuntimeError: bound values differ: id=7, text=d09fd180d0b8d0b2d0b5d18220f09f8c80, null=true\s*\Z'
+    reference: https://rubygems.org/downloads/ruby-odbc-0.999993.gem
+    reproducer: repros/ruby-utf8-unicode.rb
+    tests:
+      ruby: [ruby.*.contract.odbc_utf8.binding]
+  - outcome: upstream_failure
     reason: LuaSQL reads SQL_C_SLONG into SQLLEN with uninitialized upper bytes and leaves luaL_Buffer stack slots
       on NULL reads; outcomes are intermittent.
     match: (?s)wrong value \(-?\d{10,} instead of (?:0|1|10)\).*in function \'(?:fetch2|fetch_new_table|fetch_many|unicode_values|rollback|extensions_test|check_close)\'|wrong
@@ -456,7 +470,7 @@ consumers:
     runner: package-contract
     source: system
     expected:
-      required: [package.clean_install, package.upgrade, package.remove, package.replacement]
+      required: [package.clean_install, package.reinstall, package.remove, package.replacement]
   - id: isql
     display_name: unixODBC isql
     kind: smoke

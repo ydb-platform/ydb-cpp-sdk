@@ -185,6 +185,8 @@ TEST(OdbcParamRewrite, CountOdbcParams) {
     EXPECT_EQ(CountOdbcParams("SELECT $p1"), 1);
     EXPECT_EQ(CountOdbcParams("SELECT $p1 + $p2"), 2);
     EXPECT_EQ(CountOdbcParams("SELECT 1"), 0);
+    EXPECT_EQ(CountOdbcParams("SELECT {fn CONVERT(?, SQL_INTEGER)}, {fn ABS(?)}"), 2);
+    EXPECT_EQ(CountOdbcParams("SELECT {fn CONVERT($p3, SQL_INTEGER)}"), 3);
 }
 
 TEST(OdbcParamRewrite, ParameterCountLimits) {
