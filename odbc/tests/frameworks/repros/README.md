@@ -52,6 +52,43 @@ Each access should return the same 600-byte string. PDO_ODBC calls SQLGetData
 again after exhausting the column, without caching it.
 SQLite ODBC restarts this stream after SQL_NO_DATA and hides the defect; use PostgreSQL here.
 
+## PDO_ODBC result exhaustion and reexecution
+
+```sh
+php pdo-rowset-reexecute.php 'Driver=SQLite3;Database=:memory:'
+```
+
+Expected: both executions expose one column and return `value=1`.
+Observed with stock PHP 8.3.6: after `nextRowset()` returns false, execution succeeds
+but `columnCount()` is zero and associative fetch returns an empty array. This
+reproduces with SQLite ODBC as well as YDB. The equivalent ODBC C API sequence
+returns the correct column count, name and value after reexecution.
+
+[PDO core](https://github.com/php/php-src/blob/php-8.3.6/ext/pdo/pdo_stmt.c#L175)
+clears its public column count. The
+[ODBC adapter](https://github.com/php/php-src/blob/php-8.3.6/ext/pdo_odbc/odbc_stmt.c#L824)
+returns on `SQL_NO_DATA` before freeing its internal columns, and its execute path
+refreshes metadata only when those columns are absent. A unixODBC trace confirms
+that the second successful `SQLExecute` has no `SQLNumResultCols`/`SQLDescribeCol`
+refresh. The contract retains the original assertion and records this failure.
+
+## Ruby ODBC 0.999993 UTF-8 extension
+
+Build both extensions from the unmodified
+[locked gem](https://rubygems.org/downloads/ruby-odbc-0.999993.gem), then:
+
+```sh
+ruby -I /path/to/ext/utf8 ruby-utf8-unicode.rb "$ODBC_CONNECTION"
+```
+
+Expected bytes for U+1F30D: `f09f8c8d`. The UTF-8 extension returns `f09f8c80`.
+In the locked `ext/odbc.c`, `uc_from_utf` reads `str[4]` instead of the fourth
+byte `str[3]` at line 1522. It also reverses the UTF-16 surrogate bit halves at
+lines 1527–1528; `mkutf` reverses them again, so an apparent round trip can hide
+an incorrect server value. The ANSI extension preserves the same UTF-8 bytes.
+The supplementary-character assertion remains a failure; ordinary Unicode and
+NULL bindings are checked independently.
+
 ## LuaSQL 491fea76, Lua 5.4, 64-bit unixODBC
 
 Build the locked LuaSQL archive with `make odbc LUA_SYS_VER=5.4` and expose

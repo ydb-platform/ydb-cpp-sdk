@@ -570,7 +570,7 @@ bool HasMultipleSqlStatements(std::string_view sql) {
 }
 
 SQLSMALLINT CountOdbcParams(std::string_view sql) {
-    TSqlScanner scanner{sql, nullptr, false};
+    TSqlScanner scanner{sql, nullptr, true};
     scanner.Scan(0, sql.size(), true);
     return scanner.QuestionCount > 0
         ? static_cast<SQLSMALLINT>(scanner.QuestionCount)

@@ -293,4 +293,126 @@ class HarnessTests(unittest.TestCase):
         added_keys = [line for line in changed
                       if line.startswith("+") and "primary key" in line.lower()]
         self.assertGreaterEqual(len(added_keys), len(removed_keys))
+class PackageContractTests(unittest.TestCase):
+    def setUp(self):
+        context = tempfile.TemporaryDirectory(); self.addCleanup(context.cleanup)
+        self.root = Path(context.name)
+        self.architecture = harness.command(["dpkg", "--print-architecture"], capture=True).stdout.strip()
+
+    def package(self, version, name="ydb-odbc", architecture=None):
+        architecture = architecture or self.architecture
+        root = self.root / f"{name}-{version}-{architecture}"
+        (root / "DEBIAN").mkdir(parents=True, exist_ok=True)
+        (root / "DEBIAN/control").write_text(
+            f"Package: {name}\nVersion: {version}\nArchitecture: {architecture}\n"
+            "Maintainer: Package Contract <packages@example.org>\nDescription: Test package metadata\n")
+        artifact = self.root / f"{root.name}.deb"
+        harness.command(["dpkg-deb", "--build", "--root-owner-group", root, artifact], capture=True)
+        return artifact
+
+    def test_previous_package_identity_and_version_are_checked(self):
+        current, previous = self.package("3.25.0"), self.package("3.22.0")
+        digest = harness.hashlib.sha256(previous.read_bytes()).hexdigest()
+        path, packages = harness.inspect_upgrade_packages(current, previous, digest)
+        self.assertEqual(path, previous.resolve())
+        self.assertEqual(packages["previous"]["version"], "3.22.0")
+        self.assertEqual(packages["previous"]["sha256"], digest)
+        bad_architecture = "arm64" if self.architecture != "arm64" else "amd64"
+        for artifact, checksum, diagnostic in (
+                (None, None, "requires --previous-package"),
+                (self.root / "missing.deb", None, "previous package is missing"),
+                (current, None, "must be older"),
+                (self.package("3.26.0"), None, "must be older"),
+                (self.package("3.22.0", name="another-driver"), None, "not the ydb-odbc package"),
+                (self.package("3.22.0", architecture=bad_architecture), None, "wrong architecture"),
+                (previous, "0" * 64, "checksum mismatch"),
+                (previous, "invalid", "invalid previous package SHA256")):
+            with self.subTest(diagnostic=diagnostic), self.assertRaisesRegex(harness.HarnessError, diagnostic):
+                harness.inspect_upgrade_packages(current, artifact, checksum)
+        with self.assertRaisesRegex(harness.HarnessError, "current artifact is not"):
+            harness.inspect_upgrade_packages(self.package("3.25.0", name="another-driver"), previous)
+
+    def test_upgrade_requires_an_explicit_previous_package(self):
+        current, previous = self.package("3.25.0"), self.package("3.22.0")
+        native = self.root / "native"; native.mkdir()
+        baseline = ["package.clean_install", "package.reinstall", "package.remove", "package.replacement"]
+        with mock.patch.dict(harness.os.environ, {}, clear=True), mock.patch.object(
+                harness, "record_case", return_value=False) as record:
+            self.assertEqual(harness.package_suite(current, native), 0)
+            self.assertEqual([call.args[1] for call in record.call_args_list], baseline)
+            self.assertFalse((native / "package-upgrade.json").exists())
+            record.reset_mock()
+            self.assertEqual(harness.package_suite(current, native, previous,
+                previous_source="https://example.org/previous-build"), 0)
+            self.assertEqual([call.args[1] for call in record.call_args_list],
+                             baseline[:1] + ["package.upgrade"] + baseline[1:])
+        provenance = json.loads((native / "package-upgrade.json").read_text())
+        self.assertEqual(provenance["previous"]["source"], "https://example.org/previous-build")
+        self.assertEqual(provenance["previous"]["sha256"], harness.hashlib.sha256(previous.read_bytes()).hexdigest())
+        with mock.patch.object(harness, "record_case") as record:
+            with self.assertRaisesRegex(harness.HarnessError, "must be older"):
+                harness.package_suite(current, native, current)
+            record.assert_not_called()
+
+    def test_launcher_mounts_the_previous_package_read_only(self):
+        current, previous = self.package("3.25.0"), self.package("3.22.0")
+        consumer = next(c for c in harness.load_registry()["consumers"] if c["kind"] == "package")
+        digest = harness.hashlib.sha256(previous.read_bytes()).hexdigest()
+        environment = {"DRIVER_COMMIT": "current", "YDB_TEST_IMAGE": "ydbplatform/local-ydb:trunk",
+                       "YDB_ENDPOINT": "localhost:2136", "YDB_DATABASE": "/local"}
+        with mock.patch.dict(harness.os.environ, environment, clear=True), mock.patch.object(
+                harness, "inspect_upgrade_packages", return_value=(previous, {})) as inspect, mock.patch.object(
+                harness, "command", return_value=mock.Mock(returncode=0)) as command:
+            self.assertEqual(harness.launch_consumer(consumer["id"], "all", consumer["runtime_image"],
+                current, self.root / "results", previous, digest, "historical-build"), 0)
+        inspect.assert_called_once_with(current.resolve(), previous, digest)
+        args = command.call_args_list[-1].args[0]
+        self.assertIn(f"{previous}:/previous-package/ydb-odbc.deb:ro", args)
+        self.assertIn("ODBC_PREVIOUS_PACKAGE=/previous-package/ydb-odbc.deb", args)
+        self.assertIn(f"ODBC_PREVIOUS_PACKAGE_SHA256={digest}", args)
+        self.assertIn("ODBC_PREVIOUS_PACKAGE_SOURCE=historical-build", args)
+
+class BindingContractTests(unittest.TestCase):
+    def test_upstream_contract_errors_cannot_hide_cleanup_failures(self):
+        consumers = {item["id"]: item for item in harness.load_registry()["consumers"]}
+        cases = [("php-pdo", "multiple_results", "RuntimeException: Batch reexecution differs: [[],[]]"),
+                 ("ruby", "odbc_utf8.binding", "RuntimeError: bound values differ: id=7, "
+                  "text=d09fd180d0b8d0b2d0b5d18220f09f8c80, null=true")]
+        for consumer, case, message in cases:
+            test = {"id": f"{consumer}.dsn.contract.{case}", "status": "failed", "message": message}
+            self.assertEqual(harness.expected_result(test, consumers[consumer]["expected"])[0], "upstream_failure")
+            test["message"] += " Cleanup: HY000 connection cleanup failed"
+            self.assertIsNone(harness.expected_result(test, consumers[consumer]["expected"]))
+
+    def parse(self, output, code=0):
+        return harness.binding_contracts.parse_results("php-odbc", "dsn", "", output,
+            code, 1, 2, Path("contract.log"))
+
+    def test_missing_and_duplicate_records_cannot_pass(self):
+        output = "@YDB_CONTRACT\tconnection\tpassed\t\n"
+        results = self.parse(output)
+        self.assertEqual(results[0]["status"], "passed")
+        self.assertTrue(all(result["status"] == "broken" for result in results[1:]))
+        self.assertTrue(all(result["status"] == "broken" for result in self.parse(output + output)))
+        self.assertTrue(all(result["status"] == "broken" for result in self.parse(output, 139)))
+        self.assertTrue(all(result["status"] == "broken" for result in
+            self.parse("@YDB_CONTRACT\tconnection\tpassed\tnot-hex\n")))
+
+    def test_merging_preserves_upstream_failures_and_qt_rows(self):
+        with tempfile.TemporaryDirectory() as directory:
+            native = Path(directory)
+            original = {"id": "qt.dsn.upstream@row", "parent_id": "qt.dsn.upstream",
+                        "status": "failed", "message": "original diagnostic"}
+            contract = {"id": "qt.dsn.contract.connection", "status": "passed"}
+            (native / "results.json").write_text(json.dumps({"inventory_kind": "parents",
+                "inventory": ["qt.dsn.upstream"], "inventory_rows": {"qt.dsn.upstream": 1},
+                "tests": [original]}))
+            (native / "contracts.json").write_text(json.dumps({"inventory": [contract["id"]],
+                "tests": [contract]}))
+            harness.binding_contracts.merge(native)
+            merged = json.loads((native / "results.json").read_text())
+            self.assertEqual(merged["tests"], [original, contract])
+            self.assertEqual(merged["inventory_rows"],
+                             {"qt.dsn.upstream": 1, "qt.dsn.contract.connection": 1})
+
 if __name__ == "__main__": unittest.main()

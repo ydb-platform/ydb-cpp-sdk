@@ -16,6 +16,7 @@ import urllib.request
 import uuid
 from pathlib import Path
 import yaml
+from contracts import runner as binding_contracts
 ROOT = Path(__file__).resolve().parent
 REGISTRY = ROOT / "registry.yaml"
 RESULTS = Path("/results")
@@ -158,6 +159,8 @@ def load_registry(path=REGISTRY):
             require(read_yaml(adapter / "upstream.lock") == source, f"{consumer}: upstream.lock differs from registry")
         else:
             require(source == "system", f"{consumer}: smoke/package source must be system")
+        if item["kind"] == "framework":
+            expected["required"].extend(binding_contracts.inventory(consumer, "*"))
     return data
 def consumer_runs(data):
     for consumer in data["consumers"]:
@@ -247,17 +250,59 @@ def write_dsn(consumer_id, endpoint, database):
     Path("/etc/odbc.ini").write_text(f"[ODBC Data Sources]\n{dsn}=YDB ODBC Driver\n\n[{dsn}]\nDriver=YDB\n"
         f"Server={endpoint}\nDatabase={database}\nAuthMode=Anonymous\nAnsiSQL=1\n")
     return dsn
-def package_suite(package, native):
+def package_identity(package):
+    fields = {name.lower(): command(["dpkg-deb", "-f", package, name], capture=True).stdout.strip()
+              for name in ("Package", "Version", "Architecture")}
+    fields["sha256"] = hashlib.sha256(package.read_bytes()).hexdigest()
+    return fields
+def inspect_upgrade_packages(package, previous, expected_sha256=None):
+    require(previous is not None, "package-contract requires --previous-package or ODBC_PREVIOUS_PACKAGE")
+    previous = Path(previous).resolve()
+    require(previous.is_file(), f"previous package is missing: {previous}")
+    architecture = command(["dpkg", "--print-architecture"], capture=True).stdout.strip()
+    packages = {}
+    for label, artifact in (("current", package), ("previous", previous)):
+        fields = package_identity(artifact)
+        require(fields["package"] == "ydb-odbc", f"{label} artifact is not the ydb-odbc package")
+        require(fields["architecture"] == architecture, f"{label} package has wrong architecture")
+        packages[label] = fields
+    if expected_sha256:
+        require(SOURCE_RE.fullmatch(expected_sha256), "invalid previous package SHA256")
+        require(packages["previous"]["sha256"] == expected_sha256, "previous package checksum mismatch")
+    require(command(["dpkg", "--compare-versions", packages["previous"]["version"], "lt",
+                     packages["current"]["version"]], check=False).returncode == 0,
+            "previous package version must be older than the current package")
+    return previous, packages
+def package_suite(package, native, previous=None, previous_sha256=None, previous_source=None):
+    previous = previous or os.getenv("ODBC_PREVIOUS_PACKAGE")
+    packages = {"current": package_identity(package)}
+    if previous:
+        previous, packages = inspect_upgrade_packages(package, previous,
+            previous_sha256 or os.getenv("ODBC_PREVIOUS_PACKAGE_SHA256"))
+        packages["previous"]["source"] = previous_source or os.getenv("ODBC_PREVIOUS_PACKAGE_SOURCE", str(previous))
+        (native / "package-upgrade.json").write_text(json.dumps(packages, indent=2, sort_keys=True) + "\n")
     multiarch = command(["dpkg-architecture", "-qDEB_HOST_MULTIARCH"], capture=True).stdout.splitlines()[-1]
     driver, template = Path(f"/usr/lib/{multiarch}/libydb-odbc.so"), Path("/usr/share/ydb-odbc/odbcinst.ini")
-    old, unpacked, state = Path("/tmp/ydb-odbc-old.deb"), Path("/tmp/ydb-odbc-old"), {}
+    state = {}
     def field(log, name): return logged(log, ["dpkg-deb", "-f", package, name]).strip()
     def registration(log):
         value = logged(log, ["odbcinst", "-q", "-d", "-n", "YDB"])
         for expected in (f"Driver={driver}", f"Setup={driver}", "UsageCount=1"): require(expected in value.splitlines(), f"missing registration: {expected}")
-    def unchanged():
+        names = logged(log, ["odbcinst", "-q", "-d"]).splitlines()
+        require(names.count("[YDB]") == 1, "duplicate YDB driver registration")
+    def unchanged(log):
         require(all(hashlib.sha256(path.read_bytes()).hexdigest() == digest
                     for path, digest in state["configs"].items()), "ODBC configuration changed")
+        require(logged(log, ["odbcinst", "-q", "-d", "-n", "UnrelatedPackageTest"])
+                == state["unrelated"], "unrelated driver registration changed")
+    def installed(log, version):
+        require(logged(log, ["dpkg-query", "-W", "-f=${Version}", "ydb-odbc"]).strip()
+                == version, "installed package version differs")
+        require(driver.is_file() and template.is_file(), "installed multiarch files are missing")
+        for expected in (f"Driver={driver}", f"Setup={driver}"):
+            require(expected in template.read_text().splitlines(), "invalid registration template")
+        require(logged(log, ["dpkg-query", "-S", driver]).startswith("ydb-odbc:"), "wrong file owner")
+        registration(log); unchanged(log)
     def clean(log):
         logged(log, ["apt-get", "update"]); require(field(log, "Package") == "ydb-odbc", "wrong package name")
         require(field(log, "Architecture") == command(["dpkg", "--print-architecture"], capture=True).stdout.strip(),
@@ -267,29 +312,27 @@ def package_suite(package, native):
         unrelated = Path("/tmp/unrelated.ini")
         unrelated.write_text(f"[UnrelatedPackageTest]\nDriver=/usr/lib/{multiarch}/libodbc.so.2\nSetup=/usr/lib/{multiarch}/libodbcinst.so.2\n")
         logged(log, ["odbcinst", "-i", "-d", "-f", unrelated])
-        configs = {Path("/etc/odbc.ini"): "[UnrelatedSystemDsn]\nDriver=UnrelatedPackageTest\n",
-                   Path("/root/.odbc.ini"): "[UnrelatedUserDsn]\nDriver=UnrelatedPackageTest\n"}
+        state["unrelated"] = logged(log, ["odbcinst", "-q", "-d", "-n", "UnrelatedPackageTest"])
+        configs = {Path("/etc/odbc.ini"): "[UnrelatedSystemDsn]\nDriver=UnrelatedPackageTest\n\n[YdbSystemDsn]\nDriver=YDB\nDatabase=/preserved-system\n",
+                   Path("/root/.odbc.ini"): "[UnrelatedUserDsn]\nDriver=UnrelatedPackageTest\n\n[YdbUserDsn]\nDriver=YDB\nDatabase=/preserved-user\n"}
         for path, content in configs.items(): path.write_text(content)
         state["configs"] = {path: hashlib.sha256(path.read_bytes()).hexdigest() for path in configs}
-        shutil.rmtree(unpacked, ignore_errors=True); logged(log, ["dpkg-deb", "--raw-extract", package, unpacked])
-        control, version = unpacked / "DEBIAN/control", field(log, "Version")
-        control.write_text(re.sub(r"^Version: .*$", f"Version: {version}~integration1",
-                                  control.read_text(), flags=re.MULTILINE))
-        logged(log, ["dpkg-deb", "--build", unpacked, old]); logged(log, ["apt-get", "install", "-y", old])
-        require(driver.is_file() and template.is_file(), "installed files are missing")
-        require(f"Driver={driver}" in template.read_text().splitlines(), "invalid registration template")
-        require(logged(log, ["dpkg-query", "-S", driver]).startswith("ydb-odbc:"), "wrong file owner"); registration(log)
+        logged(log, ["apt-get", "install", "-y", package]); installed(log, packages["current"]["version"])
+    def reinstall(log):
+        logged(log, ["apt-get", "install", "--reinstall", "-y", package])
+        installed(log, packages["current"]["version"])
     def upgrade(log):
+        log.append(json.dumps(packages, indent=2, sort_keys=True) + "\n")
+        logged(log, ["apt-get", "remove", "-y", "ydb-odbc"]); unchanged(log)
+        logged(log, ["apt-get", "install", "-y", previous]); installed(log, packages["previous"]["version"])
         logged(log, ["apt-get", "install", "-y", package])
-        require(logged(log, ["dpkg-query", "-W", "-f=${Version}", "ydb-odbc"]).strip()
-                == field(log, "Version"), "upgrade version differs")
-        registration(log); unchanged()
+        installed(log, packages["current"]["version"])
     def remove(log):
         logged(log, ["apt-get", "remove", "-y", "ydb-odbc"])
         require(not driver.exists() and not template.exists(), "package files remain")
         result = command(["odbcinst", "-q", "-d", "-n", "YDB"], capture=True, check=False)
         log.append(result.stdout or ""); require(result.returncode != 0, "YDB registration remains")
-        logged(log, ["odbcinst", "-q", "-d", "-n", "UnrelatedPackageTest"]); unchanged()
+        unchanged(log)
     def replacement(log):
         logged(log, ["apt-get", "install", "-y", package]); registration(log)
         logged(log, ["odbcinst", "-u", "-d", "-n", "YDB"])
@@ -297,9 +340,11 @@ def package_suite(package, native):
         logged(log, ["odbcinst", "-i", "-d", "-f", replacement_file])
         expected = logged(log, ["odbcinst", "-q", "-d", "-n", "YDB"]); logged(log, ["apt-get", "remove", "-y", "ydb-odbc"])
         require(logged(log, ["odbcinst", "-q", "-d", "-n", "YDB"]) == expected,
-                "replacement registration changed"); unchanged()
-    cases = [("package.clean_install", "Install and register ydb-odbc", clean),
-             ("package.upgrade", "Upgrade without duplicate registration", upgrade),
+                "replacement registration changed"); unchanged(log)
+    cases = [("package.clean_install", "Install and register ydb-odbc", clean)]
+    if previous:
+        cases.append(("package.upgrade", "Upgrade a previous package without duplicate registration", upgrade))
+    cases += [("package.reinstall", "Reinstall without duplicate registration", reinstall),
              ("package.remove", "Remove without changing unrelated configuration", remove),
              ("package.replacement", "Preserve a replacement YDB registration", replacement)]
     return int(any([record_case(native, *case) for case in cases]))
@@ -316,12 +361,18 @@ def declarative_suite(consumer, env, native):
                     "output did not match expected pattern")
         failures.append(record_case(native, test["id"], test["name"], action))
     return int(any(failures))
-def launch_consumer(consumer, mode, runtime, package, results):
+def launch_consumer(consumer, mode, runtime, package, results, previous_package=None,
+                    previous_package_sha256=None, previous_package_source=None):
     package, adapter = package.resolve(), ROOT / consumer
     item = next(item for item in load_registry()["consumers"] if item["id"] == consumer)
     dockerfile = ROOT / item.get("dockerfile", f"{consumer}/Dockerfile")
     require(runtime == item["runtime_image"], "runtime image differs from registry")
     require(package.is_file() and dockerfile.is_file(), "package or adapter is missing")
+    if item["kind"] == "package":
+        previous_package = previous_package or os.getenv("ODBC_PREVIOUS_PACKAGE")
+        if previous_package:
+            previous_package, _ = inspect_upgrade_packages(package, previous_package,
+                previous_package_sha256 or os.getenv("ODBC_PREVIOUS_PACKAGE_SHA256"))
     results.mkdir(parents=True, exist_ok=True); results = results.resolve(); results.chmod(0o777)
     image_name = f"ydb-odbc-{consumer}:{os.getenv('GITHUB_RUN_ID', 'local')}-{os.getenv('GITHUB_RUN_ATTEMPT', '1')}"
     command(["docker", "build", "--build-arg", f"RUNTIME_IMAGE={runtime}",
@@ -330,6 +381,12 @@ def launch_consumer(consumer, mode, runtime, package, results):
             "-v", f"{ROOT}:/harness:ro", "-v", f"{package.parent}:/packages:ro",
             "-v", f"{results}:/results", "-e", f"ODBC_PACKAGE_BASENAME={package.name}",
             "-e", f"ODBC_RUNTIME_IMAGE={runtime}", "-e", f"ODBC_TEST_MODE={mode}"]
+    if item["kind"] == "package" and previous_package:
+        args += ["-v", f"{previous_package}:/previous-package/ydb-odbc.deb:ro",
+                 "-e", "ODBC_PREVIOUS_PACKAGE=/previous-package/ydb-odbc.deb"]
+        for name, value in (("ODBC_PREVIOUS_PACKAGE_SHA256", previous_package_sha256),
+                            ("ODBC_PREVIOUS_PACKAGE_SOURCE", previous_package_source)):
+            if value or os.getenv(name): args += ["-e", f"{name}={value or os.environ[name]}"]
     for name in ("DRIVER_COMMIT", "YDB_TEST_IMAGE", "YDB_ENDPOINT", "YDB_DATABASE"):
         require(os.getenv(name), f"{name} is required")
         args += ["-e", f"{name}={os.environ[name]}"]
@@ -497,10 +554,14 @@ def validate_results(consumer, native, allure, test_rc=0):
     (RESULTS / "validation.json").write_text(json.dumps(validation, indent=2, sort_keys=True) + "\n")
     for error in errors: print(f"result error: {error}", file=sys.stderr)
     return errors
-def run_consumer(consumer_id, mode):
+def run_consumer(consumer_id, mode, previous_package=None, previous_package_sha256=None,
+                 previous_package_source=None):
     os.environ["ODBC_TEST_MODE"] = mode
     data = load_registry(); consumer = next((x for x in data["consumers"] if x["id"] == consumer_id), None)
     require(consumer, f"unknown consumer: {consumer_id}")
+    if consumer.get("runner") == "package-contract":
+        previous_package = previous_package or os.getenv("ODBC_PREVIOUS_PACKAGE")
+        if previous_package: consumer["expected"]["required"].append("package.upgrade")
     allowed_modes = consumer.get("modes") or ["all"]
     require(mode in allowed_modes, f"{consumer_id}: invalid connection mode: {mode}")
     adapter, package = ROOT / consumer_id, Path("/packages") / os.environ["ODBC_PACKAGE_BASENAME"]
@@ -548,11 +609,19 @@ def run_consumer(consumer_id, mode):
         metadata["runtime_version"] = runtime_output.splitlines()[0]
         (RESULTS / "metadata.json").write_text(json.dumps(metadata, indent=2, sort_keys=True) + "\n")
         if consumer.get("runner") == "package-contract":
-            test_rc = package_suite(package, native)
+            test_rc = package_suite(package, native, previous_package, previous_package_sha256,
+                                    previous_package_source)
+            if previous_package and (native / "package-upgrade.json").is_file():
+                metadata["previous_package"] = json.loads((native / "package-upgrade.json").read_text())["previous"]
         elif consumer.get("tests"):
             test_rc = declarative_suite(consumer, env, native)
         else:
             test_rc = command([adapter / "run-tests"], env=env, user=run_user, check=False, timeout=1800).returncode
+            contract_rc = command([sys.executable, ROOT / "contracts/runner.py", consumer_id, mode],
+                                  env=env, user=run_user, check=False, timeout=600).returncode
+            binding_contracts.merge(native)
+            if test_rc in (0, 1):
+                test_rc = max(test_rc, contract_rc) if contract_rc in (0, 1) else contract_rc
     except Exception as exception:  # preserve infrastructure failures as test output
         error = str(exception)
     (RESULTS / "metadata.json").write_text(json.dumps(metadata, indent=2, sort_keys=True) + "\n")
@@ -628,6 +697,10 @@ def main():
     launch.add_argument("--mode", default="all")
     launch.add_argument("--runtime-image", required=True); launch.add_argument("--package", type=Path, required=True)
     launch.add_argument("--results", type=Path, required=True)
+    for operation in (run, launch):
+        operation.add_argument("--previous-package", type=Path, help="Actual older .deb for the package upgrade contract")
+        operation.add_argument("--previous-package-sha256", help="Expected SHA256 of the previous package")
+        operation.add_argument("--previous-package-source", help="Origin URL or source revision of the previous package")
     aggregation = commands.add_parser("aggregate"); aggregation.add_argument("--input", type=Path, required=True)
     aggregation.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
@@ -643,8 +716,12 @@ def main():
                                  separators=(",", ":")))
             else: print(f"Validated {len(data['consumers'])} ODBC consumers")
             return 0
-        if args.command == "run": return run_consumer(args.consumer, args.mode)
-        if args.command == "launch": return launch_consumer(args.consumer, args.mode, args.runtime_image, args.package, args.results)
+        if args.command == "run":
+            return run_consumer(args.consumer, args.mode, args.previous_package,
+                                args.previous_package_sha256, args.previous_package_source)
+        if args.command == "launch":
+            return launch_consumer(args.consumer, args.mode, args.runtime_image, args.package, args.results,
+                                   args.previous_package, args.previous_package_sha256, args.previous_package_source)
         return aggregate(args.input, args.output)
     except HarnessError as error:
         print(f"harness error: {error}", file=sys.stderr)

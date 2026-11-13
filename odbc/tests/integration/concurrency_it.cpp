@@ -170,6 +170,11 @@ private:
 };
 
 void RunConcurrentQueries(SQLHDBC first, SQLHDBC second) {
+    // Active statements include pending results; explicit transactions only
+    // serialize execution and do not limit how many statements retain results.
+    SQLUSMALLINT activeStatements = 1;
+    EXPECT_EQ(SQLGetInfo(first, SQL_MAX_CONCURRENT_ACTIVITIES, &activeStatements, 0, nullptr), SQL_SUCCESS);
+    EXPECT_EQ(activeStatements, 0);
     TStatementHandle a(first), b(second);
     std::barrier start(2);
     const auto work = [&](SQLHSTMT stmt) {

@@ -27,7 +27,13 @@ namespace NYdb::NOdbc {
 
 namespace {
 
-    std::optional<SQLLEN> ExtractAffectedRows(const NQuery::TExecuteQueryResult& result) {
+    std::optional<SQLLEN> ExtractAffectedRows(
+        const NQuery::TExecuteQueryResult& result, std::string_view query) {
+        // Statistics cover the whole query, without statement boundaries or
+        // counts for individual results in a batch.
+        if (HasMultipleSqlStatements(query) || !result.GetResultSets().empty()) {
+            return std::nullopt;
+        }
         const auto& stats = result.GetStats();
         if (!stats) {
             return std::nullopt;
@@ -60,9 +66,6 @@ namespace {
                 return std::nullopt;
             }
             affectedRows = affectedRows.value_or(0) + *rows;
-        }
-        if (affectedRows == 0 && !result.GetResultSets().empty()) {
-            return std::nullopt;
         }
         return affectedRows;
     }
@@ -307,7 +310,7 @@ SQLRETURN TStatement::ExecuteParamSet(
                 if (!result.IsSuccess()) {
                     return StatusFrom(result);
                 }
-                affectedRows = ExtractAffectedRows(result);
+                affectedRows = ExtractAffectedRows(result, PreparedQuery_);
                 if (!IsCancelRequested()) {
                     SetResults(result);
                 }
@@ -321,7 +324,7 @@ SQLRETURN TStatement::ExecuteParamSet(
         CheckCancellation();
         NQuery::TExecuteQueryResult result = ExecuteQuery(session, params, paramSet);
         NStatusHelpers::ThrowOnError(result);
-        affectedRows = ExtractAffectedRows(result);
+        affectedRows = ExtractAffectedRows(result, PreparedQuery_);
         if (!IsCancelRequested()) {
             SetResults(result);
         }
@@ -1231,8 +1234,8 @@ void TStatement::SetResults(const NQuery::TExecuteQueryResult& result) {
     }
     auto cursor = sets.empty() ? nullptr : CreateExecCursor(
         sets.front(), Attributes_.CursorType == SQL_CURSOR_STATIC);
-    if (cursor && IsPrepared_) {
-        PreparedColumnMeta_ = cursor->GetColumnMeta();
+    if (IsPrepared_) {
+        PreparedColumnMeta_ = cursor ? cursor->GetColumnMeta() : std::vector<TColumnMeta>{};
     }
     if (!sets.empty()) {
         RemainingResultSets_.assign(sets.begin() + 1, sets.end());
