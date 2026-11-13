@@ -302,12 +302,10 @@ SQLRETURN NMetadata::ColAttribute(TStatement* statement, SQLUSMALLINT columnNumb
             return Diag::WriteString<Diag::EStringWriteMode::ColumnAttribute>(
                 statement, "", characterAttributePtr, bufferLength,
                 stringLengthAttributePtr);
-        case SQL_DESC_TYPE_NAME: {
-            const TSqlTypeSpec* spec = FindSqlTypeSpec(column.SqlType);
+        case SQL_DESC_TYPE_NAME:
             return Diag::WriteString<Diag::EStringWriteMode::ColumnAttribute>(
-                statement, spec ? spec->Name : "UNKNOWN", characterAttributePtr,
+                statement, GetSqlTypeName(column.SqlType, "UNKNOWN"), characterAttributePtr,
                 bufferLength, stringLengthAttributePtr);
-        }
         case SQL_DESC_TYPE:
         case SQL_DESC_CONCISE_TYPE:
             return WriteAttributeNumber(statement, column.SqlType, numericAttributePtr);
@@ -333,14 +331,10 @@ SQLRETURN NMetadata::ColAttribute(TStatement* statement, SQLUSMALLINT columnNumb
             return WriteAttributeNumber(statement, SQL_FALSE, numericAttributePtr);
         case SQL_DESC_CASE_SENSITIVE:
             return WriteAttributeNumber(statement,
-                column.SqlType == SQL_CHAR || column.SqlType == SQL_VARCHAR
-                    || column.SqlType == SQL_LONGVARCHAR || column.SqlType == SQL_WCHAR
-                    || column.SqlType == SQL_WVARCHAR || column.SqlType == SQL_WLONGVARCHAR,
-                numericAttributePtr);
+                IsCharacterType(column.SqlType), numericAttributePtr);
         case SQL_DESC_FIXED_PREC_SCALE:
             return WriteAttributeNumber(statement,
-                column.SqlType == SQL_DECIMAL || column.SqlType == SQL_NUMERIC,
-                numericAttributePtr);
+                HasFixedPrecisionScale(column.SqlType), numericAttributePtr);
         case SQL_DESC_SEARCHABLE:
             return WriteAttributeNumber(statement, SQL_PRED_SEARCHABLE, numericAttributePtr);
         case SQL_DESC_UPDATABLE:

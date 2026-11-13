@@ -150,9 +150,9 @@ public:
 
 protected:
     NYdb::NQuery::TExecuteQueryResult ExecuteQuery(
-        NYdb::NQuery::TSession& session, const NYdb::TParams& params, SQLULEN paramSet) override
+        NYdb::NQuery::TSession& session, const TExecutionInput& input) override
     {
-        auto result = TStatement::ExecuteQuery(session, params, paramSet);
+        auto result = TStatement::ExecuteQuery(session, input);
         auto expected = EState::Armed;
         if (State_.compare_exchange_strong(expected, EState::Paused)) {
             EXPECT_TRUE(result.IsSuccess()) << result.GetIssues().ToString();
@@ -508,6 +508,32 @@ TEST(Concurrency, ParentFreeWaitsForChildPublication) {
         EXPECT_TRUE(parent->GetChildren().empty());
     }
     EXPECT_EQ(SQLFreeHandle(SQL_HANDLE_ENV, env), SQL_SUCCESS);
+}
+
+TEST(Concurrency, StatementFreeDoesNotBlockConnectionCalls) {
+    TConnection connection;
+    auto statement = std::make_unique<TStatement>(&connection);
+    connection.AddChild(statement.get());
+    auto* owner = statement.get();
+    SQLHSTMT handle = static_cast<THandle*>(statement.release());
+    std::future<SQLRETURN> freeing, attributes;
+    auto operation = owner->LockOperation();
+    freeing = std::async(std::launch::async, [&] { return SQLFreeHandle(SQL_HANDLE_STMT, handle); });
+    // The held statement lock keeps the consuming call inside its lifecycle gate.
+    EXPECT_TRUE(WaitUntil([&] { return !connection.LockExclusive(std::try_to_lock).owns_lock(); }));
+    EXPECT_EQ(freeing.wait_for(0s), std::future_status::timeout);
+    SQLUINTEGER autocommit = SQL_AUTOCOMMIT_OFF;
+    attributes = std::async(std::launch::async, [&] {
+        return SQLGetConnectAttr(static_cast<THandle*>(&connection), SQL_ATTR_AUTOCOMMIT,
+            &autocommit, sizeof(autocommit), nullptr);
+    });
+    const auto ready = attributes.wait_for(1s);
+    operation.unlock();
+    EXPECT_EQ(ready, std::future_status::ready);
+    EXPECT_EQ(attributes.get(), SQL_SUCCESS);
+    EXPECT_EQ(autocommit, SQL_AUTOCOMMIT_ON);
+    EXPECT_EQ(freeing.get(), SQL_SUCCESS);
+    EXPECT_TRUE(connection.GetChildren().empty());
 }
 
 TEST(Concurrency, CancelQueuedTransactionDoesNotWaitOrAbortOtherStatements) {

@@ -79,10 +79,16 @@ SQLRETURN CallOdbc(SQLHANDLE handlePtr, Fn&& func) {
     }
     if constexpr (Mode == ECallMode::Consuming
                   && !std::is_same_v<Handle, TEnvironment>
-                  && !std::is_same_v<Handle, TConnection>) {
+                  && !std::is_same_v<Handle, TConnection>
+                  && !std::is_same_v<Handle, TStatement>) {
         parent = owner->GetParent()->LockOperation();
     }
     auto lock = owner->LockOperation();
+    // Waiting for an active statement must not block unrelated DBC calls.
+    std::unique_lock<std::mutex> statementParent;
+    if constexpr (Mode == ECallMode::Consuming && std::is_same_v<Handle, TStatement>) {
+        statementParent = owner->GetParent()->LockOperation();
+    }
     if constexpr (Mode == ECallMode::Ordinary && std::is_same_v<Handle, TStatement>) {
         owner->StartExecution();
     }

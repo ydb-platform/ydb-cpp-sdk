@@ -88,6 +88,10 @@ struct TParamTypeSpec {
 
 std::span<const TSqlTypeSpec> GetSqlTypeSpecs();
 const TSqlTypeSpec* FindSqlTypeSpec(SQLSMALLINT sqlType);
+std::string_view GetSqlTypeName(SQLSMALLINT sqlType, std::string_view unknownName = {});
+bool IsCharacterType(SQLSMALLINT sqlType);
+SQLSMALLINT GetDateTimeCode(SQLSMALLINT sqlType);
+bool HasFixedPrecisionScale(SQLSMALLINT sqlType);
 SQLLEN GetDisplaySize(SQLSMALLINT sqlType, SQLLEN size, bool isUnsigned = false);
 SQLULEN GetCTypeSize(SQLSMALLINT cType, SQLLEN variableLength);
 std::string MapSqlTypeToken(std::string_view sqlType);

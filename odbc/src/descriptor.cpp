@@ -15,25 +15,6 @@ SQLPOINTER Offset(SQLPOINTER pointer, SQLULEN offset, SQLULEN index, SQLULEN str
         : nullptr;
 }
 
-bool IsCharacter(SQLSMALLINT type) {
-    return type == SQL_CHAR || type == SQL_VARCHAR || type == SQL_LONGVARCHAR
-        || type == SQL_WCHAR || type == SQL_WVARCHAR || type == SQL_WLONGVARCHAR;
-}
-
-SQLSMALLINT DateTimeCode(SQLSMALLINT type) {
-    switch (type) {
-        case SQL_TYPE_DATE: return SQL_CODE_DATE;
-        case SQL_TYPE_TIME: return SQL_CODE_TIME;
-        case SQL_TYPE_TIMESTAMP: return SQL_CODE_TIMESTAMP;
-        default: return 0;
-    }
-}
-
-std::string TypeName(SQLSMALLINT type) {
-    const TSqlTypeSpec* spec = FindSqlTypeSpec(type);
-    return spec ? std::string(spec->Name) : type == SQL_GUID ? "GUID" : "";
-}
-
 template<typename T>
 SQLRETURN WriteScalar(SQLPOINTER value, T scalar) {
     *static_cast<T*>(value) = scalar;
@@ -66,21 +47,48 @@ TDescriptor::TDescriptor(TConnection* conn, EDescType type)
     : THandle(conn)
     , Type_(type) {}
 
-void TDescriptor::Snapshot(TDescriptorState& state, uint64_t& generation) const {
+bool TDescriptor::Snapshot(TDescriptorSnapshot& state, bool appParam) const {
+    if (GetGeneration() == state.Generation_) {
+        return false;
+    }
     std::lock_guard lock(OperationMutex_);
-    SnapshotUnlocked(state, generation);
+    return SnapshotUnlocked(state, appParam);
 }
 
-void TDescriptor::SnapshotUnlocked(TDescriptorState& state, uint64_t& generation) const {
-    state = static_cast<const TDescriptorState&>(*this);
-    generation = GetGeneration();
+bool TDescriptor::SnapshotUnlocked(TDescriptorSnapshot& state, bool appParam) const {
+    const bool shapeChanged = !HasSameParameterShape(state, appParam);
+    static_cast<TDescriptorState&>(state) = static_cast<const TDescriptorState&>(*this);
+    state.Generation_ = GetGeneration();
+    return shapeChanged;
 }
 
-void TDescriptor::SnapshotHeader(TDescriptorState& state, uint64_t& generation) const {
+void TDescriptor::SnapshotHeader(TDescriptorSnapshot& state) const {
+    if (GetGeneration() == state.Generation_) {
+        return;
+    }
     std::lock_guard lock(OperationMutex_);
     // The implementation row descriptor is consumed only for status outputs.
     state.Header_ = Header_;
-    generation = GetGeneration();
+    state.Generation_ = GetGeneration();
+}
+
+bool TDescriptorState::HasSameParameterShape(const TDescriptorState& other, bool appParam) const noexcept {
+    if (Records_.size() != other.Records_.size()) {
+        return false;
+    }
+    for (size_t i = 0; i < Records_.size(); ++i) {
+        const auto& record = Records_[i];
+        const auto& previous = other.Records_[i];
+        if (record.Active != previous.Active) {
+            return false;
+        }
+        if (record.Active && (record.Type != previous.Type
+            || (!appParam && (record.Length != previous.Length || record.Scale != previous.Scale
+                || record.WideTemporalType != previous.WideTemporalType)))) {
+            return false;
+        }
+    }
+    return true;
 }
 
 void TDescriptor::Clear() {
@@ -137,10 +145,7 @@ TResolvedBinding TDescriptorState::ResolveBinding(
     };
 }
 
-void TDescriptor::Changed(bool schema) {
-    if (schema) {
-        ++SchemaGeneration_;
-    }
+void TDescriptor::Changed() {
     Generation_.fetch_add(1, std::memory_order_relaxed);
 }
 
@@ -182,22 +187,23 @@ SQLRETURN TDescriptor::GetDescField(SQLSMALLINT recNumber, SQLSMALLINT field, SQ
         case SQL_DESC_TYPE_NAME:
         case SQL_DESC_LOCAL_TYPE_NAME:
             return Diag::WriteString<Diag::EStringWriteMode::Descriptor>(
-                this, TypeName(record->Type), value, bufferLength, lengthPtr);
+                this, GetSqlTypeName(record->Type, record->Type == SQL_GUID ? "GUID" : ""),
+                value, bufferLength, lengthPtr);
         case SQL_DESC_LITERAL_PREFIX:
         case SQL_DESC_LITERAL_SUFFIX:
             return Diag::WriteString<Diag::EStringWriteMode::Descriptor>(this,
-                IsCharacter(record->Type) || DateTimeCode(record->Type) ? "'" : "",
+                IsCharacterType(record->Type) || GetDateTimeCode(record->Type) ? "'" : "",
                 value, bufferLength, lengthPtr);
         case SQL_DESC_TYPE:
             return WriteScalar(value, static_cast<SQLSMALLINT>(
-                DateTimeCode(record->Type) ? SQL_DATETIME : record->Type));
+                GetDateTimeCode(record->Type) ? SQL_DATETIME : record->Type));
         case SQL_DESC_DATETIME_INTERVAL_CODE:
-            return WriteScalar(value, DateTimeCode(record->Type));
+            return WriteScalar(value, GetDateTimeCode(record->Type));
         case SQL_DESC_CASE_SENSITIVE:
-            return WriteScalar(value, static_cast<SQLSMALLINT>(IsCharacter(record->Type)));
+            return WriteScalar(value, static_cast<SQLSMALLINT>(IsCharacterType(record->Type)));
         case SQL_DESC_FIXED_PREC_SCALE:
             return WriteScalar(value, static_cast<SQLSMALLINT>(
-                record->Type == SQL_DECIMAL || record->Type == SQL_NUMERIC));
+                HasFixedPrecisionScale(record->Type)));
         case SQL_DESC_SEARCHABLE:
             return WriteScalar(value, static_cast<SQLSMALLINT>(SQL_SEARCHABLE));
         case SQL_DESC_UNNAMED:
@@ -231,8 +237,8 @@ SQLRETURN TDescriptor::GetDescRec(SQLSMALLINT recNumber, SQLCHAR* name, SQLSMALL
         nameLength = static_cast<SQLSMALLINT>(record->Name.size());
     }
     WriteIf(nameLengthPtr, nameLength);
-    WriteIf(typePtr, DateTimeCode(record->Type) ? SQL_DATETIME : record->Type);
-    WriteIf(subTypePtr, DateTimeCode(record->Type));
+    WriteIf(typePtr, GetDateTimeCode(record->Type) ? SQL_DATETIME : record->Type);
+    WriteIf(subTypePtr, GetDateTimeCode(record->Type));
     WriteIf(lengthPtr, record->Length);
     WriteIf(precisionPtr, record->Precision);
     WriteIf(scalePtr, record->Scale);
@@ -261,13 +267,13 @@ SQLRETURN TDescriptor::SetDescField(SQLSMALLINT recNumber, SQLSMALLINT field, SQ
                 return AddError("HY024", 0, "Invalid SQL_DESC_ARRAY_SIZE value");
             }
             Header_.ArraySize = size;
-            Changed(false);
+            Changed();
             return SQL_SUCCESS;
         }
         default: break;
     }
     if (THeaderProperties::Set(field, Header_, value)) {
-        Changed(false);
+        Changed();
         return SQL_SUCCESS;
     }
 

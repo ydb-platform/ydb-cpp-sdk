@@ -13,7 +13,6 @@ private:
 
 public:
     TEnvironment();
-    ~TEnvironment();
 
     SQLRETURN SetAttribute(SQLINTEGER attribute, SQLPOINTER value, SQLINTEGER stringLength);
     SQLRETURN GetAttribute(SQLINTEGER attribute, SQLPOINTER value, SQLINTEGER bufferLength, SQLINTEGER* stringLengthPtr);

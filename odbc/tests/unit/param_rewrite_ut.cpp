@@ -6,9 +6,8 @@
 
 using NYdb::NOdbc::RewriteOdbcSql;
 using NYdb::NOdbc::CountOdbcParams;
-using NYdb::NOdbc::GetDeclaredParamOptionality;
 using NYdb::NOdbc::HasMultipleSqlStatements;
-using NYdb::NOdbc::StartsWithSqlStatement;
+using NYdb::NOdbc::TPreparedQuery;
 using NYdb::NOdbc::TBoundParam;
 using NYdb::NOdbc::BuildParamMetadataQuery;
 
@@ -43,6 +42,27 @@ TEST(OdbcParamRewrite, RewritesQuestionMarks) {
         "SELECT $p1 + $p2 AS result");
     EXPECT_EQ(RewriteParams("--!ansi_lexer\n/* header */ SELECT ? AS \"result\"", {IntParam(1)}).Sql,
         "--!ansi_lexer\n/* header */ DECLARE $p1 AS Int32;\nSELECT $p1 AS \"result\"");
+}
+
+TEST(OdbcParamRewrite, ReusesPreparedSyntaxAcrossBindingsAndScanModes) {
+    NYdb::NOdbc::TPreparedQuery query("--!ansi_lexer\nSELECT ?, {fn ABS(-1)}");
+    EXPECT_EQ(query.ParameterCount(), 1);
+    EXPECT_TRUE(query.StartsWith({"SELECT"}));
+    EXPECT_FALSE(query.HasMultipleStatements());
+    EXPECT_EQ(query.Bind({IntParam(1)}, true).Sql,
+        "--!ansi_lexer\nDECLARE $p1 AS Int32;\nSELECT $p1, ABS(-1)");
+    auto moved = std::move(query);
+    EXPECT_EQ(moved.Bind({NullIntParam(1)}, false).Sql,
+        "--!ansi_lexer\nDECLARE $p1 AS Int32?;\nSELECT $p1, {fn ABS(-1)}");
+    auto unsignedParam = IntParam(1);
+    unsignedParam.ValueType = SQL_C_UBIGINT;
+    EXPECT_EQ(moved.Bind({unsignedParam}, true).Sql,
+        "--!ansi_lexer\nDECLARE $p1 AS Uint64;\nSELECT $p1, ABS(-1)");
+    EXPECT_EQ(moved.Bind({}, true).SqlState, "07002");
+    NYdb::NOdbc::TPreparedQuery sparse("DECLARE $p32767 AS Int32?; SELECT $p32767, $p32767");
+    EXPECT_EQ(sparse.ParameterCount(), 32767);
+    EXPECT_EQ(sparse.DeclaredOptionality(32767), true);
+    EXPECT_EQ(sparse.Bind({IntParam(32767)}, false).Sql, sparse.Text());
 }
 
 TEST(OdbcParamRewrite, ParameterMetadataProbes) {
@@ -129,16 +149,11 @@ TEST(OdbcParamRewrite, SkipsLiteralAndYqlOptionalSyntax) {
 }
 
 TEST(OdbcParamRewrite, DetectsOptionalDeclarationsBeforeComments) {
-    EXPECT_EQ(GetDeclaredParamOptionality(
-        "DECLARE $p1 AS Int32? /* nullable */;\nSELECT $p1", 1), true);
-    EXPECT_EQ(GetDeclaredParamOptionality(
-        "DECLARE $p1 AS Int32? -- nullable\n;\nSELECT $p1", 1), true);
-    EXPECT_EQ(GetDeclaredParamOptionality(
-        "DECLARE $p1 AS Int32 /* not optional?; */;\nSELECT $p1", 1), false);
-    EXPECT_EQ(GetDeclaredParamOptionality(
-        "/* DECLARE $p1 AS Int32?; */\nSELECT $p1", 1), std::nullopt);
-    EXPECT_EQ(GetDeclaredParamOptionality(
-        "pragma TablePathPrefix = \"/local\"; declare /* p */ $p1 as Int32?; SELECT $p1", 1),
+    EXPECT_EQ(TPreparedQuery("DECLARE $p1 AS Int32? /* nullable */;\nSELECT $p1").DeclaredOptionality(1), true);
+    EXPECT_EQ(TPreparedQuery("DECLARE $p1 AS Int32? -- nullable\n;\nSELECT $p1").DeclaredOptionality(1), true);
+    EXPECT_EQ(TPreparedQuery("DECLARE $p1 AS Int32 /* not optional?; */;\nSELECT $p1").DeclaredOptionality(1), false);
+    EXPECT_EQ(TPreparedQuery("/* DECLARE $p1 AS Int32?; */\nSELECT $p1").DeclaredOptionality(1), std::nullopt);
+    EXPECT_EQ(TPreparedQuery("pragma TablePathPrefix = \"/local\"; declare /* p */ $p1 as Int32?; SELECT $p1").DeclaredOptionality(1),
         true);
 }
 
@@ -194,6 +209,9 @@ TEST(OdbcParamRewrite, ParameterCountLimits) {
     EXPECT_EQ(CountOdbcParams("SELECT $p32767"), 32767);
     EXPECT_TRUE(RewriteOdbcSql("SELECT $p32767", {IntParam(32767)}, false).Success);
     markers += "?,";
+    TPreparedQuery escaped("SELECT {fn COALESCE(" + markers + "0)}");
+    EXPECT_EQ(escaped.ParameterCount(), 0);
+    EXPECT_THROW(escaped.Bind({}, true), std::length_error);
     for (const auto& sql : {markers, markers + markers, std::string("SELECT $p32768"),
                            std::string("SELECT $p65536"), std::string("SELECT $p999999999999999999999")}) {
         EXPECT_THROW(CountOdbcParams(sql), std::length_error);
@@ -203,22 +221,17 @@ TEST(OdbcParamRewrite, ParameterCountLimits) {
 }
 
 TEST(OdbcParamRewrite, ClassifiesAfterTrivia) {
-    EXPECT_TRUE(StartsWithSqlStatement(" -- lead\n /* block */ INSERT INTO t VALUES (1)", {"INSERT"}));
-    EXPECT_TRUE(StartsWithSqlStatement(
-        "PRAGMA TablePathPrefix = \"/local\"; DECLARE $p1 AS Int32; UPSERT INTO t VALUES ($p1)",
-        {"UPSERT"}));
-    EXPECT_TRUE(StartsWithSqlStatement(
-        "$rows = (SELECT 1); SELECT * FROM $rows; -- trailing", {"SELECT"}));
-    EXPECT_TRUE(StartsWithSqlStatement(
-        "DEFINE ACTION $read() AS SELECT 1; END DEFINE; SELECT 2", {"SELECT"}));
-    EXPECT_TRUE(StartsWithSqlStatement(
-        "PRAGMA config = \"quoted\\\";value\"; CREATE TABLE t (id Int32)", {"CREATE"}));
-    EXPECT_TRUE(StartsWithSqlStatement("DELETE FROM t; SELECT * FROM t", {"DELETE"}));
-    EXPECT_FALSE(StartsWithSqlStatement("DELETE FROM t; SELECT * FROM t", {"SELECT"}));
+    EXPECT_TRUE(TPreparedQuery(" -- lead\n /* block */ INSERT INTO t VALUES (1)").StartsWith({"INSERT"}));
+    EXPECT_TRUE(TPreparedQuery("PRAGMA TablePathPrefix = \"/local\"; DECLARE $p1 AS Int32; UPSERT INTO t VALUES ($p1)").StartsWith({"UPSERT"}));
+    EXPECT_TRUE(TPreparedQuery("$rows = (SELECT 1); SELECT * FROM $rows; -- trailing").StartsWith({"SELECT"}));
+    EXPECT_TRUE(TPreparedQuery("DEFINE ACTION $read() AS SELECT 1; END DEFINE; SELECT 2").StartsWith({"SELECT"}));
+    EXPECT_TRUE(TPreparedQuery("PRAGMA config = \"quoted\\\";value\"; CREATE TABLE t (id Int32)").StartsWith({"CREATE"}));
+    EXPECT_TRUE(TPreparedQuery("DELETE FROM t; SELECT * FROM t").StartsWith({"DELETE"}));
+    EXPECT_FALSE(TPreparedQuery("DELETE FROM t; SELECT * FROM t").StartsWith({"SELECT"}));
     EXPECT_TRUE(HasMultipleSqlStatements("DELETE FROM t; SELECT * FROM t"));
     EXPECT_TRUE(HasMultipleSqlStatements("PRAGMA x; DELETE FROM t; SELECT * FROM t"));
     EXPECT_FALSE(HasMultipleSqlStatements("PRAGMA x; SELECT 1; -- trailing"));
     EXPECT_FALSE(HasMultipleSqlStatements(
         "DEFINE ACTION $read() AS SELECT 1; END DEFINE; SELECT 2"));
-    EXPECT_FALSE(StartsWithSqlStatement(" -- lead\n SELECT 1", {"INSERT", "UPDATE"}));
+    EXPECT_FALSE(TPreparedQuery(" -- lead\n SELECT 1").StartsWith({"INSERT", "UPDATE"}));
 }

@@ -31,8 +31,6 @@ private:
         After,
     };
 
-    class TPositionResolver;
-
     void SetBoundary(EPosition position);
 
     size_t TotalRows_ = 0;

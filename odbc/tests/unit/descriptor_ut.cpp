@@ -3,6 +3,7 @@
 #include "statement.h"
 
 #include <gtest/gtest.h>
+#include <stdexcept>
 
 namespace NYdb::NOdbc {
 namespace {
@@ -75,21 +76,45 @@ TEST(OdbcStatement, NoOpUnbindPreservesDescriptorGenerations) {
     SQLHDESC handle = SQL_NULL_HDESC;
     ASSERT_EQ(statement.GetStmtAttr(SQL_ATTR_APP_ROW_DESC, &handle, 0, nullptr), SQL_SUCCESS);
     auto& descriptor = *CheckedHandle<TDescriptor>(handle);
-    TDescriptorState before, after;
-    uint64_t generation = 0, nextGeneration = 0;
-    descriptor.Snapshot(before, generation);
+    TDescriptorSnapshot snapshot;
+    ASSERT_TRUE(descriptor.Snapshot(snapshot, true));
+    const auto generation = descriptor.GetGeneration();
 
     ASSERT_EQ(statement.BindCol(2, SQL_C_LONG, nullptr, 0, nullptr), SQL_SUCCESS);
-    descriptor.Snapshot(after, nextGeneration);
-    EXPECT_EQ(nextGeneration, generation);
-    EXPECT_EQ(after.GetSchemaGeneration(), before.GetSchemaGeneration());
-    EXPECT_EQ(after.GetRecordCount(), 1);
+    EXPECT_FALSE(descriptor.Snapshot(snapshot, true));
+    EXPECT_EQ(descriptor.GetGeneration(), generation);
+    EXPECT_EQ(snapshot.GetRecordCount(), 1);
+
+    SQLINTEGER rebound = 0;
+    {
+        auto lock = descriptor.LockOperation();
+        ASSERT_EQ(descriptor.SetDescField(1, SQL_DESC_DATA_PTR, &rebound, 0), SQL_SUCCESS);
+        ASSERT_EQ(descriptor.SetDescField(1, SQL_DESC_NAME, (SQLPOINTER)"renamed", SQL_NTS), SQL_SUCCESS);
+    }
+    EXPECT_FALSE(descriptor.Snapshot(snapshot, true));
+    EXPECT_NE(descriptor.GetGeneration(), generation);
+    ASSERT_NE(snapshot.FindRecord(1), nullptr);
+    EXPECT_EQ(snapshot.FindRecord(1)->DataPtr, &rebound);
+    EXPECT_EQ(snapshot.FindRecord(1)->Name, "renamed");
+
+    {
+        auto lock = descriptor.LockOperation();
+        ASSERT_EQ(descriptor.SetDescField(1, SQL_DESC_CONCISE_TYPE,
+            reinterpret_cast<SQLPOINTER>(SQL_C_SHORT), 0), SQL_SUCCESS);
+    }
+    EXPECT_TRUE(descriptor.Snapshot(snapshot, true));
+    {
+        auto lock = descriptor.LockOperation();
+        ASSERT_EQ(descriptor.SetDescField(2, SQL_DESC_NAME, (SQLPOINTER)"new", SQL_NTS), SQL_SUCCESS);
+    }
+    EXPECT_TRUE(descriptor.Snapshot(snapshot, true));
+    EXPECT_EQ(snapshot.GetRecordCount(), 2);
+    ASSERT_EQ(statement.BindCol(2, SQL_C_LONG, nullptr, 0, nullptr), SQL_SUCCESS);
+    EXPECT_TRUE(descriptor.Snapshot(snapshot, true));
 
     ASSERT_EQ(statement.BindCol(1, SQL_C_LONG, nullptr, 0, nullptr), SQL_SUCCESS);
-    descriptor.Snapshot(after, nextGeneration);
-    EXPECT_NE(nextGeneration, generation);
-    EXPECT_NE(after.GetSchemaGeneration(), before.GetSchemaGeneration());
-    EXPECT_EQ(after.GetRecordCount(), 0);
+    EXPECT_TRUE(descriptor.Snapshot(snapshot, true));
+    EXPECT_EQ(snapshot.GetRecordCount(), 0);
 }
 
 TEST(OdbcStatement, CancelClearsNeedDataAndAllowsReuse) {
@@ -124,6 +149,11 @@ TEST(OdbcStatement, CancelClearsNeedDataAndAllowsReuse) {
     ASSERT_EQ(statement.ParamData(&value), SQL_NEED_DATA);
     EXPECT_EQ(value, &token);
     EXPECT_EQ(statement.Cancel(), SQL_SUCCESS);
+
+    ASSERT_EQ(statement.Execute(), SQL_NEED_DATA);
+    EXPECT_THROW(statement.Prepare("SELECT $p32768"), std::length_error);
+    EXPECT_THROW(statement.ParamData(&value), TOdbcException);
+    EXPECT_EQ(statement.Cancel(), SQL_SUCCESS);
 }
 
 TEST_F(TOdbcDescriptor, ExecuteUsesLatestParameterBinding) {
@@ -145,6 +175,32 @@ TEST_F(TOdbcDescriptor, ExecuteUsesLatestParameterBinding) {
     SQLSMALLINT type = 0;
     ASSERT_EQ(statement.DescribeParam(1, &type, nullptr, nullptr, nullptr), SQL_SUCCESS);
     EXPECT_EQ(type, SQL_VARCHAR);
+
+    SQLHDESC handle = SQL_NULL_HDESC;
+    ASSERT_EQ(statement.GetStmtAttr(SQL_ATTR_IMP_PARAM_DESC, &handle, 0, nullptr), SQL_SUCCESS);
+    auto& descriptor = *CheckedHandle<TDescriptor>(handle);
+    TDescriptorSnapshot snapshot;
+    ASSERT_TRUE(descriptor.Snapshot(snapshot));
+    {
+        auto lock = descriptor.LockOperation();
+        ASSERT_EQ(descriptor.SetDescField(1, SQL_DESC_LENGTH,
+            reinterpret_cast<SQLPOINTER>(32), 0), SQL_SUCCESS);
+    }
+    EXPECT_TRUE(descriptor.Snapshot(snapshot));
+    {
+        auto lock = descriptor.LockOperation();
+        ASSERT_EQ(descriptor.SetDescField(1, SQL_DESC_SCALE,
+            reinterpret_cast<SQLPOINTER>(3), 0), SQL_SUCCESS);
+    }
+    EXPECT_TRUE(descriptor.Snapshot(snapshot));
+    ASSERT_EQ(statement.BindParameter(1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_TYPE_TIMESTAMP,
+        32, 3, &second, 0, &indicator), SQL_SUCCESS);
+    EXPECT_TRUE(descriptor.Snapshot(snapshot));
+    ASSERT_EQ(statement.DescribeParam(1, &type, nullptr, nullptr, nullptr), SQL_SUCCESS);
+    EXPECT_EQ(type, SQL_TYPE_TIMESTAMP);
+    EXPECT_TRUE(descriptor.Snapshot(snapshot));
+    ASSERT_NE(snapshot.FindRecord(1), nullptr);
+    EXPECT_EQ(snapshot.FindRecord(1)->WideTemporalType, EWideTemporal::None);
 }
 
 } // namespace

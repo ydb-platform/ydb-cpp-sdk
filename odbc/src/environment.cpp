@@ -7,7 +7,6 @@ namespace NYdb {
 namespace NOdbc {
 
 TEnvironment::TEnvironment() : OdbcVersion_(SQL_OV_ODBC3) {}
-TEnvironment::~TEnvironment() {}
 
 SQLRETURN TEnvironment::SetAttribute(SQLINTEGER attribute, SQLPOINTER value, SQLINTEGER stringLength) {
     switch (attribute) {

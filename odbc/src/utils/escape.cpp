@@ -1,9 +1,8 @@
-#include "escape.h"
+#include "param_rewrite.h"
 
 #include "sql_type_map.h"
 
 #include <algorithm>
-#include <bitset>
 #include <cctype>
 #include <limits>
 #include <stdexcept>
@@ -40,7 +39,7 @@ struct TSqlScanner {
 
     size_t QuestionCount = 0;
     SQLSMALLINT MaxDollarIndex = 0;
-    std::bitset<MaxParameters + 1U> Indices;
+    std::vector<SQLUSMALLINT> Indices;
 
     void Append(std::string_view text) {
         if (Output_) {
@@ -401,7 +400,7 @@ struct TSqlScanner {
                 }
                 const auto index = static_cast<SQLUSMALLINT>(QuestionCount);
                 if (Output_) {
-                    Indices.set(index);
+                    Indices.push_back(index);
                     Append("$p");
                     Append(std::to_string(index));
                 }
@@ -412,7 +411,7 @@ struct TSqlScanner {
             if (parameters && ReadDollar(pos, end, index)) {
                 MaxDollarIndex = std::max(MaxDollarIndex, static_cast<SQLSMALLINT>(index));
                 if (Output_) {
-                    Indices.set(index);
+                    Indices.push_back(index);
                 }
             }
             Append(Sql_[pos++]);
@@ -421,45 +420,91 @@ struct TSqlScanner {
 
 };
 
-TParamRewriteResult RewriteSql(
-    std::string_view sql,
-    const std::vector<TBoundParam>& boundParams,
-    bool escapes) {
-    std::string body;
-    body.reserve(sql.size());
-    TSqlScanner scanner{sql, &body, escapes};
-    scanner.Scan(0, sql.size(), true);
-    if (scanner.Indices.none()) {
-        return {.Sql = std::move(body)};
+std::vector<std::optional<bool>> ReadDeclarations(std::string_view sql) {
+    std::vector<std::optional<bool>> result;
+    const TSqlScanner scanner{sql, nullptr, false};
+    for (size_t pos = scanner.SkipSqlTrivia(0, sql.size()); pos < sql.size();) {
+        const bool declare = StartsWithKeyword(sql, pos, "DECLARE");
+        if (!declare && !StartsWithKeyword(sql, pos, "PRAGMA")) break;
+        const size_t end = scanner.FindStatementEnd(pos, sql.size());
+        if (end == std::string_view::npos) break;
+        size_t token = scanner.SkipSqlTrivia(pos + (declare ? 7 : 6), end);
+        SQLUSMALLINT number = 0;
+        if (declare && scanner.ReadDollar(token, end, number)) {
+            const std::string name = "$p" + std::to_string(number);
+            if (sql.substr(token, name.size()) == name) {
+                token = scanner.SkipSqlTrivia(token + name.size(), end);
+                if (StartsWithKeyword(sql, token, "AS")) {
+                    const auto type = TrimTrailingSqlTrivia(sql.substr(token + 2, end - token - 2));
+                    if (result.size() <= number) result.resize(number + 1);
+                    if (!result[number]) result[number] = !type.empty() && type.back() == '?';
+                }
+            }
+        }
+        pos = scanner.SkipSqlTrivia(end + 1, sql.size());
     }
-    if (scanner.QuestionCount > 0 && scanner.QuestionCount != boundParams.size()) {
+    return result;
+}
+
+} // namespace
+
+TPreparedQuery::TPreparedQuery(std::string sql)
+    : Sql_(std::move(sql))
+    , ParameterCount_(CountOdbcParams(Sql_))
+    , StatementOffset_(Sql_.size() - GetSqlStatement(Sql_).size())
+    , Declarations_(ReadDeclarations(Sql_)) {
+    const TSqlScanner scanner{Sql_, nullptr, false};
+    const auto end = scanner.FindStatementEnd(StatementOffset_, Sql_.size());
+    Multiple_ = end != std::string_view::npos
+        && scanner.SkipSqlTrivia(end + 1, Sql_.size()) < Sql_.size();
+}
+
+std::optional<bool> TPreparedQuery::DeclaredOptionality(SQLUSMALLINT number) const {
+    return number < Declarations_.size() ? Declarations_[number] : std::nullopt;
+}
+
+bool TPreparedQuery::StartsWith(std::initializer_list<std::string_view> keywords) const {
+    return std::ranges::any_of(keywords, [&](auto keyword) {
+        return StartsWithKeyword(Sql_, StatementOffset_, keyword);
+    });
+}
+
+TParamRewriteResult TPreparedQuery::Bind(const std::vector<TBoundParam>& params, bool escapes) {
+    auto& cached = Bodies_[escapes];
+    if (!cached) {
+        std::string body;
+        body.reserve(Sql_.size());
+        TSqlScanner scanner{Sql_, &body, escapes};
+        scanner.Scan(0, Sql_.size(), true);
+        std::ranges::sort(scanner.Indices);
+        scanner.Indices.erase(std::unique(scanner.Indices.begin(), scanner.Indices.end()), scanner.Indices.end());
+        cached.emplace(TBody{std::move(body), scanner.QuestionCount, std::move(scanner.Indices)});
+    }
+    if (cached->QuestionCount && cached->QuestionCount != params.size()) {
         return {.Success = false, .SqlState = "07002", .Message = "COUNT field incorrect: unbound ? placeholders"};
     }
+    const bool ordered = std::ranges::is_sorted(params, {}, &TBoundParam::ParamNumber);
+    auto bound = params.begin();
     std::string declarations;
-    for (size_t rawIndex = 0; rawIndex < scanner.Indices.size(); ++rawIndex) {
-        if (!scanner.Indices.test(rawIndex)) {
-            continue;
+    for (const auto number : cached->Indices) {
+        if (DeclaredOptionality(number).has_value()) continue;
+        if (ordered) {
+            while (bound != params.end() && bound->ParamNumber < number) ++bound;
+        } else {
+            bound = std::ranges::find(params, number, &TBoundParam::ParamNumber);
         }
-        const auto index = static_cast<SQLUSMALLINT>(rawIndex);
-        const std::string prefix = "DECLARE $p" + std::to_string(index) + " AS";
-        if (GetDeclaredParamOptionality(sql, index).has_value()) {
-            continue;
-        }
-        const auto bound = std::ranges::find(boundParams, index, &TBoundParam::ParamNumber);
-        if (bound == boundParams.end()) {
+        if (bound == params.end() || bound->ParamNumber != number) {
             return {.Success = false, .SqlState = "07002", .Message = "COUNT field incorrect"};
         }
         const auto type = ResolveParamType(*bound);
         if (!type) {
             return {.Success = false, .SqlState = "07006", .Message = "Restricted data type attribute violation"};
         }
-        declarations += prefix + " " + type->YqlType
+        declarations += "DECLARE $p" + std::to_string(number) + " AS " + type->YqlType
             + (BoundParamIsNull(*bound) ? "?;\n" : ";\n");
     }
-    return {.Sql = declarations.empty() ? std::move(body) : AddSqlPreamble(body, declarations)};
+    return {.Sql = declarations.empty() ? cached->Sql : AddSqlPreamble(cached->Sql, declarations)};
 }
-
-} // namespace
 
 std::string AddSqlPreamble(std::string_view sql, std::string_view preamble) {
     // Lexer directives must precede generated statements.
@@ -485,40 +530,7 @@ TParamRewriteResult RewriteOdbcSql(
     std::string_view sql,
     const std::vector<TBoundParam>& boundParams,
     bool rewriteEscapes) {
-    return RewriteSql(sql, boundParams, rewriteEscapes);
-}
-
-std::optional<bool> GetDeclaredParamOptionality(
-    std::string_view sql,
-    SQLUSMALLINT paramNumber)
-{
-    const std::string param = "$p" + std::to_string(paramNumber);
-    const TSqlScanner scanner{sql, nullptr, false};
-    for (size_t pos = scanner.SkipSqlTrivia(0, sql.size()); pos < sql.size();) {
-        const bool isDeclare = StartsWithKeyword(sql, pos, "DECLARE");
-        if (!isDeclare && !StartsWithKeyword(sql, pos, "PRAGMA")) {
-            break;
-        }
-        const size_t semicolon = scanner.FindStatementEnd(pos, sql.size());
-        if (semicolon == std::string_view::npos) {
-            break;
-        }
-        size_t token = scanner.SkipSqlTrivia(pos + (isDeclare ? 7 : 6), semicolon);
-        if (isDeclare && semicolon - token >= param.size()
-            && sql.substr(token, param.size()) == param
-            && (token + param.size() == semicolon
-                || (!std::isalnum(static_cast<unsigned char>(sql[token + param.size()]))
-                    && sql[token + param.size()] != '_'))) {
-            token = scanner.SkipSqlTrivia(token + param.size(), semicolon);
-            if (StartsWithKeyword(sql, token, "AS")) {
-                const std::string_view type = TrimTrailingSqlTrivia(
-                    sql.substr(token + 2, semicolon - token - 2));
-                return !type.empty() && type.back() == '?';
-            }
-        }
-        pos = scanner.SkipSqlTrivia(semicolon + 1, sql.size());
-    }
-    return std::nullopt;
+    return TPreparedQuery(std::string(sql)).Bind(boundParams, rewriteEscapes);
 }
 
 std::string_view TrimTrailingSqlTrivia(std::string_view sql) {
@@ -575,15 +587,6 @@ SQLSMALLINT CountOdbcParams(std::string_view sql) {
     return scanner.QuestionCount > 0
         ? static_cast<SQLSMALLINT>(scanner.QuestionCount)
         : scanner.MaxDollarIndex;
-}
-
-bool StartsWithSqlStatement(
-    std::string_view sql,
-    std::initializer_list<std::string_view> keywords) {
-    sql = GetSqlStatement(sql);
-    return std::ranges::any_of(keywords, [&](std::string_view keyword) {
-        return StartsWithKeyword(sql, 0, keyword);
-    });
 }
 
 std::optional<std::string> BuildParamMetadataQuery(

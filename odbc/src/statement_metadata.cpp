@@ -204,21 +204,13 @@ bool IsSpecialValue(const TMetadataArgument& value, std::string_view special) {
     return value && *value == special;
 }
 
-bool IsDateTimeType(SQLSMALLINT type) {
-    return type == SQL_TYPE_DATE || type == SQL_TYPE_TIME || type == SQL_TYPE_TIMESTAMP;
-}
-
 TOdbcScalar GetSqlDataType(SQLSMALLINT type) {
-    return I(IsDateTimeType(type) ? SQL_DATETIME : type);
+    return I(GetDateTimeCode(type) ? SQL_DATETIME : type);
 }
 
 TOdbcScalar GetDateTimeSub(SQLSMALLINT type) {
-    switch (type) {
-        case SQL_TYPE_DATE: return I(SQL_CODE_DATE);
-        case SQL_TYPE_TIME: return I(SQL_CODE_TIME);
-        case SQL_TYPE_TIMESTAMP: return I(SQL_CODE_TIMESTAMP);
-        default: return Null();
-    }
+    const SQLSMALLINT code = GetDateTimeCode(type);
+    return code ? I(code) : Null();
 }
 
 TOdbcScalar GetColumnSize(const TYdbTypeInfo& type) {
@@ -334,7 +326,7 @@ TTable BuildTypeInfoRows(SQLSMALLINT dataType) {
             : spec.Type == SQL_TYPE_TIME ? TOdbcScalar("{t '")
             : spec.Type == SQL_TYPE_TIMESTAMP ? TOdbcScalar("{ts '")
             : text ? TOdbcScalar("'") : Null();
-        const TOdbcScalar literalSuffix = IsDateTimeType(spec.Type) ? TOdbcScalar("'}")
+        const TOdbcScalar literalSuffix = GetDateTimeCode(spec.Type) ? TOdbcScalar("'}")
             : text ? TOdbcScalar("'") : Null();
         table.push_back({
             typeName, I(spec.Type), I(decimal ? 35 : static_cast<SQLINTEGER>(spec.ColumnSize)),

@@ -4,7 +4,6 @@ add_library(ydb-odbc SHARED
   src/utils/cursor.cpp
   src/utils/types.cpp
   src/utils/util.cpp
-  src/utils/status_util.cpp
   src/utils/convert.cpp
   src/utils/error_manager.cpp
   src/utils/handle.cpp

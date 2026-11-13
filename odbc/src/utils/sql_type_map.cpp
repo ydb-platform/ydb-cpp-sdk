@@ -68,6 +68,29 @@ const TSqlTypeSpec* FindSqlTypeSpec(SQLSMALLINT sqlType) {
     return it == TypeSpecs.end() ? nullptr : &*it;
 }
 
+std::string_view GetSqlTypeName(SQLSMALLINT sqlType, std::string_view unknownName) {
+    const auto* spec = FindSqlTypeSpec(sqlType);
+    return spec ? spec->Name : unknownName;
+}
+
+bool IsCharacterType(SQLSMALLINT sqlType) {
+    return sqlType == SQL_CHAR || sqlType == SQL_VARCHAR || sqlType == SQL_LONGVARCHAR
+        || sqlType == SQL_WCHAR || sqlType == SQL_WVARCHAR || sqlType == SQL_WLONGVARCHAR;
+}
+
+SQLSMALLINT GetDateTimeCode(SQLSMALLINT sqlType) {
+    switch (sqlType) {
+        case SQL_TYPE_DATE: return SQL_CODE_DATE;
+        case SQL_TYPE_TIME: return SQL_CODE_TIME;
+        case SQL_TYPE_TIMESTAMP: return SQL_CODE_TIMESTAMP;
+        default: return 0;
+    }
+}
+
+bool HasFixedPrecisionScale(SQLSMALLINT sqlType) {
+    return sqlType == SQL_DECIMAL || sqlType == SQL_NUMERIC;
+}
+
 SQLLEN GetDisplaySize(SQLSMALLINT sqlType, SQLLEN size, bool isUnsigned) {
     switch (sqlType) {
         case SQL_TINYINT: case SQL_SMALLINT: case SQL_INTEGER: case SQL_BIGINT:

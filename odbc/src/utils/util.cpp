@@ -157,12 +157,4 @@ TConnectionStringEntries ParseConnectionStringEntries(std::string_view connectio
     return entries;
 }
 
-std::map<std::string, std::string> ParseConnectionString(std::string_view connectionString) {
-    std::map<std::string, std::string> params;
-    for (auto&& [key, value] : ParseConnectionStringEntries(connectionString)) {
-        params[std::move(key)] = std::move(value);
-    }
-    return params;
-}
-
 } // namespace NYdb::NOdbc

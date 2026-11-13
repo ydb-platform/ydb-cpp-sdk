@@ -4,7 +4,6 @@
 #include "utils/attr.h"
 #include "utils/diag.h"
 #include "utils/param_rewrite.h"
-#include "utils/status_util.h"
 
 #include <ydb-cpp-sdk/client/params/params.h>
 #include <ydb-cpp-sdk/client/value/value.h>
@@ -102,9 +101,9 @@ void TStatement::SetAppDescriptor(SQLINTEGER attr, TDescriptor* descriptor) {
     if (current != descriptor) {
         current = descriptor;
         if (attr == SQL_ATTR_APP_ROW_DESC) {
-            RowGeneration_ = 0;
+            RowBindings_.Reset();
         } else {
-            ParamGeneration_ = 0;
+            ParamBindings_.Reset();
             AtExecValues_.clear();
             InvalidatePreparedColumnMeta();
         }
@@ -112,65 +111,51 @@ void TStatement::SetAppDescriptor(SQLINTEGER attr, TDescriptor* descriptor) {
 }
 
 void TStatement::RefreshRowBindings() {
-    if (GetAppRowDesc().GetGeneration() != RowGeneration_) {
-        GetAppRowDesc().Snapshot(RowBindings_, RowGeneration_);
-    }
-    if (ImpRowDesc_.GetGeneration() != ImpRowGeneration_) {
-        ImpRowDesc_.SnapshotHeader(ImpRowBindings_, ImpRowGeneration_);
-    }
+    GetAppRowDesc().Snapshot(RowBindings_);
+    ImpRowDesc_.SnapshotHeader(ImpRowBindings_);
 }
 
 void TStatement::RefreshParamBindings() {
-    const auto paramSchema = ParamBindings_.GetSchemaGeneration();
-    const auto impSchema = ImpParamBindings_.GetSchemaGeneration();
-    if (GetAppParamDesc().GetGeneration() != ParamGeneration_) {
-        GetAppParamDesc().Snapshot(ParamBindings_, ParamGeneration_);
-    }
-    if (ImpParamDesc_.GetGeneration() != ImpParamGeneration_) {
-        ImpParamDesc_.Snapshot(ImpParamBindings_, ImpParamGeneration_);
-    }
-    if (paramSchema != ParamBindings_.GetSchemaGeneration()
-        || impSchema != ImpParamBindings_.GetSchemaGeneration()) {
+    const bool appChanged = GetAppParamDesc().Snapshot(ParamBindings_, true);
+    const bool impChanged = ImpParamDesc_.Snapshot(ImpParamBindings_);
+    if (appChanged || impChanged) {
         InvalidatePreparedColumnMeta();
     }
 }
 
 SQLRETURN TStatement::Prepare(const std::string& statementText) {
-    IsPrepared_ = false;
-    ParamCount_ = 0;
-    PreparedQuery_.clear();
+    Query_.reset();
     RowCount_ = -1;
     PreparedColumnMeta_.reset();
     ClearResults();
-    PreparedQuery_ = GetConnection().PrepareSql(statementText);
-    ParamCount_ = CountOdbcParams(PreparedQuery_);
+    TPreparedQuery query(GetConnection().PrepareSql(statementText));
     ImpParamDesc_.WithLock([&](TDescriptor& desc) {
-        while (desc.GetRecordCount() > ParamCount_) {
+        while (desc.GetRecordCount() > query.ParameterCount()) {
             desc.RemoveRecord(desc.GetRecordCount());
         }
-        for (SQLUSMALLINT i = 1; i <= ParamCount_; ++i) {
+        for (SQLUSMALLINT i = 1; i <= query.ParameterCount(); ++i) {
             desc.RemoveInferredRecord(i);
             desc.Record(i).Nullable = SQL_NULLABLE_UNKNOWN;
             desc.Record(i).WideTemporalType.reset();
         }
     });
-    IsPrepared_ = true;
+    Query_.emplace(std::move(query));
     return SQL_SUCCESS;
 }
 
 SQLRETURN TStatement::Execute() {
-    if (!IsPrepared_ || PreparedQuery_.empty()) {
+    if (!Query_ || Query_->Text().empty()) {
         throw TOdbcException("HY007", 0, "No prepared statement");
     }
     RefreshParamBindings();
-    for (SQLUSMALLINT number = 1; number <= ParamCount_; ++number) {
+    for (SQLUSMALLINT number = 1; number <= ParamCount(); ++number) {
         const auto* record = ImpParamBindings_.FindRecord(number);
         if (record && !record->WideTemporalType
             && (record->Type == SQL_TYPE_DATE || record->Type == SQL_TYPE_TIMESTAMP)) {
             DescribeParam(number, nullptr, nullptr, nullptr, nullptr);
         }
     }
-    const SQLULEN paramsetSize = ParamCount_ > 0 ? ParamBindings_.GetArraySize() : 1;
+    const SQLULEN paramsetSize = ParamCount() > 0 ? ParamBindings_.GetArraySize() : 1;
     ClearResults();
     RowCount_ = -1;
     if (auto* processed = ImpParamBindings_.GetRowsProcessedPtr()) {
@@ -180,7 +165,7 @@ SQLRETURN TStatement::Execute() {
         std::fill_n(statuses, paramsetSize, SQL_PARAM_UNUSED);
     }
     if (paramsetSize > 1
-        && !StartsWithSqlStatement(PreparedQuery_, {"SELECT", "INSERT", "UPDATE", "DELETE", "UPSERT", "REPLACE"})) {
+        && !Query_->StartsWith({"SELECT", "INSERT", "UPDATE", "DELETE", "UPSERT", "REPLACE"})) {
         return AddError("HYC00", 0, "Parameter arrays are supported only for SELECT and data-modification statements");
     }
     for (SQLULEN paramSet = 0; paramSet < paramsetSize; ++paramSet) {
@@ -195,10 +180,11 @@ SQLRETURN TStatement::Execute() {
     }
     InAtExec_ = false;
     NeedDataParam_ = 0;
-    return GetConnection().Execute(*this);
+    return ExecuteInternal();
 }
 
 SQLRETURN TStatement::ExecuteInternal() {
+    std::unique_lock<std::mutex> transaction;
     bool completed = false;
     Y_DEFER {
         if (!completed) {
@@ -210,10 +196,13 @@ SQLRETURN TStatement::ExecuteInternal() {
             }
         }
     };
+    if (!GetConnection().GetAutocommit()) {
+        transaction = GetConnection().LockTransaction();
+    }
     RowCount_ = 0;
     bool hasSuccessfulParamSet = false;
     bool rowCountUsable = true;
-    const SQLULEN paramsetSize = ParamCount_ > 0 ? ParamBindings_.GetArraySize() : 1;
+    const SQLULEN paramsetSize = ParamCount() > 0 ? ParamBindings_.GetArraySize() : 1;
     SQLUSMALLINT* const operations = ParamBindings_.GetArrayStatusPtr();
     SQLUSMALLINT* const statuses = ImpParamBindings_.GetArrayStatusPtr();
     SQLULEN* const processed = ImpParamBindings_.GetRowsProcessedPtr();
@@ -290,22 +279,38 @@ SQLRETURN TStatement::ExecuteParamSet(
     if (!client) {
         throw TOdbcException("HY000", 0, "No client connection");
     }
+    const auto activeParams = GetBoundParams(paramSet);
     NYdb::TParams params = NYdb::TParamsBuilder().Build();
-    const SQLRETURN buildRc = BuildParams(params, paramSet);
+    const SQLRETURN buildRc = BuildParams(params, paramSet, activeParams);
     if (buildRc != SQL_SUCCESS) {
         return buildRc;
+    }
+    const auto rewritten = Query_->Bind(activeParams, Attributes_.GetNoScanMode() != SQL_NOSCAN_ON);
+    if (!rewritten.Success) {
+        throw TOdbcException(rewritten.SqlState, 0, rewritten.Message);
+    }
+    const auto txSettings = GetConnection().MakeTxSettings();
+    const bool noTx = txSettings.GetMode() == NQuery::TTxSettings::TS_SNAPSHOT_RW
+        || Query_->StartsWith({"CREATE", "DROP", "ALTER", "GRANT", "REVOKE"});
+    const auto control = GetConnection().GetAutocommit()
+        ? (noTx ? NQuery::TTxControl::NoTx() : NQuery::TTxControl::BeginTx(txSettings).CommitTx())
+        : NQuery::TTxControl::Tx(GetConnection().GetOrCreateTx(*this)).CommitTx(false);
+    TExecutionInput input{GetConnection().WrapQueryForCurrentCatalog(rewritten.Sql), std::move(params), {}, control};
+    input.Settings.StatsMode(NQuery::EStatsMode::Basic).CollectAffectedRows(true);
+    if (const auto timeout = Attributes_.GetQueryTimeoutSec()) {
+        input.Settings.ClientTimeout(TDuration::Seconds(timeout));
     }
 
     if (GetConnection().GetAutocommit()) {
         const NYdb::NRetry::TRetryOperationSettings retrySettings = MakeAutocommitRetrySettings();
 
         const NYdb::TStatus execStatus = client->RetryQuerySync(
-            [this, &params, &affectedRows, paramSet](NQuery::TSession session) -> NYdb::TStatus {
+            [this, &input, &affectedRows](NQuery::TSession session) -> NYdb::TStatus {
                 CheckCancellation();
-                NQuery::TExecuteQueryResult result = ExecuteQuery(session, params, paramSet);
+                NQuery::TExecuteQueryResult result = ExecuteQuery(session, input);
                 CheckExecutionStatus(result);
                 if (!result.IsSuccess()) {
-                    return StatusFrom(result);
+                    return NYdb::TStatus(result);
                 }
                 affectedRows = ExtractAffectedRows(result);
                 if (!IsCancelRequested()) {
@@ -317,9 +322,9 @@ SQLRETURN TStatement::ExecuteParamSet(
 
         NStatusHelpers::ThrowOnError(execStatus);
     } else {
-        auto session = GetConnection().GetOrCreateTx(*this).GetSession();
+        auto session = GetConnection().GetTx()->GetSession();
         CheckCancellation();
-        NQuery::TExecuteQueryResult result = ExecuteQuery(session, params, paramSet);
+        NQuery::TExecuteQueryResult result = ExecuteQuery(session, input);
         NStatusHelpers::ThrowOnError(result);
         affectedRows = ExtractAffectedRows(result);
         if (!IsCancelRequested()) {
@@ -350,10 +355,10 @@ SQLRETURN TStatement::MoreResults() {
 
 SQLUSMALLINT TStatement::FindNextNeedDataParam(SQLULEN paramSet) const {
     if (const auto* operations = ParamBindings_.GetArrayStatusPtr();
-        ParamCount_ > 0 && operations && operations[paramSet] != SQL_PARAM_PROCEED) {
+        ParamCount() > 0 && operations && operations[paramSet] != SQL_PARAM_PROCEED) {
         return 0;
     }
-    for (SQLUSMALLINT i = 1; i <= ParamCount_; ++i) {
+    for (SQLUSMALLINT i = 1; i <= ParamCount(); ++i) {
         const auto* record = ParamBindings_.FindRecord(i);
         if (record && ImpParamBindings_.FindRecord(i) && ParamBindings_.ResolveBinding(*record, paramSet).IsDataAtExec()
             && (AtExecValues_.size() <= i || !AtExecValues_[i].Complete)) {
@@ -375,52 +380,9 @@ NYdb::NRetry::TRetryOperationSettings TStatement::MakeAutocommitRetrySettings() 
 }
 
 NQuery::TExecuteQueryResult TStatement::ExecuteQuery(
-    NQuery::TSession& session,
-    const NYdb::TParams& params,
-    SQLULEN paramSet)
-{
-    const std::vector<TBoundParam> activeParams = GetBoundParams(paramSet);
-    const TParamRewriteResult rewritten = RewriteOdbcSql(
-        PreparedQuery_, activeParams, Attributes_.GetNoScanMode() != SQL_NOSCAN_ON);
-    if (!rewritten.Success) {
-        throw TOdbcException(rewritten.SqlState, 0, rewritten.Message);
-    }
-    const bool isDdl = StartsWithSqlStatement(
-        rewritten.Sql, {"CREATE", "DROP", "ALTER", "GRANT", "REVOKE"});
-    const std::string queryText = GetConnection().WrapQueryForCurrentCatalog(rewritten.Sql);
-    NQuery::TExecuteQuerySettings execSettings;
-    execSettings.StatsMode(NQuery::EStatsMode::Basic).CollectAffectedRows(true);
-    const SQLUINTEGER queryTimeoutSec = Attributes_.GetQueryTimeoutSec();
-    if (queryTimeoutSec > 0) {
-        execSettings.ClientTimeout(TDuration::Seconds(queryTimeoutSec));
-    }
-    const auto txSettings = GetConnection().MakeTxSettings();
-    if (GetConnection().GetAutocommit()) {
-        // TS_SNAPSHOT_RW doesn't support explicit BeginTx() - we use NoTx() instead
-        // DDL must use NoTx() per YDB documentation
-        const bool isSnapshotRw = (txSettings.GetMode() == NQuery::TTxSettings::TS_SNAPSHOT_RW);
-
-        if (isSnapshotRw || isDdl) {
-            return session.ExecuteQuery(
-                queryText,
-                NQuery::TTxControl::NoTx(),
-                params,
-                execSettings).ExtractValueSync();
-        }
-        return session.ExecuteQuery(
-            queryText,
-            NQuery::TTxControl::BeginTx(txSettings).CommitTx(),
-            params,
-            execSettings).ExtractValueSync();
-    }
-    return session.ExecuteQuery(
-        queryText,
-        NQuery::TTxControl::Tx(*GetConnection().GetTx()).CommitTx(false),
-        params,
-        execSettings).ExtractValueSync();
+    NQuery::TSession& session, const TExecutionInput& input) {
+    return session.ExecuteQuery(input.Sql, input.TxControl, input.Params, input.Settings).ExtractValueSync();
 }
-
-
 
 SQLRETURN TStatement::Fetch() {
     return FetchScroll(SQL_FETCH_NEXT, 0);
@@ -647,12 +609,18 @@ SQLRETURN TStatement::BindParameter(SQLUSMALLINT paramNumber,
     if (parameterType == SQL_UNKNOWN_TYPE) {
         throw TOdbcException("HY004", 0, "Invalid SQL data type");
     }
-    GetAppParamDesc().WithLock(ImpParamDesc_, [&](TDescriptor& appDesc, TDescriptor& impDesc) {
+    const bool shapeChanged = GetAppParamDesc().WithLock(ImpParamDesc_, [&](TDescriptor& appDesc, TDescriptor& impDesc) {
+        const auto* oldApp = appDesc.FindRecord(static_cast<SQLSMALLINT>(paramNumber));
+        const auto* oldImp = impDesc.FindRecord(static_cast<SQLSMALLINT>(paramNumber));
         if (!parameterValuePtr && !strLenOrIndPtr) {
+            const bool changed = oldApp || oldImp;
             appDesc.RemoveRecord(static_cast<SQLSMALLINT>(paramNumber));
             impDesc.RemoveRecord(static_cast<SQLSMALLINT>(paramNumber));
-            return;
+            return changed;
         }
+        const bool changed = !oldApp || oldApp->Type != valueType
+            || !oldImp || oldImp->Type != parameterType
+            || oldImp->Length != static_cast<SQLLEN>(columnSize) || oldImp->Scale != decimalDigits;
         TDescRecord& app = appDesc.Record(static_cast<SQLSMALLINT>(paramNumber));
         app.Type = valueType;
         app.Length = bufferLength;
@@ -671,6 +639,7 @@ SQLRETURN TStatement::BindParameter(SQLUSMALLINT paramNumber,
         imp.Scale = decimalDigits;
         imp.Nullable = SQL_NULLABLE;
         imp.ParameterType = inputOutputType;
+        return changed;
     });
     if (!parameterValuePtr && !strLenOrIndPtr) {
         if (AtExecValues_.size() > paramNumber) {
@@ -683,13 +652,15 @@ SQLRETURN TStatement::BindParameter(SQLUSMALLINT paramNumber,
         AtExecValues_[paramNumber] = {};
     }
 
-    InvalidatePreparedColumnMeta();
+    if (shapeChanged) {
+        InvalidatePreparedColumnMeta();
+    }
     return SQL_SUCCESS;
 }
 
 std::vector<TBoundParam> TStatement::GetBoundParams(SQLULEN paramSet) const {
     std::vector<TBoundParam> params;
-    for (SQLUSMALLINT number = 1; number <= ParamCount_; ++number) {
+    for (SQLUSMALLINT number = 1; number <= ParamCount(); ++number) {
         const TDescRecord* app = ParamBindings_.FindRecord(number);
         const TDescRecord* imp = ImpParamBindings_.FindRecord(number);
         if (!app || !imp) {
@@ -716,7 +687,8 @@ std::vector<TBoundParam> TStatement::GetBoundParams(SQLULEN paramSet) const {
     return params;
 }
 
-SQLRETURN TStatement::BuildParams(NYdb::TParams& out, SQLULEN paramSet) {
+SQLRETURN TStatement::BuildParams(NYdb::TParams& out, SQLULEN paramSet,
+                                    const std::vector<TBoundParam>& params) {
     ClearErrors();
     NYdb::TParamsBuilder paramsBuilder;
     const auto conversionError = [&](const TBoundParam& param) {
@@ -729,34 +701,22 @@ SQLRETURN TStatement::BuildParams(NYdb::TParams& out, SQLULEN paramSet) {
                 + " (C type " + std::to_string(static_cast<int>(param.ValueType))
                 + ", SQL type " + std::to_string(static_cast<int>(param.ParameterType)) + ")");
     };
-    for (const TBoundParam& param : GetBoundParams(paramSet)) {
-        const std::string paramName = "$p" + std::to_string(param.ParamNumber);
+    for (TBoundParam param : params) {
+        SQLLEN indicator = 0;
         if (param.AtExec) {
             if (AtExecValues_.size() <= param.ParamNumber
                 || !AtExecValues_[param.ParamNumber].Complete) {
                 return AddError("HY000", 0, "Missing data-at-execution parameter value");
             }
-            TAtExecValue& value = AtExecValues_[param.ParamNumber];
-            SQLLEN indicator = value.Indicator == SQL_NULL_DATA
-                ? SQL_NULL_DATA
-                : static_cast<SQLLEN>(value.Data.size());
-            TBoundParam tmp = param;
-            tmp.ParameterValuePtr = value.Data.data();
-            tmp.StrLenOrIndPtr = &indicator;
-            const bool optional = BoundParamIsNull(tmp)
-                || GetDeclaredParamOptionality(PreparedQuery_, param.ParamNumber).value_or(false);
-            const SQLRETURN convRc = ConvertParam(
-                tmp, paramsBuilder.AddParam(paramName), optional);
-            if (convRc != SQL_SUCCESS) {
-                return conversionError(param);
-            }
-            continue;
+            auto& value = AtExecValues_[param.ParamNumber];
+            indicator = value.Indicator == SQL_NULL_DATA ? SQL_NULL_DATA : static_cast<SQLLEN>(value.Data.size());
+            param.ParameterValuePtr = value.Data.data();
+            param.StrLenOrIndPtr = &indicator;
         }
         const bool optional = BoundParamIsNull(param)
-            || GetDeclaredParamOptionality(PreparedQuery_, param.ParamNumber).value_or(false);
-        const SQLRETURN convRc = ConvertParam(
-            param, paramsBuilder.AddParam(paramName), optional);
-        if (convRc != SQL_SUCCESS) {
+            || Query_->DeclaredOptionality(param.ParamNumber).value_or(false);
+        if (ConvertParam(param, paramsBuilder.AddParam("$p" + std::to_string(param.ParamNumber)), optional)
+            != SQL_SUCCESS) {
             return conversionError(param);
         }
     }
@@ -769,29 +729,27 @@ SQLRETURN TStatement::NumParams(SQLSMALLINT* paramCount) {
     if (!paramCount) {
         throw TOdbcException("HY000", 0, "Invalid parameter");
     }
-    if (!IsPrepared_) {
+    if (!Query_) {
         throw TOdbcException("HY010", 0, "Function sequence error");
     }
-    *paramCount = ParamCount_;
+    *paramCount = ParamCount();
     return SQL_SUCCESS;
 }
 
 void TStatement::ResetForMetadata() {
     ClearErrors();
     RowCount_ = -1;
-    PreparedQuery_.clear();
-    IsPrepared_ = false;
-    ParamCount_ = 0;
+    Query_.reset();
     PreparedColumnMeta_.reset();
     ClearResults();
 }
 
 SQLRETURN TStatement::DescribeParam(SQLUSMALLINT paramNumber, SQLSMALLINT* dataTypePtr, SQLULEN* paramSizePtr,
                                     SQLSMALLINT* decimalDigitsPtr, SQLSMALLINT* nullablePtr) {
-    if (!IsPrepared_) {
+    if (!Query_) {
         throw TOdbcException("HY010", 0, "Function sequence error");
     }
-    if (paramNumber < 1 || paramNumber > ParamCount_) {
+    if (paramNumber < 1 || paramNumber > ParamCount()) {
         throw TOdbcException("07009", 0, "Invalid descriptor index");
     }
     RefreshParamBindings();
@@ -799,16 +757,17 @@ SQLRETURN TStatement::DescribeParam(SQLUSMALLINT paramNumber, SQLSMALLINT* dataT
     const bool temporal = record && !record->WideTemporalType
         && (record->Type == SQL_TYPE_DATE || record->Type == SQL_TYPE_TIMESTAMP);
     if (!record || (record->Type == SQL_UNKNOWN_TYPE && !record->Inferred) || temporal) {
+        bool shapeChanged = false;
         if (const auto query = BuildParamMetadataQuery(
-                PreparedQuery_, Attributes_.GetNoScanMode() != SQL_NOSCAN_ON, paramNumber, ParamCount_)) {
+                Query_->Text(), Attributes_.GetNoScanMode() != SQL_NOSCAN_ON, paramNumber, ParamCount())) {
             auto columns = ReadQueryMetadata(*query, true);
             // Column nullability constrains insert targets, not predicate parameters.
-            if (!StartsWithSqlStatement(PreparedQuery_, {"INSERT", "UPSERT", "REPLACE"})) {
+            if (!Query_->StartsWith({"INSERT", "UPSERT", "REPLACE"})) {
                 for (auto& column : columns) {
                     column.Nullable = SQL_NULLABLE_UNKNOWN;
                 }
             }
-            ImpParamDesc_.WithLock([&](TDescriptor& desc) {
+            shapeChanged = ImpParamDesc_.WithLock([&](TDescriptor& desc) {
                 for (size_t index = 0; index < columns.size(); ++index) {
                     const auto i = static_cast<SQLSMALLINT>(index + 1);
                     const auto& column = columns[index];
@@ -824,13 +783,16 @@ SQLRETURN TStatement::DescribeParam(SQLUSMALLINT paramNumber, SQLSMALLINT* dataT
                     parameter.Nullable = column.Nullable;
                     parameter.Inferred = true;
                 }
-                desc.SnapshotUnlocked(ImpParamBindings_, ImpParamGeneration_);
+                return desc.SnapshotUnlocked(ImpParamBindings_);
             });
         } else if (temporal) {
-            ImpParamDesc_.WithLock([&](TDescriptor& desc) {
+            shapeChanged = ImpParamDesc_.WithLock([&](TDescriptor& desc) {
                 desc.Record(paramNumber).WideTemporalType = EWideTemporal::None;
-                desc.SnapshotUnlocked(ImpParamBindings_, ImpParamGeneration_);
+                return desc.SnapshotUnlocked(ImpParamBindings_);
             });
+        }
+        if (shapeChanged) {
+            InvalidatePreparedColumnMeta();
         }
         record = ImpParamBindings_.FindRecord(static_cast<SQLSMALLINT>(paramNumber));
     }
@@ -859,6 +821,9 @@ SQLRETURN TStatement::ParamData(SQLPOINTER* valuePtr) {
     if (!InAtExec_) {
         return SQL_NO_DATA;
     }
+    if (!Query_) {
+        throw TOdbcException("HY010", 0, "Function sequence error");
+    }
     RefreshParamBindings();
     if (NeedDataParam_ != 0) {
         if (AtExecValues_.size() <= NeedDataParam_) {
@@ -875,7 +840,7 @@ SQLRETURN TStatement::ParamData(SQLPOINTER* valuePtr) {
     }
     InAtExec_ = false;
     NeedDataParam_ = 0;
-    return GetConnection().Execute(*this);
+    return ExecuteInternal();
 }
 
 SQLRETURN TStatement::PutData(SQLPOINTER data, SQLLEN strLenOrInd) {
@@ -1032,8 +997,8 @@ void TStatement::ResetParams() {
     GetAppParamDesc().WithLock(ImpParamDesc_, [&](TDescriptor& app, TDescriptor& imp) {
         app.ClearRecords();
         imp.ClearRecords();
-        app.SnapshotUnlocked(ParamBindings_, ParamGeneration_);
-        imp.SnapshotUnlocked(ImpParamBindings_, ImpParamGeneration_);
+        app.SnapshotUnlocked(ParamBindings_, true);
+        imp.SnapshotUnlocked(ImpParamBindings_);
     });
     AtExecValues_.clear();
 }
@@ -1069,18 +1034,17 @@ void TStatement::EnsurePreparedColumnMeta() {
     if (PreparedColumnMeta_) {
         return;
     }
-    if (!IsPrepared_) {
+    if (!Query_) {
         throw TOdbcException("HY010", 0, "Function sequence error");
     }
-    if (HasMultipleSqlStatements(PreparedQuery_)) {
+    if (Query_->HasMultipleStatements()) {
         throw TOdbcException(
             "HYC00", 0,
             "Result metadata before execution is unavailable for multiple statements");
     }
 
-    if (!StartsWithSqlStatement(PreparedQuery_, {"SELECT"})) {
-        if (StartsWithSqlStatement(
-                PreparedQuery_,
+    if (!Query_->StartsWith({"SELECT"})) {
+        if (Query_->StartsWith(
                 {"INSERT", "UPDATE", "DELETE", "UPSERT", "REPLACE", "MERGE",
                  "CREATE", "DROP", "ALTER", "GRANT", "REVOKE", "COMMIT", "ROLLBACK"})) {
             PreparedColumnMeta_.emplace();
@@ -1095,11 +1059,11 @@ void TStatement::EnsurePreparedColumnMeta() {
     // Use descriptor types and typed NULLs, never application parameter values.
     std::vector<TBoundParam> activeParams;
     NYdb::TParamsBuilder builder;
-    for (SQLUSMALLINT number = 1; number <= ParamCount_; ++number) {
+    for (SQLUSMALLINT number = 1; number <= ParamCount(); ++number) {
         const auto* imp = ImpParamBindings_.FindRecord(number);
         const auto* app = ParamBindings_.FindRecord(number);
         if (!imp || imp->Type == SQL_UNKNOWN_TYPE
-            || GetDeclaredParamOptionality(PreparedQuery_, number) == false) {
+            || Query_->DeclaredOptionality(number) == false) {
             throw TOdbcException("HYC00", 0, "Result metadata requires known, nullable parameter types");
         }
         activeParams.push_back({static_cast<SQLUSMALLINT>(number),
@@ -1112,7 +1076,7 @@ void TStatement::EnsurePreparedColumnMeta() {
     }
 
     const TParamRewriteResult rewritten = RewriteOdbcSql(
-        BuildResultMetadataQuery(PreparedQuery_), activeParams,
+        BuildResultMetadataQuery(Query_->Text()), activeParams,
         Attributes_.GetNoScanMode() != SQL_NOSCAN_ON);
     if (!rewritten.Success) {
         throw TOdbcException(rewritten.SqlState, 0, rewritten.Message);
@@ -1156,7 +1120,7 @@ std::vector<TColumnMeta> TStatement::ReadQueryMetadata(
                 execSettings).ExtractValueSync();
             CheckExecutionStatus(result);
             if (!result.IsSuccess()) {
-                return StatusFrom(result);
+                return NYdb::TStatus(result);
             }
             if (result.GetResultSets().size() != 1) {
                 return NYdb::TStatus(
@@ -1231,7 +1195,7 @@ void TStatement::SetResults(const NQuery::TExecuteQueryResult& result) {
     }
     auto cursor = sets.empty() ? nullptr : CreateExecCursor(
         sets.front(), Attributes_.CursorType == SQL_CURSOR_STATIC);
-    if (cursor && IsPrepared_) {
+    if (cursor && Query_) {
         PreparedColumnMeta_ = cursor->GetColumnMeta();
     }
     if (!sets.empty()) {

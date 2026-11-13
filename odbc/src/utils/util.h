@@ -4,7 +4,6 @@
 
 #include "odbc_compat.h"
 
-#include <map>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -21,7 +20,5 @@ bool StartsWithPrefix(const char* s, size_t sLen, const char* prefix, size_t pre
 using TConnectionStringEntries = std::vector<std::pair<std::string, std::string>>;
 
 TConnectionStringEntries ParseConnectionStringEntries(std::string_view connectionString);
-
-std::map<std::string, std::string> ParseConnectionString(std::string_view connectionString);
 
 } // namespace NYdb::NOdbc

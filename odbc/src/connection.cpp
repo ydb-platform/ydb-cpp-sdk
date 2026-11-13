@@ -1,7 +1,7 @@
 #include "connection.h"
 #include "statement.h"
 
-#include "utils/escape.h"
+#include "utils/param_rewrite.h"
 
 #include <ydb-cpp-sdk/client/result/result.h>
 #include <ydb-cpp-sdk/client/types/status/status.h>
@@ -120,37 +120,6 @@ NQuery::TTransaction& TConnection::GetOrCreateTx(TStatement& statement) {
         NStatusHelpers::ThrowOnError(status);
     }
     return *Tx_;
-}
-
-std::optional<NQuery::TQueryClient> TConnection::GetClient() {
-    if (!Ydb_) {
-        return std::nullopt;
-    }
-    return Ydb_->QueryClient;
-}
-
-std::optional<NTable::TTableClient> TConnection::GetTableClient() {
-    if (!Ydb_) {
-        return std::nullopt;
-    }
-    return Ydb_->TableClient;
-}
-
-std::optional<NScheme::TSchemeClient> TConnection::GetSchemeClient() {
-    if (!Ydb_) {
-        return std::nullopt;
-    }
-    return Ydb_->SchemeClient;
-}
-
-SQLRETURN TConnection::Execute(TStatement& statement) {
-    // The caller holds the statement operation lock and a shared lifecycle gate.
-    std::unique_lock transaction(TransactionMutex_, std::defer_lock);
-    const bool explicitTransaction = !GetAutocommit();
-    if (explicitTransaction) {
-        transaction.lock();
-    }
-    return statement.ExecuteInternal();
 }
 
 void TConnection::EndTranFromEnvironment(SQLSMALLINT completionType) {

@@ -78,15 +78,15 @@ public:
     bool IsConnected() const { return Ydb_.has_value(); }
 
     void CloseStatementCursors();
-    // Test seam for holding transaction ordering without a server-side operation.
+    // Serializes statements in the connection's explicit transaction.
     std::unique_lock<std::mutex> LockTransaction() { return std::unique_lock(TransactionMutex_); }
-    SQLRETURN Execute(TStatement& statement);
     void EndTranFromEnvironment(SQLSMALLINT completionType);
 
-    std::optional<NQuery::TQueryClient> GetClient();
+    // Borrowed clients remain valid while the caller holds the lifecycle gate.
+    NQuery::TQueryClient* GetClient() { return Ydb_ ? &Ydb_->QueryClient : nullptr; }
     NQuery::TTransaction& GetOrCreateTx(TStatement& statement);
-    std::optional<NTable::TTableClient> GetTableClient();
-    std::optional<NScheme::TSchemeClient> GetSchemeClient();
+    NTable::TTableClient* GetTableClient() { return Ydb_ ? &Ydb_->TableClient : nullptr; }
+    NScheme::TSchemeClient* GetSchemeClient() { return Ydb_ ? &Ydb_->SchemeClient : nullptr; }
 
     SQLRETURN SetAutocommit(bool value);
     bool GetAutocommit() const;

@@ -65,16 +65,25 @@ protected:
 
     THeader Header_;
     std::vector<TDescRecord> Records_;
-    uint64_t SchemaGeneration_ = 0;
+
+    bool HasSameParameterShape(const TDescriptorState& other, bool appParam) const noexcept;
 
 public:
     SQLULEN GetArraySize() const noexcept { return Header_.ArraySize; }
     SQLUSMALLINT* GetArrayStatusPtr() const noexcept { return Header_.ArrayStatusPtr; }
     SQLULEN* GetRowsProcessedPtr() const noexcept { return Header_.RowsProcessedPtr; }
-    uint64_t GetSchemaGeneration() const noexcept { return SchemaGeneration_; }
     const TDescRecord* FindRecord(SQLSMALLINT number) const noexcept;
     SQLSMALLINT GetRecordCount() const noexcept;
     TResolvedBinding ResolveBinding(const TDescRecord& record, SQLULEN index, bool useOffset = true) const noexcept;
+};
+
+class TDescriptorSnapshot : public TDescriptorState {
+    friend class TDescriptor;
+public:
+    void Reset() noexcept { Generation_ = 0; }
+
+private:
+    uint64_t Generation_ = 0;
 };
 
 class TDescriptor : public THandle, private TDescriptorState {
@@ -94,8 +103,9 @@ public:
     // Statement access locks this descriptor; binding snapshots are statement-owned.
     void Clear();
     uint64_t GetGeneration() const { return Generation_.load(std::memory_order_relaxed); }
-    void Snapshot(TDescriptorState& state, uint64_t& generation) const;
-    void SnapshotHeader(TDescriptorState& state, uint64_t& generation) const;
+    // Returns whether the SQL parameter type shape changed; APDs contribute their C type.
+    bool Snapshot(TDescriptorSnapshot& state, bool appParam = false) const;
+    void SnapshotHeader(TDescriptorSnapshot& state) const;
 
     // ODBC entrypoints already hold the handle operation lock.
     SQLRETURN GetDescField(SQLSMALLINT recNumber, SQLSMALLINT fieldIdentifier, SQLPOINTER value,
@@ -135,9 +145,9 @@ private:
         }
     }
     void ClearRecords() noexcept { Records_.clear(); Changed(); }
-    void SnapshotUnlocked(TDescriptorState& state, uint64_t& generation) const;
+    bool SnapshotUnlocked(TDescriptorSnapshot& state, bool appParam = false) const;
     SQLRETURN CopyDesc(TDescriptor& target);
-    void Changed(bool schema = true);
+    void Changed();
 
     EDescType Type_;
     std::atomic<uint64_t> Generation_ = 1;

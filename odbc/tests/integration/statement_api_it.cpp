@@ -917,9 +917,42 @@ TEST(StatementApi, PreparedResultMetadataBeforeExecute) {
     EXPECT_TRUE(SqlStatePrefix(executeError, "HY007") || SqlStatePrefix(executeError, "HY010"))
         << executeError;
 
-    CHECK_ODBC_OK(SQLExecDirect(stmt,
-        (SQLCHAR*)"DROP TABLE result_metadata_before_execute_test", SQL_NTS),
+    CHECK_ODBC_OK(SQLPrepare(stmt,
+        (SQLCHAR*)"SELECT ? AS value FROM result_metadata_before_execute_test", SQL_NTS),
         stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER,
+        0, 0, &parameter, 0, nullptr), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLCloseCursor(stmt), stmt, SQL_HANDLE_STMT);
+    SQLHSTMT dropStmt = SQL_NULL_HSTMT;
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &dropStmt), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLExecDirect(dropStmt,
+        (SQLCHAR*)"DROP TABLE result_metadata_before_execute_test", SQL_NTS),
+        dropStmt, SQL_HANDLE_STMT);
+    SQLFreeHandle(SQL_HANDLE_STMT, dropStmt);
+
+    // Pointer/name updates keep the executed schema without querying the dropped table.
+    SQLINTEGER reboundParameter = 2;
+    SQLLEN reboundIndicator = 0;
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER,
+        0, 0, &reboundParameter, 0, &reboundIndicator), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLGetStmtAttr(stmt, SQL_ATTR_APP_PARAM_DESC, &apd, 0, nullptr),
+        stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLSetDescField(apd, 1, SQL_DESC_NAME, (SQLPOINTER)"renamed", SQL_NTS),
+        apd, SQL_HANDLE_DESC);
+    SQLHDESC ipd = SQL_NULL_HDESC;
+    CHECK_ODBC_OK(SQLGetStmtAttr(stmt, SQL_ATTR_IMP_PARAM_DESC, &ipd, 0, nullptr),
+        stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLSetDescField(ipd, 1, SQL_DESC_NAME, (SQLPOINTER)"renamed", SQL_NTS),
+        ipd, SQL_HANDLE_DESC);
+    CHECK_ODBC_OK(SQLNumResultCols(stmt, &columnCount), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(columnCount, 1);
+    CHECK_ODBC_OK(SQLBindParameter(stmt, 1, SQL_PARAM_INPUT, SQL_C_ULONG, SQL_INTEGER,
+        0, 0, &reboundParameter, 0, &reboundIndicator), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLGetDescField(ird, 0, SQL_DESC_COUNT, &descriptorCount, 0, nullptr),
+        ird, SQL_HANDLE_DESC);
+    EXPECT_EQ(descriptorCount, 0);
+    EXPECT_EQ(SQLNumResultCols(stmt, &columnCount), SQL_ERROR);
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);

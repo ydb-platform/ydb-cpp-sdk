@@ -5,6 +5,7 @@
 #include "utils/attr.h"
 #include "utils/bindings.h"
 #include "utils/cursor.h"
+#include "utils/param_rewrite.h"
 
 #include <ydb-cpp-sdk/client/query/client.h>
 
@@ -138,9 +139,7 @@ private:
     std::unique_ptr<ICursor> Cursor_;
     std::deque<TResultSet> RemainingResultSets_;
     std::optional<std::vector<TColumnMeta>> PreparedColumnMeta_;
-    std::string PreparedQuery_;
-    bool IsPrepared_ = false;
-    SQLSMALLINT ParamCount_ = 0;
+    std::optional<TPreparedQuery> Query_;
 
     SQLLEN RowCount_ = -1;
     TAttributes Attributes_;
@@ -151,14 +150,10 @@ private:
     TDescriptor ImpParamDesc_;
     TDescriptor* AppRowDescPtr_ = nullptr;
     TDescriptor* AppParamDescPtr_ = nullptr;
-    TDescriptorState RowBindings_;
-    TDescriptorState ParamBindings_;
-    TDescriptorState ImpParamBindings_;
-    TDescriptorState ImpRowBindings_;
-    uint64_t RowGeneration_ = 0;
-    uint64_t ParamGeneration_ = 0;
-    uint64_t ImpParamGeneration_ = 0;
-    uint64_t ImpRowGeneration_ = 0;
+    TDescriptorSnapshot RowBindings_;
+    TDescriptorSnapshot ParamBindings_;
+    TDescriptorSnapshot ImpParamBindings_;
+    TDescriptorSnapshot ImpRowBindings_;
     std::atomic<EExecutionState> ExecutionState_ = EExecutionState::Idle;
     SQLUSMALLINT NeedDataParam_ = 0;
     bool InAtExec_ = false;
@@ -166,7 +161,8 @@ private:
     SQLUSMALLINT GetDataColumn_ = 0;
     SQLLEN GetDataOffset_ = 0;
 
-    SQLRETURN BuildParams(NYdb::TParams& out, SQLULEN paramSet);
+    SQLSMALLINT ParamCount() const { return Query_ ? Query_->ParameterCount() : 0; }
+    SQLRETURN BuildParams(NYdb::TParams& out, SQLULEN paramSet, const std::vector<TBoundParam>& params);
     SQLRETURN ExecuteParamSet(SQLULEN paramSet, std::optional<SQLLEN>& affectedRows);
     SQLRETURN ExecuteInternal();
     SQLRETURN FillBoundColumns(SQLULEN row, bool useOffset);
@@ -208,10 +204,15 @@ private:
                                   bool schemaPatternsAllowed) const;
 
 protected:
+    struct TExecutionInput {
+        std::string Sql;
+        NYdb::TParams Params;
+        NQuery::TExecuteQuerySettings Settings;
+        NQuery::TTxControl TxControl;
+    };
     virtual NQuery::TExecuteQueryResult ExecuteQuery(
         NQuery::TSession& session,
-        const NYdb::TParams& params,
-        SQLULEN paramSet);
+        const TExecutionInput& input);
 
 private:
     NYdb::NRetry::TRetryOperationSettings MakeAutocommitRetrySettings();
