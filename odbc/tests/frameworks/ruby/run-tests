@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+import sys
+sys.path.insert(0, '/harness/bindings')
+from adapter import run
+
+def main(s):
+    names = [p.name for p in sorted((s.source / 'test').glob('[0-9]*.rb'))]
+    s.plan([variant + '.' + name for variant in ('odbc', 'odbc_utf8') for name in names])
+    for variant, directory in [('odbc', 'ext'), ('odbc_utf8', 'ext/utf8')]:
+        ext = s.source / directory
+        s.command(['ruby', 'extconf.rb', '--with-odbc-dir=/usr'], variant+'-configure', cwd=ext)
+        s.command(['make', '-j2'], variant+'-build', cwd=ext)
+        s.command(['ruby', '-I', ext, s.adapter / 'report.rb', variant, s.connection], variant,
+                  cwd=s.source / 'test', check=False)
+        import json
+        results = json.loads((s.native / (variant + '.json')).read_text())
+        for test in results:
+            s.add(variant + '.' + test['name'], test['status'], test.get('message', ''),
+                  attachments=[s.native / (variant + '.log')])
+
+raise SystemExit(run(main))

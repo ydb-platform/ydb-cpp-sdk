@@ -149,6 +149,7 @@ function(vcs_info Tgt)
     DEPENDS ${YDB_SDK_SOURCE_DIR}/scripts/vcs_info.py ${YDB_SDK_SOURCE_DIR}/scripts/c_templates/svn_interface.c ${CMAKE_CURRENT_BINARY_DIR}/vcs_info.json
   )
   target_sources(${Tgt} PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/__vcs_version__.c)
+  target_include_directories(${Tgt} PRIVATE ${YDB_SDK_SOURCE_DIR})
 endfunction()
 
 function(resources Tgt Output)
@@ -222,7 +223,7 @@ function(_ydb_sdk_add_library Tgt)
     set(libraryMode "INTERFACE")
     set(includeMode "INTERFACE")
   endif()
-  
+
   add_library(${Tgt} ${libraryMode})
   target_include_directories(${Tgt} ${includeMode}
     $<BUILD_INTERFACE:${YDB_SDK_SOURCE_DIR}>

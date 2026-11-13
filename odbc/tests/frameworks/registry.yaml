@@ -1,0 +1,590 @@
+schema_version: 2
+ydb:
+  image: ydbplatform/local-ydb:trunk
+  endpoint: localhost:2136
+  database: /local
+classifications:
+  - outcome: upstream_failure
+    reason: QODBC drops QDateTime offsets before binding SQL_TIMESTAMP_STRUCT, shifting the represented instant.
+    match: '(?s)Actual\s+\(q\.value\(2\)\.toDateTime\(\)\): 2150/01/05 14:00:00\.123\[UTC\]\s+Expected \(tzoffset\)\s+: 2150/01/05 14:00:00\.123\[UTC\+01:00\]'
+    reference: https://github.com/qt/qtbase/blob/e3e40c44d3f998a433a6a1080297c5f28e9a768f/src/plugins/sqldrivers/odbc/qsql_odbc.cpp
+    reproducer: repros/qt-timestamp.cpp
+    tests:
+      qt: [qt.*.qsqlquery.QTBUG_57138]
+  - outcome: unsupported
+    reason: This SQLite regression requires Bool metadata; QODBC deliberately exposes SQL_BIT as Int or UInt.
+    match: '(?s)Actual\s+\(q\.record\(\)\.field\(0\)\.metaType\(\)\.id\(\)\): 2\s+Expected \(QMetaType::Bool\)\s+: 1'
+    reference: https://github.com/qt/qtbase/blob/e3e40c44d3f998a433a6a1080297c5f28e9a768f/src/plugins/sqldrivers/odbc/qsql_odbc.cpp
+    tests:
+      qt: [qt.*.qsqlquery.QTBUG_14904]
+  - outcome: upstream_failure
+    reason: QODBC ignores signedness for SQL_TINYINT and requests unsigned data for negative Int8 values.
+    match: '(?s)Actual\s+\(actualValues\): 0\s+Expected \(values\): -128'
+    reference: https://github.com/qt/qtbase/blob/e3e40c44d3f998a433a6a1080297c5f28e9a768f/src/plugins/sqldrivers/odbc/qsql_odbc.cpp
+    reproducer: repros/qt-tinyint.cpp
+    tests:
+      qt: [qt.*.qsqlquery.integralTypesMysql]
+  - outcome: unsupported
+    reason: YDB result metadata has no table origins; ODBC permits an empty table name when its origin is unavailable.
+    match: 'Actual[^\n]*tableName\(\)[^\n]*:\s*""\s+Expected'
+    tests:
+      qt: ['qt.*.qsqlquery.{record,forwardOnlyMultipleResultSet}']
+  - outcome: unsupported
+    reason: This case updates the table's primary key, which YDB makes immutable.
+    match: 'Cannot update primary key column: id'
+    tests:
+      qt: [qt.*.qsqltablemodel.setData, qt.*.qsqltablemodel.primaryKeyOrder, qt.*.qsqlrelationaltablemodel.setRecord]
+  - outcome: unsupported
+    reason: YDB returns SELECT results without interleaved DML counts, as advertised by SQL_BATCH_ROW_COUNT=0.
+    match: "'!q.isSelect\\(\\)' returned FALSE"
+    tests:
+      qt: [qt.*.qsqlquery.nextResult]
+  - outcome: skipped
+    reason: YDB uses UTF-8 databases and cannot create the EUC_JP database required by this case.
+    match: 'YDB databases require UTF-8, not EUC_JP'
+    tests:
+      php-odbc: ['php-odbc.*.ext%2Fodbc%2Ftests%2Fbug60616.phpt']
+  - outcome: skipped
+    reason: These upstream scenarios explicitly require SQL Server catalog or session behavior.
+    match: 'MS SQL specific test'
+    tests:
+      php-odbc: ['php-odbc.*.ext%2Fodbc%2Ftests%2F{odbc_columns_001,odbc_primarykeys_001,odbc_persistent_close}.phpt']
+  - outcome: skipped
+    reason: YDB has no SQL Server stored procedures or sysobjects catalog.
+    match: SQL Server stored procedures and catalogs
+    tests:
+      php-odbc: [php-odbc.*.ext%2Fodbc%2Ftests%2Fbug73448.phpt]
+  - outcome: skipped
+    reason: The R-prefix naming convention is optional and does not test ODBC behavior.
+    match: 'Optional R-prefix package naming convention'
+    tests:
+      r: [r.*.package_name]
+  - outcome: unsupported
+    reason: YDB column names cannot contain the whitespace, dots or quote characters exercised by these cases.
+    match: 'Invalid (?:column name|name for user column)'
+    tests:
+      r:
+        - r.*.{quote_identifier_special,read_table_check_names,read_table_check_names_false,create_roundtrip_quotes,append_roundtrip_quotes_column_names,roundtrip_quotes_column_names}
+  - outcome: unsupported
+    reason: YDB table path components cannot contain the whitespace and punctuation exercised by these cases.
+    match: 'symbol .* is not allowed in the path part'
+    tests:
+      r:
+        - r.*.{read_table_name,create_table_name,create_table_name_quoted,append_table_name,append_table_name_quoted,write_table_name,write_table_name_quoted,list_tables_quote,exists_table_name,remove_table_name,remove_table_name_quoted,list_objects_quote}
+  - outcome: unsupported
+    reason: The Query Service pool does not provide connection-scoped temporary tables.
+    match: 'Creating temporary table is not supported'
+    tests:
+      r:
+        - r.*.{create_temporary_table...171,temporary_table...239,list_tables_temporary,exists_table_temporary,remove_table_temporary_arg,remove_table_temporary,list_objects_temporary,list_fields_temporary}
+  - outcome: skipped
+    reason: This upstream deadline reminds odbc maintainers to remove an API in a future release.
+    match: 'Maintenance assertion for a future odbc API removal'
+    tests:
+      r: ['r.*.test-odbc-connection.R%3AodbcConnectionColumns_%20is%20eventually%20removed%20%28%23699%29']
+  - outcome: skipped
+    reason: Requires Qt's Oracle plugin and Oracle-specific SQL rather than QODBC.
+    match: No\ database\ drivers\ of\ type\ QOCI\ are\ available\ in\ this\ Qt\ configuration
+    tests:
+      qt:
+        - qt.*.qsqldatabase.{oci_tables,oci_xmltypeSupport,oci_fieldLength,oci_synonymstest}
+        - qt.*.qsqlquery.{oraOutValues,oraOCINumber,oraRowId,oraArrayBind,QTBUG_551,QTBUG_6421,QTBUG_14132}
+  - outcome: skipped
+    reason: Requires Qt's Oracle plugin and Oracle-specific SQL rather than QODBC.
+    match: Implemented\ only\ for\ Oracle
+    tests:
+      qt:
+        - qt.*.qsqlquery.dateTime
+  - outcome: skipped
+    reason: Requires Qt's MySQL plugin and MySQL-specific SQL rather than QODBC.
+    match: No\ database\ drivers\ of\ type\ QMYSQL\ are\ available\ in\ this\ Qt\ configuration
+    tests:
+      qt:
+        - qt.*.qsqldatabase.{recordMySQL,mysql_savepointtest}
+        - qt.*.qsqlquery.{mysql_outValues,mysql_timeType,QTBUG_6852,gisPointDatatype}
+  - outcome: skipped
+    reason: Requires Qt's PostgreSQL plugin and PostgreSQL-specific SQL rather than QODBC.
+    match: No\ database\ drivers\ of\ type\ QPSQL\ are\ available\ in\ this\ Qt\ configuration
+    tests:
+      qt:
+        - qt.*.qsqldatabase.{psql_schemas,psql_escapedIdentifiers,psql_bug249059}
+        - qt.*.qsqlquery.{psql_forwardOnlyQueryResultsLost,psql_bindWithDoubleColonCastOperator,QTBUG_12477,QTBUG_5251,QTBUG_36211}
+  - outcome: skipped
+    reason: Exercises SQL Server or TDS-specific behavior outside the YDB binding contract.
+    match: Database\ driver\ QTDS7?\ not\ available
+    tests:
+      qt:
+        - qt.*.qsqldatabase.errorReporting@QTDS*
+  - outcome: skipped
+    reason: Exercises SQL Server or TDS-specific behavior outside the YDB binding contract.
+    match: SQL\ Server\ \(ODBC\)\ specific\ test
+    tests:
+      qt:
+        - qt.*.qsqldatabase.odbc_uniqueidentifier
+  - outcome: skipped
+    reason: Exercises SQL Server or TDS-specific behavior outside the YDB binding contract.
+    match: Test\ is\ specific\ to\ SQL\ Server
+    tests:
+      qt:
+        - qt.*.qsqlquery.{sqlServerReturn0,QTBUG_18435}
+  - outcome: skipped
+    reason: Requires Qt's DB2 plugin and DB2-specific SQL rather than QODBC.
+    match: No\ database\ drivers\ of\ type\ QDB2\ are\ available\ in\ this\ Qt\ configuration
+    tests:
+      qt:
+        - qt.*.qsqlquery.outValuesDB2
+  - outcome: skipped
+    reason: Requires Qt's SQLite plugin and SQLite-specific behavior rather than QODBC.
+    match: No\ database\ drivers\ of\ type\ QSQLITE\ are\ available\ in\ this\ Qt\ configuration
+    tests:
+      qt:
+        - qt.*.qsqldatabase.{sqlite_bindAndFetchUInt,sqlite_enable_cache_mode,sqlite_enableRegexp,sqlite_check_json1}
+        - qt.*.qsqltablemodel.{insertWithAutoColumn,revert,sqlite_attachedDatabase,sqlite_selectFromIdentifierWithDot}
+  - outcome: skipped
+    reason: Requires Qt's SQLite plugin and SQLite-specific behavior rather than QODBC.
+    match: Database\ driver\ QSQLITE\ not\ available
+    tests:
+      qt:
+        - qt.*.qsqldatabase.sqlite_openError
+  - outcome: skipped
+    reason: Requires Qt's InterBase plugin and InterBase-specific SQL rather than QODBC.
+    match: No\ database\ drivers\ of\ type\ QIBASE\ are\ available\ in\ this\ Qt\ configuration
+    tests:
+      qt:
+        - qt.*.qsqldatabase.{recordIBase,ibase_useCustomCharset,ibase_procWithoutReturnValues,ibase_procWithReturnValues}
+        - qt.*.qsqlquery.{storedProceduresIBase,ibase_executeBlock,ibaseArray}
+  - outcome: skipped
+    reason: Exercises the MySQL ODBC driver rather than the YDB ODBC driver.
+    match: MySQL\ through\ ODBC\-driver\ specific\ test
+    tests:
+      qt:
+        - qt.*.qsqldatabase.mysqlOdbc_unsignedIntegers
+  - outcome: skipped
+    reason: Database event notifications are outside the binding contract.
+    match: DBMS\ doesn't\ support\ event\ notifications
+    tests:
+      qt:
+        - qt.*.qsqldatabase.eventNotification
+  - outcome: skipped
+    reason: Database event notifications are outside the binding contract.
+    match: No\ database\ drivers\ of\ type\ QIBASE\ are\ available\ in\ this\ Qt\ configuration
+    tests:
+      qt:
+        - qt.*.qsqldatabase.eventNotificationIBase
+  - outcome: skipped
+    reason: Database event notifications are outside the binding contract.
+    match: No\ database\ drivers\ of\ type\ QPSQL\ are\ available\ in\ this\ Qt\ configuration
+    tests:
+      qt:
+        - qt.*.qsqldatabase.eventNotificationPSQL
+  - outcome: skipped
+    reason: Database event notifications are outside the binding contract.
+    match: No\ database\ drivers\ of\ type\ QSQLITE\ are\ available\ in\ this\ Qt\ configuration
+    tests:
+      qt:
+        - qt.*.qsqldatabase.eventNotificationSQLite
+  - outcome: skipped
+    reason: YDB table paths are outside Qt's whitespace-delimited SQL identifier scenario.
+    match: DBMS\ does\ not\ support\ whitespaces\ in\ identifiers
+    tests:
+      qt:
+        - qt.*.qsqldatabase.whitespaceInIdentifiers
+  - outcome: skipped
+    reason: YDB table paths are outside Qt's whitespace-delimited SQL identifier scenario.
+    match: White\ space\ test\ irrelevant\ for\ driver
+    tests:
+      qt:
+        - qt.*.qsqlrelationaltablemodel.whiteSpaceInIdentifiers
+  - outcome: skipped
+    reason: YDB table paths are outside Qt's whitespace-delimited SQL identifier scenario.
+    match: DBMS\ doesn't\ support\ whitespaces\ in\ identifiers
+    tests:
+      qt:
+        - qt.*.qsqltablemodel.whitespaceInIdentifiers
+  - outcome: skipped
+    reason: Requires Qt's SQLite plugin and SQLite-specific SQL rather than QODBC.
+    match: No\ database\ drivers\ of\ type\ QSQLITE\ are\ available\ in\ this\ Qt\ configuration
+    tests:
+      qt:
+        - qt.*.qsqlquery.{sqlite_finish,sqliteVirtualTable,QTBUG_21884,QTBUG_23895,sqlite_constraint}
+  - outcome: skipped
+    reason: Stored procedures and output parameters are optional ODBC features outside the binding contract.
+    match: Don't\ know\ how\ to\ create\ a\ stored\ procedure\ for\ this\ database\ server,\ please\ fix\ this\ test
+    tests:
+      qt:
+        - qt.*.qsqlquery.outValues
+  - outcome: skipped
+    reason: Generated-key retrieval is outside the binding contract.
+    match: Database\ doesn't\ support\ lastInsertId
+    tests:
+      qt:
+        - qt.*.qsqlquery.lastInsertId
+  - outcome: skipped
+    reason: Upstream permanently disables this query-level experiment; qsqldatabase.transaction exercises the required transaction contract.
+    match: only\ tested\ manually\ by\ trained\ staff
+    tests:
+      qt:
+        - qt.*.qsqlquery.transaction
+  - outcome: skipped
+    reason: Requires Qt's PostgreSQL plugin and PostgreSQL schema semantics rather than QODBC.
+    match: Postgresql\ specific\ test
+    tests:
+      qt:
+        - qt.*.qsqlrelationaltablemodel.psqlSchemaTest
+  - outcome: skipped
+    reason: Requires Qt's PostgreSQL plugin and PostgreSQL schema semantics rather than QODBC.
+    match: No\ database\ drivers\ of\ type\ QPSQL\ are\ available\ in\ this\ Qt\ configuration
+    tests:
+      qt:
+        - qt.*.qsqltablemodel.tablesAndSchemas
+  - outcome: skipped
+    reason: This case expects cursor-library TEXT reads to return SQL_NO_DATA and false; unixODBC returns the text instead.
+    match: Fails with unixODBC
+    tests:
+      php-odbc: ['php-odbc.*.ext%2Fodbc%2Ftests%2Fbug44618.phpt']
+  - outcome: skipped
+    reason: This upstream model test explicitly uses SQLite, outside the QODBC contract.
+    match: "Exercises Qt's hardcoded SQLite in-memory model"
+    tests:
+      qt: [qt.*.qsqltablemodel.modelInAnotherThread]
+  - outcome: skipped
+    reason: These cases require Latin1 literals or emulated-prepare parameter errors; PDO_ODBC uses native prepares against UTF-8 YDB.
+    match: '(?m)^(?:not for pdo_odbc|not relevant for odbc driver)$'
+    tests:
+      php-pdo: ['php-pdo.*.ext%2Fpdo%2Ftests%2F{bug_36798,bug_43130}.phpt']
+  - outcome: skipped
+    reason: PDO_ODBC has no emulated-prepare or SQL-literal escaping API.
+    match: "(?m)^(?:driver cannot emulate prepared statements|odbc driver doesn't have escape API, use prepared statements)$"
+    tests:
+      php-pdo: ['php-pdo.*.ext%2Fpdo%2Ftests%2F{debug_emulated_prepares,pdo_033}.phpt']
+  - outcome: skipped
+    reason: The credential-in-PDO-DSN scenario selects other PDO backends explicitly.
+    match: '(?m)^not supported$'
+    tests:
+      php-pdo: ['php-pdo.*.ext%2Fpdo%2Ftests%2Fpdo_dsn_containing_credentials.phpt']
+
+  - outcome: upstream_failure
+    reason: R odbc rejects NA row limits before calling ODBC.
+    match: missing value where TRUE/FALSE needed
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/R/dbi-result.R
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.fetch_na_rows
+  - outcome: upstream_failure
+    reason: R odbc omits the DBI warning when fetching a statement with no result columns.
+    match: did not throw the expected warning
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/R/dbi-result.R
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.{fetch_no_return_value,row_count_statement,rows_affected_statement}
+  - outcome: upstream_failure
+    reason: R odbc warns when clearing intentionally unread rows in dbGetQuery.
+    match: Pending rows
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/R/dbi-result.R
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.{get_query_n_zero_rows,get_query_n_incomplete}
+  - outcome: upstream_failure
+    reason: R odbc converts factor columns without the required DBI warning.
+    match: did not throw the expected warning
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/R/dbi-table.R
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.append_roundtrip_factor
+  - outcome: upstream_failure
+    reason: R odbc treats difftime minutes as seconds.
+    match: (?s)actual\[1, \]\s+00:00:01.*expected\[1, \]\s+00:01:00
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/src/odbc_result.cpp
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.{append_roundtrip_time,roundtrip_time}
+  - outcome: upstream_failure
+    reason: R odbc warns instead of rejecting unknown field.types names.
+    match: Some columns in `field.types` not in the input
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/R/dbi-table.R
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.write_table_error
+  - outcome: upstream_failure
+    reason: R odbc ignores fail_if_missing=FALSE when generating DROP TABLE.
+    match: (?s)fail_if_missing = FALSE.*Cannot find table .*because it does not exist
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/R/dbi-table.R
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.remove_table_missing_succeed
+  - outcome: upstream_failure
+    reason: DBI identifier unquoting loses the named Id component used by dbListObjects; an empty catalog hides this
+      defect.
+    match: '(?s)names\(actual\[\[1\]\]@name\).*names\(expected\[\[1\]\]@name\)|Reason: No schemas available'
+    reference: https://dbi.r-dbi.org/reference/dbUnquoteIdentifier.html
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.list_objects_features
+  - outcome: upstream_failure
+    reason: R odbc returns an empty field list instead of the required DBI error for a missing table.
+    match: dbListFields\(con, name\).*did not throw the expected error
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/R/dbi-connection.R
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.list_fields_wrong_table
+  - outcome: upstream_failure
+    reason: R odbc accepts an empty parameter list without calling ODBC.
+    match: dbBind\(res, list\(\)\).*did not throw the expected error
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/R/dbi-result.R
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.bind_empty
+  - outcome: upstream_failure
+    reason: R odbc reports completion and affected rows before parameters have been bound.
+    match: (?s)dbHasCompleted\(res\) is not FALSE|dbGetRowsAffected\(res\).*NA_integer_
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/src/result.cpp
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.{bind_return_value,bind_return_value_statement}
+  - outcome: upstream_failure
+    reason: R odbc does not reject unequal parameter lengths or names on positional parameters.
+    match: dbBind\(res, bind_values_patched\).*did not throw the expected error
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/R/dbi-result.R
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.{bind_multi_row_unequal_length,bind_unnamed_param_named_placeholders}
+  - outcome: upstream_failure
+    reason: R odbc rejects zero-length binding while parsing batch_rows, before calling ODBC.
+    match: (?s)`batch_rows` is not a valid size:.*Must be a positive integer
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/R/utils.R
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.bind_multi_row_zero_length
+  - outcome: upstream_failure
+    reason: R odbc binds factor codes rather than labels and omits the factor warning.
+    match: (?s)did not throw the expected warning|actual\[1, \].*2\.5.*expected\[1, \].*1\.5
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/src/odbc_result.cpp
+    reproducer: repros/r-bind-types.R
+    tests:
+      r:
+      - r.*.bind_factor
+  - outcome: upstream_failure
+    reason: R odbc loses integer Date classes or difftime units, and timestamp binding does not match its own quoted
+      timestamp literal.
+    match: (?s)actual\[1, \].*2\.5.*expected\[1, \].*1\.5
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/src/odbc_result.cpp
+    reproducer: repros/r-bind-types.R
+    tests:
+      r:
+      - r.*.{bind_date_integer,bind_timestamp,bind_time_hours,bind_time_minutes_integer}
+  - outcome: upstream_failure
+    reason: R odbc treats POSIXlt lists as raw-vector lists and fails before calling ODBC.
+    match: RAW\(\) can only be applied to a 'raw', not a 'double'
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/src/odbc_result.cpp
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.bind_timestamp_lt
+  - outcome: upstream_failure
+    reason: R odbc calls SQLRowCount after SQLMoreResults has left the statement unexecuted.
+    match: Function sequence error
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/src/nanodbc/nanodbc.cpp
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.rows_affected_query
+  - outcome: upstream_failure
+    reason: R odbc 1.4.2 does not reexport the DBI APIs checked by DBItest 1.8.0.
+    match: Id, dbAppendTableArrow, dbBindArrow, dbCanConnect
+    reference: https://github.com/r-dbi/odbc/blob/v1.4.2/NAMESPACE
+    reproducer: repros/r-contract.R
+    tests:
+      r:
+      - r.*.reexport
+  - outcome: upstream_failure
+    reason: Qt QODBC returns an invalid QVariant for a NULL string instead of a typed NULL.
+    match: NULL relation reported with invalid QVariant
+    reference: https://github.com/qt/qtbase/blob/v6.4.2/src/plugins/sqldrivers/odbc/qsql_odbc.cpp
+    reproducer: repros/qt-null.cpp
+    tests:
+      qt:
+      - qt.*.qsqlrelationaltablemodel.data
+  - outcome: upstream_failure
+    reason: PDO_ODBC rereads an exhausted SQLGetData stream for repeated FETCH_LAZY accesses instead of caching the
+      value.
+    match: (?s)Null coalesce:.*string\(7\) "default".*Read:.*NULL
+    reference: https://github.com/php/php-src/blob/php-8.3.6/ext/pdo_odbc/odbc_stmt.c
+    reproducer: repros/pdo-lazy.php
+    tests:
+      php-pdo:
+      - php-pdo.*.ext%2Fpdo%2Ftests%2Fpdo_035.phpt
+  - outcome: upstream_failure
+    reason: LuaSQL reads SQL_C_SLONG into SQLLEN with uninitialized upper bytes and leaves luaL_Buffer stack slots
+      on NULL reads; outcomes are intermittent.
+    match: (?s)wrong value \(-?\d{10,} instead of (?:0|1|10)\).*in function \'(?:fetch2|fetch_new_table|fetch_many|unicode_values|rollback|extensions_test|check_close)\'|wrong
+      value \(c instead of b\).*in function \'fetch2\'|received signal SIG(?:SEGV|ABRT)(?!.*(?:libydb-odbc|NYdb::NOdbc|/odbc/src/))(?:.*\b(?:cur_fetch|lua|free)\b|.*(?:\n\#[0-4]\s+0x[0-9a-f]+ in \?\? \(\)){5}\n\#5\s+0x[0-9a-f]+ in lua_pcallk \(\))
+    reference: https://github.com/lunarmodules/luasql/pull/219
+    reproducer: repros/lua-fetch.lua
+    tests:
+      lua:
+      - lua.*.{fetch%20two%20values,fetch%20new%20table,fetch%20many,unicode%20values,rollback,extensions,close%20objects}
+    allow_pass: true
+  - outcome: unsupported
+    reason: R generic dbDataType emits BIT, DOUBLE PRECISION and bounded VARCHAR/VARBINARY instead of the native types
+      advertised by SQLGetTypeInfo. YDB has no such type aliases or length parameters.
+    match: Unknown simple type 'BIT'|no viable alternative at input 'PRECISION'|mismatched input '255'|Cannot find
+      table .*because it does not exist
+    tests:
+      r:
+      - r.*.{data_type_create_table,append_table_new,roundtrip_field_types}
+consumers:
+  - id: package-contract
+    display_name: Debian package contract
+    kind: package
+    language: shell
+    tier: smoke
+    runtime_image: ubuntu:24.04@sha256:019e8eb29a85e74d64925745884f2ec79aa27e3feab36353d24656f4d6b89467
+    runtime_version: [dpkg-query, -W, '-f=${Version}', base-files]
+    runner: package-contract
+    source: system
+    expected:
+      required: [package.clean_install, package.upgrade, package.remove, package.replacement]
+  - id: isql
+    display_name: unixODBC isql
+    kind: smoke
+    language: SQL
+    tier: smoke
+    runtime_image: ubuntu:24.04@sha256:019e8eb29a85e74d64925745884f2ec79aa27e3feab36353d24656f4d6b89467
+    runtime_version: [odbcinst, -j]
+    source: system
+    modes: [dsn]
+    tests:
+      - id: isql.select_scalar
+        name: isql executes a scalar query
+        command: [isql, -b, -v, '{dsn}']
+        stdin: "SELECT 42 AS value;\n"
+        output_regex: '(^|[^0-9])42([^0-9]|$)'
+    expected:
+      required: [isql.select_scalar]
+  - id: qt
+    display_name: Qt 6.4 QODBC upstream SQL tests
+    kind: framework
+    language: C++
+    tier: core
+    runtime_image: ubuntu:24.04@sha256:019e8eb29a85e74d64925745884f2ec79aa27e3feab36353d24656f4d6b89467
+    runtime_version: [qmake6, -query, QT_VERSION]
+    source:
+      kind: archive
+      url: https://codeload.github.com/qt/qtbase/tar.gz/e3e40c44d3f998a433a6a1080297c5f28e9a768f
+      revision: e3e40c44d3f998a433a6a1080297c5f28e9a768f
+      sha256: 31968efe5280ca254b66a60fe2d717e6bc3367e1bd7ff404b256c2a27eb003ba
+      license: GPL-3.0-only WITH Qt-GPL-exception-1.0
+      ci_only: true
+    modes: [dsn, connection_string]
+    expected:
+      discovered: true
+      required:
+        - qt.*.*.*
+  - id: php-odbc
+    display_name: PHP ext/odbc tests
+    kind: framework
+    language: PHP
+    tier: core
+    dockerfile: bindings/Dockerfile
+    runtime_image: ubuntu:24.04@sha256:019e8eb29a85e74d64925745884f2ec79aa27e3feab36353d24656f4d6b89467
+    runtime_version: ["php", "--version"]
+    source:
+      kind: "archive"
+      url: "https://codeload.github.com/php/php-src/tar.gz/refs/tags/php-8.3.6"
+      revision: "php-8.3.6"
+      sha256: "af9ca6ea711391eaf74793beeebeb66e8bf7756297d1bc97a293166282a0ba77"
+      license: "PHP-3.01"
+      ci_only: true
+    modes: [dsn, connection_string]
+    expected:
+      discovered: true
+      required: [php-odbc.*]
+  - id: php-pdo
+    display_name: PHP PDO_ODBC tests
+    kind: framework
+    language: PHP
+    tier: core
+    dockerfile: bindings/Dockerfile
+    runtime_image: ubuntu:24.04@sha256:019e8eb29a85e74d64925745884f2ec79aa27e3feab36353d24656f4d6b89467
+    runtime_version: ["php", "--version"]
+    source:
+      kind: "archive"
+      url: "https://codeload.github.com/php/php-src/tar.gz/refs/tags/php-8.3.6"
+      revision: "php-8.3.6"
+      sha256: "af9ca6ea711391eaf74793beeebeb66e8bf7756297d1bc97a293166282a0ba77"
+      license: "PHP-3.01"
+      ci_only: true
+    modes: [dsn, connection_string]
+    expected:
+      discovered: true
+      required: [php-pdo.*]
+  - id: ruby
+    display_name: Ruby ANSI and UTF-8 ODBC tests
+    kind: framework
+    language: Ruby
+    tier: core
+    dockerfile: bindings/Dockerfile
+    runtime_image: ubuntu:24.04@sha256:019e8eb29a85e74d64925745884f2ec79aa27e3feab36353d24656f4d6b89467
+    runtime_version: ["ruby", "--version"]
+    source:
+      kind: "archive"
+      url: "https://rubygems.org/downloads/ruby-odbc-0.999993.gem"
+      revision: "0.999993"
+      sha256: "ebf2997bd1ac6e06c30248c0f055c2ec4e93b6885bf8610968363215525b649c"
+      license: "GPL-2.0-or-later OR Ruby"
+      ci_only: true
+    modes: [dsn, connection_string]
+    expected:
+      discovered: true
+      required: [ruby.*]
+  - id: lua
+    display_name: LuaSQL ODBC tests
+    kind: framework
+    language: Lua
+    tier: core
+    dockerfile: bindings/Dockerfile
+    runtime_image: ubuntu:24.04@sha256:019e8eb29a85e74d64925745884f2ec79aa27e3feab36353d24656f4d6b89467
+    runtime_version: ["lua5.4", "-v"]
+    source:
+      kind: "archive"
+      url: "https://codeload.github.com/lunarmodules/luasql/tar.gz/491fea76b9d9ee613fcd7de6b8a1c902e3668d11"
+      revision: "491fea76b9d9ee613fcd7de6b8a1c902e3668d11"
+      sha256: "f777c75dec5effeb51c8206fc87c88d6a9c6eca59da148777b2815e825f14b27"
+      license: "MIT"
+      ci_only: true
+    modes: [dsn, connection_string]
+    expected:
+      discovered: true
+      required: [lua.*]
+  - id: r
+    display_name: R odbc and DBItest
+    kind: framework
+    language: R
+    tier: core
+    dockerfile: bindings/Dockerfile
+    runtime_image: ubuntu:24.04@sha256:019e8eb29a85e74d64925745884f2ec79aa27e3feab36353d24656f4d6b89467
+    runtime_version: ["R", "--version"]
+    source:
+      kind: "archive"
+      url: "https://codeload.github.com/r-dbi/odbc/tar.gz/refs/tags/v1.4.2"
+      revision: "v1.4.2"
+      sha256: "333a6b91180304adb56fd947449abf9f3c8c9b1998457c61c8e665630d4d19d4"
+      license: "MIT"
+      ci_only: true
+    modes: [dsn, connection_string]
+    expected:
+      discovered: true
+      required: [r.*]
