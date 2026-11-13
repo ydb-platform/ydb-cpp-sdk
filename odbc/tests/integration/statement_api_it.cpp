@@ -1254,6 +1254,7 @@ TEST(StatementApi, ParameterArrays) {
     EXPECT_EQ(statuses[1], SQL_PARAM_UNUSED);
     EXPECT_EQ(statuses[2], SQL_PARAM_SUCCESS);
     SQLUINTEGER arraySelects = 0;
+    ExpectInfo<SQLUINTEGER>(dbc, SQL_PARAM_ARRAY_ROW_COUNTS, SQL_PARC_NO_BATCH);
     CHECK_ODBC_OK(SQLGetInfo(dbc, SQL_PARAM_ARRAY_SELECTS, &arraySelects, 0, nullptr), dbc, SQL_HANDLE_DBC);
     EXPECT_EQ(arraySelects, SQL_PAS_BATCH);
     for (double expected : {1.5, 2.5}) {
@@ -1861,6 +1862,21 @@ TEST(StatementApi, CoreBoundTypeConversions) {
     EXPECT_NEAR(fetchedDecimal, decimal, 1e-9);
     EXPECT_STREQ(fetchedDecimalText, "123.456000000");
 
+    ExpectInfo<SQLUINTEGER>(dbc, SQL_CURSOR_SENSITIVITY, SQL_INSENSITIVE);
+    SQLHSTMT writer;
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &writer), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLExecDirect(writer, (SQLCHAR*)
+        "UPDATE test_bound_types SET dec = CAST(999 AS Decimal(22, 9)) WHERE id = 1", SQL_NTS),
+        writer, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecDirect(writer, (SQLCHAR*)"SELECT dec FROM test_bound_types WHERE id = 1", SQL_NTS),
+        writer, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(writer), SQL_SUCCESS);
+    SQLDOUBLE updatedDecimal = 0;
+    CHECK_ODBC_OK(SQLGetData(writer, 1, SQL_C_DOUBLE, &updatedDecimal, sizeof(updatedDecimal), nullptr),
+        writer, SQL_HANDLE_STMT);
+    EXPECT_EQ(updatedDecimal, 999);
+    SQLFreeHandle(SQL_HANDLE_STMT, writer);
+
     ASSERT_EQ(SQLFetchScroll(stmt, SQL_FETCH_FIRST, 0), SQL_SUCCESS);
     std::memset(fetchedBytes, 0, sizeof(fetchedBytes));
     fetchedDecimal = 0;
@@ -1881,6 +1897,8 @@ TEST(StatementApi, CursorAttributesAndCapabilities) {
     SQLHSTMT stmt;
     AllocEnvAndConnect(&env, &dbc);
     ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    ExpectInfo<SQLUINTEGER>(dbc, SQL_FORWARD_ONLY_CURSOR_ATTRIBUTES1, SQL_CA1_NEXT);
+    ExpectInfo<SQLUINTEGER>(dbc, SQL_FORWARD_ONLY_CURSOR_ATTRIBUTES2, SQL_CA2_READ_ONLY_CONCURRENCY);
 
     SQLULEN value = 0;
     ASSERT_EQ(SQLGetStmtAttr(stmt, SQL_ATTR_CURSOR_TYPE, &value, 0, nullptr), SQL_SUCCESS);
@@ -1938,7 +1956,7 @@ TEST(StatementApi, CursorAttributesAndCapabilities) {
     EXPECT_EQ(info & SQL_SCCO_READ_ONLY, SQL_SCCO_READ_ONLY);
     CHECK_ODBC_OK(SQLGetInfo(dbc, SQL_STATIC_CURSOR_ATTRIBUTES2, &info, 0, nullptr),
                   dbc, SQL_HANDLE_DBC);
-    EXPECT_EQ(info & SQL_CA2_READ_ONLY_CONCURRENCY, SQL_CA2_READ_ONLY_CONCURRENCY);
+    EXPECT_EQ(info, SQL_CA2_READ_ONLY_CONCURRENCY | SQL_CA2_MAX_ROWS_SELECT | SQL_CA2_MAX_ROWS_CATALOG);
 
     CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT 1", SQL_NTS),
                   stmt, SQL_HANDLE_STMT);
@@ -2100,6 +2118,9 @@ TEST(StatementApi, StaticCursorScrollsRowsets) {
     SQLHSTMT stmt;
     AllocEnvAndConnect(&env, &dbc);
     ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    ExpectInfo<SQLUINTEGER>(dbc, SQL_FETCH_DIRECTION,
+        SQL_FD_FETCH_NEXT | SQL_FD_FETCH_FIRST | SQL_FD_FETCH_LAST | SQL_FD_FETCH_PRIOR
+        | SQL_FD_FETCH_ABSOLUTE | SQL_FD_FETCH_RELATIVE);
 
     CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_CURSOR_TYPE,
                                 (SQLPOINTER)SQL_CURSOR_STATIC, 0),
@@ -2248,6 +2269,24 @@ TEST(StatementApi, StaticCursorHonorsMaxRows) {
     EXPECT_EQ(fetched, 2);
     EXPECT_EQ(values[0], 4);
     EXPECT_EQ(values[1], 5);
+
+    CHECK_ODBC_OK(SQLCloseCursor(stmt), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLFreeStmt(stmt, SQL_UNBIND), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_MAX_ROWS, (SQLPOINTER)(uintptr_t)3, 0), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLTables(stmt, (SQLCHAR*)"", 0, (SQLCHAR*)"", 0, (SQLCHAR*)"", 0,
+        (SQLCHAR*)SQL_ALL_TABLE_TYPES, SQL_NTS), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    EXPECT_EQ(fetched, 3);
+    EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
+    CHECK_ODBC_OK(SQLCloseCursor(stmt), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLSetStmtAttr(stmt, SQL_ATTR_MAX_ROWS, nullptr, 0), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLTables(stmt, (SQLCHAR*)"", 0, (SQLCHAR*)"", 0, (SQLCHAR*)"", 0,
+        (SQLCHAR*)SQL_ALL_TABLE_TYPES, SQL_NTS), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    EXPECT_EQ(fetched, 3);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    EXPECT_EQ(fetched, 2);
+    EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
 
     SQLFreeHandle(SQL_HANDLE_STMT, stmt);
     SQLDisconnect(dbc);

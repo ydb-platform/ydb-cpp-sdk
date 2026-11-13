@@ -562,29 +562,37 @@ TEST(CoreApi, SQLGetFunctionsCapabilities) {
     std::array<SQLUSMALLINT, SQL_API_ODBC3_ALL_FUNCTIONS_SIZE> odbc3{};
     CHECK_ODBC_OK(SQLGetFunctions(dbc, SQL_API_ALL_FUNCTIONS, legacy.data()), dbc, SQL_HANDLE_DBC);
     CHECK_ODBC_OK(SQLGetFunctions(dbc, SQL_API_ODBC3_ALL_FUNCTIONS, odbc3.data()), dbc, SQL_HANDLE_DBC);
-    for (const SQLUSMALLINT id : {
-            SQL_API_SQLGETDATA, SQL_API_SQLMORERESULTS, SQL_API_SQLNATIVESQL,
-            SQL_API_SQLBINDPARAMETER, SQL_API_SQLGETDESCFIELD, SQL_API_SQLCOPYDESC,
-            SQL_API_SQLFETCHSCROLL, SQL_API_SQLBULKOPERATIONS, SQL_API_SQLBROWSECONNECT,
-            SQL_API_SQLPROCEDURES, SQL_API_SQLPROCEDURECOLUMNS, SQL_API_SQLTABLEPRIVILEGES,
-            SQL_API_SQLSETPOS}) {
+    for (const SQLUSMALLINT id : {SQL_API_SQLALLOCSTMT, SQL_API_SQLBINDCOL, SQL_API_SQLCANCEL,
+            SQL_API_SQLCOLATTRIBUTE, SQL_API_SQLCONNECT, SQL_API_SQLDESCRIBECOL, SQL_API_SQLDISCONNECT,
+            SQL_API_SQLEXECDIRECT, SQL_API_SQLEXECUTE, SQL_API_SQLFETCH, SQL_API_SQLFREESTMT,
+            SQL_API_SQLGETCURSORNAME, SQL_API_SQLNUMRESULTCOLS, SQL_API_SQLPREPARE, SQL_API_SQLROWCOUNT,
+            SQL_API_SQLSETCURSORNAME, SQL_API_SQLCOLUMNS, SQL_API_SQLDRIVERCONNECT, SQL_API_SQLGETDATA,
+            SQL_API_SQLGETFUNCTIONS, SQL_API_SQLGETINFO, SQL_API_SQLGETTYPEINFO, SQL_API_SQLPARAMDATA,
+            SQL_API_SQLPUTDATA, SQL_API_SQLSPECIALCOLUMNS, SQL_API_SQLSTATISTICS, SQL_API_SQLTABLES,
+            SQL_API_SQLCOLUMNPRIVILEGES, SQL_API_SQLDESCRIBEPARAM, SQL_API_SQLEXTENDEDFETCH,
+            SQL_API_SQLFOREIGNKEYS, SQL_API_SQLMORERESULTS, SQL_API_SQLNATIVESQL, SQL_API_SQLNUMPARAMS,
+            SQL_API_SQLPRIMARYKEYS, SQL_API_SQLBINDPARAMETER, SQL_API_SQLALLOCHANDLE, SQL_API_SQLCLOSECURSOR,
+            SQL_API_SQLCOPYDESC, SQL_API_SQLENDTRAN, SQL_API_SQLFREEHANDLE, SQL_API_SQLGETCONNECTATTR,
+            SQL_API_SQLGETDESCFIELD, SQL_API_SQLGETDESCREC, SQL_API_SQLGETDIAGFIELD, SQL_API_SQLGETDIAGREC,
+            SQL_API_SQLGETENVATTR, SQL_API_SQLGETSTMTATTR, SQL_API_SQLSETCONNECTATTR, SQL_API_SQLSETDESCFIELD,
+            SQL_API_SQLSETDESCREC, SQL_API_SQLSETENVATTR, SQL_API_SQLSETSTMTATTR, SQL_API_SQLFETCHSCROLL}) {
         SCOPED_TRACE(id);
         SQLUSMALLINT supported = SQL_FALSE;
         CHECK_ODBC_OK(SQLGetFunctions(dbc, id, &supported), dbc, SQL_HANDLE_DBC);
-        EXPECT_EQ(supported, SQL_FUNC_EXISTS(odbc3.data(), id) ? SQL_TRUE : SQL_FALSE);
+        EXPECT_EQ(supported, SQL_TRUE);
+        EXPECT_TRUE(SQL_FUNC_EXISTS(odbc3.data(), id));
         if (id < legacy.size()) {
             EXPECT_EQ(supported, legacy[id]);
         }
     }
-    for (const SQLUSMALLINT id : {SQL_API_SQLGETDATA, SQL_API_SQLMORERESULTS,
-            SQL_API_SQLNATIVESQL, SQL_API_SQLBINDPARAMETER, SQL_API_SQLGETDESCFIELD,
-            SQL_API_SQLCOPYDESC, SQL_API_SQLFETCHSCROLL}) {
-        EXPECT_TRUE(SQL_FUNC_EXISTS(odbc3.data(), id)) << id;
-    }
     for (const SQLUSMALLINT id : {SQL_API_SQLBULKOPERATIONS, SQL_API_SQLBROWSECONNECT,
             SQL_API_SQLPROCEDURES, SQL_API_SQLPROCEDURECOLUMNS, SQL_API_SQLTABLEPRIVILEGES,
             SQL_API_SQLSETPOS}) {
+        SQLUSMALLINT supported = SQL_TRUE;
+        CHECK_ODBC_OK(SQLGetFunctions(dbc, id, &supported), dbc, SQL_HANDLE_DBC);
+        EXPECT_EQ(supported, SQL_FALSE) << id;
         EXPECT_EQ(legacy[id], SQL_FALSE) << id;
+        EXPECT_FALSE(SQL_FUNC_EXISTS(odbc3.data(), id)) << id;
     }
 
     CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT 1", SQL_NTS), stmt, SQL_HANDLE_STMT);
@@ -600,6 +608,33 @@ TEST(CoreApi, SQLGetFunctionsCapabilities) {
     SQLFreeHandle(SQL_HANDLE_ENV, env);
 }
 
+TEST(CoreApi, SQLGroupByCapabilities) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    ExpectInfo<SQLUSMALLINT>(dbc, SQL_GROUP_BY, SQL_GB_GROUP_BY_CONTAINS_SELECT);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)
+        "SELECT category, COUNT(*) AS count FROM AS_TABLE(AsList("
+        "AsStruct(1 AS category, 10 AS bucket), AsStruct(1 AS category, 10 AS bucket), "
+        "AsStruct(2 AS category, 20 AS bucket))) GROUP BY category, bucket ORDER BY category",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    for (SQLINTEGER expected : {1, 2}) {
+        ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+        SQLINTEGER category = 0, count = 0;
+        CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_LONG, &category, sizeof(category), nullptr), stmt, SQL_HANDLE_STMT);
+        CHECK_ODBC_OK(SQLGetData(stmt, 2, SQL_C_LONG, &count, sizeof(count), nullptr), stmt, SQL_HANDLE_STMT);
+        EXPECT_EQ(category, expected);
+        EXPECT_EQ(count, expected == 1 ? 2 : 1);
+    }
+    EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
 TEST(CoreApi, SQLNullCollation) {
     SQLHENV env;
     SQLHDBC dbc;
@@ -609,10 +644,13 @@ TEST(CoreApi, SQLNullCollation) {
     SQLUSMALLINT collation = 0;
     CHECK_ODBC_OK(SQLGetInfo(dbc, SQL_NULL_COLLATION, &collation, 0, nullptr), dbc, SQL_HANDLE_DBC);
     EXPECT_EQ(collation, SQL_NC_LOW);
+    ExpectInfo<SQLUSMALLINT>(dbc, SQL_CONCAT_NULL_BEHAVIOR, SQL_CB_NULL);
     for (const std::string direction : {"ASC", "DESC"}) {
         SCOPED_TRACE(direction);
         const std::string query =
-            "SELECT value FROM AS_TABLE(AsList(AsStruct(CAST(NULL AS Int32) AS value), "
+            "SELECT value, 'prefix'u || CAST(NULL AS Utf8) AS null_right, "
+            "CAST(NULL AS Utf8) || 'suffix'u AS null_left "
+            "FROM AS_TABLE(AsList(AsStruct(CAST(NULL AS Int32) AS value), "
             "AsStruct(CAST(1 AS Int32) AS value))) ORDER BY value " + direction;
         CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)query.c_str(), SQL_NTS), stmt, SQL_HANDLE_STMT);
         for (int row = 0; row < 2; ++row) {
@@ -625,6 +663,11 @@ TEST(CoreApi, SQLNullCollation) {
             } else {
                 EXPECT_EQ(value, 1);
                 EXPECT_EQ(length, static_cast<SQLLEN>(sizeof(value)));
+            }
+            for (SQLUSMALLINT column : {2, 3}) {
+                char text[8] = {};
+                CHECK_ODBC_OK(SQLGetData(stmt, column, SQL_C_CHAR, text, sizeof(text), &length), stmt, SQL_HANDLE_STMT);
+                EXPECT_EQ(length, SQL_NULL_DATA);
             }
         }
         EXPECT_EQ(SQLFetch(stmt), SQL_NO_DATA);
@@ -645,12 +688,19 @@ TEST(CoreApi, SQLGetDataCapabilities) {
     SQLUINTEGER extensions = 0;
     CHECK_ODBC_OK(SQLGetInfo(dbc, SQL_GETDATA_EXTENSIONS, &extensions, 0, nullptr), dbc, SQL_HANDLE_DBC);
     EXPECT_EQ(extensions, SQL_GD_ANY_COLUMN | SQL_GD_ANY_ORDER | SQL_GD_BOUND);
-    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT 11, 22, 33", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    ExpectInfo<SQLUSMALLINT>(dbc, SQL_IDENTIFIER_CASE, SQL_IC_SENSITIVE);
+    ExpectInfo<SQLUSMALLINT>(dbc, SQL_QUOTED_IDENTIFIER_CASE, SQL_IC_SENSITIVE);
+    char quote[2] = {};
+    CHECK_ODBC_OK(SQLGetInfo(dbc, SQL_IDENTIFIER_QUOTE_CHAR, quote, sizeof(quote), nullptr), dbc, SQL_HANDLE_DBC);
+    EXPECT_STREQ(quote, "`");
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)
+        "SELECT value, VALUE, `Quoted`, `QUOTED` FROM "
+        "(SELECT 11 AS value, 22 AS VALUE, 33 AS `Quoted`, 44 AS `QUOTED`)", SQL_NTS), stmt, SQL_HANDLE_STMT);
     SQLINTEGER bound = 0;
     CHECK_ODBC_OK(SQLBindCol(stmt, 2, SQL_C_LONG, &bound, sizeof(bound), nullptr), stmt, SQL_HANDLE_STMT);
     ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
     EXPECT_EQ(bound, 22);
-    for (const SQLUSMALLINT column : {3, 1, 2, 1}) {
+    for (const SQLUSMALLINT column : {4, 3, 1, 2, 1}) {
         SQLINTEGER value = 0;
         CHECK_ODBC_OK(SQLGetData(stmt, column, SQL_C_LONG, &value, sizeof(value), nullptr),
                       stmt, SQL_HANDLE_STMT);
@@ -724,6 +774,10 @@ TEST(CoreApi, SQLOuterJoinCapabilities) {
     SQLUINTEGER capabilities = 0;
     CHECK_ODBC_OK(SQLGetInfo(dbc, SQL_OJ_CAPABILITIES, &capabilities, 0, nullptr), dbc, SQL_HANDLE_DBC);
     EXPECT_EQ(capabilities, SQL_OJ_LEFT | SQL_OJ_RIGHT | SQL_OJ_FULL);
+    char orderByInSelect[2] = {};
+    CHECK_ODBC_OK(SQLGetInfo(dbc, SQL_ORDER_BY_COLUMNS_IN_SELECT, orderByInSelect,
+        sizeof(orderByInSelect), nullptr), dbc, SQL_HANDLE_DBC);
+    EXPECT_STREQ(orderByInSelect, "N");
     for (const std::string join : {"LEFT", "RIGHT", "FULL"}) {
         SCOPED_TRACE(join);
         const std::string query =
@@ -763,6 +817,7 @@ TEST(CoreApi, SQLSetGetStmtAttrCursorCapabilities) {
     SQLHSTMT stmt;
     AllocEnvAndConnect(&env, &dbc);
     ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    ExpectInfo<SQLUINTEGER>(dbc, SQL_CURSOR_SENSITIVITY, SQL_INSENSITIVE);
 
     for (const SQLUSMALLINT infoType : {SQL_DYNAMIC_CURSOR_ATTRIBUTES1, SQL_DYNAMIC_CURSOR_ATTRIBUTES2,
             SQL_KEYSET_CURSOR_ATTRIBUTES1, SQL_KEYSET_CURSOR_ATTRIBUTES2,

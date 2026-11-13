@@ -111,6 +111,9 @@ TEST(MetadataApi, SQLTablesWithPattern) {
     SQLHSTMT stmt;
     AllocEnvAndConnect(&env, &dbc);
     ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    char escape[2] = {};
+    CHECK_ODBC_OK(SQLGetInfo(dbc, SQL_SEARCH_PATTERN_ESCAPE, escape, sizeof(escape), nullptr), dbc, SQL_HANDLE_DBC);
+    EXPECT_STREQ(escape, "\\");
     SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE IF EXISTS test_metadata_pattern_a", SQL_NTS);
     SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE IF EXISTS test_metadata_pattern_b", SQL_NTS);
     SQLFreeStmt(stmt, SQL_CLOSE);

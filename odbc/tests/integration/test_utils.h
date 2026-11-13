@@ -44,6 +44,13 @@ inline bool SqlStatePrefix(std::string_view diag, std::string_view state) {
     return diag.starts_with(state);
 }
 
+template<class T>
+inline void ExpectInfo(SQLHDBC dbc, SQLUSMALLINT type, T expected) {
+    T actual{};
+    CHECK_ODBC_OK(SQLGetInfo(dbc, type, &actual, 0, nullptr), dbc, SQL_HANDLE_DBC);
+    EXPECT_EQ(actual, expected) << type;
+}
+
 inline void AllocEnv(SQLHENV* env) {
     static bool configured = false;
     if (!configured) {
