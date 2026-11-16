@@ -92,6 +92,7 @@ if (YDB_CPP_SDK_SLO_USE_INSTALLED_SDK)
   add_subdirectory(util)
   target_sources(yutil PRIVATE "${YDB_SDK_SOURCE_DIR}/cmake/tstring_abi.cpp")
   add_subdirectory(tests/slo_workloads)
+  include(cmake/windows.cmake)
 
   return()
 endif()
@@ -125,6 +126,8 @@ endif()
 if (YDB_SDK_TESTS)
   add_subdirectory(tests)
 endif()
+
+include(cmake/windows.cmake)
 
 if (YDB_SDK_INSTALL)
   function(_ydb_sdk_create_package_library PackageProp TargetName ComponentName)

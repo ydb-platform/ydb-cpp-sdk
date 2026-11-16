@@ -90,6 +90,13 @@
       "displayName": "CPM Release (GCC)"
     },
     {
+      "name": "release-windows-mingw",
+      "inherits": ["release-base", "gcc-toolchain"],
+      "displayName": "Windows x64 Release (MinGW-w64)",
+      "binaryDir": "${sourceDir}/build-windows-mingw",
+      "condition": {"type": "equals", "lhs": "${hostSystemName}", "rhs": "Windows"}
+    },
+    {
       "name": "release-test-clang",
       "inherits": ["release-base", "clang-toolchain", "test"],
       "displayName": "CPM Release with all tests and examples (Clang)"
@@ -136,6 +143,10 @@
     }
   ],
   "buildPresets": [
+    {
+      "name": "release-windows-mingw",
+      "configurePreset": "release-windows-mingw"
+    },
     {
       "name": "default",
       "displayName": "Default Build",

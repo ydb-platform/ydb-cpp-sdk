@@ -3,6 +3,10 @@
 
 set(flagPrefixSymbol "-")
 
+if(MINGW)
+  add_compile_definitions(NOMINMAX WIN32_LEAN_AND_MEAN)
+endif()
+
 string(APPEND ${COMMON_C_CXX_FLAGS} "\
   -fexceptions \
   -fno-common \
