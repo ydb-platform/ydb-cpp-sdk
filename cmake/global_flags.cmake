@@ -3,6 +3,21 @@
 
 set(flagPrefixSymbol "-")
 
+if(WIN32)
+  add_compile_definitions(NOMINMAX WIN32_LEAN_AND_MEAN)
+endif()
+
+if(MSVC)
+  add_compile_options(/utf-8 /bigobj $<$<COMPILE_LANGUAGE:CXX>:/Zc:preprocessor>)
+  add_compile_definitions(_CRT_SECURE_NO_WARNINGS _USE_MATH_DEFINES)
+  string(APPEND CMAKE_CXX_FLAGS " /EHsc /Zc:__cplusplus")
+  if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(x86_64|AMD64)$")
+    add_compile_definitions(SSE_ENABLED=1 SSE3_ENABLED=1 SSSE3_ENABLED=1
+      SSE41_ENABLED=1 SSE42_ENABLED=1 POPCNT_ENABLED=1 CX16_ENABLED=1)
+  endif()
+  return()
+endif()
+
 string(APPEND ${COMMON_C_CXX_FLAGS} "\
   -fexceptions \
   -fno-common \

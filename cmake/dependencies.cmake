@@ -36,6 +36,13 @@ set(CMAKE_POLICY_VERSION_MINIMUM 3.5 CACHE STRING
     "Minimum CMake policy version accepted by fetched dependencies")
 include("${CMAKE_CURRENT_LIST_DIR}/CPM.cmake")
 
+# Protobuf otherwise defaults to /MT, unlike CMake, Abseil, and gRPC (/MD).
+set(_ydb_sdk_msvc_static_runtime OFF)
+if(MSVC AND DEFINED CMAKE_MSVC_RUNTIME_LIBRARY AND
+   NOT CMAKE_MSVC_RUNTIME_LIBRARY MATCHES "DLL")
+  set(_ydb_sdk_msvc_static_runtime ON)
+endif()
+
 set(_YDB_SDK_CPM_EXCLUDE_FROM_ALL YES)
 set(_YDB_SDK_CPM_DISABLE_INSTALL YES)
 if(YDB_SDK_INSTALL)
@@ -192,6 +199,7 @@ else()
       "protobuf_BUILD_TESTS OFF"
       "protobuf_BUILD_EXAMPLES OFF"
       "protobuf_BUILD_SHARED_LIBS OFF"
+      "protobuf_MSVC_STATIC_RUNTIME ${_ydb_sdk_msvc_static_runtime}"
       "protobuf_INSTALL ${YDB_SDK_INSTALL}"
       "protobuf_ABSL_PROVIDER package"
       "protobuf_WITH_ZLIB ON"
@@ -219,6 +227,7 @@ else()
     EXCLUDE_FROM_ALL ${_YDB_SDK_CPM_EXCLUDE_FROM_ALL}
     OPTIONS
       "CARES_STATIC ON"
+      "CARES_MSVC_STATIC_RUNTIME ${_ydb_sdk_msvc_static_runtime}"
       "CARES_SHARED OFF"
       "CARES_BUILD_TESTS OFF"
       "CARES_BUILD_TOOLS OFF"
@@ -262,6 +271,7 @@ else()
     OPTIONS
       "gRPC_INSTALL ${YDB_SDK_INSTALL}"
       "gRPC_BUILD_TESTS OFF"
+      "gRPC_MSVC_STATIC_RUNTIME ${_ydb_sdk_msvc_static_runtime}"
       "gRPC_BUILD_CODEGEN ON"
       "gRPC_BUILD_GRPC_CSHARP_PLUGIN OFF"
       "gRPC_BUILD_GRPC_NODE_PLUGIN OFF"

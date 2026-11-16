@@ -7,12 +7,12 @@
 ### Prerequisites
 
 - cmake 3.22+
-- a current C++20 compiler (GCC or Clang)
+- a current C++20 compiler (GCC, Clang, or MSVC)
 - git 2.20+
 - ninja 1.10+
 - ragel
 - yasm
-- OpenSSL
+- OpenSSL (the pinned gRPC does not support OpenSSL 4.x)
 - Iconv
 - IDN
 
@@ -43,6 +43,30 @@ macOS 14:
 xcode-select --install # if the Command Line Tools are not installed yet
 brew install ccache cmake git libidn ninja openssl@3 python ragel yasm
 ```
+
+Windows x64:
+
+Use separate build directories and dependency prefixes for MSVC and MinGW-w64.
+Each prefix must provide OpenSSL 3.x, GNU Libidn (the `idna.h` API), and Iconv
+built with the selected compiler and C runtime. Put Python, Ragel, Yasm, Ninja,
+and the dependency DLL directories on `PATH`.
+
+For MSVC, run from an **x64 Native Tools Command Prompt for VS 2022**:
+
+```bat
+cmake --preset release-windows-msvc -DCMAKE_PREFIX_PATH=C:/deps/msvc
+cmake --build --preset release-windows-msvc --parallel
+```
+
+For MinGW-w64, put its `bin` directory on `PATH` and run from PowerShell:
+
+```powershell
+cmake --preset release-windows-mingw -DCMAKE_PREFIX_PATH=C:/deps/mingw
+cmake --build --preset release-windows-mingw --parallel
+```
+
+MSYS2's current OpenSSL package may be 4.x; use a separate OpenSSL 3.x prefix
+and pass `-DOPENSSL_ROOT_DIR=C:/deps/openssl3` in that case.
 
 ### Clone the ydb-cpp-sdk repository
 

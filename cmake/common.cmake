@@ -3,6 +3,16 @@
 find_package(Python3 REQUIRED)
 
 function(_ydb_sdk_prepare_imported_libc_compat TargetName)
+  if(WIN32)
+    set(_libc_root "${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat")
+    set(_windows_sources memrchr.c explicit_bzero.c stpcpy.c strlcat.c strlcpy.c
+      strcasestr.c strsep.c reallocarray/reallocarray.c src/windows/sys/uio.c)
+    list(TRANSFORM _windows_sources PREPEND "${_libc_root}/")
+    set_property(TARGET ${TargetName} PROPERTY SOURCES "${_windows_sources}")
+    target_include_directories(${TargetName} PUBLIC
+      $<BUILD_INTERFACE:${_libc_root}/include/windows>
+      $<BUILD_INTERFACE:${_libc_root}/queue>)
+  endif()
   if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND
      CMAKE_C_COMPILER_ID STREQUAL "GNU" AND
      CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 14)
@@ -127,7 +137,10 @@ endfunction()
 
 function(add_global_library_for TgtName MainName)
   add_library(${TgtName} STATIC ${ARGN})
-  if(APPLE)
+  if(MSVC)
+    target_link_options(${MainName} INTERFACE
+      "/WHOLEARCHIVE:$<TARGET_FILE:$<INSTALL_INTERFACE:YDB-CPP-SDK::>${TgtName}>")
+  elseif(APPLE)
     target_link_options(${MainName} INTERFACE "SHELL:-Wl,-force_load,$<TARGET_FILE:$<INSTALL_INTERFACE:YDB-CPP-SDK::>${TgtName}>")
   else()
     target_link_options(${MainName} INTERFACE "SHELL:-Wl,--whole-archive $<TARGET_FILE:$<INSTALL_INTERFACE:YDB-CPP-SDK::>${TgtName}> -Wl,--no-whole-archive")
@@ -272,6 +285,10 @@ function(_ydb_sdk_apply_aklomp_base64_simd_file_flags BASE64_SRC_ROOT)
 endfunction()
 
 function(_ydb_sdk_apply_source_compile_opts src opts)
+  if(MSVC)
+    # MSVC exposes SSE4.1 intrinsics without a separate compiler switch.
+    list(REMOVE_ITEM opts -msse4.1)
+  endif()
   if (NOT opts)
     return()
   endif()
