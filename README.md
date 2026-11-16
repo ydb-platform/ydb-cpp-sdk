@@ -12,7 +12,7 @@
 - ninja 1.10+
 - ragel
 - yasm
-- OpenSSL
+- OpenSSL (the pinned gRPC does not support OpenSSL 4.x)
 - Iconv
 - IDN
 
@@ -43,6 +43,21 @@ macOS 14:
 xcode-select --install # if the Command Line Tools are not installed yet
 brew install ccache cmake git libidn ninja openssl@3 python ragel yasm
 ```
+
+Windows x64 (MinGW-w64):
+
+Use dependencies built with the same MinGW-w64 toolchain and C runtime:
+OpenSSL 3.x, GNU Libidn (the `idna.h` API), and Iconv. Put the MinGW `bin`
+directory, Python, Ragel, Yasm, Ninja, and dependency DLL directories on `PATH`.
+Run from PowerShell:
+
+```powershell
+cmake --preset release-windows-mingw -DCMAKE_PREFIX_PATH=C:/deps/mingw
+cmake --build --preset release-windows-mingw --parallel
+```
+
+If your dependency prefix contains OpenSSL 4.x, use a separate OpenSSL 3.x
+prefix and pass `-DOPENSSL_ROOT_DIR=C:/deps/openssl3`.
 
 ### Clone the ydb-cpp-sdk repository
 
