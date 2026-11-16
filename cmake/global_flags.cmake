@@ -5,6 +5,7 @@ set(flagPrefixSymbol "-")
 
 if(MINGW)
   add_compile_definitions(NOMINMAX WIN32_LEAN_AND_MEAN)
+  include("${CMAKE_CURRENT_LIST_DIR}/mingw_compat.cmake")
 endif()
 
 string(APPEND ${COMMON_C_CXX_FLAGS} "\

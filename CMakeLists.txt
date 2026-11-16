@@ -67,6 +67,9 @@ include(cmake/protobuf.cmake)
 if (YDB_CPP_SDK_SLO_USE_INSTALLED_SDK)
   set(YDB_SDK_DEPENDENCIES_HDR_ONLY ON)
   include(cmake/dependencies.cmake)
+  if(MINGW)
+    include_directories(BEFORE "${YDB_SDK_MINGW_COMPAT_DIR}")
+  endif()
   include(cmake/testing.cmake)
 
   find_package(ydb-cpp-sdk REQUIRED COMPONENTS
@@ -98,6 +101,9 @@ if (YDB_CPP_SDK_SLO_USE_INSTALLED_SDK)
 endif()
 
 include(cmake/external_libs.cmake)
+if(MINGW)
+  include_directories(BEFORE "${YDB_SDK_MINGW_COMPAT_DIR}")
+endif()
 
 if (YDB_SDK_TESTS)
   include(cmake/testing.cmake)

@@ -16,3 +16,10 @@ if(TARGET yutil)
   target_compile_definitions(yutil PUBLIC
     ARCADIA_ROOT=${_source_root} ARCADIA_BUILD_ROOT=${_build_root})
 endif()
+
+_ydb_sdk_mingw_remap_sources("${YDB_SDK_SOURCE_DIR}")
+if(TARGET yt-memory)
+  # GCC 16 requires the declaration before shared_range templates use New<T>.
+  target_compile_options(yt-memory PRIVATE
+    -include "${YDB_SDK_SOURCE_DIR}/library/cpp/yt/memory/new.h")
+endif()

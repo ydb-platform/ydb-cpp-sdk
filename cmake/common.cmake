@@ -234,6 +234,10 @@ function(_ydb_sdk_add_library Tgt)
   endif()
   
   add_library(${Tgt} ${libraryMode})
+  if(MINGW)
+    target_include_directories(${Tgt} ${includeMode}
+      $<BUILD_INTERFACE:${YDB_SDK_MINGW_COMPAT_DIR}>)
+  endif()
   target_include_directories(${Tgt} ${includeMode}
     $<BUILD_INTERFACE:${YDB_SDK_SOURCE_DIR}>
     $<BUILD_INTERFACE:${YDB_SDK_BINARY_DIR}>
@@ -282,6 +286,9 @@ function(_ydb_sdk_apply_aklomp_base64_simd_file_flags BASE64_SRC_ROOT)
 endfunction()
 
 function(_ydb_sdk_apply_source_compile_opts src opts)
+  if(MINGW)
+    string(REPLACE "${YDB_SDK_SOURCE_DIR}/util/" "${YDB_SDK_MINGW_COMPAT_DIR}/util/" opts "${opts}")
+  endif()
   if (NOT opts)
     return()
   endif()
