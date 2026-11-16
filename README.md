@@ -56,6 +56,11 @@ cmake --preset release-windows-mingw -DCMAKE_PREFIX_PATH=C:/deps/mingw
 cmake --build --preset release-windows-mingw --parallel
 ```
 
+The MinGW configuration creates compatibility copies under the build directory
+(`mingw-compat/util`); imported files in the checkout are never rewritten.
+CMake stops with an explicit error if an import changes a source pattern that
+the compatibility adaptation expects.
+
 If your dependency prefix contains OpenSSL 4.x, use a separate OpenSSL 3.x
 prefix and pass `-DOPENSSL_ROOT_DIR=C:/deps/openssl3`.
 
