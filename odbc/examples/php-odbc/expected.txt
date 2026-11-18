@@ -1,0 +1,27 @@
+inserted: 1
+inserted: 1
+columns: id, name, note, payload, created, amount
+1: Привет, 世界, note=NULL, payload=0041ff, created=2024-06-15 14:30:20.123456, amount=10
+2: Second, note=6000:07dab2f3384bc1d0fbe479a398e2841ee355d183bff6c7aefbd580b363db6435, payload=706c61696e, created=2024-06-16 01:02:03, amount=20
+updated: 1
+updated missing: 0
+after rollback: Привет, 世界
+transaction attempts: 2
+committed amount: 12
+first row: 1
+reused cursor: 1
+table type: TABLE
+schema: id Int32
+schema: name Utf8
+schema: note Utf8
+schema: payload String
+schema: created Timestamp
+schema: amount Int32
+primary key: id
+result: 10
+result: 20
+invalid SQL: S1000
+connection reused: 42
+deleted: 1
+deleted missing: 0
+remaining: 1

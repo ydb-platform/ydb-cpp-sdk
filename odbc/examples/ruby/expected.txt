@@ -1,0 +1,25 @@
+inserted	1
+inserted	1
+inserted	1
+columns	id	name	note	quantity
+1	Чай	NULL	10
+2	Café	fresh	20
+3	Water	still	30
+matching tables	1
+schema	id	name	note	quantity
+updated	1
+deleted	0
+after rollback	10
+after commit	11
+transaction attempts	2
+after retry	17
+first	1	Чай
+independent reader	3
+rebound	2	Café
+rebound	3	Water
+result columns	name
+result	Чай
+result columns	quantity
+result	21
+deleted existing	1
+remaining	2
