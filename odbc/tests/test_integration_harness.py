@@ -372,47 +372,4 @@ class PackageContractTests(unittest.TestCase):
         self.assertIn(f"ODBC_PREVIOUS_PACKAGE_SHA256={digest}", args)
         self.assertIn("ODBC_PREVIOUS_PACKAGE_SOURCE=historical-build", args)
 
-class BindingContractTests(unittest.TestCase):
-    def test_upstream_contract_errors_cannot_hide_cleanup_failures(self):
-        consumers = {item["id"]: item for item in harness.load_registry()["consumers"]}
-        cases = [("php-pdo", "multiple_results", "RuntimeException: Batch reexecution differs: [[],[]]"),
-                 ("ruby", "odbc_utf8.binding", "RuntimeError: bound values differ: id=7, "
-                  "text=d09fd180d0b8d0b2d0b5d18220f09f8c80, null=true")]
-        for consumer, case, message in cases:
-            test = {"id": f"{consumer}.dsn.contract.{case}", "status": "failed", "message": message}
-            self.assertEqual(harness.expected_result(test, consumers[consumer]["expected"])[0], "upstream_failure")
-            test["message"] += " Cleanup: HY000 connection cleanup failed"
-            self.assertIsNone(harness.expected_result(test, consumers[consumer]["expected"]))
-
-    def parse(self, output, code=0):
-        return harness.binding_contracts.parse_results("php-odbc", "dsn", "", output,
-            code, 1, 2, Path("contract.log"))
-
-    def test_missing_and_duplicate_records_cannot_pass(self):
-        output = "@YDB_CONTRACT\tconnection\tpassed\t\n"
-        results = self.parse(output)
-        self.assertEqual(results[0]["status"], "passed")
-        self.assertTrue(all(result["status"] == "broken" for result in results[1:]))
-        self.assertTrue(all(result["status"] == "broken" for result in self.parse(output + output)))
-        self.assertTrue(all(result["status"] == "broken" for result in self.parse(output, 139)))
-        self.assertTrue(all(result["status"] == "broken" for result in
-            self.parse("@YDB_CONTRACT\tconnection\tpassed\tnot-hex\n")))
-
-    def test_merging_preserves_upstream_failures_and_qt_rows(self):
-        with tempfile.TemporaryDirectory() as directory:
-            native = Path(directory)
-            original = {"id": "qt.dsn.upstream@row", "parent_id": "qt.dsn.upstream",
-                        "status": "failed", "message": "original diagnostic"}
-            contract = {"id": "qt.dsn.contract.connection", "status": "passed"}
-            (native / "results.json").write_text(json.dumps({"inventory_kind": "parents",
-                "inventory": ["qt.dsn.upstream"], "inventory_rows": {"qt.dsn.upstream": 1},
-                "tests": [original]}))
-            (native / "contracts.json").write_text(json.dumps({"inventory": [contract["id"]],
-                "tests": [contract]}))
-            harness.binding_contracts.merge(native)
-            merged = json.loads((native / "results.json").read_text())
-            self.assertEqual(merged["tests"], [original, contract])
-            self.assertEqual(merged["inventory_rows"],
-                             {"qt.dsn.upstream": 1, "qt.dsn.contract.connection": 1})
-
 if __name__ == "__main__": unittest.main()

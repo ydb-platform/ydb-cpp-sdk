@@ -1,59 +1,20 @@
-# YDB ODBC Driver
+# YDB ODBC driver
 
-ODBC driver for YDB.
+Linux uses unixODBC; Ubuntu 24.04 amd64 packages are available as CI artifacts. macOS uses iODBC and a source build matching the client architecture. Windows is not packaged or covered by CI.
 
-## Concurrency
+## Install and build
 
-Different connections and autocommit statements can execute concurrently. Calls
-on one handle are ordered, except cross-thread `SQLCancel`, which requests
-cancellation without waiting for execution. Explicit-transaction statements
-share one session and execute in order; connection reconfiguration, transaction
-completion and disconnect wait for active calls.
+Install an Ubuntu package; it registers the driver but leaves your DSNs unchanged:
 
-Cancellation is local: it discards pending results and stops subsequent query
-attempts without interrupting an RPC already in flight. That RPC may finish or
-reach its configured timeout, and writes may still commit. Execution diagnostics
-are preserved. `SQLCancel` does not abort the shared explicit transaction or
-invalidate its session; session cleanup remains with the SDK.
-`SQLCancel` returning success means the local request was processed.
-
-Applications must keep bound buffers alive and avoid concurrent access to the
-same buffer during calls. Descriptor changes apply to subsequent calls, not to
-an operation's existing binding snapshot. Freeing a handle retires it while
-keeping already pinned calls safe. Applications must not reuse freed handles.
-`SQLFreeHandle` waits for an in-flight execution on that handle to finish.
-
-## Requirements
-
-- CMake 3.22 or higher
-- C/C++ compiler with C11 and C++20 support
-- YDB C++ SDK (build with `YDB_SDK_ODBC=ON`)
-- Linux: unixODBC development packages and `odbcinst`
-- macOS: iODBC development headers and the OpenLink iODBC SDK frameworks
-
-Dependencies are fetched at the versions pinned by the standalone SDK build.
-
-## Supported platforms
-
-| Platform | Driver manager | Status |
-| --- | --- | --- |
-| Linux | unixODBC | Source build; Ubuntu 24.04 amd64 package and automated API/consumer tests |
-| macOS | iODBC 3.52.16 | Source build matching the application architecture; verified on arm64 |
-| Windows | — | Not currently packaged or validated |
-
-## Build
-
-```bash
-cmake --preset release-clang -DYDB_SDK_ODBC=ON -DYDB_SDK_EXAMPLES=OFF
-cmake --build build --target ydb-odbc --parallel
+```sh
+sudo apt install ./ydb-odbc_*.deb
 ```
 
-The shared library is `build/odbc/libydb-odbc.so` on Linux and
-`build/odbc/libydb-odbc.dylib` on macOS.
+For a source build, use CMake 3.22+, Ninja and a C11/C++20 compiler. CPM fetches pinned SDK dependencies. On Ubuntu:
 
-## Linux installation
-
-```bash
+```sh
+sudo apt install cmake ninja-build clang git pkg-config python3 ragel yasm \
+  libssl-dev libidn11-dev unixodbc-dev unixodbc odbcinst
 cmake --preset release-clang -DYDB_SDK_ODBC=ON -DYDB_SDK_EXAMPLES=OFF \
   -DCMAKE_INSTALL_PREFIX=/usr/local
 cmake --build build --target ydb-odbc --parallel
@@ -61,214 +22,76 @@ sudo cmake --install build --component ydb-odbc
 sudo odbcinst -i -d -f /usr/local/share/ydb-odbc/odbcinst.ini
 ```
 
-This installs `libydb-odbc` and its unixODBC registration template. The
-`ydb-odbc` Debian package runs `odbcinst` automatically during installation
-and unregisters the driver when the package is removed. `odbc.ini` is not
-installed or modified — create your own DSN (see below).
+The build produces `build/odbc/libydb-odbc.so`. Use `release-gcc` for GCC. To build a Debian package instead, run `YDB_DEB_COMPONENTS=ydb-odbc ./scripts/build_cpack_deb_packages.sh` on Ubuntu 24.04; it installs build dependencies and writes packages to `build-deb/packages`.
 
-## macOS installation
+On macOS, install Xcode command-line tools and the [OpenLink iODBC SDK](https://www.iodbc.org/dataspace/doc/iodbc/wiki/iodbcWiki/Downloads) frameworks in `/Library/Frameworks`. Pin iODBC paths to avoid mixing driver managers, and use static dependencies:
 
-Use Homebrew iODBC to build the driver. Also install the current
-[OpenLink iODBC SDK](https://www.iodbc.org/dataspace/doc/iodbc/wiki/iodbcWiki/Downloads),
-which supplies the universal `iODBC.framework` and `iODBCinst.framework` under
-`/Library/Frameworks`. The driver itself must contain the architecture used by
-the client process.
-
-Pin all ODBC paths so CMake cannot mix unixODBC libraries with iODBC headers.
-The static installer, IDN, and OpenSSL libraries keep the installed driver free
-of Homebrew runtime paths:
-
-```bash
-brew install libidn libiodbc openssl@3
+```sh
+brew install cmake ninja pkg-config python ragel yasm libidn libiodbc openssl@3
 IODBC_ROOT="$(brew --prefix libiodbc)"
 IDN_ROOT="$(brew --prefix libidn)"
 OPENSSL_ROOT="$(brew --prefix openssl@3)"
-cmake --preset release-clang \
-  -DYDB_SDK_ODBC=ON \
-  -DYDB_SDK_EXAMPLES=OFF \
-  -DODBC_CONFIG="${IODBC_ROOT}/bin/iodbc-config" \
-  -DODBC_INCLUDE_DIR="${IODBC_ROOT}/include" \
+cmake --preset release-clang -DYDB_SDK_ODBC=ON -DYDB_SDK_EXAMPLES=OFF \
+  -DODBC_CONFIG="${IODBC_ROOT}/bin/iodbc-config" -DODBC_INCLUDE_DIR="${IODBC_ROOT}/include" \
   -DODBC_LIBRARY="${IODBC_ROOT}/lib/libiodbc.dylib" \
   -DYDB_ODBCINST_LIBRARY="${IODBC_ROOT}/lib/libiodbcinst.a" \
   -DIDN_LIBRARIES="${IDN_ROOT}/lib/libidn.a" \
-  -DOPENSSL_ROOT_DIR="${OPENSSL_ROOT}" \
-  -DOPENSSL_USE_STATIC_LIBS=ON \
-  -DYDB_ODBC_INSTALL_LIBDIR=/Library/ODBC/YDB \
-  -DYDB_ODBC_INSTALL_DATADIR=/Library/ODBC/YDB
+  -DOPENSSL_ROOT_DIR="${OPENSSL_ROOT}" -DOPENSSL_USE_STATIC_LIBS=ON \
+  -DYDB_ODBC_INSTALL_LIBDIR=/Library/ODBC/YDB -DYDB_ODBC_INSTALL_DATADIR=/Library/ODBC/YDB
 cmake --build build --target ydb-odbc --parallel
 sudo cmake --install build --component ydb-odbc
-otool -L /Library/ODBC/YDB/libydb-odbc.dylib
 ```
 
-The install command registers the driver and a local `YDB` system DSN in
-`/Library/ODBC/odbcinst.ini` and `/Library/ODBC/odbc.ini`. Existing sections
-for other drivers and data sources are preserved. The final `otool` output
-must not contain build-directory or Homebrew paths.
+This installs `/Library/ODBC/YDB/libydb-odbc.dylib` and registers the driver and a local `YDB` system DSN under `/Library/ODBC`. Check that `otool -L /Library/ODBC/YDB/libydb-odbc.dylib` contains no build-directory or Homebrew paths.
 
-## Configuration
+## Connect
 
-For `SQLConnect("YDB", ...)`, `isql -v YDB`, or `Driver=YDB`.
-
-**`odbcinst.ini`** — driver registration template (generated on build/install).
-Section `[YDB]` is the driver name used as `Driver=YDB` in connection strings
-and DSNs. `Driver` and `Setup` are the full path to the platform driver library.
-Register the template with `odbcinst -i -d -f`; the Debian package does this
-for you.
+For a Linux system DSN, add this to `/etc/odbc.ini` (or `~/.odbc.ini` for one user):
 
 ```ini
-[YDB]
-Description=YDB ODBC Driver
-Driver=/path/to/libydb-odbc.so
-Setup=/path/to/libydb-odbc.so
-```
-
-**`odbc.ini`** — DSN named `YDB`. In section `[YDB]`, `Driver` is the
-registered driver name or an absolute driver-library path, `Endpoint` (or its
-`Server` alias) is the YDB endpoint, and `Database` is the database path. On
-Linux use `~/.odbc.ini` or `/etc/odbc.ini`; `ODBCINI` can override the path.
-
-```ini
-[ODBC Data Sources]
-YDB=YDB ODBC Driver
-
 [YDB]
 Driver=YDB
-Server=localhost:2136
-Database=/local
-AuthMode=Anonymous
-```
-
-On macOS, `sudo cmake --install build --component ydb-odbc` writes the
-following sections to `/Library/ODBC/odbcinst.ini` and
-`/Library/ODBC/odbc.ini`. They are shown here for reference and for manual
-registration of an already-built driver.
-
-```ini
-; /Library/ODBC/odbcinst.ini
-[ODBC Drivers]
-YDB ODBC Driver=Installed
-
-[YDB ODBC Driver]
-Description=YDB ODBC Driver
-Driver=/Library/ODBC/YDB/libydb-odbc.dylib
-Setup=/Library/ODBC/YDB/libydb-odbc.dylib
-```
-
-```ini
-; /Library/ODBC/odbc.ini
-[ODBC Data Sources]
-YDB=YDB ODBC Driver
-
-[YDB]
-Driver=/Library/ODBC/YDB/libydb-odbc.dylib
 Endpoint=grpc://localhost:2136
 Database=/local
 AuthMode=Anonymous
 ```
 
-For a non-sandboxed per-user setup, the equivalent macOS files live under
-`~/Library/ODBC`. Verify the DSN with
-`"$(brew --prefix libiodbc)/bin/iodbctest" "DSN=YDB"`.
+Run `isql -v YDB`, or call `SQLConnect` with `YDB`. On macOS, the installer creates this DSN with the absolute driver path; connect with `"$(brew --prefix libiodbc)/bin/iodbctest" "DSN=YDB"`.
 
-`SQLDriverConnect` may also combine a DSN with explicit attributes. Values in
-the connection string take precedence over values from the DSN. The user name
-and password passed to `SQLConnect` take precedence over `User` and `Password`
-in the DSN.
-
-### Connection attributes
-
-| Attribute | Meaning |
-| --- | --- |
-| `Endpoint` | YDB endpoint. `Server` is an alias. A `grpc://` prefix forces a plaintext connection; `grpcs://` enables TLS. |
-| `Database` | YDB database path. |
-| `DSN` | DSN section to load before applying the remaining connection-string attributes. |
-| `AuthMode` | `Anonymous`, `Token`, `Static`, `Metadata`, `ServiceAccount`, `OAuth2`, or `Environment`. Values are case-insensitive. |
-| `AnsiSQL` | `1` enables YDB's ANSI lexer and Unicode string literals for SQL-generating clients. `SQLNativeSql` includes the `--!ansi_lexer` / `PRAGMA UnicodeLiterals;` prologue. Defaults to `0` (native YQL). |
-| `Token` | Access token for `Token` mode. `AccessToken` is an alias. |
-| `User`, `Password` | Credentials for `Static` mode. `UID` and `PWD` are aliases. |
-| `MetadataHost`, `MetadataPort` | Optional metadata service address for `Metadata` mode. |
-| `ServiceAccountKeyFile` | Path to a service-account JSON key for `ServiceAccount` mode. `SaFile` is an alias. |
-| `OAuth2KeyFile` | Path to an OAuth 2.0 token-exchange configuration file for `OAuth2` mode. |
-| `IamEndpoint` | IAM gRPC endpoint for service-account authentication, or HTTP token endpoint override for OAuth 2.0 token exchange. |
-| `RootCertificate` | Path to a PEM root-certificate file. `CaFile` is an alias. |
-| `ClientCertificate`, `ClientPrivateKey` | Paths to the PEM client certificate and private key. They must be specified together. |
-
-If `AuthMode` is omitted, the driver infers it from exactly one credential
-family (`Token`, static user/password, metadata settings, service-account key,
-or OAuth 2.0 key). With no credential attributes it uses `Anonymous`. Conflicting
-families and incomplete credentials are rejected with SQLSTATE `28000`.
-`Environment` uses the SDK's standard `YDB_*_CREDENTIALS` variables.
-
-Unrecognized connection-string attributes are ignored after reporting SQLSTATE
-`01S00`; `SQLDriverConnect` completes with `SQL_SUCCESS_WITH_INFO`. This allows
-ODBC applications to supply tool-specific attributes such as `APP` or `WSID`.
-
-Certificate attributes contain file paths, not inline PEM. The driver reads the
-files while establishing the ODBC connection. Supplying certificates enables
-TLS; certificates cannot be combined with an explicitly plaintext `grpc://`
-endpoint.
-
-Examples:
+For `SQLDriverConnect`, pass a full connection string or a DSN with overrides:
 
 ```text
+Driver=YDB;Endpoint=grpc://localhost:2136;Database=/local;AuthMode=Anonymous
 Driver=YDB;Endpoint=grpcs://ydb.example.net:2135;Database=/production;AuthMode=Token;Token=...
-DSN=YDB;AuthMode=Static;UID=app;PWD=secret
-Driver=YDB;Endpoint=localhost:2136;Database=/local;AuthMode=ServiceAccount;SaFile=/run/secrets/sa.json;IamEndpoint=grpc://localhost:4284
+DSN=YDB;AuthMode=Token;Token=...
 ```
 
-## Usage
+On macOS, use `Driver=YDB ODBC Driver` or the absolute `.dylib` path. Connection-string attributes override DSN values. `Server` aliases `Endpoint`; `grpc://` uses plaintext and `grpcs://` enables TLS.
 
-Example of connecting via isql:
-```bash
-isql -v YDB
-```
+`AuthMode` also accepts `Static` (`UID`/`PWD`), `Metadata`, `ServiceAccount` (`ServiceAccountKeyFile`), `OAuth2` (`OAuth2KeyFile`) and `Environment` (SDK credential environment variables). Without credentials, authentication defaults to `Anonymous`. `RootCertificate` accepts a PEM file path; `ClientCertificate` and `ClientPrivateKey` must be supplied together. Certificates require TLS. Add `AnsiSQL=1` for SQL-generating clients that need the ANSI lexer and Unicode literals.
 
-Example usage in C:
-```c
-SQLHENV env;
-SQLHDBC dbc;
-SQLHSTMT stmt;
+## Examples
 
-// Initialize environment
-SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &env);
-SQLSetEnvAttr(env, SQL_ATTR_ODBC_VERSION, (void*)SQL_OV_ODBC3, 0);
+Set `ODBC_CONNECTION_STRING` to a full connection string with `AnsiSQL=1` or `Driver=YDB;DSN=YDB`; each example also accepts it as its first argument. Each queries YDB and prints `42` and `Hello YDB` separated by a tab. PDO, Qt, Ruby, R and HDBC also demonstrate parameter binding. Use ruby-odbc 0.999993 and the LuaSQL/HDBC-odbc revisions and installation commands in the [Examples workflow](../.github/workflows/examples.yaml).
 
-// Connect
-SQLAllocHandle(SQL_HANDLE_DBC, env, &dbc);
-SQLConnect(dbc, (SQLCHAR*)"YDB", SQL_NTS,
-          (SQLCHAR*)"", SQL_NTS,
-          (SQLCHAR*)"", SQL_NTS);
+| Binding | Run from the repository root |
+| --- | --- |
+| PHP ext/odbc | `php odbc/examples/php-odbc/main.php` |
+| PHP PDO_ODBC | `php odbc/examples/php-pdo/main.php` |
+| Ruby ruby-odbc | `ruby odbc/examples/ruby/main.rb` |
+| R DBI/odbc | `Rscript odbc/examples/r/main.R` |
+| LuaSQL ODBC | `lua odbc/examples/lua/main.lua` |
+| Haskell HDBC/HDBC-odbc | `runghc odbc/examples/haskell/main.hs` |
+| Qt QODBC | `c++ -std=c++17 odbc/examples/qt/main.cpp -o /tmp/ydb-odbc-qt $(pkg-config --cflags --libs Qt6Core Qt6Sql) && /tmp/ydb-odbc-qt` |
 
-// Execute query
-SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt);
-SQLExecDirect(stmt, (SQLCHAR*)"SELECT * FROM mytable", SQL_NTS);
+`?` parameters derive their YDB types from `SQLBindParameter`; native `$pN` parameters also work. For DML, `SQLRowCount` reports affected rows from YDB statistics, summed across executed parameter-array entries; otherwise it returns `-1`.
 
-// Cleanup
-SQLFreeHandle(SQL_HANDLE_STMT, stmt);
-SQLDisconnect(dbc);
-SQLFreeHandle(SQL_HANDLE_DBC, dbc);
-SQLFreeHandle(SQL_HANDLE_ENV, env);
-```
+Independent connections and autocommit statements can run concurrently; calls on one handle and statements in an explicit transaction execute in order. Cross-thread `SQLCancel` stops further attempts and discards pending results, but an in-flight RPC can still finish and writes can commit. Keep bound buffers alive until calls finish.
 
-Alternatively, use `SQLDriverConnect` with a connection string (does not require DSN in odbc.ini):
-```c
-SQLCHAR connStr[] = "Driver=YDB;Endpoint=localhost:2136;Database=/local";
-SQLDriverConnect(dbc, NULL, connStr, SQL_NTS, NULL, 0, NULL, SQL_DRIVER_NOPROMPT);
-```
+## CI coverage
 
-For `INSERT`, `UPDATE`, `DELETE`, `UPSERT`, and `REPLACE`, `SQLRowCount`
-returns the affected-row count reported by YDB query statistics. Counts from
-executed parameter-array entries are summed; ignored entries are not counted.
-For statements without an applicable count, it returns `-1`.
+[Native tests](../.github/workflows/tests.yaml) build with Clang and GCC and run ODBC unit, integration, authentication, parameter, metadata, transaction, affected-row, cancellation and concurrency tests against the configured YDB version matrix.
 
-## Parameters
+[Consumer integration](../.github/workflows/odbc-integration.yaml) installs the same Debian package in isolated jobs against `ydbplatform/local-ydb:trunk`. It runs upstream Qt, PHP ext/odbc, PDO_ODBC, Ruby, LuaSQL and R/DBItest suites in both DSN and connection-string modes, plus `isql` and package installation/reinstallation/removal checks. Prior-version upgrade checks require an actual older package. Reports retain raw failures and distinguish documented consumer defects and unsupported cases.
 
-`?` placeholders are rewritten to `$p1`, `$p2`, ... with auto-generated
-`DECLARE` statements derived from `SQLBindParameter` types. Null values use an
-optional YDB type. YDB-native `$pN` syntax also works.
-Statements support at most 32767 parameters; larger counts or `$pN` indices
-return `HY000`.
-
-## License
-
-Apache License 2.0
+[Examples](../.github/workflows/examples.yaml) runs these programs directly in its own job and checks their exact output through DSNs and full connection strings.
