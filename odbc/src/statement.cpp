@@ -324,7 +324,8 @@ SQLRETURN TStatement::ExecuteParamSet(
         CheckCancellation();
         NQuery::TExecuteQueryResult result = ExecuteQuery(session, params, paramSet);
         NStatusHelpers::ThrowOnError(result);
-        affectedRows = ExtractAffectedRows(result, PreparedQuery_);
+        // Statistics may include deferred writes from earlier statements in this
+        // transaction, so they cannot determine this statement's affected rows.
         if (!IsCancelRequested()) {
             SetResults(result);
         }
