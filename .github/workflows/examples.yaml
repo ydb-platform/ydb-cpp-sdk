@@ -88,6 +88,7 @@ jobs:
     env:
       CPM_SOURCE_CACHE: ${{ github.workspace }}/.cache/cpm
       CCACHE_DIR: ${{ github.workspace }}/.cache/ccache
+      LANG: C.UTF-8
       ODBC_CONNECTION_STRING: Driver=YDB;Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1
     services:
       ydb:
@@ -144,7 +145,6 @@ jobs:
           for attempt in $(seq 1 60); do
             if docker exec -e YDB_READINESS_ENABLE_DDL=true '${{ job.services.ydb.id }}' bash /health_check --readiness >/dev/null 2>&1; then
               printf '[YDB]\nDriver=YDB\nServer=localhost:2136\nDatabase=/local\nAuthMode=Anonymous\nAnsiSQL=1\n' | sudo tee /etc/odbc.ini >/dev/null
-              printf '42\tHello YDB\n' > "$RUNNER_TEMP/expected.txt"
               c++ -std=c++17 odbc/examples/qt/main.cpp -o "$RUNNER_TEMP/qt-example" $(pkg-config --cflags --libs Qt6Core Qt6Sql)
               exit 0
             fi
@@ -154,47 +154,45 @@ jobs:
           exit 1
       - name: Run PHP ODBC example
         run: |
-          php odbc/examples/php-odbc/main.php > "$RUNNER_TEMP/actual.txt"
-          diff -u "$RUNNER_TEMP/expected.txt" "$RUNNER_TEMP/actual.txt"
+          for connection in "$ODBC_CONNECTION_STRING" 'Driver=YDB;DSN=YDB'; do
+            ODBC_CONNECTION_STRING="$connection" timeout 120s php odbc/examples/php-odbc/main.php > "$RUNNER_TEMP/actual.txt"
+            diff -u odbc/examples/php-odbc/expected.txt "$RUNNER_TEMP/actual.txt"
+          done
       - name: Run PHP PDO example
         run: |
-          php odbc/examples/php-pdo/main.php > "$RUNNER_TEMP/actual.txt"
-          diff -u "$RUNNER_TEMP/expected.txt" "$RUNNER_TEMP/actual.txt"
+          for connection in "$ODBC_CONNECTION_STRING" 'Driver=YDB;DSN=YDB'; do
+            ODBC_CONNECTION_STRING="$connection" timeout 120s php odbc/examples/php-pdo/main.php > "$RUNNER_TEMP/actual.txt"
+            diff -u odbc/examples/php-pdo/expected.txt "$RUNNER_TEMP/actual.txt"
+          done
       - name: Run Qt example
         run: |
-          "$RUNNER_TEMP/qt-example" > "$RUNNER_TEMP/actual.txt"
-          diff -u "$RUNNER_TEMP/expected.txt" "$RUNNER_TEMP/actual.txt"
-      - name: Run Ruby ANSI and UTF-8 examples
+          for connection in "$ODBC_CONNECTION_STRING" 'Driver=YDB;DSN=YDB'; do
+            ODBC_CONNECTION_STRING="$connection" timeout 120s "$RUNNER_TEMP/qt-example" > "$RUNNER_TEMP/actual.txt"
+            diff -u odbc/examples/qt/expected.txt "$RUNNER_TEMP/actual.txt"
+          done
+      - name: Run Ruby ANSI and UTF-8 example
         run: |
-          for binding in odbc odbc_utf8; do
-            RUBY_ODBC_MODULE="$binding" ruby odbc/examples/ruby/main.rb > "$RUNNER_TEMP/actual.txt"
-            diff -u "$RUNNER_TEMP/expected.txt" "$RUNNER_TEMP/actual.txt"
+          for connection in "$ODBC_CONNECTION_STRING" 'Driver=YDB;DSN=YDB'; do
+            for binding in odbc odbc_utf8; do
+              ODBC_CONNECTION_STRING="$connection" RUBY_ODBC_MODULE="$binding" timeout 120s ruby odbc/examples/ruby/main.rb > "$RUNNER_TEMP/actual.txt"
+              diff -u odbc/examples/ruby/expected.txt "$RUNNER_TEMP/actual.txt"
+            done
           done
       - name: Run R example
         run: |
-          Rscript odbc/examples/r/main.R > "$RUNNER_TEMP/actual.txt"
-          diff -u "$RUNNER_TEMP/expected.txt" "$RUNNER_TEMP/actual.txt"
+          for connection in "$ODBC_CONNECTION_STRING" 'Driver=YDB;DSN=YDB'; do
+            ODBC_CONNECTION_STRING="$connection" timeout 120s Rscript odbc/examples/r/main.R > "$RUNNER_TEMP/actual.txt"
+            diff -u odbc/examples/r/expected.txt "$RUNNER_TEMP/actual.txt"
+          done
       - name: Run LuaSQL example
         run: |
-          lua5.4 odbc/examples/lua/main.lua > "$RUNNER_TEMP/actual.txt"
-          diff -u "$RUNNER_TEMP/expected.txt" "$RUNNER_TEMP/actual.txt"
+          for connection in "$ODBC_CONNECTION_STRING" 'Driver=YDB;DSN=YDB'; do
+            ODBC_CONNECTION_STRING="$connection" timeout 120s lua5.4 odbc/examples/lua/main.lua > "$RUNNER_TEMP/actual.txt"
+            diff -u odbc/examples/lua/expected.txt "$RUNNER_TEMP/actual.txt"
+          done
       - name: Run HDBC example
         run: |
-          runghc odbc/examples/haskell/main.hs > "$RUNNER_TEMP/actual.txt"
-          diff -u "$RUNNER_TEMP/expected.txt" "$RUNNER_TEMP/actual.txt"
-      - name: Run examples through DSN
-        env:
-          ODBC_CONNECTION_STRING: Driver=YDB;DSN=YDB
-        run: |
-          for command in \
-            'php odbc/examples/php-odbc/main.php' \
-            'php odbc/examples/php-pdo/main.php' \
-            'ruby odbc/examples/ruby/main.rb' \
-            'env RUBY_ODBC_MODULE=odbc_utf8 ruby odbc/examples/ruby/main.rb' \
-            'Rscript odbc/examples/r/main.R' \
-            'lua5.4 odbc/examples/lua/main.lua' \
-            'runghc odbc/examples/haskell/main.hs' \
-            "$RUNNER_TEMP/qt-example"; do
-            bash -ec "$command" > "$RUNNER_TEMP/actual.txt"
-            diff -u "$RUNNER_TEMP/expected.txt" "$RUNNER_TEMP/actual.txt"
+          for connection in "$ODBC_CONNECTION_STRING" 'Driver=YDB;DSN=YDB'; do
+            ODBC_CONNECTION_STRING="$connection" timeout 120s runghc odbc/examples/haskell/main.hs > "$RUNNER_TEMP/actual.txt"
+            diff -u odbc/examples/haskell/expected.txt "$RUNNER_TEMP/actual.txt"
           done
