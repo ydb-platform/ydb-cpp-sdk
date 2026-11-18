@@ -137,9 +137,9 @@ jobs:
           mkdir "$RUNNER_TEMP/hdbc-odbc"
           tar -xzf "$RUNNER_TEMP/hdbc-odbc.tar.gz" -C "$RUNNER_TEMP/hdbc-odbc" --strip-components=1
           cd "$RUNNER_TEMP/hdbc-odbc"
-          runghc Setup.hs configure --global --prefix=/usr/local
-          runghc Setup.hs build
-          sudo runghc Setup.hs install
+          /usr/bin/runghc Setup.hs configure --global --prefix=/usr/local --with-compiler=/usr/bin/ghc --with-hc-pkg=/usr/bin/ghc-pkg
+          /usr/bin/runghc Setup.hs build
+          sudo /usr/bin/runghc Setup.hs install
       - name: Configure examples
         run: |
           for attempt in $(seq 1 60); do
@@ -193,6 +193,6 @@ jobs:
       - name: Run HDBC example
         run: |
           for connection in "$ODBC_CONNECTION_STRING" 'Driver=YDB;DSN=YDB'; do
-            ODBC_CONNECTION_STRING="$connection" timeout 120s runghc odbc/examples/haskell/main.hs > "$RUNNER_TEMP/actual.txt"
+            ODBC_CONNECTION_STRING="$connection" timeout 120s /usr/bin/runghc odbc/examples/haskell/main.hs > "$RUNNER_TEMP/actual.txt"
             diff -u odbc/examples/haskell/expected.txt "$RUNNER_TEMP/actual.txt"
           done
