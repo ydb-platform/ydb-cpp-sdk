@@ -72,19 +72,23 @@ On macOS, use `Driver=YDB ODBC Driver` or the absolute `.dylib` path. Connection
 
 ## Examples
 
-Set `ODBC_CONNECTION_STRING` to a full connection string with `AnsiSQL=1` or `Driver=YDB;DSN=YDB`; each example also accepts it as its first argument. Each queries YDB and prints `42` and `Hello YDB` separated by a tab. PDO, Qt, Ruby, R and HDBC also demonstrate parameter binding. Use ruby-odbc 0.999993 and the LuaSQL/HDBC-odbc revisions and installation commands in the [Examples workflow](../.github/workflows/examples.yaml).
+Set `ODBC_CONNECTION_STRING` to a full connection string with `AnsiSQL=1` or `Driver=YDB;DSN=YDB`; each example also accepts it as its first argument. Examples create and remove their own tables, bind values, perform CRUD, inspect metadata, reuse cursors and demonstrate commit, rollback and independent connections. Each directory contains the expected output checked by CI. Use ruby-odbc 0.999993 and the LuaSQL/HDBC-odbc revisions and installation commands in the [Examples workflow](../.github/workflows/examples.yaml).
 
-| Binding | Run from the repository root |
-| --- | --- |
-| PHP ext/odbc | `php odbc/examples/php-odbc/main.php` |
-| PHP PDO_ODBC | `php odbc/examples/php-pdo/main.php` |
-| Ruby ruby-odbc | `ruby odbc/examples/ruby/main.rb` |
-| R DBI/odbc | `Rscript odbc/examples/r/main.R` |
-| LuaSQL ODBC | `lua odbc/examples/lua/main.lua` |
-| Haskell HDBC/HDBC-odbc | `runghc odbc/examples/haskell/main.hs` |
-| Qt QODBC | `c++ -std=c++17 odbc/examples/qt/main.cpp -o /tmp/ydb-odbc-qt $(pkg-config --cflags --libs Qt6Core Qt6Sql) && /tmp/ydb-odbc-qt` |
+| Binding | Run from the repository root | Additional coverage |
+| --- | --- | --- |
+| PHP ext/odbc | `php odbc/examples/php-odbc/main.php` | Unicode, NULL, binary, timestamp, long text, schema discovery, multiple results, diagnostics |
+| PHP PDO_ODBC | `php odbc/examples/php-pdo/main.php` | Typed bindings, Unicode, NULL, binary, timestamp, long text, multiple results, diagnostics |
+| Ruby ruby-odbc | `ruby odbc/examples/ruby/main.rb` | ANSI/UTF-8 bindings, Unicode, NULL, schema discovery, rebinding, multiple results |
+| R DBI/odbc | `Rscript odbc/examples/r/main.R` | Vector binding, Unicode, NULL, schema discovery, partial fetch, rebinding |
+| LuaSQL ODBC | `lua5.4 odbc/examples/lua/main.lua` | Unicode, numeric NULL, numeric bindings, partial fetch, rebinding |
+| Haskell HDBC/HDBC-odbc | `runghc odbc/examples/haskell/main.hs` | Int64 bounds, Unicode, NULL, binary, date, long text, schema discovery, batch insertion |
+| Qt QODBC | `c++ -std=c++17 odbc/examples/qt/main.cpp -o /tmp/ydb-odbc-qt $(pkg-config --cflags --libs Qt6Core Qt6Sql) && /tmp/ydb-odbc-qt` | Int64, Boolean, Decimal, Unicode, NULL, binary, dates before 1970, long text, schema discovery, multiple results, diagnostics |
 
-`?` parameters derive their YDB types from `SQLBindParameter`; native `$pN` parameters also work. For DML, `SQLRowCount` reports affected rows from YDB statistics, summed across executed parameter-array entries; otherwise it returns `-1`.
+PHP, Qt, Ruby, R and HDBC retry the **entire transaction**, including commit, up to three times on serialization conflicts. Each example forces a real conflict through a second connection and checks that the retried transaction uses fresh data. Roll back before retrying; propagate unknown commit outcomes and other errors. Keep external side effects outside retryable transactions. [YDB transaction retries](https://ydb.tech/docs/en/concepts/query_execution/execution_process?version=main#retries).
+
+LuaSQL's [commit-error handler](https://github.com/lunarmodules/luasql/blob/491fea76b9d9ee613fcd7de6b8a1c902e3668d11/src/ls_odbc.c#L991) uses the wrong diagnostic handle type and hangs on a failed commit. Its example covers successful commit and rollback; reliable transaction retries require that upstream defect to be fixed.
+
+`?` parameters derive their YDB types from `SQLBindParameter`; native `$pN` parameters also work. Autocommit DML reports affected rows from YDB statistics, summed across executed parameter-array entries. Counts within explicit transactions are `-1`: deferred writes cannot be attributed to individual statements.
 
 Independent connections and autocommit statements can run concurrently; calls on one handle and statements in an explicit transaction execute in order. Cross-thread `SQLCancel` stops further attempts and discards pending results, but an in-flight RPC can still finish and writes can commit. Keep bound buffers alive until calls finish.
 

@@ -1,0 +1,17 @@
+inserted	1
+inserted	1
+inserted	1
+columns	sku	name	price
+types	string	string	number
+coffee	Café	4.25
+tea	Чай	2.5
+water	Water	NULL
+updated	1
+deleted	0
+after rollback	2.5
+after commit	3.5
+first	coffee	4.5
+independent reader	Чай
+rebound	coffee	4.5
+deleted existing	1
+remaining	2
