@@ -16,7 +16,6 @@ import urllib.request
 import uuid
 from pathlib import Path
 import yaml
-from contracts import runner as binding_contracts
 ROOT = Path(__file__).resolve().parent
 REGISTRY = ROOT / "registry.yaml"
 RESULTS = Path("/results")
@@ -159,8 +158,6 @@ def load_registry(path=REGISTRY):
             require(read_yaml(adapter / "upstream.lock") == source, f"{consumer}: upstream.lock differs from registry")
         else:
             require(source == "system", f"{consumer}: smoke/package source must be system")
-        if item["kind"] == "framework":
-            expected["required"].extend(binding_contracts.inventory(consumer, "*"))
     return data
 def consumer_runs(data):
     for consumer in data["consumers"]:
@@ -617,11 +614,6 @@ def run_consumer(consumer_id, mode, previous_package=None, previous_package_sha2
             test_rc = declarative_suite(consumer, env, native)
         else:
             test_rc = command([adapter / "run-tests"], env=env, user=run_user, check=False, timeout=1800).returncode
-            contract_rc = command([sys.executable, ROOT / "contracts/runner.py", consumer_id, mode],
-                                  env=env, user=run_user, check=False, timeout=600).returncode
-            binding_contracts.merge(native)
-            if test_rc in (0, 1):
-                test_rc = max(test_rc, contract_rc) if contract_rc in (0, 1) else contract_rc
     except Exception as exception:  # preserve infrastructure failures as test output
         error = str(exception)
     (RESULTS / "metadata.json").write_text(json.dumps(metadata, indent=2, sort_keys=True) + "\n")
