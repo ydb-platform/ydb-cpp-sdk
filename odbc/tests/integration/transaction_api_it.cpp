@@ -137,6 +137,59 @@ TEST(TransactionApi, MultipleStatementsInManualTransaction) {
     SQLFreeHandle(SQL_HANDLE_ENV, env);
 }
 
+TEST(TransactionApi, AutocommitOffRowCountUnavailable) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE IF EXISTS test_transaction_row_count", SQL_NTS);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"CREATE TABLE test_transaction_row_count (id Int32, value Int32, PRIMARY KEY (id))",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"UPSERT INTO test_transaction_row_count (id, value) VALUES (1, 10)",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLSetConnectAttr(dbc, SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_OFF, 0),
+                  dbc, SQL_HANDLE_DBC);
+
+    for (const char* query : {
+            "UPDATE test_transaction_row_count SET value = 20 WHERE id = 1",
+            "UPDATE test_transaction_row_count SET value = 30 WHERE id = 999"}) {
+        CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)query, SQL_NTS), stmt, SQL_HANDLE_STMT);
+        SQLLEN diagRowCount = -2;
+        CHECK_ODBC_OK(SQLGetDiagField(SQL_HANDLE_STMT, stmt, 0, SQL_DIAG_ROW_COUNT,
+            &diagRowCount, 0, nullptr), stmt, SQL_HANDLE_STMT);
+        EXPECT_EQ(diagRowCount, -1);
+        SQLLEN rowCount = -2;
+        CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
+        EXPECT_EQ(rowCount, -1);
+        SQLFreeStmt(stmt, SQL_CLOSE);
+    }
+
+    CHECK_ODBC_OK(SQLEndTran(SQL_HANDLE_DBC, dbc, SQL_ROLLBACK), dbc, SQL_HANDLE_DBC);
+    CHECK_ODBC_OK(SQLSetConnectAttr(dbc, SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_ON, 0),
+                  dbc, SQL_HANDLE_DBC);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"SELECT value FROM test_transaction_row_count WHERE id = 1", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    SQLINTEGER value = 0;
+    CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_LONG, &value, sizeof(value), nullptr),
+        stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(value, 10);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"DROP TABLE test_transaction_row_count", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
 TEST(TransactionApi, SQLEndTranOnEnv) {
     SQLHENV env;
     SQLHDBC dbc;
