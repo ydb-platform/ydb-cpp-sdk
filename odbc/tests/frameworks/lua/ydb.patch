@@ -32,7 +32,44 @@
  end
  
  
-@@ -622,7 +622,7 @@
+@@ -477,15 +477,16 @@
+ 	assert (cur0:close(), "couldn't close the cursor after counting rows from t")
+ 	-- begin transaction
+ 	assert2 (true, CONN:setautocommit (false), "couldn't disable autocommit")
++	-- YDB defers transaction writes; affected-row counts are unavailable.
+ 	-- insert a record and commit the operation.
+-	assert2 (1, CONN:execute ("insert into t (f1) values ('a')"))
++	assert2 (-1, CONN:execute ("insert into t (f1) values ('a')"))
+ 	local cur = CUR_OK (CONN:execute ("select count(*) from t"))
+ 	assert2 (1, tonumber (cur:fetch ()), "Insert failed")
+ 	assert2 (true, cur:close(), "couldn't close cursor")
+ 	assert2 (false, cur:close())
+ 	assert2 (true, CONN:commit(), "couldn't commit transaction")
+ 	-- insert a record and roll back the operation.
+-	assert2 (1, CONN:execute ("insert into t (f1) values ('b')"))
++	assert2 (-1, CONN:execute ("insert into t (f1) values ('b')"))
+ 	local cur = CUR_OK (CONN:execute ("select count(*) from t"))
+ 	assert2 (2, tonumber (cur:fetch ()), "Insert failed")
+ 	assert2 (true, cur:close(), "couldn't close cursor")
+@@ -497,7 +498,7 @@
+ 	assert2 (true, cur:close(), "couldn't close cursor")
+ 	assert2 (false, cur:close())
+ 	-- delete a record and roll back the operation.
+-	assert2 (1, CONN:execute ("delete from t where f1 = 'a'"))
++	assert2 (-1, CONN:execute ("delete from t where f1 = 'a'"))
+ 	cur = CUR_OK (CONN:execute ("select count(*) from t"))
+ 	assert2 (0, tonumber(cur:fetch()))
+ 	assert2 (true, cur:close(), "couldn't close cursor")
+@@ -525,7 +526,7 @@
+ 	assert2 (false, cur:close())
+ --]]
+ 	-- clean the table.
+-	assert2 (1, CONN:execute (sql_erase_table"t"))
++	assert2 (-1, CONN:execute (sql_erase_table"t"))
+ 	assert2 (true, CONN:commit (), "couldn't commit transaction")
+ 	assert2 (true, CONN:setautocommit (true), "couldn't enable autocommit")
+ 	-- check resulting table with no records.
+@@ -622,7 +623,7 @@
  
  	-- check cursor integrity after trying to close its connection
  	local conn = CONN_OK (ENV:connect (datasource, username, password))
@@ -41,7 +78,7 @@
  	local cur = CUR_OK (conn:execute (cmd))
  	local ok, err, msg = pcall (conn.close, conn)
  	assert2 (true, ok, "couldn´t try to close the connection")
-@@ -670,7 +670,7 @@
+@@ -670,7 +671,7 @@
  -- file (or in a string).
  ---------------------------------------------------------------------
  function to_be_closed_support ()
@@ -50,7 +87,7 @@
  end
  
  ---------------------------------------------------------------------
-@@ -834,10 +834,32 @@
+@@ -834,10 +835,32 @@
  end
  io.write (" driver test.  "..luasql._COPYRIGHT.."\n")
  
