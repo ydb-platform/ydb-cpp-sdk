@@ -17,7 +17,17 @@ if(TARGET yutil)
     ARCADIA_ROOT=${_source_root} ARCADIA_BUILD_ROOT=${_build_root})
 endif()
 
-_ydb_sdk_mingw_remap_sources("${YDB_SDK_SOURCE_DIR}")
+# Only yutil directly compiles sources in the adapted directories. Joined
+# sources already find their compatibility copies through the include path.
+get_target_property(_sources yutil SOURCES)
+foreach(_source IN LISTS _sources)
+  string(REPLACE "${YDB_SDK_SOURCE_DIR}/" "" _relative "${_source}")
+  if(_relative MATCHES "^util/(system|datetime|folder)/")
+    list(REMOVE_ITEM _sources "${_source}")
+    list(APPEND _sources "${YDB_SDK_MINGW_COMPAT_DIR}/${_relative}")
+  endif()
+endforeach()
+set_property(TARGET yutil PROPERTY SOURCES "${_sources}")
 if(TARGET yt-memory)
   # GCC 16 requires the declaration before shared_range templates use New<T>.
   target_compile_options(yt-memory PRIVATE

@@ -5,10 +5,12 @@ set(_mingw_adapted_files
   util/system/cpu_id.cpp util/system/thread.cpp
   util/datetime/systime.h util/datetime/systime.cpp util/folder/dirent_win.c)
 
-# Copy the complete util include hierarchy so quoted relative includes and
-# angle-bracket includes resolve to the same files (including pragma once).
+# Keep quoted includes within the three directories that need adaptation.
 file(GLOB_RECURSE _mingw_util_files CONFIGURE_DEPENDS
-  RELATIVE "${YDB_SDK_SOURCE_DIR}" "${YDB_SDK_SOURCE_DIR}/util/*")
+  RELATIVE "${YDB_SDK_SOURCE_DIR}"
+  "${YDB_SDK_SOURCE_DIR}/util/system/*"
+  "${YDB_SDK_SOURCE_DIR}/util/datetime/*"
+  "${YDB_SDK_SOURCE_DIR}/util/folder/*")
 foreach(_path IN LISTS _mingw_util_files)
   if(NOT _path IN_LIST _mingw_adapted_files)
     configure_file("${YDB_SDK_SOURCE_DIR}/${_path}"
@@ -80,44 +82,3 @@ foreach(_path IN LISTS _mingw_adapted_files)
     file(WRITE "${_output}" "${_text}")
   endif()
 endforeach()
-
-
-function(_ydb_sdk_mingw_remap_sources Directory)
-  get_property(_targets DIRECTORY "${Directory}" PROPERTY BUILDSYSTEM_TARGETS)
-  foreach(_target IN LISTS _targets)
-    get_target_property(_type ${_target} TYPE)
-    if(_type STREQUAL "INTERFACE_LIBRARY" OR _type STREQUAL "UTILITY")
-      continue()
-    endif()
-    foreach(_property IN ITEMS COMPILE_OPTIONS INTERFACE_COMPILE_OPTIONS
-        INCLUDE_DIRECTORIES INTERFACE_INCLUDE_DIRECTORIES)
-      get_target_property(_value ${_target} ${_property})
-      if(_value)
-        string(REPLACE "${YDB_SDK_SOURCE_DIR}/util/"
-          "${YDB_SDK_MINGW_COMPAT_DIR}/util/" _value "${_value}")
-        set_property(TARGET ${_target} PROPERTY ${_property} "${_value}")
-      endif()
-    endforeach()
-    get_target_property(_sources ${_target} SOURCES)
-    get_target_property(_source_dir ${_target} SOURCE_DIR)
-    set(_mapped "")
-    foreach(_source IN LISTS _sources)
-      if(NOT _source MATCHES "^\\$<")
-        get_filename_component(_absolute "${_source}" ABSOLUTE BASE_DIR "${_source_dir}")
-        string(FIND "${_absolute}" "${YDB_SDK_SOURCE_DIR}/util/" _util_prefix)
-        if(_util_prefix EQUAL 0)
-          file(RELATIVE_PATH _relative "${YDB_SDK_SOURCE_DIR}" "${_absolute}")
-          set(_source "${YDB_SDK_MINGW_COMPAT_DIR}/${_relative}")
-        endif()
-      endif()
-      list(APPEND _mapped "${_source}")
-    endforeach()
-    if(_sources)
-      set_property(TARGET ${_target} PROPERTY SOURCES "${_mapped}")
-    endif()
-  endforeach()
-  get_property(_subdirs DIRECTORY "${Directory}" PROPERTY SUBDIRECTORIES)
-  foreach(_subdir IN LISTS _subdirs)
-    _ydb_sdk_mingw_remap_sources("${_subdir}")
-  endforeach()
-endfunction()
