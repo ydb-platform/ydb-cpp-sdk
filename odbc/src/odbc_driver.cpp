@@ -9,6 +9,9 @@
 
 #include "odbc_compat.h"
 
+#include <util/charset/wide.h>
+
+#include <algorithm>
 #include <optional>
 #include <memory>
 
@@ -150,6 +153,42 @@ namespace {
             case SQL_HANDLE_DESC: return Call<Mode, TDescriptor>(handle, fn);
             default: return SQL_ERROR;
         }
+    }
+
+    SQLRETURN WriteWideCatalog(TConnection& connection, SQLWCHAR* output,
+                               SQLINTEGER bufferLength, SQLINTEGER* length) {
+        constexpr SQLINTEGER unit = sizeof(SQLWCHAR);
+        static_assert(unit == sizeof(wchar16) || unit == sizeof(wchar32));
+        if (!output && !length) {
+            return Odbc::Diag::AddNullPointer(connection);
+        }
+        if (bufferLength < 0 || bufferLength % unit != 0 || (output && bufferLength == 0)) {
+            return Odbc::Diag::AddInvalidBufferLength(connection);
+        }
+
+        const auto catalog = [&] {
+            if constexpr (unit == sizeof(wchar16)) {
+                return UTF8ToWide<true>(connection.GetDatabaseName());
+            } else {
+                return UTF8ToUTF32<true>(connection.GetDatabaseName());
+            }
+        }();
+        if (length) {
+            *length = static_cast<SQLINTEGER>(catalog.size() * unit);
+        }
+        if (!output) {
+            return SQL_SUCCESS;
+        }
+
+        size_t copied = std::min(catalog.size(), static_cast<size_t>(bufferLength / unit - 1));
+        if constexpr (unit == sizeof(wchar16)) {
+            if (copied && IsW16SurrogateLead(catalog[copied - 1])) {
+                --copied;
+            }
+        }
+        std::copy_n(catalog.data(), copied, output);
+        output[copied] = 0;
+        return copied == catalog.size() ? SQL_SUCCESS : Odbc::Diag::AddRightTruncated(connection);
     }
 
 }
@@ -346,6 +385,16 @@ ODBC_FORWARD(SQLGetConnectAttr, TConnection, TConnection::GetConnectAttr,
     (SQLHDBC connectionHandle, SQLINTEGER attribute, SQLPOINTER value,
      SQLINTEGER bufferLength, SQLINTEGER* stringLengthPtr),
     (connectionHandle, attribute, value, bufferLength, stringLengthPtr))
+
+SQLRETURN SQL_API SQLGetConnectAttrW(SQLHDBC connectionHandle, SQLINTEGER attribute,
+                                    SQLPOINTER value, SQLINTEGER bufferLength, SQLINTEGER* stringLengthPtr) {
+    return Call<Odbc::ECallMode::Ordinary, TConnection>(connectionHandle, [&](auto* connection) -> SQLRETURN {
+        if (attribute == SQL_ATTR_CURRENT_CATALOG) {
+            return WriteWideCatalog(*connection, static_cast<SQLWCHAR*>(value), bufferLength, stringLengthPtr);
+        }
+        return connection->GetConnectAttr(attribute, value, bufferLength, stringLengthPtr);
+    });
+}
 
 ODBC_FORWARD(SQLColumns, TStatement, TStatement::Columns,
     (SQLHSTMT statementHandle, SQLCHAR* catalogName, SQLSMALLINT nameLength1,
