@@ -338,6 +338,48 @@ TEST(ConnectionApi, WideConnectionAttributes) {
     }
     EXPECT_EQ(SQLSetConnectAttrW(dbc, SQL_ATTR_CURRENT_CATALOG, catalog, 1), SQL_ERROR);
     EXPECT_TRUE(SqlStatePrefix(GetOdbcError(dbc, SQL_HANDLE_DBC), "HY090"));
+
+#ifndef ODBC_TEST_IODBC
+    // iODBC uses the ANSI getter for drivers without SQLConnectW.
+    using TWideString = std::basic_string<SQLWCHAR>;
+    const TWideString prefix(catalog, sizeof(catalog) / sizeof(SQLWCHAR) - 2);
+    TWideString wideCatalog = prefix;
+    if constexpr (sizeof(SQLWCHAR) == 2) {
+        wideCatalog += {0xD83D, 0xDE00};
+    } else {
+        wideCatalog.push_back(static_cast<SQLWCHAR>(0x1F600));
+    }
+    ASSERT_EQ(SQLSetConnectAttrW(dbc, SQL_ATTR_CURRENT_CATALOG, wideCatalog.data(), SQL_NTS), SQL_SUCCESS)
+        << GetOdbcError(dbc, SQL_HANDLE_DBC);
+
+    constexpr SQLINTEGER unit = sizeof(SQLWCHAR);
+    const auto expectedLength = static_cast<SQLINTEGER>(wideCatalog.size()) * unit;
+    SQLINTEGER actualLength = -1;
+    ASSERT_EQ(SQLGetConnectAttrW(dbc, SQL_ATTR_CURRENT_CATALOG, nullptr, 0, &actualLength), SQL_SUCCESS);
+    EXPECT_EQ(actualLength, expectedLength);
+
+    TWideString actual(wideCatalog.size() + 1, '?');
+    ASSERT_EQ(SQLGetConnectAttrW(dbc, SQL_ATTR_CURRENT_CATALOG, actual.data(),
+        expectedLength + unit, &actualLength), SQL_SUCCESS);
+    EXPECT_EQ(actual.substr(0, wideCatalog.size()), wideCatalog);
+    EXPECT_EQ(actual[wideCatalog.size()], 0);
+    EXPECT_EQ(actualLength, expectedLength);
+
+    // Leave space for the terminator only by dropping the final code point.
+    EXPECT_EQ(SQLGetConnectAttrW(dbc, SQL_ATTR_CURRENT_CATALOG, actual.data(), expectedLength, &actualLength),
+        SQL_SUCCESS_WITH_INFO);
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(dbc, SQL_HANDLE_DBC), "01004"));
+    EXPECT_EQ(actual.substr(0, prefix.size()), prefix);
+    EXPECT_EQ(actual[prefix.size()], 0);
+    EXPECT_EQ(actualLength, expectedLength);
+
+    EXPECT_EQ(SQLGetConnectAttrW(dbc, SQL_ATTR_CURRENT_CATALOG, actual.data(), 1, &actualLength), SQL_ERROR);
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(dbc, SQL_HANDLE_DBC), "HY090"));
+
+    SQLUINTEGER autocommit = 0;
+    ASSERT_EQ(SQLGetConnectAttrW(dbc, SQL_ATTR_AUTOCOMMIT, &autocommit, 0, nullptr), SQL_SUCCESS);
+    EXPECT_EQ(autocommit, SQL_AUTOCOMMIT_ON);
+#endif
     SQLDisconnect(dbc);
     SQLFreeHandle(SQL_HANDLE_DBC, dbc);
     SQLFreeHandle(SQL_HANDLE_ENV, env);
