@@ -1,0 +1,18 @@
+table found: True
+schema: id=SqlBigIntT, message=SqlVarCharT, note=SqlVarCharT, score=SqlDoubleT, created=SqlDateT, minimum=SqlBigIntT, maximum=SqlBigIntT, payload=SqlVarBinaryT, long_text=SqlVarCharT
+inserted: 1
+columns: id, message, note, score, created, minimum, maximum, payload, long_text
+row: 1	Привет 世界 😀	NULL	3.5	2024-02-29	-9223372036854775808	9223372036854775807
+binary: [0,1,127,128,255]
+long text length: 12000
+long text intact: True
+reused: 2	batch two
+reused: 3	batch three
+updated: 1
+updated missing: 0
+deleted: 1
+after rollback: 2	batch two
+after commit: 2	committed
+retry SQLSTATE: 40001
+transaction attempts: 2
+after retry: 1	10.0

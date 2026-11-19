@@ -1,0 +1,18 @@
+inserted: 1
+columns: id, name, note, amount, payload, created, seen, active, cost
+4294967297: Привет, 世界 🌍, note=NULL, amount=12.5, payload=0041ff, created=1960-02-29, seen=1960-02-29T12:34:56.123, active=1, cost=1234567890123.123456789
+2: Second, note=6000:1853dfaa6b3a0e3d3c9b25821bfcf7c54ff52ccb3f0b6f6a6868300e762caa8b, amount=12.5, payload=0041ff, created=1960-02-29, seen=1960-02-29T12:34:56.123, active=1, cost=1234567890123.123456789
+primary key: id
+table found: 1
+updated: 1
+updated missing: 0
+after rollback: 20
+transaction attempts: 2
+after commit: 22
+result: 10
+result: 20
+invalid SQL accepted: 0
+connection reused: 42
+deleted: 1
+deleted missing: 0
+remaining: 1

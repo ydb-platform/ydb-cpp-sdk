@@ -1,0 +1,6 @@
+kind: archive
+url: https://codeload.github.com/r-dbi/odbc/tar.gz/refs/tags/v1.4.2
+revision: v1.4.2
+sha256: 333a6b91180304adb56fd947449abf9f3c8c9b1998457c61c8e665630d4d19d4
+license: MIT
+ci_only: true

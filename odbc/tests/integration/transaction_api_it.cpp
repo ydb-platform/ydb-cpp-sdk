@@ -1,0 +1,272 @@
+#include "test_utils.h"
+
+#include <cstdint>
+
+TEST(TransactionApi, AutocommitDefaultOn) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    AllocEnvAndConnect(&env, &dbc);
+    
+    SQLUINTEGER autocommit;
+    ASSERT_EQ(SQLGetConnectAttr(dbc, SQL_ATTR_AUTOCOMMIT, &autocommit, 0, nullptr), SQL_SUCCESS);
+    ASSERT_EQ(autocommit, SQL_AUTOCOMMIT_ON);
+    
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(TransactionApi, AutocommitOnOffToggle) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    AllocEnvAndConnect(&env, &dbc);
+    
+    CHECK_ODBC_OK(SQLSetConnectAttr(dbc, SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_OFF, 0),
+                  dbc, SQL_HANDLE_DBC);
+    SQLUINTEGER autocommit;
+    ASSERT_EQ(SQLGetConnectAttr(dbc, SQL_ATTR_AUTOCOMMIT, &autocommit, 0, nullptr), SQL_SUCCESS);
+    ASSERT_EQ(autocommit, SQL_AUTOCOMMIT_OFF);
+    
+    CHECK_ODBC_OK(SQLSetConnectAttr(dbc, SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_ON, 0),
+                  dbc, SQL_HANDLE_DBC);
+    ASSERT_EQ(SQLGetConnectAttr(dbc, SQL_ATTR_AUTOCOMMIT, &autocommit, 0, nullptr), SQL_SUCCESS);
+    ASSERT_EQ(autocommit, SQL_AUTOCOMMIT_ON);
+    
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(TransactionApi, AutocommitOffRollback) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    ExpectInfo<SQLUSMALLINT>(dbc, SQL_TXN_CAPABLE, SQL_TC_DML);
+    ExpectInfo<SQLUSMALLINT>(dbc, SQL_CURSOR_ROLLBACK_BEHAVIOR, SQL_CB_CLOSE);
+    SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE IF EXISTS test_rollback", SQL_NTS);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"CREATE TABLE test_rollback (id Int32, value Int32, PRIMARY KEY (id))", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLSetConnectAttr(dbc, SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_OFF, 0),
+                  dbc, SQL_HANDLE_DBC);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"UPSERT INTO test_rollback (id, value) VALUES (1, 100)", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT 1; SELECT 2", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLEndTran(SQL_HANDLE_DBC, dbc, SQL_ROLLBACK), dbc, SQL_HANDLE_DBC);
+    EXPECT_EQ(SQLMoreResults(stmt), SQL_NO_DATA);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT value FROM test_rollback WHERE id = 1", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_NO_DATA);
+    CHECK_ODBC_OK(SQLEndTran(SQL_HANDLE_DBC, dbc, SQL_ROLLBACK), dbc, SQL_HANDLE_DBC);
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(TransactionApi, AutocommitOffCommit) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    ExpectInfo<SQLUSMALLINT>(dbc, SQL_TXN_CAPABLE, SQL_TC_DML);
+    ExpectInfo<SQLUSMALLINT>(dbc, SQL_CURSOR_COMMIT_BEHAVIOR, SQL_CB_CLOSE);
+    SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE IF EXISTS test_commit", SQL_NTS);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"CREATE TABLE test_commit (id Int32, value Int32, PRIMARY KEY (id))", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLSetConnectAttr(dbc, SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_OFF, 0),
+                  dbc, SQL_HANDLE_DBC);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"UPSERT INTO test_commit (id, value) VALUES (1, 200)", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT 1; SELECT 2", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    CHECK_ODBC_OK(SQLEndTran(SQL_HANDLE_DBC, dbc, SQL_COMMIT), dbc, SQL_HANDLE_DBC);
+    EXPECT_EQ(SQLMoreResults(stmt), SQL_NO_DATA);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT value FROM test_commit WHERE id = 1", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    SQLINTEGER value;
+    ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_LONG, &value, 0, nullptr), SQL_SUCCESS);
+    ASSERT_EQ(value, 200);
+    CHECK_ODBC_OK(SQLEndTran(SQL_HANDLE_DBC, dbc, SQL_ROLLBACK), dbc, SQL_HANDLE_DBC);
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(TransactionApi, MultipleStatementsInManualTransaction) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE IF EXISTS test_multi_stmt", SQL_NTS);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"CREATE TABLE test_multi_stmt (id Int32, value Int32, PRIMARY KEY (id))", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLSetConnectAttr(dbc, SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_OFF, 0),
+                  dbc, SQL_HANDLE_DBC);
+    for (int i = 1; i <= 5; ++i) {
+        char query[256];
+        snprintf(query, sizeof(query), "UPSERT INTO test_multi_stmt (id, value) VALUES (%d, %d)", i, i * 10);
+        CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)query, SQL_NTS), stmt, SQL_HANDLE_STMT);
+    }
+    CHECK_ODBC_OK(SQLEndTran(SQL_HANDLE_DBC, dbc, SQL_COMMIT), dbc, SQL_HANDLE_DBC);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT COUNT(*) FROM test_multi_stmt", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    SQLINTEGER count;
+    ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_LONG, &count, 0, nullptr), SQL_SUCCESS);
+    ASSERT_EQ(count, 5);
+    CHECK_ODBC_OK(SQLEndTran(SQL_HANDLE_DBC, dbc, SQL_ROLLBACK), dbc, SQL_HANDLE_DBC);
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(TransactionApi, AutocommitOffRowCountUnavailable) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE IF EXISTS test_transaction_row_count", SQL_NTS);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"CREATE TABLE test_transaction_row_count (id Int32, value Int32, PRIMARY KEY (id))",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"UPSERT INTO test_transaction_row_count (id, value) VALUES (1, 10)",
+        SQL_NTS), stmt, SQL_HANDLE_STMT);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLSetConnectAttr(dbc, SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_OFF, 0),
+                  dbc, SQL_HANDLE_DBC);
+
+    for (const char* query : {
+            "UPDATE test_transaction_row_count SET value = 20 WHERE id = 1",
+            "UPDATE test_transaction_row_count SET value = 30 WHERE id = 999"}) {
+        CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)query, SQL_NTS), stmt, SQL_HANDLE_STMT);
+        SQLLEN diagRowCount = -2;
+        CHECK_ODBC_OK(SQLGetDiagField(SQL_HANDLE_STMT, stmt, 0, SQL_DIAG_ROW_COUNT,
+            &diagRowCount, 0, nullptr), stmt, SQL_HANDLE_STMT);
+        EXPECT_EQ(diagRowCount, -1);
+        SQLLEN rowCount = -2;
+        CHECK_ODBC_OK(SQLRowCount(stmt, &rowCount), stmt, SQL_HANDLE_STMT);
+        EXPECT_EQ(rowCount, -1);
+        SQLFreeStmt(stmt, SQL_CLOSE);
+    }
+
+    CHECK_ODBC_OK(SQLEndTran(SQL_HANDLE_DBC, dbc, SQL_ROLLBACK), dbc, SQL_HANDLE_DBC);
+    CHECK_ODBC_OK(SQLSetConnectAttr(dbc, SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_ON, 0),
+                  dbc, SQL_HANDLE_DBC);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"SELECT value FROM test_transaction_row_count WHERE id = 1", SQL_NTS),
+        stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    SQLINTEGER value = 0;
+    CHECK_ODBC_OK(SQLGetData(stmt, 1, SQL_C_LONG, &value, sizeof(value), nullptr),
+        stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(value, 10);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt,
+        (SQLCHAR*)"DROP TABLE test_transaction_row_count", SQL_NTS), stmt, SQL_HANDLE_STMT);
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(TransactionApi, SQLEndTranOnEnv) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    SQLExecDirect(stmt, (SQLCHAR*)"DROP TABLE IF EXISTS test_env_tran", SQL_NTS);
+    SQLFreeStmt(stmt, SQL_CLOSE);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"CREATE TABLE test_env_tran (id Int32, PRIMARY KEY (id))", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLSetConnectAttr(dbc, SQL_ATTR_AUTOCOMMIT, (SQLPOINTER)SQL_AUTOCOMMIT_OFF, 0),
+                  dbc, SQL_HANDLE_DBC);
+    CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"UPSERT INTO test_env_tran (id) VALUES (1)", SQL_NTS),
+                  stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLEndTran(SQL_HANDLE_ENV, env, SQL_COMMIT), env, SQL_HANDLE_ENV);
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(TransactionApi, SQLEndTranInvalid) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLEndTran(SQL_HANDLE_DBC, dbc, 999), SQL_ERROR);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(TransactionApi, TxnIsolationDefault) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    AllocEnvAndConnect(&env, &dbc);
+    SQLUINTEGER isolation;
+    ASSERT_EQ(SQLGetConnectAttr(dbc, SQL_ATTR_TXN_ISOLATION, &isolation, sizeof(isolation), nullptr), SQL_SUCCESS);
+    ASSERT_EQ(isolation, SQL_TXN_SERIALIZABLE);
+    ExpectInfo<SQLUINTEGER>(dbc, SQL_DEFAULT_TXN_ISOLATION, isolation);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
+TEST(TransactionApi, TxnIsolationUnsupportedInReadWrite) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    ExpectInfo<SQLUINTEGER>(dbc, SQL_TXN_ISOLATION_OPTION, SQL_TXN_REPEATABLE_READ | SQL_TXN_SERIALIZABLE);
+    const auto checkIsolation = [&](SQLUINTEGER isolation) {
+        CHECK_ODBC_OK(SQLSetConnectAttr(dbc, SQL_ATTR_TXN_ISOLATION,
+            reinterpret_cast<SQLPOINTER>(static_cast<uintptr_t>(isolation)), 0), dbc, SQL_HANDLE_DBC);
+        SQLUINTEGER actual = 0;
+        CHECK_ODBC_OK(SQLGetConnectAttr(dbc, SQL_ATTR_TXN_ISOLATION, &actual, 0, nullptr), dbc, SQL_HANDLE_DBC);
+        EXPECT_EQ(actual, isolation);
+        CHECK_ODBC_OK(SQLExecDirect(stmt, (SQLCHAR*)"SELECT 1", SQL_NTS), stmt, SQL_HANDLE_STMT);
+        ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+        CHECK_ODBC_OK(SQLCloseCursor(stmt), stmt, SQL_HANDLE_STMT);
+    };
+    for (const SQLUINTEGER isolation : {SQL_TXN_REPEATABLE_READ, SQL_TXN_SERIALIZABLE}) {
+        checkIsolation(isolation);
+    }
+    ASSERT_EQ(SQLSetConnectAttr(dbc, SQL_ATTR_TXN_ISOLATION, (SQLPOINTER)SQL_TXN_READ_COMMITTED, 0), SQL_ERROR);
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(dbc, SQL_HANDLE_DBC), "HYC00"));
+    ASSERT_EQ(SQLSetConnectAttr(dbc, SQL_ATTR_TXN_ISOLATION, (SQLPOINTER)9999, 0), SQL_ERROR);
+    EXPECT_TRUE(SqlStatePrefix(GetOdbcError(dbc, SQL_HANDLE_DBC), "HY024"));
+    CHECK_ODBC_OK(SQLSetConnectAttr(dbc, SQL_ATTR_ACCESS_MODE, (SQLPOINTER)SQL_MODE_READ_ONLY, 0), dbc, SQL_HANDLE_DBC);
+    ExpectInfo<SQLUINTEGER>(dbc, SQL_TXN_ISOLATION_OPTION,
+        SQL_TXN_READ_UNCOMMITTED | SQL_TXN_READ_COMMITTED | SQL_TXN_REPEATABLE_READ | SQL_TXN_SERIALIZABLE);
+    for (const SQLUINTEGER isolation : {SQL_TXN_READ_UNCOMMITTED, SQL_TXN_READ_COMMITTED,
+            SQL_TXN_REPEATABLE_READ, SQL_TXN_SERIALIZABLE}) {
+        checkIsolation(isolation);
+    }
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}

@@ -1,0 +1,7 @@
+DBItest:
+  kind: archive
+  url: https://cran.r-project.org/src/contrib/Archive/DBItest/DBItest_1.8.0.tar.gz
+  revision: 1.8.0
+  sha256: dd35c24d556c7a2bc82fff097897bb0229d78004e0de147167c30bcf66e13ccd
+  license: LGPL-2.1-or-later
+  ci_only: true

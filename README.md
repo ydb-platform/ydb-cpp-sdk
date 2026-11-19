@@ -27,22 +27,28 @@ Ubuntu 24.04:
 ```bash
 sudo apt-get -y update
 sudo apt-get -y install build-essential ca-certificates ccache clang cmake git \
-  libidn11-dev libssl-dev lld ninja-build pkg-config python3 ragel yasm
+  libidn11-dev libssl-dev lld ninja-build odbcinst pkg-config python3 ragel \
+  unixodbc-dev yasm
 ```
+
+`unixodbc-dev` is only required when configuring with `YDB_SDK_ODBC=ON`.
 
 Fedora 43:
 
 ```bash
 sudo dnf install -y ccache cmake gcc gcc-c++ git libidn-devel \
-  ninja-build openssl-devel openssl-devel-engine pkgconf-pkg-config python3 ragel yasm
+  ninja-build openssl-devel openssl-devel-engine pkgconf-pkg-config python3 ragel \
+  unixODBC-devel yasm
 ```
 
 macOS 14:
 
 ```bash
 xcode-select --install # if the Command Line Tools are not installed yet
-brew install ccache cmake git libidn ninja openssl@3 python ragel yasm
+brew install ccache cmake git libidn libiodbc ninja openssl@3 python ragel yasm
 ```
+
+`libiodbc` is only required when configuring with `YDB_SDK_ODBC=ON`.
 
 ### Clone the ydb-cpp-sdk repository
 
@@ -82,18 +88,21 @@ The SDK can be packaged as Debian development packages with CPack. The complete 
 - `libydb-cpp-iam-dev` — IAM credentials plugin;
 - `libydb-cpp-otel-metrics-dev` — OpenTelemetry metrics plugin;
 - `libydb-cpp-otel-tracing-dev` — OpenTelemetry tracing plugin (requires `libydb-cpp-otel-metrics-dev` for OTel headers/libs).
+- `ydb-odbc` — YDB ODBC driver and unixODBC registration template.
 
 The CPack-only packaging flow is intended for Ubuntu 24.04. It builds and
-installs the Google common-protos package before packaging the four SDK
-components, so all five packages use the distro protobuf ABI:
+installs the Google common-protos package before packaging the SDK components,
+so all six packages use the distro protobuf ABI:
 
 ```bash
 ./scripts/build_cpack_deb_packages.sh build-deb/packages
 ```
 
-The generated `.deb` files are placed into `build-deb/packages/` and install
-under `/usr/share/yandex`. The IAM and OTel packages require the matching core
-version; tracing additionally requires the matching metrics package.
+The generated `.deb` files are placed into `build-deb/packages/`. SDK files
+install under `/usr/share/yandex`; the ODBC driver installs under the system
+multiarch library directory with its template under `/usr/share/ydb-odbc`.
+The IAM and OTel packages require the matching core version; tracing
+additionally requires the matching metrics package.
 
 To smoke-test generated `.deb` packages with the sample consumer project:
 
@@ -117,12 +126,17 @@ wget "${BASE}/libydb-cpp-dev_${TAG#v}_amd64.deb"
 wget "${BASE}/libydb-cpp-iam-dev_${TAG#v}_amd64.deb"
 wget "${BASE}/libydb-cpp-otel-metrics-dev_${TAG#v}_amd64.deb"
 wget "${BASE}/libydb-cpp-otel-tracing-dev_${TAG#v}_amd64.deb"
+# Optional ODBC driver:
+wget "${BASE}/ydb-odbc_${TAG#v}_amd64.deb"
 
 sudo apt-get update
 sudo apt-get install -y \
     ./yandex-googleapis-api-common-protos_*.deb \
     ./libydb-cpp-dev_*.deb ./libydb-cpp-iam-dev_*.deb \
-    ./libydb-cpp-otel-metrics-dev_*.deb ./libydb-cpp-otel-tracing-dev_*.deb
+    ./libydb-cpp-otel-metrics-dev_*.deb ./libydb-cpp-otel-tracing-dev_*.deb \
+    ./ydb-odbc_*.deb
+
+odbcinst -q -d -n YDB
 ```
 
 After installation, use the SDK in your CMake project:
