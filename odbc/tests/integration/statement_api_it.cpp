@@ -1483,6 +1483,52 @@ TEST(StatementApi, AttrNoScan) {
     SQLFreeHandle(SQL_HANDLE_ENV, env);
 }
 
+TEST(StatementApi, AttrNoScanParameterCount) {
+    SQLHENV env;
+    SQLHDBC dbc;
+    SQLHSTMT stmt;
+    AllocEnvAndConnect(&env, &dbc);
+    ASSERT_EQ(SQLAllocHandle(SQL_HANDLE_STMT, dbc, &stmt), SQL_SUCCESS);
+    SQLCHAR query[] = "SELECT {fn CONVERT(?, SQL_INTEGER)} + ? AS value";
+    const auto setNoScan = [&](SQLULEN mode) {
+        return SQLSetStmtAttr(stmt, SQL_ATTR_NOSCAN, reinterpret_cast<SQLPOINTER>(mode), 0);
+    };
+    SQLSMALLINT count = 0;
+    CHECK_ODBC_OK(setNoScan(SQL_NOSCAN_ON), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLPrepare(stmt, query, SQL_NTS), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLNumParams(stmt, &count), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(count, 1);
+
+    CHECK_ODBC_OK(setNoScan(SQL_NOSCAN_OFF), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLNumParams(stmt, &count), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(count, 2);
+    SQLINTEGER values[] = {7, 5};
+    for (SQLUSMALLINT number = 1; number <= 2; ++number) {
+        CHECK_ODBC_OK(SQLBindParameter(stmt, number, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER,
+                                       0, 0, &values[number - 1], 0, nullptr), stmt, SQL_HANDLE_STMT);
+    }
+
+    CHECK_ODBC_OK(setNoScan(SQL_NOSCAN_ON), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLNumParams(stmt, &count), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(count, 1);
+    SQLSMALLINT nullable = SQL_NULLABLE_UNKNOWN;
+    CHECK_ODBC_OK(SQLDescribeParam(stmt, 1, nullptr, nullptr, nullptr, &nullable), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(nullable, SQL_NULLABLE);
+    CHECK_ODBC_OK(setNoScan(SQL_NOSCAN_OFF), stmt, SQL_HANDLE_STMT);
+    CHECK_ODBC_OK(SQLNumParams(stmt, &count), stmt, SQL_HANDLE_STMT);
+    EXPECT_EQ(count, 2);
+    CHECK_ODBC_OK(SQLExecute(stmt), stmt, SQL_HANDLE_STMT);
+    ASSERT_EQ(SQLFetch(stmt), SQL_SUCCESS);
+    SQLINTEGER result = 0;
+    ASSERT_EQ(SQLGetData(stmt, 1, SQL_C_LONG, &result, sizeof(result), nullptr), SQL_SUCCESS);
+    EXPECT_EQ(result, 12);
+
+    SQLFreeHandle(SQL_HANDLE_STMT, stmt);
+    SQLDisconnect(dbc);
+    SQLFreeHandle(SQL_HANDLE_DBC, dbc);
+    SQLFreeHandle(SQL_HANDLE_ENV, env);
+}
+
 TEST(StatementApi, EscapeSequenceConvert) {
     SQLHENV env;
     SQLHDBC dbc;

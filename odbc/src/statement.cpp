@@ -146,19 +146,30 @@ SQLRETURN TStatement::Prepare(const std::string& statementText) {
     PreparedColumnMeta_.reset();
     ClearResults();
     PreparedQuery_ = GetConnection().PrepareSql(statementText);
-    ParamCount_ = CountOdbcParams(PreparedQuery_);
-    ImpParamDesc_.WithLock([&](TDescriptor& desc) {
-        while (desc.GetRecordCount() > ParamCount_) {
-            desc.RemoveRecord(desc.GetRecordCount());
-        }
-        for (SQLUSMALLINT i = 1; i <= ParamCount_; ++i) {
-            desc.RemoveInferredRecord(i);
-            desc.Record(i).Nullable = SQL_NULLABLE_UNKNOWN;
-            desc.Record(i).WideTemporalType.reset();
-        }
-    });
+    ResetPreparedParamMetadata(
+        CountOdbcParams(PreparedQuery_, Attributes_.GetNoScanMode() != SQL_NOSCAN_ON), false);
     IsPrepared_ = true;
     return SQL_SUCCESS;
+}
+
+void TStatement::ResetPreparedParamMetadata(SQLSMALLINT paramCount, bool keepExcessBindings) {
+    ImpParamDesc_.WithLock([&](TDescriptor& desc) {
+        for (SQLSMALLINT i = desc.GetRecordCount(); i > paramCount; --i) {
+            const auto* record = desc.FindRecord(i);
+            if (!keepExcessBindings || !record || record->Inferred || record->Type == SQL_UNKNOWN_TYPE) {
+                desc.RemoveRecord(i);
+            }
+        }
+        for (SQLUSMALLINT i = 1; i <= paramCount; ++i) {
+            desc.RemoveInferredRecord(i);
+            auto& record = desc.Record(i);
+            if (!keepExcessBindings || record.Type == SQL_UNKNOWN_TYPE) {
+                record.Nullable = SQL_NULLABLE_UNKNOWN;
+            }
+            record.WideTemporalType.reset();
+        }
+    });
+    ParamCount_ = paramCount;
 }
 
 SQLRETURN TStatement::Execute() {
@@ -1341,16 +1352,18 @@ SQLRETURN TStatement::SetStmtAttr(
                 value, Attributes_.MaxRows, *this, "SQL_ATTR_MAX_ROWS",
                 [](SQLLEN input) { return input >= 0; });
         case SQL_ATTR_NOSCAN: {
-            const SQLULEN previous = Attributes_.NoScan;
-            const SQLRETURN result = SetCheckedAttribute<SQLULEN>(
-                value, Attributes_.NoScan, *this, "SQL_ATTR_NOSCAN",
-                [](SQLULEN input) {
-                    return input == SQL_NOSCAN_OFF || input == SQL_NOSCAN_ON;
-                });
-            if (result == SQL_SUCCESS && Attributes_.NoScan != previous) {
+            const SQLULEN noScan = ReadIntegerAttr<SQLULEN>(value);
+            if (noScan != SQL_NOSCAN_OFF && noScan != SQL_NOSCAN_ON) {
+                return Diag::AddInvalidAttrValue(*this, "SQL_ATTR_NOSCAN");
+            }
+            if (noScan != Attributes_.NoScan) {
+                if (IsPrepared_) {
+                    ResetPreparedParamMetadata(CountOdbcParams(PreparedQuery_, noScan != SQL_NOSCAN_ON), true);
+                }
+                Attributes_.NoScan = noScan;
                 InvalidatePreparedColumnMeta();
             }
-            return result;
+            return SQL_SUCCESS;
         }
         case SQL_ATTR_METADATA_ID:
             return SetCheckedAttribute<SQLULEN>(
