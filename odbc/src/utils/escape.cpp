@@ -569,8 +569,8 @@ bool HasMultipleSqlStatements(std::string_view sql) {
         && scanner.SkipSqlTrivia(statementEnd + 1, sql.size()) < sql.size();
 }
 
-SQLSMALLINT CountOdbcParams(std::string_view sql) {
-    TSqlScanner scanner{sql, nullptr, true};
+SQLSMALLINT CountOdbcParams(std::string_view sql, bool rewriteEscapes) {
+    TSqlScanner scanner{sql, nullptr, rewriteEscapes};
     scanner.Scan(0, sql.size(), true);
     return scanner.QuestionCount > 0
         ? static_cast<SQLSMALLINT>(scanner.QuestionCount)
@@ -592,7 +592,7 @@ std::optional<std::string> BuildParamMetadataQuery(
     if (HasMultipleSqlStatements(sql)) {
         return std::nullopt;
     }
-    const auto count = CountOdbcParams(sql);
+    const auto count = CountOdbcParams(sql, false);
     if (count != paramCount || paramNumber < 1 || paramNumber > count) {
         return std::nullopt;
     }
@@ -618,6 +618,12 @@ std::optional<std::string> BuildParamMetadataQuery(
             if (pos == std::string_view::npos) {
                 return std::nullopt;
             }
+        } else if (ch == '{') {
+            const size_t close = scanner.FindClose(begin, sql.size(), '{', '}');
+            if (close == std::string_view::npos) {
+                return std::nullopt;
+            }
+            pos = close + 1;
         } else if (ch == '?' && scanner.IsQuestionMark(begin)) {
             parameter = ++question;
         } else if (std::isalnum(ch) || ch == '_' || ch == '$') {

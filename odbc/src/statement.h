@@ -184,6 +184,7 @@ private:
     TDescriptor& GetAppParamDesc() { return AppParamDescPtr_ ? *AppParamDescPtr_ : AppParamDesc_; }
     void RefreshRowBindings();
     void RefreshParamBindings();
+    void ResetPreparedParamMetadata(SQLSMALLINT paramCount, bool keepExcessBindings);
     void StartExecution();
     bool FinishExecution() noexcept;
     void CheckCancellation() const;

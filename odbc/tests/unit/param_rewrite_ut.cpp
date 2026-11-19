@@ -92,6 +92,19 @@ TEST(OdbcParamRewrite, RewritesEscapesAndParametersInOnePass) {
     EXPECT_EQ(result.Sql, "DECLARE $p1 AS Int32;\nSELECT CAST($p1 AS Int32)");
 }
 
+TEST(OdbcParamRewrite, SkipsParametersInUntranslatedEscapes) {
+    constexpr std::string_view sql = "SELECT {fn CONVERT(?, SQL_INTEGER)} FROM t WHERE id = ?";
+    EXPECT_EQ(CountOdbcParams(sql, true), 2);
+    EXPECT_EQ(CountOdbcParams(sql, false), 1);
+    EXPECT_EQ(CountOdbcParams("SELECT {fn ABS($p3)}, $p1", false), 1);
+    const auto result = RewriteOdbcSql(sql, {IntParam(1)}, false);
+    ASSERT_TRUE(result.Success);
+    EXPECT_EQ(result.Sql,
+        "DECLARE $p1 AS Int32;\nSELECT {fn CONVERT(?, SQL_INTEGER)} FROM t WHERE id = $p1");
+    EXPECT_EQ(BuildParamMetadataQuery(sql, false, 1, 1),
+              "SELECT id AS __p1 FROM t LIMIT 0");
+}
+
 TEST(OdbcParamRewrite, UsesBoundCTypeForYdbDeclaration) {
     SQLUBIGINT value = 42;
     const std::vector<TBoundParam> params = {{
