@@ -3,9 +3,13 @@
 
 set(flagPrefixSymbol "-")
 
-if(MINGW)
-  add_compile_definitions(NOMINMAX WIN32_LEAN_AND_MEAN)
-  include("${CMAKE_CURRENT_LIST_DIR}/mingw_compat.cmake")
+if(WIN32)
+  add_compile_definitions(NOMINMAX WIN32_LEAN_AND_MEAN _USE_MATH_DEFINES)
+endif()
+
+if(MSVC AND NOT DEFINED CMAKE_MSVC_RUNTIME_LIBRARY)
+  # The directory shim uses a symbol provided by the static UCRT.
+  set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 endif()
 
 string(APPEND ${COMMON_C_CXX_FLAGS} "\

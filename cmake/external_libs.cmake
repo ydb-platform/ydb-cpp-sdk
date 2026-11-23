@@ -1,12 +1,7 @@
 # Platform prerequisites deliberately remain outside CPM.
 find_package(IDN REQUIRED)
 find_package(Iconv REQUIRED)
-# The pinned gRPC still uses OpenSSL APIs whose signatures changed in 4.x.
 find_package(OpenSSL REQUIRED)
-if(OPENSSL_VERSION VERSION_GREATER_EQUAL 4)
-  message(FATAL_ERROR
-    "The pinned gRPC does not support OpenSSL 4.x; configure with an OpenSSL 3.x prefix")
-endif()
 find_package(Threads REQUIRED)
 
 include("${CMAKE_CURRENT_LIST_DIR}/dependencies.cmake")

@@ -3,7 +3,7 @@
 find_package(Python3 REQUIRED)
 
 function(_ydb_sdk_prepare_imported_libc_compat TargetName)
-  if(MINGW)
+  if(WIN32)
     set(_libc_root "${YDB_SDK_SOURCE_DIR}/contrib/libs/libc_compat")
     set(_windows_sources memrchr.c explicit_bzero.c stpcpy.c strlcat.c strlcpy.c
       strcasestr.c strsep.c reallocarray/reallocarray.c src/windows/sys/uio.c)
@@ -137,7 +137,9 @@ endfunction()
 
 function(add_global_library_for TgtName MainName)
   add_library(${TgtName} STATIC ${ARGN})
-  if(APPLE)
+  if(MSVC)
+    target_link_options(${MainName} INTERFACE "/WHOLEARCHIVE:$<TARGET_FILE:$<INSTALL_INTERFACE:YDB-CPP-SDK::>${TgtName}>")
+  elseif(APPLE)
     target_link_options(${MainName} INTERFACE "SHELL:-Wl,-force_load,$<TARGET_FILE:$<INSTALL_INTERFACE:YDB-CPP-SDK::>${TgtName}>")
   else()
     target_link_options(${MainName} INTERFACE "SHELL:-Wl,--whole-archive $<TARGET_FILE:$<INSTALL_INTERFACE:YDB-CPP-SDK::>${TgtName}> -Wl,--no-whole-archive")
@@ -234,10 +236,6 @@ function(_ydb_sdk_add_library Tgt)
   endif()
   
   add_library(${Tgt} ${libraryMode})
-  if(MINGW)
-    target_include_directories(${Tgt} ${includeMode}
-      $<BUILD_INTERFACE:${YDB_SDK_MINGW_COMPAT_DIR}>)
-  endif()
   target_include_directories(${Tgt} ${includeMode}
     $<BUILD_INTERFACE:${YDB_SDK_SOURCE_DIR}>
     $<BUILD_INTERFACE:${YDB_SDK_BINARY_DIR}>
