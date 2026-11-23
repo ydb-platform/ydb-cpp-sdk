@@ -2,6 +2,9 @@ enable_testing()
 
 include(GoogleTest)
 
+set(YDB_SDK_TEST_TARGETS "" CACHE STRING "Register CTest tests only for these targets")
+mark_as_advanced(YDB_SDK_TEST_TARGETS)
+
 function(add_ydb_test)
   set(opts GTEST)
   set(oneval_args NAME WORKING_DIRECTORY OUTPUT_DIRECTORY)
@@ -48,6 +51,22 @@ function(add_ydb_test)
   endif()
 
   if (YDB_TEST_GTEST)
+    target_link_libraries(${YDB_TEST_NAME} PRIVATE
+      GTest::gtest_main
+      GTest::gmock_main
+    )
+  else()
+    target_link_libraries(${YDB_TEST_NAME} PRIVATE
+      cpp-testing-unittest_main
+    )
+  endif()
+  vcs_info(${YDB_TEST_NAME})
+
+  if (YDB_SDK_TEST_TARGETS AND NOT YDB_TEST_NAME IN_LIST YDB_SDK_TEST_TARGETS)
+    return()
+  endif()
+
+  if (YDB_TEST_GTEST)
     set(env_vars "")
     foreach(env_var ${YDB_TEST_ENV})
       list(APPEND env_vars "ENVIRONMENT")
@@ -62,11 +81,6 @@ function(add_ydb_test)
         ENVIRONMENT "YDB_TEST_ROOT=sdk_tests"
         ${env_vars}
     )
-
-    target_link_libraries(${YDB_TEST_NAME} PRIVATE
-      GTest::gtest_main
-      GTest::gmock_main
-    )
   else()
     add_test(NAME ${YDB_TEST_NAME}
       WORKING_DIRECTORY ${YDB_TEST_WORKING_DIRECTORY}
@@ -79,16 +93,10 @@ function(add_ydb_test)
         ${YDB_TEST_TEST_ARG}
     )
 
-    target_link_libraries(${YDB_TEST_NAME} PRIVATE
-      cpp-testing-unittest_main
-    )
-
     set_tests_properties(${YDB_TEST_NAME} PROPERTIES LABELS ${YDB_TEST_LABELS})
     set_tests_properties(${YDB_TEST_NAME} PROPERTIES ENVIRONMENT "YDB_TEST_ROOT=sdk_tests")
     if (YDB_TEST_ENV)
       set_tests_properties(${YDB_TEST_NAME} PROPERTIES ENVIRONMENT ${YDB_TEST_ENV})
     endif()
   endif()
-
-  vcs_info(${YDB_TEST_NAME})
 endfunction()

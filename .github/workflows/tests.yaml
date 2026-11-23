@@ -79,6 +79,18 @@ jobs:
           integration-build-${{ matrix.compiler }}.tar.gz
         retention-days: 3
 
+  build-and-unit-windows:
+    name: Build and unit test (Windows clang-cl)
+    runs-on: windows-2022
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha || github.sha }}
+    - uses: ./.github/actions/build_windows
+    - name: Test
+      shell: pwsh
+      run: ctest --preset unit --no-tests=error --parallel $env:NUMBER_OF_PROCESSORS
+
   integration:
     needs: build-and-unit
     concurrency:

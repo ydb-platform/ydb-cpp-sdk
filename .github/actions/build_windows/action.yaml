@@ -1,0 +1,74 @@
+name: Build Windows SDK
+description: Build the SDK, examples, and selected unit tests with clang-cl
+
+runs:
+  using: composite
+  steps:
+    - name: Restore CPM sources
+      uses: actions/cache@v4
+      with:
+        path: .cache/cpm
+        key: cpm-windows-2022-x64-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}
+    - name: Restore compiler and vcpkg caches
+      uses: actions/cache@v4
+      with:
+        path: |
+          .cache/ccache
+          .cache/vcpkg
+        key: windows-2022-x64-clang-cl-${{ github.run_id }}-${{ github.run_attempt }}
+        restore-keys: |
+          windows-2022-x64-clang-cl-
+    - name: Install Ragel and Yasm
+      id: generators
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: CLANG64
+        pacboy: ragel:p yasm:p
+    - name: Checkout Libidn sources with MSVC configuration
+      uses: actions/checkout@v4
+      with:
+        repository: ydb-platform/ydb
+        ref: e46132c842de6045117a9869b28f7a28ac9918ea
+        path: .cache/ydb-libidn
+        sparse-checkout: contrib/libs/libidn
+        persist-credentials: false
+    - name: Configure and build
+      shell: pwsh
+      env:
+        GENERATOR_ROOT: ${{ steps.generators.outputs.msys2-location }}
+        CCACHE_BASEDIR: ${{ github.workspace }}
+        CCACHE_DIR: ${{ github.workspace }}/.cache/ccache
+        CPM_SOURCE_CACHE: ${{ github.workspace }}/.cache/cpm
+      run: |
+        $PSNativeCommandUseErrorActionPreference = $true
+        $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+        $vs = & $vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+        & "$vs\Common7\Tools\Launch-VsDevShell.ps1" -Arch amd64 -HostArch amd64 -SkipAutomaticLocation
+        $compiler = (Get-Command clang-cl.exe).Source
+        $env:PATH += ";$env:GENERATOR_ROOT\clang64\bin"
+
+        choco install ccache --yes --no-progress
+        New-Item -ItemType Directory -Force .cache/vcpkg | Out-Null
+        $env:VCPKG_BINARY_SOURCES = "clear;files,$PWD/.cache/vcpkg,readwrite"
+        & "$env:VCPKG_INSTALLATION_ROOT\vcpkg.exe" install openssl:x64-windows-static libiconv:x64-windows-static
+        $prefix = "$env:VCPKG_INSTALLATION_ROOT/installed/x64-windows-static"
+
+        $libidn = "$PWD/.cache/ydb-libidn/contrib/libs/libidn"
+        cmake -S "$env:GITHUB_ACTION_PATH/libidn" -B .cache/libidn -G Ninja `
+          "-DCMAKE_C_COMPILER=$compiler" -DCMAKE_BUILD_TYPE=Release "-DLIBIDN_SOURCE_DIR=$libidn"
+        cmake --build .cache/libidn --parallel
+
+        # Start with unit suites that build and run on Windows.
+        $unitTargets = @(
+          'client-connection_string_ut', 'client-embedding_ut', 'client-params_ut',
+          'client-result_ut', 'client-value_ut', 'operation_id_ut', 'time_ut',
+          'yql-public-decimal_ut', 'yql-public-issue_ut'
+        )
+        ccache --zero-stats
+        cmake --preset base -DCMAKE_BUILD_TYPE=Release -DYDB_SDK_TESTS=ON `
+          "-DCMAKE_C_COMPILER=$compiler" "-DCMAKE_CXX_COMPILER=$compiler" `
+          "-DYDB_SDK_TEST_TARGETS=$($unitTargets -join ';')" `
+          "-DCMAKE_PREFIX_PATH=$prefix" "-DOPENSSL_ROOT_DIR=$prefix" `
+          "-DIDN_INCLUDE_DIR=$libidn/lib" "-DIDN_LIBRARIES=$PWD/.cache/libidn/idn.lib"
+        cmake --build --preset default --target src/all examples/all @unitTargets --parallel
+        ccache --show-stats

@@ -31,6 +31,13 @@ jobs:
         with:
           compiler: ${{ matrix.compiler }}
 
+  windows:
+    name: Warm Windows clang-cl caches
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/build_windows
+
   coverage:
     name: Warm coverage compiler cache
     runs-on: ubuntu-24.04
