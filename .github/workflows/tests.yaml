@@ -80,8 +80,8 @@ jobs:
         retention-days: 3
 
   build-and-unit-macos:
-    name: Build and unit test (macOS ARM64)
-    runs-on: macos-15
+    name: Build and unit test (macOS Intel)
+    runs-on: macos-15-intel
     env:
       CCACHE_BASEDIR: ${{ github.workspace }}
       CPM_SOURCE_CACHE: ${{ github.workspace }}/.cache/cpm
@@ -94,23 +94,23 @@ jobs:
       uses: actions/cache@v4
       with:
         path: .cache/cpm
-        key: cpm-macos-15-arm64-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}
+        key: cpm-macos-15-intel-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}
     - name: Restore compiler cache
       uses: actions/cache@v4
       with:
         path: .cache/ccache
-        key: macos-15-arm64-ccache-${{ github.run_id }}-${{ github.run_attempt }}
-        restore-keys: macos-15-arm64-ccache-
+        key: macos-15-intel-ccache-${{ github.run_id }}-${{ github.run_attempt }}
+        restore-keys: macos-15-intel-ccache-
     - uses: lukka/get-cmake@v3.27.7
     - name: Install dependencies
       run: brew install ccache libidn openssl@3 ragel yasm
     - name: Build
       run: |
         cmake --preset release-test-clang -DCMAKE_PREFIX_PATH="$(brew --prefix libidn);$(brew --prefix openssl@3)"
-        cmake --build --preset default --parallel 3
+        cmake --build --preset default --parallel 4
         ccache --show-stats
     - name: Test
-      run: ctest --preset unit --no-tests=error --parallel 3
+      run: ctest --preset unit --no-tests=error --parallel 4
 
   build-and-unit-windows:
     name: Build and unit test (Windows clang-cl)

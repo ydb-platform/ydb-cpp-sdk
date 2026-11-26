@@ -7,6 +7,11 @@ if(WIN32)
   add_compile_definitions(NOMINMAX WIN32_LEAN_AND_MEAN _USE_MATH_DEFINES)
 endif()
 
+if(MSVC AND CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  # CMake's cmcldeps passes the resource compiler's /fo option to clang-cl.
+  set(CMAKE_NINJA_CMCLDEPS_RC OFF)
+endif()
+
 if(MSVC AND NOT DEFINED CMAKE_MSVC_RUNTIME_LIBRARY)
   # The directory shim uses a symbol provided by the static UCRT.
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
