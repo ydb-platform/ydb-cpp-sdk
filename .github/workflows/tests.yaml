@@ -79,8 +79,39 @@ jobs:
           integration-build-${{ matrix.compiler }}.tar.gz
         retention-days: 3
 
+  build-macos:
+    name: Build (macOS ARM64)
+    runs-on: macos-15
+    env:
+      CPM_SOURCE_CACHE: ${{ github.workspace }}/.cache/cpm
+      CCACHE_DIR: ${{ github.workspace }}/.cache/ccache
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha || github.sha }}
+    - name: Restore CPM sources
+      uses: actions/cache@v4
+      with:
+        path: .cache/cpm
+        key: cpm-macos-15-arm64-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}
+    - name: Restore compiler cache
+      uses: actions/cache@v4
+      with:
+        path: .cache/ccache
+        key: macos-15-arm64-ccache-${{ github.run_id }}-${{ github.run_attempt }}
+        restore-keys: macos-15-arm64-ccache-
+    - uses: lukka/get-cmake@v3.27.7
+    - name: Install dependencies
+      run: brew install ccache libidn openssl@3 ragel yasm
+    - name: Build
+      run: |
+        cmake --preset release-clang -DCMAKE_PREFIX_PATH="$(brew --prefix libidn);$(brew --prefix openssl@3)"
+        cmake --build --preset default --parallel 3
+        ccache --show-stats
+
   build-and-unit-windows:
     name: Build and unit test (Windows clang-cl)
+    if: github.event.pull_request.draft != true
     runs-on: windows-2022
     steps:
     - uses: actions/checkout@v4

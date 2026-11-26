@@ -53,7 +53,8 @@ runs:
         & "$env:VCPKG_INSTALLATION_ROOT\vcpkg.exe" install openssl:x64-windows-static libiconv:x64-windows-static
         $prefix = "$env:VCPKG_INSTALLATION_ROOT/installed/x64-windows-static"
 
-        $libidn = "$PWD/.cache/ydb-libidn/contrib/libs/libidn"
+        $workspace = $PWD.Path.Replace('\', '/')
+        $libidn = "$workspace/.cache/ydb-libidn/contrib/libs/libidn"
         cmake -S "$env:GITHUB_ACTION_PATH/libidn" -B .cache/libidn -G Ninja `
           "-DCMAKE_C_COMPILER=$compiler" -DCMAKE_BUILD_TYPE=Release "-DLIBIDN_SOURCE_DIR=$libidn"
         cmake --build .cache/libidn --parallel
@@ -69,6 +70,6 @@ runs:
           "-DCMAKE_C_COMPILER=$compiler" "-DCMAKE_CXX_COMPILER=$compiler" `
           "-DYDB_SDK_TEST_TARGETS=$($unitTargets -join ';')" `
           "-DCMAKE_PREFIX_PATH=$prefix" "-DOPENSSL_ROOT_DIR=$prefix" `
-          "-DIDN_INCLUDE_DIR=$libidn/lib" "-DIDN_LIBRARIES=$PWD/.cache/libidn/idn.lib"
+          "-DIDN_INCLUDE_DIR=$libidn/lib" "-DIDN_LIBRARIES=$workspace/.cache/libidn/idn.lib"
         cmake --build --preset default --target src/all examples/all @unitTargets --parallel
         ccache --show-stats
