@@ -295,7 +295,7 @@ DEF_OPTIONAL(ui64);
 DEF_OPTIONAL(std::string);
 DEF_OPTIONAL(TString);
 DEF_OPTIONAL(TStringBuf);
-#if defined(_darwin_) && defined(_64_)
+#if defined(_darwin_) and defined(_arm64_)
 DEF_OPTIONAL(std::int64_t);
 #endif
 
