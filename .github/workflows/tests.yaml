@@ -97,19 +97,28 @@ jobs:
         path: .cache/cpm
         key: cpm-macos-15-intel-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}
     - name: Restore compiler cache
-      uses: actions/cache@v4
+      id: macos-ccache
+      uses: actions/cache/restore@v4
       with:
         path: .cache/ccache
         key: macos-15-intel-ccache-${{ github.run_id }}-${{ github.run_attempt }}
         restore-keys: macos-15-intel-ccache-
     - uses: lukka/get-cmake@v3.27.7
     - name: Install dependencies
-      run: brew install ccache libidn openssl@3 ragel yasm
+      run: brew install ccache libidn libidn2 libnghttp2 openssl@3 ragel yasm
     - name: Build
       run: |
-        cmake --preset release-test-clang -DCMAKE_PREFIX_PATH="$(brew --prefix libidn);$(brew --prefix openssl@3)"
+        cmake --preset release-test-clang \
+          -DCMAKE_PREFIX_PATH="$(brew --prefix libidn);$(brew --prefix libidn2);$(brew --prefix libnghttp2);$(brew --prefix openssl@3)" \
+          -DCURL_USE_PKGCONFIG=OFF
         cmake --build --preset default --parallel 4
         ccache --show-stats
+    - name: Save compiler cache
+      if: ${{ !cancelled() && steps.macos-ccache.outputs.cache-primary-key != '' }}
+      uses: actions/cache/save@v4
+      with:
+        path: .cache/ccache
+        key: ${{ steps.macos-ccache.outputs.cache-primary-key }}
     - name: Test
       run: ctest --preset unit --no-tests=error --parallel 4
 
