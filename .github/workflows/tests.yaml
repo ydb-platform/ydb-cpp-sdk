@@ -79,10 +79,11 @@ jobs:
           integration-build-${{ matrix.compiler }}.tar.gz
         retention-days: 3
 
-  build-macos:
-    name: Build (macOS ARM64)
+  build-and-unit-macos:
+    name: Build and unit test (macOS ARM64)
     runs-on: macos-15
     env:
+      CCACHE_BASEDIR: ${{ github.workspace }}
       CPM_SOURCE_CACHE: ${{ github.workspace }}/.cache/cpm
       CCACHE_DIR: ${{ github.workspace }}/.cache/ccache
     steps:
@@ -105,13 +106,14 @@ jobs:
       run: brew install ccache libidn openssl@3 ragel yasm
     - name: Build
       run: |
-        cmake --preset release-clang -DCMAKE_PREFIX_PATH="$(brew --prefix libidn);$(brew --prefix openssl@3)"
+        cmake --preset release-test-clang -DCMAKE_PREFIX_PATH="$(brew --prefix libidn);$(brew --prefix openssl@3)"
         cmake --build --preset default --parallel 3
         ccache --show-stats
+    - name: Test
+      run: ctest --preset unit --no-tests=error --parallel 3
 
   build-and-unit-windows:
     name: Build and unit test (Windows clang-cl)
-    if: github.event.pull_request.draft != true
     runs-on: windows-2022
     steps:
     - uses: actions/checkout@v4
