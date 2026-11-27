@@ -1,0 +1,6 @@
+kind: archive
+url: https://rubygems.org/downloads/ruby-odbc-0.999993.gem
+revision: '0.999993'
+sha256: ebf2997bd1ac6e06c30248c0f055c2ec4e93b6885bf8610968363215525b649c
+license: GPL-2.0-or-later OR Ruby
+ci_only: true

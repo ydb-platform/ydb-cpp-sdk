@@ -1,0 +1,10 @@
+#!/bin/sh
+set -e
+
+case "${1:-}" in
+    configure|abort-upgrade|abort-remove|abort-deconfigure)
+        odbcinst -i -d -f "@YDB_ODBC_DRIVER_TEMPLATE_PATH@"
+        ;;
+esac
+
+exit 0

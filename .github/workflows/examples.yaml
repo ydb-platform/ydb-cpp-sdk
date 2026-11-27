@@ -8,12 +8,14 @@ on:
     types: [opened, synchronize, reopened, ready_for_review]
     branches:
       - main
+      - odbc-driver-feature
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 jobs:      
   main:
     name: Examples
+    if: github.base_ref != 'odbc-driver-feature'
     runs-on: ubuntu-24.04
     env:
       CPM_SOURCE_CACHE: ${{ github.workspace }}/.cache/cpm
@@ -79,3 +81,118 @@ jobs:
         examples/bulk_upsert_simple/bulk_upsert_simple -e localhost:2136 -d /local -p /local/bulk
         examples/pagination/pagination -e localhost:2136 -d /local -p /local/pagination
         examples/ttl/ttl -e localhost:2136 -d /local -p /local/ttl
+  odbc:
+    name: ODBC examples
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      CPM_SOURCE_CACHE: ${{ github.workspace }}/.cache/cpm
+      CCACHE_DIR: ${{ github.workspace }}/.cache/ccache
+      LANG: C.UTF-8
+      ODBC_CONNECTION_STRING: Driver=YDB;Server=localhost:2136;Database=/local;AuthMode=Anonymous;AnsiSQL=1
+    services:
+      ydb:
+        image: ydbplatform/local-ydb:trunk
+        ports: [2136:2136]
+        env: {YDB_USE_IN_MEMORY_PDISKS: true, YDB_TABLE_ENABLE_PREPARED_DDL: true, YDB_READINESS_ENABLE_DDL: 'false'}
+        options: --hostname localhost
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/cache@v4
+        with:
+          path: |
+            .cache/cpm
+            .cache/ccache
+          key: deb-ubuntu-24.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}-${{ github.run_id }}
+          restore-keys: |
+            deb-ubuntu-24.04-${{ hashFiles('cmake/CPM.cmake', 'cmake/dependencies.cmake') }}-
+      - name: Build and install driver
+        env:
+          YDB_DEB_COMPONENTS: ydb-odbc
+        run: |
+          ./scripts/build_cpack_deb_packages.sh build-odbc/packages
+          sudo apt-get install -y ./build-odbc/packages/ydb-odbc_*.deb
+      - name: Install language bindings
+        run: |
+          sudo apt-get install -y --no-install-recommends \
+            php-cli php-odbc ruby ruby-dev lua5.4 liblua5.4-dev qt6-base-dev libqt6sql6-odbc \
+            r-base-dev r-cran-rcpp r-cran-bit64 r-cran-blob r-cran-dbi r-cran-hms r-cran-lifecycle r-cran-rlang \
+            ghc libghc-concurrent-extra-dev libghc-hdbc-dev
+          curl -fsSL --retry 3 https://rubygems.org/downloads/ruby-odbc-0.999993.gem -o "$RUNNER_TEMP/ruby-odbc-0.999993.gem"
+          echo "ebf2997bd1ac6e06c30248c0f055c2ec4e93b6885bf8610968363215525b649c  $RUNNER_TEMP/ruby-odbc-0.999993.gem" | sha256sum -c -
+          sudo gem install --local "$RUNNER_TEMP/ruby-odbc-0.999993.gem" --no-document
+          curl -fsSL --retry 3 https://codeload.github.com/lunarmodules/luasql/tar.gz/491fea76b9d9ee613fcd7de6b8a1c902e3668d11 -o "$RUNNER_TEMP/luasql.tar.gz"
+          echo "f777c75dec5effeb51c8206fc87c88d6a9c6eca59da148777b2815e825f14b27  $RUNNER_TEMP/luasql.tar.gz" | sha256sum -c -
+          mkdir "$RUNNER_TEMP/luasql"
+          tar -xzf "$RUNNER_TEMP/luasql.tar.gz" -C "$RUNNER_TEMP/luasql" --strip-components=1
+          make -C "$RUNNER_TEMP/luasql" odbc LUA_SYS_VER=5.4
+          sudo install -Dm755 "$RUNNER_TEMP/luasql/src/odbc.so" /usr/local/lib/lua/5.4/luasql/odbc.so
+          curl -fsSL --retry 3 https://codeload.github.com/r-dbi/odbc/tar.gz/refs/tags/v1.4.2 -o "$RUNNER_TEMP/r-odbc.tar.gz"
+          echo "333a6b91180304adb56fd947449abf9f3c8c9b1998457c61c8e665630d4d19d4  $RUNNER_TEMP/r-odbc.tar.gz" | sha256sum -c -
+          sudo R CMD INSTALL "$RUNNER_TEMP/r-odbc.tar.gz"
+          curl -fsSL --retry 3 https://codeload.github.com/hdbc/hdbc-odbc/tar.gz/059a78a797f0ed3c0b3097b73f644e2012dc7efc -o "$RUNNER_TEMP/hdbc-odbc.tar.gz"
+          echo "646894391a7a6cd69a871b58e98802d815b9f42370f6020525a4814229f5e453  $RUNNER_TEMP/hdbc-odbc.tar.gz" | sha256sum -c -
+          mkdir "$RUNNER_TEMP/hdbc-odbc"
+          tar -xzf "$RUNNER_TEMP/hdbc-odbc.tar.gz" -C "$RUNNER_TEMP/hdbc-odbc" --strip-components=1
+          cd "$RUNNER_TEMP/hdbc-odbc"
+          /usr/bin/runghc Setup.hs configure --global --prefix=/usr/local --with-compiler=/usr/bin/ghc --with-hc-pkg=/usr/bin/ghc-pkg
+          /usr/bin/runghc Setup.hs build
+          sudo /usr/bin/runghc Setup.hs install
+      - name: Configure examples
+        run: |
+          for attempt in $(seq 1 60); do
+            if docker exec -e YDB_READINESS_ENABLE_DDL=true '${{ job.services.ydb.id }}' bash /health_check --readiness >/dev/null 2>&1; then
+              printf '[YDB]\nDriver=YDB\nServer=localhost:2136\nDatabase=/local\nAuthMode=Anonymous\nAnsiSQL=1\n' | sudo tee /etc/odbc.ini >/dev/null
+              c++ -std=c++17 odbc/examples/qt/main.cpp -o "$RUNNER_TEMP/qt-example" $(pkg-config --cflags --libs Qt6Core Qt6Sql)
+              exit 0
+            fi
+            sleep 2
+          done
+          docker logs '${{ job.services.ydb.id }}'
+          exit 1
+      - name: Run PHP ODBC example
+        run: |
+          for connection in "$ODBC_CONNECTION_STRING" 'Driver=YDB;DSN=YDB'; do
+            ODBC_CONNECTION_STRING="$connection" timeout 120s php odbc/examples/php-odbc/main.php > "$RUNNER_TEMP/actual.txt"
+            diff -u odbc/examples/php-odbc/expected.txt "$RUNNER_TEMP/actual.txt"
+          done
+      - name: Run PHP PDO example
+        run: |
+          for connection in "$ODBC_CONNECTION_STRING" 'Driver=YDB;DSN=YDB'; do
+            ODBC_CONNECTION_STRING="$connection" timeout 120s php odbc/examples/php-pdo/main.php > "$RUNNER_TEMP/actual.txt"
+            diff -u odbc/examples/php-pdo/expected.txt "$RUNNER_TEMP/actual.txt"
+          done
+      - name: Run Qt example
+        run: |
+          for connection in "$ODBC_CONNECTION_STRING" 'Driver=YDB;DSN=YDB'; do
+            ODBC_CONNECTION_STRING="$connection" timeout 120s "$RUNNER_TEMP/qt-example" > "$RUNNER_TEMP/actual.txt"
+            diff -u odbc/examples/qt/expected.txt "$RUNNER_TEMP/actual.txt"
+          done
+      - name: Run Ruby ANSI and UTF-8 example
+        run: |
+          for connection in "$ODBC_CONNECTION_STRING" 'Driver=YDB;DSN=YDB'; do
+            for binding in odbc odbc_utf8; do
+              ODBC_CONNECTION_STRING="$connection" RUBY_ODBC_MODULE="$binding" timeout 120s ruby odbc/examples/ruby/main.rb > "$RUNNER_TEMP/actual.txt"
+              diff -u odbc/examples/ruby/expected.txt "$RUNNER_TEMP/actual.txt"
+            done
+          done
+      - name: Run R example
+        run: |
+          for connection in "$ODBC_CONNECTION_STRING" 'Driver=YDB;DSN=YDB'; do
+            ODBC_CONNECTION_STRING="$connection" timeout 120s Rscript odbc/examples/r/main.R > "$RUNNER_TEMP/actual.txt"
+            diff -u odbc/examples/r/expected.txt "$RUNNER_TEMP/actual.txt"
+          done
+      - name: Run LuaSQL example
+        run: |
+          for connection in "$ODBC_CONNECTION_STRING" 'Driver=YDB;DSN=YDB'; do
+            ODBC_CONNECTION_STRING="$connection" timeout 120s lua5.4 odbc/examples/lua/main.lua > "$RUNNER_TEMP/actual.txt"
+            diff -u odbc/examples/lua/expected.txt "$RUNNER_TEMP/actual.txt"
+          done
+      - name: Run HDBC example
+        run: |
+          for connection in "$ODBC_CONNECTION_STRING" 'Driver=YDB;DSN=YDB'; do
+            ODBC_CONNECTION_STRING="$connection" timeout 120s /usr/bin/runghc odbc/examples/haskell/main.hs > "$RUNNER_TEMP/actual.txt"
+            diff -u odbc/examples/haskell/expected.txt "$RUNNER_TEMP/actual.txt"
+          done

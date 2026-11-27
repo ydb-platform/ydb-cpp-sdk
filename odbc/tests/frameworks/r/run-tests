@@ -1,0 +1,25 @@
+#!/usr/bin/env python3
+import json,sys,shutil
+from pathlib import Path
+sys.path.insert(0,'/harness/bindings')
+from adapter import run
+
+def main(s):
+    library=Path('/work/R-library');library.mkdir()
+    s.command(['R','CMD','INSTALL','--no-multiarch','--no-test-load','-l',library,s.source],'build',env={'MAKEFLAGS':'-j2'},timeout=1200)
+    dependencies=s.dependencies()
+    fixtures=Path('/work/DBItest-fixtures');shutil.copytree(dependencies['DBItest'],fixtures)
+    (fixtures/'R').chmod(0o755)
+    for path in (fixtures/'R').glob('*.R'):path.chmod(0o644)
+    s.command(['patch','--batch','--fuzz=0','-p1','-i',s.adapter/'dbitest.patch'],'test-fixture-patch',cwd=fixtures)
+    s.command(['R','CMD','INSTALL','--no-multiarch','--no-test-load','-l',library,fixtures],'test-dependencies',env={'R_LIBS_USER':str(library)})
+    env={'R_LIBS_USER':str(library),'YDB_R_CONNECTION':('DSN=' if s.mode=='dsn' else '')+s.connection,
+         'NOT_CRAN':'true','CI':'true'}
+    s.command(['Rscript',s.adapter/'report.R','--list'],'inventory',env=env)
+    names=json.loads((s.native/'r-inventory.json').read_text())
+    s.plan(names)
+    s.command(['Rscript',s.adapter/'report.R'],'upstream',env=env,check=False,timeout=1200)
+    for entry in json.loads((s.native/'r-results.json').read_text()):
+        s.add(entry['name'],entry['status'],entry.get('message',''),attachments=[s.native/'upstream.log'],problems=entry.get('problems'))
+
+raise SystemExit(run(main))
