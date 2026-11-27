@@ -94,6 +94,7 @@ jobs:
       matrix:
         sdk:
           - name: cpp-key-value
+            workload_type: table
             preset: release-test-clang
             dockerfile: tests/slo_workloads/Dockerfile
             cache_scope: slo-key-value
@@ -103,6 +104,7 @@ jobs:
             binary: tests/slo_workloads/key_value/slo-key-value
             command: "--read-rps 1000 --write-rps 100"
           - name: cpp-key-value-userver
+            workload_type: table
             preset: release-test-clang
             dockerfile: tests/slo_workloads/Dockerfile.userver
             cache_scope: slo-userver-key-value
@@ -112,6 +114,7 @@ jobs:
             binary: tests/slo_workloads/userver/key_value/slo-userver-key-value
             command: "--read-rps 1000 --write-rps 100"
           - name: cpp-topic
+            workload_type: topic
             preset: release-test-clang
             dockerfile: tests/slo_workloads/Dockerfile
             cache_scope: slo-topic
@@ -122,6 +125,7 @@ jobs:
             command: "--writer-count 20 --reader-count 5 --partition-count 10"
             metrics_yaml_path: sdk-current/tests/slo_workloads/metrics-topic.yaml
           - name: cpp-topic-userver
+            workload_type: topic
             preset: release-test-clang
             dockerfile: tests/slo_workloads/Dockerfile.userver
             cache_scope: slo-userver-topic
@@ -280,7 +284,8 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ matrix.sdk.cache_scope }}-${{ matrix.sdk.preset }}-baseline
 
       - name: Run SLO Tests
-        uses: ydb-platform/ydb-slo-action/init@v2
+        # Pin legacy telemetry fixes until ydb-slo-action#81 is merged.
+        uses: ydb-platform/ydb-slo-action/init@d66bd1e10f893e5f70d542c4430a3cffb6d6f9f8
         timeout-minutes: 30
         env:
           BUILDX_BUILDER: default
@@ -295,5 +300,6 @@ jobs:
           workload_baseline_ref: ${{ steps.baseline.outputs.ref }}
           workload_baseline_image: ydb-app-baseline
           workload_baseline_command: ${{ matrix.sdk.command }}
+          workload_type: ${{ matrix.sdk.workload_type }}
           metrics_yaml_path: ${{ matrix.sdk.metrics_yaml_path }}
           fail_on_workload_error: "true"
